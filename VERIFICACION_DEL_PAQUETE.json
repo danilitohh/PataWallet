@@ -1,0 +1,16 @@
+{
+  "package_verified_on": "2026-09-10",
+  "unique_production_illustrations": 4,
+  "production_image_variants": 12,
+  "ui_reference_images": 3,
+  "json_files_valid": true,
+  "image_sizes_and_hashes_valid": true,
+  "html_relative_links_valid": true,
+  "demo_fixture_arithmetic_valid": true,
+  "application_implemented": false,
+  "application_tests_run": false,
+  "ios_wallet_or_push_tested": false,
+  "all_images_are_opaque_static_raster": true,
+  "catalog_browser_render_tested": false,
+  "catalog_browser_render_note": "El navegador del entorno bloqueó tanto file: como localhost. Se verificaron estructura HTML y existencia de todos los enlaces e imágenes; no se afirma una prueba visual del catálogo."
+}

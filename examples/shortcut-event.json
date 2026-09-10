@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "event_id": "4dcd17e5-2d30-4f07-8ad9-4638c5b9c5bb",
+  "occurred_at": "2026-09-10T12:30:00-05:00",
+  "amount_minor": "8500000",
+  "currency": "COP",
+  "merchant_name": "Mercado de ejemplo",
+  "card_alias": "Tarjeta principal",
+  "source": "ios_shortcuts",
+  "mode": "capture"
+}

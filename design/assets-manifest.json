@@ -1,0 +1,221 @@
+{
+  "version": 1,
+  "prepared_on": "2026-09-10",
+  "status": "Paquete de entrega a desarrollo; no es una aplicación construida.",
+  "image_status": "Ilustraciones raster estáticas, aplanadas y opacas. No hay capas, rigs, vídeos ni archivos Rive/Lottie.",
+  "illustrations": [
+    {
+      "id": "welcome-family",
+      "title": "Bienvenida · nuestra manada",
+      "uses": [
+        "Bienvenida",
+        "Presentación del proyecto"
+      ],
+      "alt": "Un perro y un grupo de gatos descansan juntos junto a una libreta y una alcancía.",
+      "crop": "Preferir contain. En la bienvenida, usar composición vertical; no cortar las caras del grupo.",
+      "source_filename": "retrato_acogedor_de_perro_y_gatos.png",
+      "original_size": [
+        1122,
+        1402
+      ],
+      "format": "webp",
+      "has_alpha": false,
+      "layered": false,
+      "animated": false,
+      "optional_original_archive_path": "design/originals/welcome-family.png",
+      "variants": [
+        {
+          "file": "public/assets/illustrations/welcome-family-480.webp",
+          "public_url": "/assets/illustrations/welcome-family-480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 60942,
+          "sha256": "acb20b29f60099d395ec6502942a497e5f6959f46dcae104adbaf07c53bf2250"
+        },
+        {
+          "file": "public/assets/illustrations/welcome-family-800.webp",
+          "public_url": "/assets/illustrations/welcome-family-800.webp",
+          "width": 800,
+          "height": 1000,
+          "bytes": 120718,
+          "sha256": "8431ee7131e76bcf126c559e84c1daf8d480823f7eff29db0495a6d0c8795503"
+        },
+        {
+          "file": "public/assets/illustrations/welcome-family-1122.webp",
+          "public_url": "/assets/illustrations/welcome-family-1122.webp",
+          "width": 1122,
+          "height": 1402,
+          "bytes": 184200,
+          "sha256": "f44a19c695c19767747d81182d2189ea0c197dbe13b1174155045f0a09ce8c4f"
+        }
+      ]
+    },
+    {
+      "id": "budget-calm",
+      "title": "Presupuesto · organizar con calma",
+      "uses": [
+        "Introducción a Plan",
+        "Estado inicial de presupuesto"
+      ],
+      "alt": "Un gato revisa una libreta de presupuesto mientras otro descansa al fondo.",
+      "crop": "Preferir contain. No usar el gráfico dibujado en la libreta como un gráfico de datos real.",
+      "source_filename": "gatos_y_presupuesto_en_calma.png",
+      "original_size": [
+        1122,
+        1402
+      ],
+      "format": "webp",
+      "has_alpha": false,
+      "layered": false,
+      "animated": false,
+      "optional_original_archive_path": "design/originals/budget-calm.png",
+      "variants": [
+        {
+          "file": "public/assets/illustrations/budget-calm-480.webp",
+          "public_url": "/assets/illustrations/budget-calm-480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 54324,
+          "sha256": "3e20f3786f9e13791aa3bcb882a76b5e61531b616b0f3501d82f38037e26b9cb"
+        },
+        {
+          "file": "public/assets/illustrations/budget-calm-800.webp",
+          "public_url": "/assets/illustrations/budget-calm-800.webp",
+          "width": 800,
+          "height": 1000,
+          "bytes": 103592,
+          "sha256": "6dfdbfcc430f3779579b00619836a554dbfb62e40ebf7916d97b1682803134f5"
+        },
+        {
+          "file": "public/assets/illustrations/budget-calm-1122.webp",
+          "public_url": "/assets/illustrations/budget-calm-1122.webp",
+          "width": 1122,
+          "height": 1402,
+          "bytes": 154438,
+          "sha256": "2c6ed72ba589c096fa85d2e9e5c23e7a113820aaf2634b8c71cb8cc50a4a4a94"
+        }
+      ]
+    },
+    {
+      "id": "empty-state-friends",
+      "title": "Primer movimiento · empezar juntos",
+      "uses": [
+        "Actividad vacía",
+        "Cuentas sin movimientos"
+      ],
+      "alt": "Un gato se asoma desde una caja acompañado de un perro y objetos de ahorro.",
+      "crop": "Preferir contain. Si se hace un recorte editorial, comprobar que gato y perro sigan visibles.",
+      "source_filename": "gato_y_perro_entre_planes_y_ahorros.png",
+      "original_size": [
+        1122,
+        1402
+      ],
+      "format": "webp",
+      "has_alpha": false,
+      "layered": false,
+      "animated": false,
+      "optional_original_archive_path": "design/originals/empty-state-friends.png",
+      "variants": [
+        {
+          "file": "public/assets/illustrations/empty-state-friends-480.webp",
+          "public_url": "/assets/illustrations/empty-state-friends-480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 50168,
+          "sha256": "d5fd96c5b421a0edf138a5887a1b7f044f6a7a251b5f0854865e5185317aeebf"
+        },
+        {
+          "file": "public/assets/illustrations/empty-state-friends-800.webp",
+          "public_url": "/assets/illustrations/empty-state-friends-800.webp",
+          "width": 800,
+          "height": 1000,
+          "bytes": 103476,
+          "sha256": "71180c52d19b9d0586767e560561a2dad45e3cb936c9be95be3b6ab5028d4109"
+        },
+        {
+          "file": "public/assets/illustrations/empty-state-friends-1122.webp",
+          "public_url": "/assets/illustrations/empty-state-friends-1122.webp",
+          "width": 1122,
+          "height": 1402,
+          "bytes": 158844,
+          "sha256": "7539e715f7f2b029b4ef9ebc7f58ab2e69782fba56fe0fac7465dcaeecf14233"
+        }
+      ]
+    },
+    {
+      "id": "success-friends",
+      "title": "Celebración · meta cumplida",
+      "uses": [
+        "Meta completada",
+        "Confirmación especial no bloqueante"
+      ],
+      "alt": "Un gato y un perro celebran junto a una alcancía y un recibo con una marca de confirmación.",
+      "crop": "Preferir contain. La marca de éxito no debe mostrarse durante un estado pendiente o fallido.",
+      "source_filename": "gato_y_perro_celebran_el_éxito_financiero.png",
+      "original_size": [
+        1122,
+        1402
+      ],
+      "format": "webp",
+      "has_alpha": false,
+      "layered": false,
+      "animated": false,
+      "optional_original_archive_path": "design/originals/success-friends.png",
+      "variants": [
+        {
+          "file": "public/assets/illustrations/success-friends-480.webp",
+          "public_url": "/assets/illustrations/success-friends-480.webp",
+          "width": 480,
+          "height": 600,
+          "bytes": 29802,
+          "sha256": "eef0d658f202fc4feec9dd06e5191bd6090731df95813c8b19d534ec0b414a79"
+        },
+        {
+          "file": "public/assets/illustrations/success-friends-800.webp",
+          "public_url": "/assets/illustrations/success-friends-800.webp",
+          "width": 800,
+          "height": 1000,
+          "bytes": 59598,
+          "sha256": "bf5bc5e4a9e21a7ef5aa59e1f9f89459f40e1d3c474a41ec741be62f97453910"
+        },
+        {
+          "file": "public/assets/illustrations/success-friends-1122.webp",
+          "public_url": "/assets/illustrations/success-friends-1122.webp",
+          "width": 1122,
+          "height": 1402,
+          "bytes": 93842,
+          "sha256": "e90952f19f47021fd819620bba7184f78ff7576df0240ce73e26e1070482e1eb"
+        }
+      ]
+    }
+  ],
+  "references": [
+    {
+      "id": "light-patawallet",
+      "file": "design/references/light-patawallet.webp",
+      "source_filename": "patawallet_finanzas_con_compañía_peludita.png",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 345838,
+      "note": "Referencia principal de composición clara. Corregir la pantalla accidental de caminata, cifras y promesas de integración/seguridad; no copiar esas funciones."
+    },
+    {
+      "id": "night-pets",
+      "file": "design/references/night-pets.webp",
+      "source_filename": "modo_noche_con_mascotas.png",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 325146,
+      "note": "Referencia de modo noche: azul tinta y lavanda. No copiar conexiones bancarias directas ni estados ficticios de sincronización."
+    },
+    {
+      "id": "botanical-pets",
+      "file": "design/references/botanical-pets.webp",
+      "source_filename": "patitas_finanzas_con_huellitas.png",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 351362,
+      "note": "Referencia secundaria de mascotas y calidez. No impone el verde como color principal: el usuario rechazó una propuesta anterior por su paleta."
+    }
+  ]
+}

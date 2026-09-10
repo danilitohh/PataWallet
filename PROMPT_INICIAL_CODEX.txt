@@ -1,0 +1,27 @@
+Quiero que construyas mi web de finanzas personales siguiendo el paquete que está en este proyecto. El nombre provisional es PataWallet. Soy Danilo; quiero una experiencia sencilla, muy bonita, elegante y un poco divertida, con gatos y un perro ilustrados, pensada primero para mi iPhone como SPA/PWA, sin publicarla en la App Store.
+
+ANTES DE PROGRAMAR
+Lee AGENTS.md, README.md y los documentos de docs/. Abre las imágenes de design/references/ y revisa design/assets-manifest.json. No asumas que tienes acceso al chat donde se preparó este paquete. Si ya hay código, inspecciónalo y trabaja sobre él sin borrar archivos.
+
+OBJETIVO DE ESTA PRIMERA ENTREGA
+Implementa la Fase 1: una aplicación local navegable y funcional con datos de demostración claramente identificados. No quiero solo un plan, una landing, imágenes pegadas de pantallas ni botones decorativos. Presenta un plan breve y empieza a crear la implementación sin volver a preguntarme decisiones que ya están en los documentos.
+
+DISEÑO
+Usa la referencia clara de PataWallet como base de composición y la de noche para el tema oscuro. Mantén números protagonistas, espacios amplios, controles cómodos y mascotas como detalles de identidad. No copies los errores de las capturas. Usa las cuatro ilustraciones WebP incluidas. Son imágenes opacas y aplanadas: no prometas parpadeos o patas animadas a partir de ellas. Implementa microinteracciones, entradas suaves, barras de progreso y una celebración breve, con versión estática y respeto a Reducir movimiento.
+
+IMPLEMENTACIÓN PROPUESTA
+React + Vite + JavaScript/JSX, CSS con tokens, React Router, Motion, Lucide y Dexie para persistencia local. Verifica versiones compatibles y guarda el lockfile. No agregues dependencias premium. Organiza componentes, lógica financiera y acceso a datos por separado.
+
+PANTALLAS Y FUNCIONES
+Bienvenida con entrada a demo, Inicio, Actividad, panel Nuevo movimiento, detalle editable, Plan con presupuesto y metas, Cuentas, Ajustes, Notificaciones y asistente de Automatización. Navegación inferior: Inicio · Actividad · botón + · Plan · Cuentas. Formulario de gasto/ingreso/transferencia con monto, categoría, cuenta, fecha y nota opcional. El historial permite buscar, filtrar, editar, eliminar y deshacer. Presupuestos y metas deben funcionar; cada cambio debe actualizar los totales y persistir al recargar.
+
+NÚMEROS CORRECTOS
+Diferencia activos y deuda de tarjetas. No cuentes el saldo inicial como ingreso, una transferencia como gasto ni el pago de una tarjeta como una segunda compra. Reservar dinero para una meta no crea saldo. Usa los ejemplos y resultados esperados de examples/demo-fixtures.json y los tests definidos en docs/05_CRITERIOS_Y_PRUEBAS.md. La moneda inicial es COP y el idioma es es-CO.
+
+INTEGRACIONES HONESTAS
+Diseña desde ahora los flujos de Web Push y de un atajo que la app proporciona y vincula, pero en esta fase muestra “Pendiente de configurar” cuando no exista backend o enlace real. La PWA no lee directamente Wallet. No inventes conexiones bancarias, permisos de Face ID, enlaces de iCloud ni pruebas exitosas. La automatización personal de transacción se configura por el usuario dentro de Atajos, con una guía. Preparar ese flujo no significa que esté probado en un iPhone.
+
+ENTREGA Y PRUEBAS
+Genera archivos reales, instrucciones claras de ejecución y scripts de build, lint y tests. Ejecuta las verificaciones disponibles; revisa capturas a 390×844, 375×812 y 1440×900. Comprueba teclado/formularios, tema oscuro, imágenes, estados vacíos, errores, persistencia, accesibilidad y montos ocultos. No marques como probado nada que no ejecutaste. Actualiza docs/IMPLEMENTATION_STATUS.md con completado, pendiente y bloqueado.
+
+Al terminar la Fase 1, presenta cómo abrir la app, las capturas disponibles y lo pendiente. Detente para revisar el diseño antes de activar servicios externos. No despliegues ni crees recursos de pago sin mi aprobación.
