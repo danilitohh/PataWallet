@@ -33,4 +33,26 @@ describe('reglas financieras de PataWallet', () => {
     expect(parseLocalizedAmount('85.000,50')).toBe(8500050)
     expect(() => parseLocalizedAmount('85.00.0')).toThrow()
   })
+
+  it('revierte todos los efectos al anular y recalcula una edición sin duplicar', () => {
+    const original = transactions.find((item) => item.type === 'transfer')
+    const withoutTransfer = calculateSummary(accounts, transactions.map((item) => item.id === original.id ? { ...item, status: 'void' } : item), '2026-09')
+    expect(withoutTransfer.assets).toBe(Number(fixtures.expected.total_assets_minor))
+    expect(withoutTransfer.expenses).toBe(Number(fixtures.expected.month_expense_minor))
+    const edited = calculateSummary(accounts, transactions.map((item) => item.id === original.id ? { ...item, amount_minor: 10000000 } : item), '2026-09')
+    expect(edited.assets).toBe(Number(fixtures.expected.total_assets_minor))
+  })
+
+  it('trata un reembolso como reducción del gasto, no como ingreso', () => {
+    const refund = { id: 'refund', type: 'refund', amount_minor: 500000, currency: 'COP', occurred_at: '2026-09-09T12:00:00-05:00', from_account_id: null, to_account_id: accounts[0].id, status: 'recorded' }
+    const summary = calculateSummary(accounts, [...transactions, refund], '2026-09')
+    expect(summary.expenses).toBe(Number(fixtures.expected.month_expense_minor) - 500000)
+    expect(summary.income).toBe(Number(fixtures.expected.month_income_minor))
+  })
+
+  it('calcula el mes según America/Bogota cerca de medianoche UTC', () => {
+    const late = { id: 'late', type: 'expense', amount_minor: 100, currency: 'COP', occurred_at: '2026-10-01T02:00:00Z', from_account_id: accounts[0].id, to_account_id: null, status: 'recorded' }
+    expect(calculateSummary(accounts, [late], '2026-09').expenses).toBe(100)
+    expect(calculateSummary(accounts, [late], '2026-10').expenses).toBe(0)
+  })
 })

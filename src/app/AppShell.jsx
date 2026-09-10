@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Home, Menu, PawPrint, PiggyBank, Plus, Settings, WalletCards } from 'lucide-react'
+import { AlertTriangle, Check, CloudUpload, HardDrive, Home, LoaderCircle, Menu, PawPrint, PiggyBank, Plus, Settings, WalletCards } from 'lucide-react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useApp } from './AppContext.jsx'
 
@@ -11,7 +11,7 @@ const navigation = [
 ]
 
 export function AppShell({ children }) {
-  const { setSheet, isDemo, user } = useApp()
+  const { setSheet, isDemo, user, syncState, actions } = useApp()
   const location = useLocation()
   const mainRef = useRef(null)
 
@@ -27,6 +27,7 @@ export function AppShell({ children }) {
         <button className="side-nav__add" onClick={() => setSheet('new')}><Plus /> Nuevo movimiento</button>
         <NavLink to="/ajustes"><Settings /> <span>Ajustes</span></NavLink>
         <p className="side-nav__demo">{isDemo ? 'Demo local' : user?.email}</p>
+        {!isDemo && <SyncStatus state={syncState} retry={actions.retrySync} />}
       </aside>
       <div className="mobile-top"><span className="wordmark wordmark--small"><PawPrint /> PataWallet</span><Link to="/ajustes" aria-label="Abrir ajustes"><Settings /></Link></div>
       <main ref={mainRef} tabIndex="-1" className="page" aria-label="Contenido principal">{children}</main>
@@ -36,8 +37,15 @@ export function AppShell({ children }) {
         {navigation.slice(2).map(([to, Icon, label]) => <NavLink key={to} to={to}><Icon /><span>{label}</span></NavLink>)}
       </nav>
       <OnlineStatus />
+      {!isDemo && <div className="mobile-sync"><SyncStatus state={syncState} retry={actions.retrySync} /></div>}
     </div>
   )
+}
+
+function SyncStatus({ state, retry }) {
+  if (!state) return null
+  const Icon = state.kind === 'synced' ? Check : state.kind === 'syncing' ? LoaderCircle : state.kind === 'conflict' ? AlertTriangle : state.kind === 'local' ? HardDrive : CloudUpload
+  return <button type="button" className={`sync-status sync-status--${state.kind}`} onClick={() => state.kind !== 'synced' && state.kind !== 'syncing' && retry?.()} title={state.lastSyncedAt ? `Última confirmación: ${new Date(state.lastSyncedAt).toLocaleString('es-CO')}` : undefined}><Icon aria-hidden="true" /><span>{state.label}</span></button>
 }
 
 function OnlineStatus() {

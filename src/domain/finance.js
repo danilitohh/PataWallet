@@ -37,12 +37,20 @@ export function calculateBalances(accounts, transactions) {
   return balances
 }
 
-export function calculateSummary(accounts, transactions, month) {
+export function monthInTimeZone(isoDate, timeZone = 'America/Bogota') {
+  const parts = new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit' }).formatToParts(new Date(isoDate))
+  const year = parts.find((part) => part.type === 'year')?.value
+  const month = parts.find((part) => part.type === 'month')?.value
+  if (!year || !month) throw new Error('No pudimos calcular el mes del movimiento.')
+  return `${year}-${month}`
+}
+
+export function calculateSummary(accounts, transactions, month, timeZone = 'America/Bogota') {
   const balances = calculateBalances(accounts, transactions)
   const active = accounts.filter((account) => !account.archived)
   const assets = active.filter((account) => account.kind === 'asset').reduce((sum, account) => safeAdd(sum, balances[account.id] || 0), 0)
   const debt = active.filter((account) => account.kind === 'liability').reduce((sum, account) => safeAdd(sum, balances[account.id] || 0), 0)
-  const inMonth = transactions.filter((item) => item.status !== 'void' && item.occurred_at.slice(0, 7) === month)
+  const inMonth = transactions.filter((item) => item.status !== 'void' && monthInTimeZone(item.occurred_at, timeZone) === month)
   const income = inMonth.filter((item) => item.type === 'income').reduce((sum, item) => safeAdd(sum, Number(item.amount_minor)), 0)
   const expenses = inMonth.reduce((sum, item) => {
     if (item.type === 'expense') return safeAdd(sum, Number(item.amount_minor))

@@ -6,7 +6,7 @@ Este repositorio reúne las imágenes disponibles, la dirección visual y el enc
 ## Abrir la aplicación
 Requiere Node.js 22.12 o posterior. Ejecuta `npm install`, después `npm run dev` y abre `http://127.0.0.1:4173`.
 
-Con las variables de Supabase configuradas, la app exige registro o inicio de sesión y guarda cada espacio en PostgreSQL con RLS. Sin credenciales —o con `VITE_AUTH_DISABLED=true` para las pruebas— conserva la demo IndexedDB separada. Antes de usar cuentas reales, aplica la migración y sigue [docs/AUTH_SETUP.md](docs/AUTH_SETUP.md).
+Con las variables de Supabase configuradas, la app exige registro o inicio de sesión y guarda cada espacio en PostgreSQL con RLS. También mantiene una cola IndexedDB separada por usuario, con reintentos idempotentes y conflictos visibles. Sin credenciales —o con `VITE_AUTH_DISABLED=true` para las pruebas— conserva la demo IndexedDB separada. Antes de usar cuentas reales, aplica las migraciones en orden y sigue [docs/AUTH_SETUP.md](docs/AUTH_SETUP.md) y [docs/DATA_SECURITY_AND_RECOVERY.md](docs/DATA_SECURITY_AND_RECOVERY.md).
 
 ## Organización del código
 
