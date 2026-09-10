@@ -3,8 +3,10 @@
 
 Este repositorio reúne las imágenes disponibles, la dirección visual y el encargo de desarrollo de una web de finanzas personales para iPhone. **La Fase 1 ya contiene una SPA local ejecutable; el atajo y los servicios externos siguen sin instalar.**
 
-## Abrir la Fase 1
-Requiere Node.js 22.12 o posterior. Ejecuta `npm install`, después `npm run dev` y abre `http://127.0.0.1:4173`. Los datos de ejemplo se guardan en una base IndexedDB separada, solo en ese navegador.
+## Abrir la aplicación
+Requiere Node.js 22.12 o posterior. Ejecuta `npm install`, después `npm run dev` y abre `http://127.0.0.1:4173`.
+
+Con las variables de Supabase configuradas, la app exige registro o inicio de sesión y guarda cada espacio en PostgreSQL con RLS. Sin credenciales —o con `VITE_AUTH_DISABLED=true` para las pruebas— conserva la demo IndexedDB separada. Antes de usar cuentas reales, aplica la migración y sigue [docs/AUTH_SETUP.md](docs/AUTH_SETUP.md).
 
 ## Organización del código
 
@@ -15,6 +17,7 @@ src/
 ├── app/                  # Arranque, contexto, shell y rutas
 ├── features/
 │   ├── accounts/         # Cuentas y sus formularios
+│   ├── auth/             # Registro, sesión, Google y recuperación
 │   ├── dashboard/        # Inicio y resumen financiero
 │   ├── integrations/     # Notificaciones y Automatización
 │   ├── onboarding/       # Bienvenida a la demo
@@ -22,10 +25,12 @@ src/
 │   ├── settings/         # Preferencias locales
 │   └── transactions/     # Actividad, lista y editor de movimientos
 ├── shared/               # Componentes, hooks y utilidades reutilizables
-├── data/                 # Persistencia local y datos demo
+├── data/                 # Adaptadores de persistencia local y remota
+├── lib/supabase/         # Cliente público de Supabase
 ├── domain/               # Reglas financieras y dinero entero
 ├── components/           # Recursos visuales transversales
 └── styles/               # Tokens y estilos globales
+supabase/migrations/      # Esquema PostgreSQL y políticas RLS
 ```
 
 Cada `feature` puede contener subcarpetas `components/` y `model/`. Las reglas monetarias permanecen fuera de React en `domain/`, y las pantallas no acceden a detalles de inicialización de la aplicación.

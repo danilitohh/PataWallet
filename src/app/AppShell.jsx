@@ -11,7 +11,7 @@ const navigation = [
 ]
 
 export function AppShell({ children }) {
-  const { setSheet } = useApp()
+  const { setSheet, isDemo, user } = useApp()
   const location = useLocation()
   const mainRef = useRef(null)
 
@@ -26,7 +26,7 @@ export function AppShell({ children }) {
         <nav>{navigation.map(([to, Icon, label]) => <NavLink key={to} to={to} end={to === '/'}><Icon /><span>{label}</span></NavLink>)}</nav>
         <button className="side-nav__add" onClick={() => setSheet('new')}><Plus /> Nuevo movimiento</button>
         <NavLink to="/ajustes"><Settings /> <span>Ajustes</span></NavLink>
-        <p className="side-nav__demo">Demo local</p>
+        <p className="side-nav__demo">{isDemo ? 'Demo local' : user?.email}</p>
       </aside>
       <div className="mobile-top"><span className="wordmark wordmark--small"><PawPrint /> PataWallet</span><Link to="/ajustes" aria-label="Abrir ajustes"><Settings /></Link></div>
       <main ref={mainRef} tabIndex="-1" className="page" aria-label="Contenido principal">{children}</main>

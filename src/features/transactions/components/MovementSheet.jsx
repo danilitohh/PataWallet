@@ -3,7 +3,7 @@ import { Trash2, X } from 'lucide-react'
 import { motion } from 'motion/react'
 import { z } from 'zod'
 import { useApp } from '../../../app/AppContext.jsx'
-import { db, makeId } from '../../../data/db.js'
+import { makeId } from '../../../shared/lib/id.js'
 import { parseLocalizedAmount, toInputAmount } from '../../../domain/money.js'
 import { Field } from '../../../shared/components/Modal.jsx'
 import { useModalBehavior } from '../../../shared/hooks/useModalBehavior.js'
@@ -19,7 +19,7 @@ const movementSchema = z.object({
 })
 
 export function MovementSheet({ transaction, onClose }) {
-  const { accounts, categories, notify } = useApp()
+  const { accounts, categories, notify, actions } = useApp()
   const editing = Boolean(transaction)
   const initialType = transaction?.type === 'card_payment' ? 'transfer' : transaction?.type || 'expense'
   const [type, setType] = useState(initialType)
@@ -39,9 +39,9 @@ export function MovementSheet({ transaction, onClose }) {
   const deleteTransaction = async () => {
     if (!confirm('¿Eliminar este movimiento? Podrás deshacerlo durante unos segundos.')) return
     const backup = { ...transaction }
-    await db.transactions.delete(transaction.id)
+    await actions.deleteTransaction(transaction.id)
     notify('Movimiento eliminado', async () => {
-      await db.transactions.put(backup)
+      await actions.restoreTransaction(backup)
       notify('Movimiento restaurado')
     })
     onClose()
@@ -72,9 +72,9 @@ export function MovementSheet({ transaction, onClose }) {
         status: 'recorded',
         updated_at: new Date().toISOString(),
       }
-      await db.transactions.put(record)
+      await actions.saveTransaction(record)
       notify(editing ? 'Movimiento actualizado' : 'Movimiento guardado', !editing ? async () => {
-        await db.transactions.delete(record.id)
+        await actions.deleteTransaction(record.id)
         notify('Movimiento deshecho')
       } : null)
       onClose()

@@ -3,7 +3,6 @@ import { AnimatePresence } from 'motion/react'
 import { Goal, Pencil, Plus, Trash2 } from 'lucide-react'
 import { useApp } from '../../app/AppContext.jsx'
 import { PetScene } from '../../components/PetScene.jsx'
-import { db } from '../../data/db.js'
 import { calculateSummary, goalProgress } from '../../domain/finance.js'
 import { formatMinor } from '../../domain/money.js'
 import { PageHeader } from '../../shared/components/PageHeader.jsx'
@@ -14,7 +13,7 @@ import { AllocationDialog, BudgetDialog, GoalDialog } from './components/Plannin
 import { BudgetRing } from './components/BudgetRing.jsx'
 
 export function PlanPage() {
-  const { accounts, transactions, budgets, goals, allocations, settings, notify } = useApp()
+  const { accounts, transactions, budgets, goals, allocations, settings, notify, actions } = useApp()
   const month = currentMonth()
   const summary = calculateSummary(accounts, transactions, month)
   const budget = budgets.find((item) => item.month === month) || budgets[0]
@@ -37,7 +36,7 @@ export function PlanPage() {
         <div className="section-heading"><div><h2>Metas</h2><p>Las reservas son organización interna.</p></div><button className="button button--quiet" onClick={() => setGoalOpen(true)}><Plus /> Nueva meta</button></div>
         <div className="goals-grid">{goals.map((goal) => {
           const progress = goalProgress(goal, allocations)
-          return <article className="goal-card" key={goal.id}><div className="goal-card__top"><span className="goal-icon"><Goal /></span><button className="icon-button icon-button--small" aria-label={`Eliminar meta ${goal.name}`} onClick={async () => { const related = allocations.filter((item) => item.goal_id === goal.id); await db.transaction('rw', db.goals, db.allocations, async () => { await db.goals.delete(goal.id); await db.allocations.bulkDelete(related.map((item) => item.id)) }); notify('Meta eliminada') }}><Trash2 /></button></div><h3>{goal.name}</h3><p>{formatMinor(progress.reserved, 'COP', settings.hiddenAmounts)} de {formatMinor(goal.target_minor, 'COP', settings.hiddenAmounts)}</p><Progress value={progress.percent} label={`${Math.round(progress.percent)}% completado`} /><button className="button button--secondary" onClick={() => setAllocationGoal(goal)}>Reservar dinero</button></article>
+          return <article className="goal-card" key={goal.id}><div className="goal-card__top"><span className="goal-icon"><Goal /></span><button className="icon-button icon-button--small" aria-label={`Eliminar meta ${goal.name}`} onClick={async () => { const related = allocations.filter((item) => item.goal_id === goal.id); await actions.deleteGoal(goal.id, related.map((item) => item.id)); notify('Meta eliminada') }}><Trash2 /></button></div><h3>{goal.name}</h3><p>{formatMinor(progress.reserved, 'COP', settings.hiddenAmounts)} de {formatMinor(goal.target_minor, 'COP', settings.hiddenAmounts)}</p><Progress value={progress.percent} label={`${Math.round(progress.percent)}% completado`} /><button className="button button--secondary" onClick={() => setAllocationGoal(goal)}>Reservar dinero</button></article>
         })}</div>
       </section>
       <AnimatePresence>{budgetOpen && <BudgetDialog budget={budget} month={month} close={() => setBudgetOpen(false)} />}</AnimatePresence>

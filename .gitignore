@@ -4,3 +4,6 @@ dist/
 output/playwright/results/
 playwright-report/
 graphify-out/
+.env.local
+.env.*.local
+client_secret*.json

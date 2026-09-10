@@ -1,8 +1,9 @@
 import { PawPrint } from 'lucide-react'
 import { PetScene } from '../../components/PetScene.jsx'
-import { db } from '../../data/db.js'
+import { useApp } from '../../app/AppContext.jsx'
 
 export function WelcomePage() {
+  const { actions } = useApp()
   return (
     <main className="welcome">
       <div className="wordmark welcome__brand"><PawPrint aria-hidden="true" /> PataWallet</div>
@@ -13,7 +14,7 @@ export function WelcomePage() {
       </section>
       <div className="welcome__art"><PetScene name="welcome" hero /></div>
       <section className="welcome__actions">
-        <button className="button button--primary button--wide" onClick={() => db.settings.put({ key: 'entered', value: true })}>Probar con datos de ejemplo</button>
+        <button className="button button--primary button--wide" onClick={() => actions.setSetting('entered', true)}>Probar con datos de ejemplo</button>
         <p className="demo-note">Datos ficticios. Se guardan solo en este navegador.</p>
       </section>
     </main>

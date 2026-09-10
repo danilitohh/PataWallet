@@ -1,17 +1,17 @@
 import { useState } from 'react'
 import { useApp } from '../../../app/AppContext.jsx'
-import { db, makeId } from '../../../data/db.js'
+import { makeId } from '../../../shared/lib/id.js'
 import { calculateSummary } from '../../../domain/finance.js'
 import { parseLocalizedAmount, toInputAmount } from '../../../domain/money.js'
 import { Field, SimpleDialog } from '../../../shared/components/Modal.jsx'
 import { currentMonth, today } from '../../../shared/lib/date.js'
 
 export function BudgetDialog({ budget, month, close }) {
-  const { notify } = useApp()
+  const { notify, actions } = useApp()
   return (
     <SimpleDialog title="Editar presupuesto" close={close}>
       <MoneyAction initial={budget?.limit_minor} label="Límite mensual" button="Guardar límite" onSubmit={async (amount) => {
-        await db.budgets.put({ month, limit_minor: amount })
+        await actions.saveBudget({ month, limit_minor: amount })
         close()
         notify('Presupuesto actualizado')
       }} />
@@ -26,7 +26,7 @@ function MoneyAction({ initial = 0, label, button, onSubmit }) {
 }
 
 export function GoalDialog({ close }) {
-  const { notify } = useApp()
+  const { notify, actions } = useApp()
   const [name, setName] = useState('')
   const [amount, setAmount] = useState('')
   const [error, setError] = useState('')
@@ -37,7 +37,7 @@ export function GoalDialog({ close }) {
         event.preventDefault()
         try {
           if (name.trim().length < 2) throw new Error('Escribe un nombre para la meta.')
-          await db.goals.add({ id: makeId('goal'), name: name.trim(), target_minor: parseLocalizedAmount(amount), currency: 'COP', completed_seen: false })
+          await actions.createGoal({ id: makeId('goal'), name: name.trim(), target_minor: parseLocalizedAmount(amount), currency: 'COP', completed_seen: false })
           notify('Meta creada')
           close()
         } catch (issue) {
@@ -57,7 +57,7 @@ export function AllocationDialog({ goal, close, onComplete }) {
 }
 
 function AllocationForm({ goal, close, onComplete }) {
-  const { accounts, allocations, notify } = useApp()
+  const { accounts, transactions, allocations, notify, actions } = useApp()
   const [account, setAccount] = useState(accounts.find((item) => item.kind === 'asset')?.id || '')
   const [amount, setAmount] = useState('')
   const [error, setError] = useState('')
@@ -68,13 +68,10 @@ function AllocationForm({ goal, close, onComplete }) {
       const minor = parseLocalizedAmount(amount)
       const allocatedForAccount = allocations.filter((item) => item.account_id === account).reduce((sum, item) => sum + Number(item.amount_minor), 0)
       const reservedForGoal = allocations.filter((item) => item.goal_id === goal.id).reduce((sum, item) => sum + Number(item.amount_minor), 0)
-      const transactions = await db.transactions.toArray()
       const summary = calculateSummary(accounts, transactions, currentMonth())
       if (allocatedForAccount + minor > (summary.balances[account] || 0)) throw new Error('Esta reserva no está cubierta por el saldo registrado de la cuenta.')
-      await db.transaction('rw', db.allocations, db.goals, async () => {
-        await db.allocations.add({ id: makeId('allocation'), goal_id: goal.id, account_id: account, amount_minor: minor, allocated_on: today() })
-        if (!goal.completed_seen && reservedForGoal + minor >= Number(goal.target_minor)) await db.goals.update(goal.id, { completed_seen: true })
-      })
+      const completedGoalId = !goal.completed_seen && reservedForGoal + minor >= Number(goal.target_minor) ? goal.id : null
+      await actions.addAllocation({ id: makeId('allocation'), goal_id: goal.id, account_id: account, amount_minor: minor, allocated_on: today() }, completedGoalId)
       notify('Reserva actualizada')
       close()
       if (!goal.completed_seen && reservedForGoal + minor >= Number(goal.target_minor)) onComplete()

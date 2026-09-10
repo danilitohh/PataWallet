@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { useApp } from '../../../app/AppContext.jsx'
-import { db, makeId } from '../../../data/db.js'
+import { makeId } from '../../../shared/lib/id.js'
 import { parseLocalizedAmount } from '../../../domain/money.js'
 import { Field, SimpleDialog } from '../../../shared/components/Modal.jsx'
 import { today } from '../../../shared/lib/date.js'
 
 export function AccountEditDialog({ account, close }) {
-  const { notify } = useApp()
+  const { notify, actions } = useApp()
   const [name, setName] = useState(account.name)
   const [error, setError] = useState('')
 
@@ -18,7 +18,7 @@ export function AccountEditDialog({ account, close }) {
           setError('Escribe un nombre de al menos dos caracteres.')
           return
         }
-        await db.accounts.update(account.id, { name: name.trim() })
+        await actions.updateAccount(account.id, { name: name.trim() })
         notify('Cuenta actualizada')
         close()
       }}>
@@ -31,7 +31,7 @@ export function AccountEditDialog({ account, close }) {
 }
 
 export function AccountDialog({ close }) {
-  const { notify } = useApp()
+  const { notify, actions } = useApp()
   const [name, setName] = useState('')
   const [kind, setKind] = useState('asset')
   const [amount, setAmount] = useState('')
@@ -43,10 +43,9 @@ export function AccountDialog({ close }) {
       if (name.trim().length < 2) throw new Error('Escribe un nombre para la cuenta.')
       const minor = amount.trim() ? parseLocalizedAmount(amount) : 0
       const id = makeId('account')
-      await db.transaction('rw', db.accounts, db.transactions, async () => {
-        await db.accounts.add({ id, name: name.trim(), kind, subtype: kind === 'liability' ? 'credit_card' : 'bank', currency: 'COP', archived: false })
-        if (minor) await db.transactions.add({ id: makeId('transaction'), type: 'opening', amount_minor: minor, currency: 'COP', occurred_at: `${today()}T12:00:00-05:00`, from_account_id: null, to_account_id: id, category_id: null, merchant_name: null, note: 'Saldo inicial', source: 'manual', status: 'recorded' })
-      })
+      const accountRecord = { id, name: name.trim(), kind, subtype: kind === 'liability' ? 'credit_card' : 'bank', currency: 'COP', archived: false }
+      const openingRecord = minor ? { id: makeId('transaction'), type: 'opening', amount_minor: minor, currency: 'COP', occurred_at: `${today()}T12:00:00-05:00`, from_account_id: null, to_account_id: id, category_id: null, merchant_name: null, note: 'Saldo inicial', source: 'manual', status: 'recorded' } : null
+      await actions.createAccount(accountRecord, openingRecord)
       notify('Cuenta creada')
       close()
     } catch (issue) {

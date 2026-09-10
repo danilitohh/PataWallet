@@ -42,7 +42,3 @@ export async function resetDemo() {
   })
   await seedDemo()
 }
-
-export function makeId(prefix) {
-  return `${prefix}-${crypto.randomUUID()}`
-}

@@ -1,6 +1,6 @@
 # Estado de implementación
 
-Actualizado: 2026-09-10. Fase actual: **Fase 1, revisión local de producto**.
+Actualizado: 2026-09-10. Fase actual: **Fase 2, autenticación implementada; activación remota pendiente**.
 
 | Área | Estado actual | Evidencia / límite |
 |---|---|---|
@@ -15,6 +15,11 @@ Actualizado: 2026-09-10. Fase actual: **Fase 1, revisión local de producto**.
 | Cálculos financieros | Implementados y probados | `src/domain/finance.test.js` reproduce todos los totales esperados del fixture |
 | Dinero es-CO | Implementado y probado | Unidades menores enteras; `85.000,50` produce `8500050`; rango seguro validado |
 | Persistencia local | Implementada y probada | Dexie/IndexedDB; un gasto creado permanece tras recargar en E2E |
+| Registro e inicio de sesión | Implementados | Supabase Auth con correo/contraseña, confirmación de correo compatible, sesión persistente y cierre de sesión |
+| Recuperación de contraseña | Implementada | Solicitud por correo y formulario de nueva contraseña mediante el flujo de recuperación de Supabase |
+| Inicio con Google | Implementado y proveedor habilitado | Supabase devuelve una redirección válida hacia `accounts.google.com`; falta completar una sesión real de usuario y comprobar el regreso a la app |
+| Datos por usuario | Implementados en código y migración | Adaptador remoto para cuentas, categorías, movimientos, presupuestos, metas, reservas y ajustes; todas las filas incluyen propietario |
+| RLS | Preparada, no aplicada | `supabase/migrations/20260910190000_auth_and_user_data.sql`; acceso anónimo revocado y políticas por `auth.uid()`. No se aplicó porque el conector disponible apuntaba a otro proyecto |
 | Tema, privacidad y movimiento | Implementados y probados | Claro/noche/sistema, montos ocultos, movimiento sistema/suave/desactivado |
 | Cuatro ilustraciones | Integradas | Bienvenida/Inicio, Plan, actividad vacía y celebración de meta; WebP responsivo sin alterar ni simular partes móviles de las escenas |
 | Estados | Parcialmente implementados | Cargando, vacío, error de almacenamiento, sin conexión y guardado local. Conflictos y sincronización remota pertenecen a Fase 2 |
@@ -24,7 +29,6 @@ Actualizado: 2026-09-10. Fase actual: **Fase 1, revisión local de producto**.
 | Pruebas unitarias | Probadas | `npm test`: 4 pruebas pasan |
 | Build | Probado | `npm run build` pasa; dependencias separadas en chunks, el mayor queda en 257,48 kB sin comprimir |
 | Pruebas E2E | Probadas | 12 de 12 en WebKit móvil y Chromium escritorio; navegación, layout, CRUD/persistencia y preferencias |
-| Auth, RLS y persistencia remota | No implementadas | Fase 2; no hay datos personales ni sincronización |
 | PWA instalada en iPhone | No implementada ni probada | Fase 3; no sustituir por la emulación de WebKit |
 | Web Push real | No implementado ni probado | Pantalla honesta “Pendiente de configurar”; requiere servidor, VAPID y dispositivo |
 | Atajo importable/publicado | Pendiente | Pantalla y guía preparadas; no existe `.shortcut` ni enlace iCloud real |
@@ -39,9 +43,11 @@ Actualizado: 2026-09-10. Fase actual: **Fase 1, revisión local de producto**.
 - `npm test`: 4 de 4 pruebas aprobadas.
 - `npm run build`: aprobado tras la revisión visual; CSS 23,36 kB y chunks JavaScript de hasta 257,48 kB sin comprimir.
 - `npm run test:e2e`: 12 de 12 pruebas aprobadas en 390×844, 375×812 y 1440×900.
+- Pantalla Auth revisada con navegador real en 390×844 y escritorio; registro, recuperación y estados accesibles inspeccionados. Sin errores de consola en la app.
+- Solicitud OAuth real comprobada: Supabase respondió `302` hacia `accounts.google.com`; no se simuló un acceso exitoso ni se automatizó una cuenta personal.
 - Refactorización modular: lint, 4 pruebas unitarias, build y 12 pruebas E2E repetidas después de separar el antiguo `App.jsx` monolítico.
 - Revisión manual de capturas: bienvenida, Inicio, Actividad y Plan; claro/noche, móvil/escritorio. Sin desbordamiento horizontal ni errores de consola.
 
 ## No probado
 
-No se ejecutaron Lighthouse, orientación horizontal, texto ampliado del sistema ni un iPhone real. Tampoco se probaron notificaciones, instalación PWA, Atajos, compras de Wallet, autenticación, RLS, recuperación, sincronización, conflicto multiusuario o restauración remota.
+No se ejecutaron Lighthouse, orientación horizontal, texto ampliado del sistema ni un iPhone real. Tampoco se probaron notificaciones, instalación PWA, Atajos o compras de Wallet. El registro real, correo de confirmación, recuperación completa, retorno exitoso de Google, migración/RLS con dos usuarios y CRUD remoto quedan sin prueba hasta aplicar el SQL en el proyecto correcto. La API `profiles` respondió 404, confirmando que la migración aún está pendiente.
