@@ -6,6 +6,30 @@ Este repositorio reúne las imágenes disponibles, la dirección visual y el enc
 ## Abrir la Fase 1
 Requiere Node.js 22.12 o posterior. Ejecuta `npm install`, después `npm run dev` y abre `http://127.0.0.1:4173`. Los datos de ejemplo se guardan en una base IndexedDB separada, solo en ese navegador.
 
+## Organización del código
+
+La aplicación está organizada por responsabilidades y áreas del producto:
+
+```text
+src/
+├── app/                  # Arranque, contexto, shell y rutas
+├── features/
+│   ├── accounts/         # Cuentas y sus formularios
+│   ├── dashboard/        # Inicio y resumen financiero
+│   ├── integrations/     # Notificaciones y Automatización
+│   ├── onboarding/       # Bienvenida a la demo
+│   ├── planning/         # Presupuesto, metas y reservas
+│   ├── settings/         # Preferencias locales
+│   └── transactions/     # Actividad, lista y editor de movimientos
+├── shared/               # Componentes, hooks y utilidades reutilizables
+├── data/                 # Persistencia local y datos demo
+├── domain/               # Reglas financieras y dinero entero
+├── components/           # Recursos visuales transversales
+└── styles/               # Tokens y estilos globales
+```
+
+Cada `feature` puede contener subcarpetas `components/` y `model/`. Las reglas monetarias permanecen fuera de React en `domain/`, y las pantallas no acceden a detalles de inicialización de la aplicación.
+
 ## Cómo empezar
 1. Descomprime el ZIP y abre la carpeta `patawallet-codex` como carpeta de proyecto en tu editor o entorno de Codex. Los archivos deben estar en el espacio de trabajo que Codex realmente pueda leer; no basta con pegar un enlace de este chat.
 2. Si ya existe un repositorio, integra el contenido sin sobrescribir su código o sus instrucciones actuales. Coloca las imágenes y los documentos en ese repositorio y combina `AGENTS.md` con cuidado.

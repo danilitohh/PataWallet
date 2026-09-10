@@ -6,6 +6,7 @@ Actualizado: 2026-09-10. Fase actual: **Fase 1, revisión local de producto**.
 |---|---|---|
 | Brief de producto, diseño y flujos | Conservado | `AGENTS.md`, `PROMPT_INICIAL_CODEX.txt` y `docs/01` a `docs/07` |
 | App React/SPA | Implementada y probada localmente | React 19 + Vite 8; rutas Inicio, Actividad, Plan, Cuentas y Ajustes |
+| Arquitectura frontend | Modularizada y probada | `src/app` concentra arranque/rutas/contexto; `src/features` separa siete áreas del producto; `src/shared` contiene UI, hooks y utilidades comunes; dominio y persistencia permanecen independientes de React |
 | Fidelidad visual a referencias | Revisada y corregida | Bienvenida editorial ilustrada; Inicio con escena integrada; Actividad agrupada por fecha e iconos de categoría; Plan con anillo de presupuesto y composición ilustrada. Se evitaron patrones de panel administrativo genérico |
 | Demo identificada | Implementada | Bienvenida y rótulo “Datos de ejemplo”; base local `patawallet-demo-v1` |
 | Movimientos | Implementados y probados | Crear gasto/ingreso/transferencia, editar, eliminar con confirmación, deshacer, buscar y filtrar |
@@ -38,6 +39,7 @@ Actualizado: 2026-09-10. Fase actual: **Fase 1, revisión local de producto**.
 - `npm test`: 4 de 4 pruebas aprobadas.
 - `npm run build`: aprobado tras la revisión visual; CSS 23,36 kB y chunks JavaScript de hasta 257,48 kB sin comprimir.
 - `npm run test:e2e`: 12 de 12 pruebas aprobadas en 390×844, 375×812 y 1440×900.
+- Refactorización modular: lint, 4 pruebas unitarias, build y 12 pruebas E2E repetidas después de separar el antiguo `App.jsx` monolítico.
 - Revisión manual de capturas: bienvenida, Inicio, Actividad y Plan; claro/noche, móvil/escritorio. Sin desbordamiento horizontal ni errores de consola.
 
 ## No probado

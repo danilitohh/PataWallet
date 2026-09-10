@@ -3,3 +3,4 @@ dist/
 .playwright-cli/
 output/playwright/results/
 playwright-report/
+graphify-out/
