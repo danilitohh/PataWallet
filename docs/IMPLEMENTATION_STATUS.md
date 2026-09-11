@@ -9,8 +9,9 @@ Actualizado: 2026-09-11. Fase actual: **Fase 5 revisada localmente; ampliaciones
 - Categorías: creación personalizada desde el formulario de movimiento, respetando el tipo ingreso/gasto y el aislamiento existente.
 - Metas: corregido el modal compartido que quedaba dentro de un ancestro `inert`; X, Escape y Guardar vuelven a funcionar.
 - Próximas compras: alta, edición y eliminación, sin crear gastos. Compara el estimado con el presupuesto restante y con activos registrados menos reservas.
-- Migración nueva preparada: `20260911120000_planned_purchases.sql`, con restricciones, índice, RLS y permisos mínimos. **No ejecutada remotamente** en este cambio.
+- Migración `20260911120000_planned_purchases.sql` aplicada al proyecto remoto autorizado. Verificación SQL: tabla presente, RLS activo, 1 política propia, índice presente, `anon_select = false` y CRUD autenticado habilitado bajo RLS.
 - Automatización Apple: el receptor, vinculación y categorización de PataWallet siguen preparados; la plantilla importable y su automatización Transacción continúan pendientes de publicación/configuración y prueba en iPhone. La PWA no puede activar Wallet por sí sola.
+- Verificación de Atajos documentada en `docs/ATAJO_REGISTRAR_COMPRA.md`: Apple confirma el activador por tarjeta, solicitudes API y publicación iCloud; no documenta públicamente las propiedades del payload de Transacción, que deben inspeccionarse en el iPhone responsable antes de terminar y publicar la plantilla.
 
 ## Implementado
 
