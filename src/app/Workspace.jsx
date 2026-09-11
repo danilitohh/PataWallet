@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, MotionConfig, useReducedMotion } from 'motion/react'
 import { AppContext } from './AppContext.jsx'
 import { AppRoutes } from './routes/AppRoutes.jsx'
@@ -13,6 +13,7 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
   const settingsMap = useMemo(() => Object.fromEntries(settingsRows.map((row) => [row.key, row.value])), [settingsRows])
   const [sheet, setSheet] = useState(null)
   const [toast, setToast] = useState(null)
+  const toastTimer = useRef(null)
   const systemReduce = useReducedMotion()
   const reduceMotion = settingsMap.motion === 'off' || (settingsMap.motion === 'system' && systemReduce)
 
@@ -23,12 +24,20 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
     root.dataset.motion = settingsMap.motion || 'system'
   }, [settingsMap.theme, settingsMap.motion])
 
+  useEffect(() => () => window.clearTimeout(toastTimer.current), [])
+
+  const dismissToast = useCallback(() => {
+    window.clearTimeout(toastTimer.current)
+    setToast(null)
+  }, [])
+
   if (!settingsRows.length) return <LoadingScreen />
   if (isDemo && !settingsMap.entered) return <AppContext.Provider value={{ actions }}><WelcomePage /></AppContext.Provider>
 
   const notify = (message, undo) => {
+    window.clearTimeout(toastTimer.current)
     setToast({ message, undo })
-    window.setTimeout(() => setToast(null), 5000)
+    toastTimer.current = window.setTimeout(() => setToast(null), 5000)
   }
   const value = { accounts, categories, transactions, budgets, goals, allocations, settings: settingsMap, syncState, reduceMotion, setSheet, notify, actions, isDemo, user, signOut }
 
@@ -37,7 +46,7 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
       <MotionConfig reducedMotion={settingsMap.motion === 'off' ? 'always' : settingsMap.motion === 'soft' ? 'never' : 'user'}>
         <AppShell><AppRoutes /></AppShell>
         <AnimatePresence>{sheet && <MovementSheet transaction={sheet === 'new' ? null : sheet} onClose={() => setSheet(null)} />}</AnimatePresence>
-        <AnimatePresence>{toast && <Toast toast={toast} close={() => setToast(null)} />}</AnimatePresence>
+        <AnimatePresence>{toast && <Toast toast={toast} close={dismissToast} />}</AnimatePresence>
         <PwaUpdatePrompt />
       </MotionConfig>
     </AppContext.Provider>

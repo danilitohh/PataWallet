@@ -13,7 +13,29 @@ export function useModalBehavior(ref, close) {
     const previousOverflow = document.body.style.overflow
     const previousOpener = opener.current
     const onKeyDown = (event) => {
-      if (event.key === 'Escape') closeRef.current()
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        closeRef.current()
+        return
+      }
+      if (event.key !== 'Tab' || !ref.current) return
+      const focusable = [...ref.current.querySelectorAll(
+        'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])',
+      )].filter((element) => !element.hidden && element.getClientRects().length)
+      if (!focusable.length) {
+        event.preventDefault()
+        ref.current.focus()
+        return
+      }
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
     }
 
     shell?.setAttribute('inert', '')

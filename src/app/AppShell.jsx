@@ -24,7 +24,7 @@ export function AppShell({ children }) {
       <aside className="side-nav" aria-label="Navegación principal">
         <div className="wordmark wordmark--small"><PawPrint /> <span>PataWallet</span></div>
         <nav>{navigation.map(([to, Icon, label]) => <NavLink key={to} to={to} end={to === '/'}><Icon /><span>{label}</span></NavLink>)}</nav>
-        <button className="side-nav__add" onClick={() => setSheet('new')}><Plus /> Nuevo movimiento</button>
+        <button className="side-nav__add" onClick={(event) => { event.currentTarget.focus(); setSheet('new') }}><Plus /> Nuevo movimiento</button>
         <NavLink to="/ajustes"><Settings /> <span>Ajustes</span></NavLink>
         <p className="side-nav__demo">{isDemo ? 'Demo local' : user?.email}</p>
         {!isDemo && <SyncStatus state={syncState} retry={actions.retrySync} />}
@@ -33,7 +33,7 @@ export function AppShell({ children }) {
       <main ref={mainRef} tabIndex="-1" className="page" aria-label="Contenido principal">{children}</main>
       <nav className="bottom-nav" aria-label="Navegación principal">
         {navigation.slice(0, 2).map(([to, Icon, label]) => <NavLink key={to} to={to} end={to === '/'}><Icon /><span>{label}</span></NavLink>)}
-        <button aria-label="Nuevo movimiento" onClick={() => setSheet('new')}><Plus /></button>
+        <button aria-label="Nuevo movimiento" onClick={(event) => { event.currentTarget.focus(); setSheet('new') }}><Plus /></button>
         {navigation.slice(2).map(([to, Icon, label]) => <NavLink key={to} to={to}><Icon /><span>{label}</span></NavLink>)}
       </nav>
       <OnlineStatus />

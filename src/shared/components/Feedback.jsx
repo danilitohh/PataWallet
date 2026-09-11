@@ -4,7 +4,7 @@ import { PetScene } from '../../components/PetScene.jsx'
 
 export function Toast({ toast, close }) {
   return (
-    <motion.div className="toast" role="status" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }}>
+    <motion.div className="toast" role="status" aria-live="polite" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }}>
       <span><Check /> {toast.message}</span>
       {toast.undo && <button onClick={async () => { await toast.undo(); close() }}><Undo2 /> Deshacer</button>}
       <button className="icon-button icon-button--small" aria-label="Cerrar aviso" onClick={close}><X /></button>
@@ -13,7 +13,7 @@ export function Toast({ toast, close }) {
 }
 
 export function LoadingScreen() {
-  return <main className="loading" aria-label="Cargando PataWallet"><div className="skeleton skeleton--title" /><div className="skeleton skeleton--hero" /><div className="skeleton" /></main>
+  return <main className="loading" aria-label="Cargando PataWallet" aria-busy="true"><span className="sr-only" role="status">Cargando PataWallet</span><div className="skeleton skeleton--title" /><div className="skeleton skeleton--hero" /><div className="skeleton" /></main>
 }
 
 export function StateMessage({ illustration, title, body, action, actionLabel }) {

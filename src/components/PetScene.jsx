@@ -19,7 +19,7 @@ export function PetScene({ name, hero = false }) {
     >
       <source media="(max-width: 520px)" srcSet={`/assets/illustrations/${scene.file}-480.webp`} />
       <source media="(max-width: 900px)" srcSet={`/assets/illustrations/${scene.file}-800.webp`} />
-      <img src={`/assets/illustrations/${scene.file}-1122.webp`} width="1122" height="1402" alt={scene.alt} loading={hero ? 'eager' : 'lazy'} />
+      <img src={`/assets/illustrations/${scene.file}-1122.webp`} width="1122" height="1402" alt={scene.alt} loading={hero ? 'eager' : 'lazy'} decoding="async" fetchPriority={hero ? 'high' : 'auto'} />
     </motion.picture>
   )
 }

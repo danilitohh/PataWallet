@@ -45,8 +45,11 @@
 
 * { box-sizing: border-box; }
 html { background: var(--bg); min-width: 320px; }
+html { scrollbar-color: var(--text-2) var(--surface-muted); }
 body { margin: 0; min-width: 320px; min-height: 100dvh; background: radial-gradient(circle at 85% 5%, color-mix(in srgb, var(--peach) 48%, transparent), transparent 24rem), var(--bg); color: var(--text); }
 body, button, input, select { font: inherit; }
+::selection { color: var(--on-primary); background: var(--primary); }
+input, select, textarea { caret-color: var(--accent); }
 button, a, input, select { -webkit-tap-highlight-color: transparent; }
 button, a { touch-action: manipulation; }
 button { color: inherit; }
@@ -61,6 +64,7 @@ h3 { font-size: 1rem; }
 p { color: var(--text-2); line-height: 1.5; }
 button { border: 0; cursor: pointer; }
 button:active:not(:disabled) { transform: scale(.98); }
+button:disabled { cursor: not-allowed; opacity: .62; }
 input, select { min-height: 46px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); color: var(--text); padding: 0 13px; width: 100%; }
 select { cursor: pointer; }
 ::placeholder { color: color-mix(in srgb, var(--text-2) 84%, transparent); opacity: 1; }
@@ -88,7 +92,7 @@ select { cursor: pointer; }
 .auth-google { width: 100%; min-height: 50px; justify-content: center; border: 1px solid var(--border); background: var(--surface); }
 .auth-google:disabled { opacity: .66; cursor: not-allowed; }
 .auth-provider-note { margin-top: -7px; text-align: center; font-size: .76rem; }
-.google-mark { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; color: #4285f4; font-weight: 800; font-family: Arial, sans-serif; }
+.google-mark { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; color: #4285f4; font-weight: 800; font-family: inherit; }
 .auth-divider { display: flex; align-items: center; gap: 12px; color: var(--text-2); font-size: .8rem; }
 .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 .auth-form { display: grid; gap: 15px; }
@@ -317,6 +321,7 @@ select { cursor: pointer; }
 
 .sheet-backdrop { position: fixed; z-index: 100; inset: 0; display: flex; align-items: flex-end; justify-content: center; padding: 0; background: rgba(7, 19, 27, .44); backdrop-filter: blur(4px); }
 .sheet { width: min(680px, 100%); max-height: min(92dvh, 880px); overflow-y: auto; overscroll-behavior: contain; padding: 22px 20px calc(22px + env(safe-area-inset-bottom)); border-radius: 28px 28px 0 0; background: var(--bg); box-shadow: 0 -18px 50px rgba(2, 14, 22, .2); }
+.sheet, .dialog { scroll-padding-bottom: calc(88px + env(safe-area-inset-bottom)); }
 .sheet > header, .dialog > header { display: flex; justify-content: space-between; gap: 15px; align-items: center; margin-bottom: 19px; }
 .sheet form, .dialog form { display: grid; gap: 15px; }
 .segmented { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; background: var(--surface-muted); border-radius: 16px; }
@@ -421,6 +426,19 @@ select { cursor: pointer; }
   .review-card__head .status-label { grid-column: 2; }
   .pwa-update { grid-template-columns: 24px minmax(0, 1fr) 38px; }
   .pwa-update .button { grid-column: 1 / -1; grid-row: 2; }
+}
+
+@media (max-height: 520px) and (orientation: landscape) {
+  .sheet-backdrop { align-items: stretch; }
+  .sheet, .dialog { max-height: 100dvh; border-radius: 0; padding-bottom: calc(18px + env(safe-area-inset-bottom)); }
+  .page { padding-top: calc(76px + env(safe-area-inset-top)); }
+  .bottom-nav { height: 62px; bottom: calc(6px + env(safe-area-inset-bottom)); }
+  .bottom-nav a { height: 50px; }
+}
+
+@media (hover: hover) {
+  .button:hover:not(:disabled), .icon-button:hover:not(:disabled), .compact-action:hover:not(:disabled) { filter: brightness(.97); }
+  .side-nav a:hover, .bottom-nav a:hover { color: var(--text); }
 }
 
 @media (prefers-reduced-motion: reduce) {
