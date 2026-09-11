@@ -1,6 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
+    { "source": "/api/shortcuts/pairing-tickets", "destination": "/api/shortcuts/pair?operation=create-ticket" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
   "headers": [

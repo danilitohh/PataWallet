@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import pairingHandler from './pairing-tickets.js'
-import pairHandler from './pair.js'
+import pairHandler, { createPairingTicketHandler as pairingHandler } from './pair.js'
 import eventsHandler from './events.js'
 import statusHandler from './status.js'
 import testHandler from './test.js'
