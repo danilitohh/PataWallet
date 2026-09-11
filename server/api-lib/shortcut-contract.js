@@ -1,3 +1,4 @@
+// Shared server-only Shortcuts contract. This file is not a Vercel route.
 import { createHash, randomBytes } from 'node:crypto'
 import { z } from 'zod'
 

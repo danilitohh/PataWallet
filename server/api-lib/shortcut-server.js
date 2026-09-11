@@ -1,3 +1,4 @@
+// Shared server-only authorization. This file is not a Vercel route.
 import { adminClient } from './supabase-server.js'
 import { deviceToken, sha256 } from './shortcut-contract.js'
 

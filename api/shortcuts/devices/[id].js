@@ -1,6 +1,6 @@
-import { assertBodySize, assertTrustedOrigin, allowMethod, json } from '../../_lib/http.js'
-import { shortcutError } from '../../_lib/shortcut-server.js'
-import { adminClient, authenticatedUser } from '../../_lib/supabase-server.js'
+import { assertBodySize, assertTrustedOrigin, allowMethod, json } from '../../../server/api-lib/http.js'
+import { shortcutError } from '../../../server/api-lib/shortcut-server.js'
+import { adminClient, authenticatedUser } from '../../../server/api-lib/supabase-server.js'
 
 export default async function handler(req, res) {
   if (!allowMethod(req, res, ['DELETE', 'POST'])) return

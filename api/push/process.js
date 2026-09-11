@@ -1,7 +1,7 @@
-import { allowMethod, json, safeError } from '../_lib/http.js'
-import { notificationPayload } from '../_lib/push-schema.js'
-import { adminClient } from '../_lib/supabase-server.js'
-import { deliver, deliveryKind } from '../_lib/web-push.js'
+import { allowMethod, json, safeError } from '../../server/api-lib/http.js'
+import { notificationPayload } from '../../server/api-lib/push-schema.js'
+import { adminClient } from '../../server/api-lib/supabase-server.js'
+import { deliver, deliveryKind } from '../../server/api-lib/web-push.js'
 
 const MAX_BATCH = 20
 

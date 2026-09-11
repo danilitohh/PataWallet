@@ -1,3 +1,4 @@
+// Shared server-only Web Push client. This file is not a Vercel route.
 import webpush from 'web-push'
 
 let configured = false

@@ -1,3 +1,4 @@
+// Shared server-only Supabase client. This file is not a Vercel route.
 import { createClient } from '@supabase/supabase-js'
 
 function env(name, fallback) {

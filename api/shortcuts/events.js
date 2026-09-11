@@ -1,6 +1,6 @@
-import { assertBodySize, allowMethod, json } from '../_lib/http.js'
-import { canonicalEventHash, normalizeShortcutEvent, shortcutEventSchema } from '../_lib/shortcut-contract.js'
-import { authorizedShortcut, shortcutError } from '../_lib/shortcut-server.js'
+import { assertBodySize, allowMethod, json } from '../../server/api-lib/http.js'
+import { canonicalEventHash, normalizeShortcutEvent, shortcutEventSchema } from '../../server/api-lib/shortcut-contract.js'
+import { authorizedShortcut, shortcutError } from '../../server/api-lib/shortcut-server.js'
 
 export default async function handler(req, res) {
   if (!allowMethod(req, res, ['POST'])) return

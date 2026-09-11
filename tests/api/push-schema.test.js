@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { assertSafeEndpoint, notificationPayload, safeNotificationRoute, subscriptionRequestSchema } from './push-schema.js'
+import { assertSafeEndpoint, notificationPayload, safeNotificationRoute, subscriptionRequestSchema } from '../../server/api-lib/push-schema.js'
 
 describe('contrato del servidor Push', () => {
   it('rechaza destinos inseguros y cuerpos manipulados', () => {

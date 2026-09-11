@@ -1,6 +1,6 @@
-import { assertBodySize, assertTrustedOrigin, allowMethod, json, safeError } from '../../_lib/http.js'
-import { assertSafeEndpoint, subscriptionRequestSchema } from '../../_lib/push-schema.js'
-import { adminClient, authenticatedUser } from '../../_lib/supabase-server.js'
+import { assertBodySize, assertTrustedOrigin, allowMethod, json, safeError } from '../../../server/api-lib/http.js'
+import { assertSafeEndpoint, subscriptionRequestSchema } from '../../../server/api-lib/push-schema.js'
+import { adminClient, authenticatedUser } from '../../../server/api-lib/supabase-server.js'
 
 export default async function handler(req, res) {
   if (!allowMethod(req, res, ['POST'])) return

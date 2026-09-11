@@ -1,3 +1,4 @@
+// Shared server-only Push contract. This file is not a Vercel route.
 import { z } from 'zod'
 
 const preferencesSchema = z.object({

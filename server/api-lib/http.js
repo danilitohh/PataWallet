@@ -1,3 +1,4 @@
+// Shared server-only HTTP helpers. This file is not a Vercel route.
 export function json(res, status, body) {
   res.status(status).setHeader('Content-Type', 'application/json; charset=utf-8').setHeader('Cache-Control', 'no-store').json(body)
 }

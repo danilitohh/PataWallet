@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import pairHandler, { createPairingTicketHandler as pairingHandler } from './pair.js'
-import eventsHandler from './events.js'
-import statusHandler from './status.js'
-import testHandler from './test.js'
-import deviceHandler from './devices/[id].js'
+import pairHandler, { createPairingTicketHandler as pairingHandler } from '../../api/shortcuts/pair.js'
+import eventsHandler from '../../api/shortcuts/events.js'
+import statusHandler from '../../api/shortcuts/status.js'
+import testHandler from '../../api/shortcuts/test.js'
+import deviceHandler from '../../api/shortcuts/devices/[id].js'
 
 function response() { return { statusCode:0, payload:null, headers:{}, status(code){this.statusCode=code;return this}, setHeader(name,value){this.headers[name]=value;return this}, json(value){this.payload=value;return this} } }
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canonicalEventHash, normalizeLabel, normalizeShortcutEvent, randomSecret, sha256, templateMetadata } from './shortcut-contract.js'
+import { canonicalEventHash, normalizeLabel, normalizeShortcutEvent, randomSecret, sha256, templateMetadata } from '../../server/api-lib/shortcut-contract.js'
 
 const event = {
   schema_version: 1,

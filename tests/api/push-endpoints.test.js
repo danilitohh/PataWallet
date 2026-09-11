@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import subscriptionsHandler from './subscriptions/index.js'
-import testHandler from './test.js'
+import subscriptionsHandler from '../../api/push/subscriptions/index.js'
+import testHandler from '../../api/push/test.js'
 
 function response() {
   return {
