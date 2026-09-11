@@ -4,7 +4,7 @@ Fecha: 2026-09-10. Base revisada: `9d9291a`. Entorno: Windows, Node.js 22+, Chro
 
 ## Decisión de cierre
 
-**BLOQUEADA PARA USO REAL.** La implementación local y sus reglas automatizadas están revisadas, pero todavía falta ejecutar contra PostgreSQL real el aislamiento A/B, la persistencia y una restauración aislada. También faltan la recepción Web Push, la plantilla importable y una compra compatible en un iPhone físico. La demo local sí puede revisarse; no debe usarse aún como único registro financiero.
+**BLOQUEADA PARA USO REAL.** La implementación local está revisada y el aislamiento A/B pasó 20/20 pruebas transaccionales en PostgreSQL remoto. Todavía faltan solicitudes HTTP directas con dos sesiones, concurrencia, persistencia extremo a extremo y una restauración aislada. También faltan la recepción Web Push, la plantilla importable y una compra compatible en un iPhone físico. La demo local sí puede revisarse; no debe usarse aún como único registro financiero.
 
 ## Cambios de acabado
 
@@ -50,7 +50,7 @@ Datos: fixtures ficticios de `examples/demo-fixtures.json`, cuentas A/B sintéti
 |---|---|---|---|---|
 | AUT-01 | Registro/recuperación con proveedor | Contratos pasan; correo remoto no repetido | PASÓ local / BLOQUEADO remoto | Vitest |
 | FIN-01 | Apertura, ingreso, gasto, transferencia, crédito, pago, reserva, edición/anulación, reembolso, mes y COP | Reglas pasan dentro de 54/54 pruebas | PASÓ | `npm test` |
-| ISO-01 | A no lee/escribe B ni cruza referencias | pgTAP existe; conexión rechazada | BLOQUEADO | `ECONNREFUSED 127.0.0.1:54322` |
+| ISO-01 | A no lee/escribe B ni cruza referencias | 20/20 casos remotos pasan y finalizan con `ROLLBACK` | PASÓ SQL remoto / API HTTP pendiente | pgTAP transaccional en Supabase |
 | SYN-01 | Cola estable, reintento, conflicto y usuario aislado | Controlador/contratos pasan | PASÓ local | Vitest; servidor pendiente |
 | BAK-01 | JSON/dueño/referencias/conflicto; CSV seguro | Restauración aislada en memoria pasa | PASÓ local | `backup.test.js`; PostgreSQL pendiente |
 | UI-01 | 390×844, 375×812, 1440×900, CRUD/persistencia | 28 pasaron y 2 variantes se omitieron intencionalmente | PASÓ | `npx playwright test --workers=1` y capturas Phase 5 |
@@ -60,7 +60,7 @@ Datos: fixtures ficticios de `examples/demo-fixtures.json`, cuentas A/B sintéti
 | PUSH-01 | Permiso solo por acción | No se solicita al abrir; recepción real ausente | PASÓ local / BLOQUEADO dispositivo | Playwright |
 | SCT-01 | Prueba sin gasto, idempotencia y UI honesta | Contratos pasan | PASÓ local | Vitest |
 | SCT-02 | Plantilla importable, vínculo persistente y compra real | Sin `.shortcut`, iCloud ni iPhone | BLOQUEADO | Documentación Fase 4 |
-| SEC-01 | Sin privilegios en cliente/repositorio | Contratos y auditoría local pasan | PASÓ local / BLOQUEADO remoto | Vitest; audit 0 |
+| SEC-01 | Sin privilegios en cliente/repositorio | Contratos locales y RLS SQL A/B remota pasan | PASÓ SQL remoto / API HTTP pendiente | Vitest; pgTAP; audit 0 |
 | BUILD-01 | Lint y build | Ambos pasan | PASÓ | ESLint; Vite 8.3.0 |
 
 ## Navegador frente a iPhone
@@ -69,7 +69,7 @@ La revisión de navegador comprobó composición, navegación, hoja horizontal, 
 
 ## Pendientes priorizados
 
-- Crítico: migraciones en proyecto aislado autorizado, RLS A/B/API directa, asientos concurrentes y restauración PostgreSQL.
+- Crítico: API HTTP A/B directa, asientos concurrentes, persistencia extremo a extremo y restauración PostgreSQL aislada.
 - Alto: endpoints autorizados, push real, plantilla firmada/importable, revocación y compra habitual en iPhone.
 - Medio: VoiceOver, texto del sistema, teclado y orientación en iPhone.
 - Bajo: licencia explícita de redistribución de ilustraciones.

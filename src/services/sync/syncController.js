@@ -10,6 +10,7 @@ const tableFor = {
   goals: 'goals',
   goal_allocations: 'goal_allocations',
   user_settings: 'user_settings',
+  planned_purchases: 'planned_purchases',
 }
 
 function operation(entity, action, entityId, payload, expectedVersion = null) {
@@ -274,6 +275,8 @@ export class SyncController {
     return {
       setSetting: (key, value) => run(() => this.putAndQueue('user_settings', key, { key, value }, null)),
       saveTransaction: (record) => run(() => this.saveTransaction(record)),
+      saveReceipt: (receipt) => run(() => this.database.receipts.put(receipt)),
+      deleteReceipt: (transactionId) => run(() => this.database.receipts.delete(transactionId)),
       deleteTransaction: (id) => run(() => this.deleteTransaction(id)),
       restoreTransaction: (record) => run(() => this.restoreTransaction(record)),
       updateAccount: (id, changes) => run(() => this.putAndQueue('accounts', id, changes, 'update')),
@@ -282,10 +285,27 @@ export class SyncController {
       createGoal: (goal) => run(() => this.putAndQueue('goals', goal.id, goal, 'create')),
       deleteGoal: (id) => run(() => this.deleteGoal(id)),
       addAllocation: (allocation, completedGoalId) => run(() => this.addAllocation(allocation, completedGoalId)),
+      createCategory: (category) => run(() => this.putAndQueue('categories', category.id, category, 'create')),
+      savePlannedPurchase: (purchase) => run(() => this.putAndQueue('planned_purchases', purchase.id, purchase, null)),
+      deletePlannedPurchase: (id) => run(() => this.deleteEntity('planned_purchases', id)),
       importBackup: (additions) => run(() => this.importBackup(additions)),
       retrySync: () => run(() => this.syncNow()),
       discardConflicts: () => run(() => this.discardConflicts()),
     }
+  }
+
+  async deleteEntity(entity, id) {
+    const table = this.database.table(tableFor[entity])
+    await this.database.transaction('rw', table, this.database.outbox, async () => {
+      const existing = await table.get(id)
+      if (!existing) return
+      const pending = await this.database.outbox.where('[entity+entity_id]').equals([entity, String(id)]).first()
+      if (pending?.action === 'create' && !pending.attempts) await this.database.outbox.delete(pending.sequence)
+      else await this.database.outbox.add(operation(entity, 'delete', id, { id }, Number(existing.version || 1)))
+      await table.delete(id)
+    })
+    await this.notify()
+    await this.syncNow()
   }
 
   async importBackup(additions) {
@@ -297,6 +317,7 @@ export class SyncController {
       ['goals', 'goals', 'id', 'create'],
       ['allocations', 'goal_allocations', 'id', 'create'],
       ['settingsRows', 'user_settings', 'key', 'create'],
+      ['plannedPurchases', 'planned_purchases', 'id', 'create'],
     ]
     const tables = definitions.map(([, entity]) => this.database.table(entity))
     await this.database.transaction('rw', [...tables, this.database.outbox], async () => {

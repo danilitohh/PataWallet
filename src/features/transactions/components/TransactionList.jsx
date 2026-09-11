@@ -15,7 +15,7 @@ function categoryPresentation(category, type) {
 }
 
 function transactionDateLabel(value) {
-  const date = value.slice(0, 10)
+  const date = new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'America/Bogota' }).format(new Date(value))
   if (date === today()) return 'Hoy'
   return new Intl.DateTimeFormat('es-CO', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'America/Bogota' }).format(new Date(`${date}T12:00:00-05:00`))
 }
@@ -29,11 +29,14 @@ export function TransactionList({ items, compact = false, grouped = false }) {
     const expense = item.type === 'expense'
     const income = item.type === 'income' || item.type === 'refund'
 
+    const clockDate = new Date(item.occurred_at)
+    const clock = new Intl.DateTimeFormat('es-CO', { hour: 'numeric', minute: '2-digit', timeZone: 'America/Bogota' }).format(clockDate)
+    const hasExplicitTime = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/Bogota' }).format(clockDate) !== '12:00'
     return (
       <button className="transaction" key={item.id} onClick={() => setSheet(item)}>
         <span className={`transaction__icon tone-${tone}`}><Icon /></span>
         <span className="transaction__main"><strong>{item.merchant_name || labelForType[item.type]}{item.source === 'shortcut' && <span className="source-badge">Automático · Atajos</span>}</strong><small>{category?.name || labelForType[item.type]}{account ? ` · ${account.name}` : ''}</small></span>
-        <span className={`transaction__amount ${income ? 'positive' : expense ? 'negative' : ''}`}><strong>{income ? '+' : expense ? '-' : ''}{formatMinor(item.amount_minor, item.currency, settings.hiddenAmounts)}</strong><small>{new Intl.DateTimeFormat('es-CO', { day: 'numeric', month: 'short', timeZone: 'America/Bogota' }).format(new Date(item.occurred_at))}</small></span>
+        <span className={`transaction__amount ${income ? 'positive' : expense ? 'negative' : ''}`}><strong>{income ? '+' : expense ? '-' : ''}{formatMinor(item.amount_minor, item.currency, settings.hiddenAmounts)}</strong><small>{new Intl.DateTimeFormat('es-CO', { day: 'numeric', month: 'short', timeZone: 'America/Bogota' }).format(new Date(item.occurred_at))}{hasExplicitTime ? ` · ${clock}` : ''}</small></span>
         <ChevronRight className="transaction__chevron" />
       </button>
     )
@@ -42,7 +45,7 @@ export function TransactionList({ items, compact = false, grouped = false }) {
   if (!grouped) return <div className={`transaction-list ${compact ? 'compact' : ''}`}>{items.map(renderItem)}</div>
 
   const groups = items.reduce((result, item) => {
-    const date = item.occurred_at.slice(0, 10)
+    const date = new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'America/Bogota' }).format(new Date(item.occurred_at))
     if (!result[date]) result[date] = []
     result[date].push(item)
     return result

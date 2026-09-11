@@ -188,7 +188,7 @@ create or replace function public.server_ingest_shortcut_event(
   p_card_alias text, p_normalized_card_alias text, p_review_reasons text[]
 ) returns jsonb language plpgsql security definer set search_path = '' as $$
 declare prior public.incoming_events%rowtype; mapping public.card_mappings%rowtype; rule public.category_rules%rowtype;
-  similar public.incoming_events%rowtype; similar_tx public.transactions%rowtype; event_row public.incoming_events%rowtype; tx public.transactions%rowtype;
+  similar_event public.incoming_events%rowtype; similar_tx public.transactions%rowtype; event_row public.incoming_events%rowtype; tx public.transactions%rowtype;
   category_value text; tx_id text; status_value text; reasons text[] := coalesce(p_review_reasons, '{}'); similar_found boolean := false;
 begin
   perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(p_user_id::text || ':' || p_event_id::text, 0));
@@ -209,7 +209,7 @@ begin
   select coalesce(array_agg(distinct reason order by reason), '{}'::text[]) into reasons from unnest(reasons) as reason;
 
   if cardinality(reasons) = 0 then
-    select * into similar from public.incoming_events
+    select * into similar_event from public.incoming_events
     where user_id = p_user_id and event_id <> p_event_id and transaction_id is not null
       and amount_minor = p_amount_minor and normalized_merchant is not distinct from p_normalized_merchant
       and occurred_at between p_occurred_at - interval '2 minutes' and p_occurred_at + interval '2 minutes'
@@ -252,7 +252,7 @@ begin
     transaction_id, possible_duplicate_of, possible_duplicate_transaction_id)
   values(p_user_id, p_device_id, p_event_id, 1, p_request_hash, p_occurred_at, p_amount_minor, p_currency,
     p_merchant_name, p_normalized_merchant, p_card_alias, p_normalized_card_alias, 'ios_shortcuts', 'capture', status_value, reasons,
-    tx_id, similar.id, similar_tx.id)
+    tx_id, similar_event.id, similar_tx.id)
   returning * into event_row;
   update public.device_links set last_event_at = now() where id = p_device_id and user_id = p_user_id;
   if status_value in ('needs_review', 'duplicate', 'recorded_needs_category') then

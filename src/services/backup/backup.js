@@ -12,6 +12,7 @@ const collections = {
   goals: 'id',
   allocations: 'id',
   settingsRows: 'key',
+  plannedPurchases: 'id',
 }
 
 const id = z.string().min(1).max(180)
@@ -30,6 +31,7 @@ const backupDataSchema = z.object({
   goals: z.array(z.object({ id, name: z.string().min(2).max(80), target_minor: minor, currency, completed_seen: z.boolean() }).strict()).max(100000),
   allocations: z.array(z.object({ id, goal_id: id, account_id: id, amount_minor: minor, allocated_on: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) }).strict()).max(100000),
   settingsRows: z.array(z.object({ key: z.enum(['entered', 'theme', 'hiddenAmounts', 'motion']), value: z.unknown() }).strict()).max(20),
+  plannedPurchases: z.array(z.object({ id, name: z.string().min(2).max(80), amount_minor: minor, currency, target_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), category_id: id.nullable().optional(), note: z.string().max(240), status: z.enum(['planned', 'purchased', 'cancelled']) }).strict()).max(100000).optional().default([]),
 }).strict()
 
 const backupSchema = z.object({
@@ -70,6 +72,7 @@ export function parseBackup(text, expectedOwnerId) {
   for (const row of parsed.data.budgets) assertMinor(row.limit_minor)
   for (const row of parsed.data.goals) assertMinor(row.target_minor)
   for (const row of parsed.data.allocations) assertMinor(row.amount_minor)
+  for (const row of parsed.data.plannedPurchases) assertMinor(row.amount_minor)
   return parsed
 }
 
@@ -103,6 +106,9 @@ function validateRelationships(data) {
   for (const row of data.allocations) {
     if (!goals.has(row.goal_id)) throw new Error(`La reserva ${row.id} referencia una meta inexistente.`)
     if (accounts.get(row.account_id)?.kind !== 'asset') throw new Error(`La reserva ${row.id} requiere una cuenta de activo existente.`)
+  }
+  for (const row of data.plannedPurchases) {
+    if (row.category_id && categories.get(row.category_id)?.type !== 'expense') throw new Error(`La compra prevista ${row.id} requiere una categoría de gasto propia.`)
   }
 }
 

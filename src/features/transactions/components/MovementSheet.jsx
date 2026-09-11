@@ -1,11 +1,12 @@
 import { useRef, useState } from 'react'
-import { Trash2, X } from 'lucide-react'
+import { ImagePlus, Plus, Trash2, X } from 'lucide-react'
 import { motion } from 'motion/react'
 import { z } from 'zod'
 import { useApp } from '../../../app/AppContext.jsx'
 import { makeId } from '../../../shared/lib/id.js'
 import { parseLocalizedAmount, toInputAmount } from '../../../domain/money.js'
 import { Field } from '../../../shared/components/Modal.jsx'
+import { SimpleDialog } from '../../../shared/components/Modal.jsx'
 import { useModalBehavior } from '../../../shared/hooks/useModalBehavior.js'
 import { today } from '../../../shared/lib/date.js'
 import { labelForType } from '../model/transactionTypes.js'
@@ -30,7 +31,12 @@ export function MovementSheet({ transaction, onClose }) {
   const [destination, setDestination] = useState(transaction?.to_account_id || assets[0]?.id || '')
   const [category, setCategory] = useState(transaction?.category_id || '')
   const [date, setDate] = useState(transaction?.occurred_at?.slice(0, 10) || today())
+  const existingClock = transaction?.occurred_at ? new Date(transaction.occurred_at).toLocaleTimeString('en-GB', { timeZone: 'America/Bogota', hour: '2-digit', minute: '2-digit' }) : ''
+  const [time, setTime] = useState(existingClock === '12:00' ? '' : existingClock)
   const [note, setNote] = useState(transaction?.note || transaction?.merchant_name || '')
+  const existingReceipt = useApp().receipts?.find((item) => item.transaction_id === transaction?.id)
+  const [receipt, setReceipt] = useState(existingReceipt?.data_url || '')
+  const [categoryDialog, setCategoryDialog] = useState(false)
   const [error, setError] = useState('')
   const dialogRef = useRef(null)
   useModalBehavior(dialogRef, onClose)
@@ -62,7 +68,7 @@ export function MovementSheet({ transaction, onClose }) {
         type: storedType,
         amount_minor: minor,
         currency: 'COP',
-        occurred_at: `${date}T12:00:00-05:00`,
+        occurred_at: `${date}T${time || '12:00'}:00-05:00`,
         from_account_id: type === 'income' ? null : account,
         to_account_id: type === 'expense' ? null : destination,
         category_id: ['expense', 'income'].includes(type) ? category : null,
@@ -73,6 +79,8 @@ export function MovementSheet({ transaction, onClose }) {
         updated_at: new Date().toISOString(),
       }
       await actions.saveTransaction(record)
+      if (receipt) await actions.saveReceipt({ transaction_id: record.id, data_url: receipt, saved_at: new Date().toISOString(), sync_status: 'device_only' })
+      else if (existingReceipt) await actions.deleteReceipt(record.id)
       notify(editing ? 'Movimiento actualizado' : 'Movimiento guardado', !editing ? async () => {
         await actions.deleteTransaction(record.id)
         notify('Movimiento deshecho')
@@ -92,12 +100,35 @@ export function MovementSheet({ transaction, onClose }) {
           <Field label="Monto" error={error}><div className="amount-input"><span>$</span><input autoFocus inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="0" aria-describedby={error ? 'movement-error' : undefined} /><small>COP</small></div></Field>
           {type !== 'income' && <Field label={type === 'transfer' ? 'Desde' : 'Cuenta'}><select value={account} onChange={(event) => setAccount(event.target.value)}>{(type === 'transfer' ? assets : activeAccounts).map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></Field>}
           {type !== 'expense' && <Field label={type === 'income' ? 'Recibir en' : 'Hacia'}><select value={destination} onChange={(event) => setDestination(event.target.value)}>{(type === 'income' ? assets : activeAccounts.filter((item) => item.id !== account)).map((item) => <option key={item.id} value={item.id}>{item.name}{item.kind === 'liability' ? ' (pago de tarjeta)' : ''}</option>)}</select></Field>}
-          {type !== 'transfer' && <Field label="Categoría"><select value={category} onChange={(event) => setCategory(event.target.value)}><option value="">Selecciona una categoría</option>{visibleCategories.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></Field>}
-          <div className="form-grid"><Field label="Fecha"><input type="date" value={date} onChange={(event) => setDate(event.target.value)} /></Field><Field label="Comercio o nota" optional><input value={note} onChange={(event) => setNote(event.target.value)} maxLength="120" placeholder="Opcional" /></Field></div>
+          {type !== 'transfer' && <Field label="Categoría"><div className="input-with-action"><select value={category} onChange={(event) => setCategory(event.target.value)}><option value="">Selecciona una categoría</option>{visibleCategories.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select><button type="button" className="icon-button" aria-label="Crear categoría" onClick={() => setCategoryDialog(true)}><Plus /></button></div></Field>}
+          <div className="form-grid"><Field label="Fecha"><input type="date" value={date} onChange={(event) => setDate(event.target.value)} /></Field><Field label="Hora" optional><input type="time" value={time} onChange={(event) => setTime(event.target.value)} /></Field></div>
+          <Field label="Comercio o nota" optional><input value={note} onChange={(event) => setNote(event.target.value)} maxLength="120" placeholder="Opcional" /></Field>
+          <Field label="Foto del comprobante" optional><label className="receipt-picker"><ImagePlus /><span>{receipt ? 'Cambiar imagen' : 'Añadir screenshot o foto'}</span><input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => readReceipt(event.target.files?.[0], setReceipt, setError)} /></label>{receipt && <div className="receipt-preview"><img src={receipt} alt="Vista previa del comprobante" /><button type="button" className="button button--quiet" onClick={() => setReceipt('')}>Quitar</button><small>Se conserva de forma privada en este dispositivo.</small></div>}</Field>
           {type === 'transfer' && accounts.find((item) => item.id === destination)?.kind === 'liability' && <p className="info-note">Se guardará como pago de tarjeta. Reduce el activo y la deuda, sin crear otro gasto.</p>}
           <div className="sheet__actions">{editing && <button type="button" className="button button--danger" onClick={deleteTransaction}><Trash2 /> Eliminar</button>}<button className="button button--primary" type="submit">{editing ? 'Guardar cambios' : 'Guardar movimiento'}</button></div>
         </form>
       </motion.section>
+      {categoryDialog && <CategoryDialog type={type} close={() => setCategoryDialog(false)} onCreated={setCategory} />}
     </motion.div>
   )
+}
+
+function readReceipt(file, setReceipt, setError) {
+  if (!file) return
+  if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) return setError('El comprobante debe ser JPG, PNG o WebP.')
+  if (file.size > 2 * 1024 * 1024) return setError('La imagen debe pesar máximo 2 MB.')
+  const reader = new FileReader()
+  reader.onload = () => setReceipt(String(reader.result))
+  reader.onerror = () => setError('No pudimos leer la imagen.')
+  reader.readAsDataURL(file)
+}
+
+function CategoryDialog({ type, close, onCreated }) {
+  const { actions, notify } = useApp()
+  const [name, setName] = useState('')
+  const [error, setError] = useState('')
+  return <SimpleDialog title="Nueva categoría" close={close}><form onSubmit={async (event) => { event.preventDefault(); try {
+    const clean = name.trim(); if (clean.length < 2 || clean.length > 50) throw new Error('Usa entre 2 y 50 caracteres.')
+    const id = makeId('category'); await actions.createCategory({ id, name: clean, type, version: 1, updated_at: new Date().toISOString() }); onCreated(id); notify('Categoría creada'); close()
+  } catch (issue) { setError(issue.message) } }}><Field label="Nombre" error={error}><input autoFocus value={name} maxLength="50" onChange={(event) => setName(event.target.value)} /></Field><p className="helper">Se creará como categoría de {type === 'income' ? 'ingreso' : 'gasto'}.</p><button className="button button--primary" type="submit">Crear categoría</button></form></SimpleDialog>
 }

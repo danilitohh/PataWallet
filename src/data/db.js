@@ -11,6 +11,17 @@ db.version(1).stores({
   allocations: 'id, goal_id, account_id',
   settings: 'key',
 })
+db.version(2).stores({
+  accounts: 'id, kind, archived',
+  categories: 'id, type',
+  transactions: 'id, type, occurred_at, from_account_id, to_account_id, status',
+  budgets: 'month',
+  goals: 'id',
+  allocations: 'id, goal_id, account_id',
+  planned_purchases: 'id, target_date, status',
+  receipts: 'transaction_id',
+  settings: 'key',
+})
 
 function normalizeTransaction(transaction) {
   return { ...transaction, amount_minor: Number(transaction.amount_minor), note: transaction.note || '', updated_at: new Date().toISOString() }

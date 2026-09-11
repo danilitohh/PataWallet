@@ -45,6 +45,8 @@ export async function loadRemoteWorkspace(userId) {
   const tables = ['accounts', 'categories', 'transactions', 'budgets', 'goals', 'goal_allocations', 'user_settings']
   const results = await Promise.all(tables.map((table) => supabase.from(table).select('*').eq('user_id', userId)))
   results.forEach(({ error }) => ensure(error))
+  const plannedResult = await supabase.from('planned_purchases').select('*').eq('user_id', userId)
+  if (plannedResult.error && plannedResult.error.code !== '42P01' && plannedResult.error.code !== 'PGRST205') ensure(plannedResult.error)
   const clean = (rows) => rows.map(({ user_id: _owner, created_at: _created, ...row }) => row)
   return {
     accounts: clean(results[0].data),
@@ -54,6 +56,7 @@ export async function loadRemoteWorkspace(userId) {
     goals: clean(results[4].data),
     allocations: clean(results[5].data),
     settingsRows: clean(results[6].data),
+    plannedPurchases: clean(plannedResult.data || []),
   }
 }
 
@@ -149,6 +152,13 @@ export async function executeRemoteOperation(userId, operation) {
     conflict(error)
     if (!data) throw new SyncConflictError('La meta cambió o ya fue eliminada.')
     return { entity: 'goals', deleted: true, id: operation.entity_id }
+  }
+  if (operation.action === 'delete' && operation.entity === 'planned_purchases') {
+    const { data, error } = await supabase.from('planned_purchases').delete().eq('user_id', userId)
+      .eq('id', operation.entity_id).eq('version', operation.expected_version).select().maybeSingle()
+    conflict(error)
+    if (!data) throw new SyncConflictError('La compra prevista cambió o ya fue eliminada.')
+    return { entity: operation.entity, deleted: true, id: operation.entity_id }
   }
   throw new Error(`Operación remota no soportada: ${operation.entity}/${operation.action}`)
 }

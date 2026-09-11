@@ -9,7 +9,7 @@ import { LoadingScreen, Toast } from '../shared/components/Feedback.jsx'
 import { PwaUpdatePrompt } from '../features/pwa/PwaUpdatePrompt.jsx'
 
 export function Workspace({ data, actions, syncState = null, isDemo, user, signOut }) {
-  const { accounts, categories, transactions, budgets, goals, allocations, settingsRows } = data
+  const { accounts, categories, transactions, budgets, goals, allocations, plannedPurchases = [], receipts = [], settingsRows } = data
   const settingsMap = useMemo(() => Object.fromEntries(settingsRows.map((row) => [row.key, row.value])), [settingsRows])
   const [sheet, setSheet] = useState(null)
   const [toast, setToast] = useState(null)
@@ -39,7 +39,7 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
     setToast({ message, undo })
     toastTimer.current = window.setTimeout(() => setToast(null), 5000)
   }
-  const value = { accounts, categories, transactions, budgets, goals, allocations, settings: settingsMap, syncState, reduceMotion, setSheet, notify, actions, isDemo, user, signOut }
+  const value = { accounts, categories, transactions, budgets, goals, allocations, plannedPurchases, receipts, settings: settingsMap, syncState, reduceMotion, setSheet, notify, actions, isDemo, user, signOut }
 
   return (
     <AppContext.Provider value={value}>

@@ -10,6 +10,7 @@ const tableKeys = {
   goals: 'id',
   goal_allocations: 'id',
   user_settings: 'key',
+  planned_purchases: 'id',
 }
 
 export function getUserDatabase(userId) {
@@ -27,6 +28,11 @@ export function getUserDatabase(userId) {
     outbox: '++sequence, &operation_id, [entity+entity_id], status, queued_at',
     sync_meta: 'key',
   })
+  database.version(2).stores({
+    accounts: 'id, kind, archived', categories: 'id, type', transactions: 'id, type, occurred_at, from_account_id, to_account_id, status', budgets: 'month', goals: 'id',
+    goal_allocations: 'id, goal_id, account_id', user_settings: 'key', planned_purchases: 'id, target_date, status', receipts: 'transaction_id',
+    outbox: '++sequence, &operation_id, [entity+entity_id], status, queued_at', sync_meta: 'key',
+  })
   databases.set(userId, database)
   return database
 }
@@ -41,13 +47,15 @@ function normalizeRow(table, row) {
 }
 
 export async function readWorkspace(database) {
-  const [accounts, categories, transactions, budgets, goals, allocations, settingsRows] = await Promise.all([
+  const [accounts, categories, transactions, budgets, goals, allocations, plannedPurchases, receipts, settingsRows] = await Promise.all([
     database.accounts.toArray(),
     database.categories.toArray(),
     database.transactions.toArray(),
     database.budgets.toArray(),
     database.goals.toArray(),
     database.goal_allocations.toArray(),
+    database.planned_purchases.toArray(),
+    database.receipts.toArray(),
     database.user_settings.toArray(),
   ])
   return {
@@ -57,6 +65,8 @@ export async function readWorkspace(database) {
     budgets,
     goals,
     allocations,
+    plannedPurchases,
+    receipts,
     settingsRows,
   }
 }
@@ -70,6 +80,7 @@ export async function cacheServerWorkspace(database, workspace) {
     goals: workspace.goals,
     goal_allocations: workspace.allocations,
     user_settings: workspace.settingsRows,
+    planned_purchases: workspace.plannedPurchases || [],
   }
   const tables = Object.keys(mapping).map((name) => database.table(name))
   await database.transaction('rw', [...tables, database.outbox, database.sync_meta], async () => {
