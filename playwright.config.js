@@ -4,6 +4,7 @@ export default defineConfig({
   testDir: './tests/e2e',
   outputDir: './output/playwright/results',
   reporter: 'line',
+  expect: { timeout: 10000 },
   use: { baseURL: 'http://127.0.0.1:4173', trace: 'retain-on-failure' },
   webServer: { command: 'npm run dev', url: 'http://127.0.0.1:4173', reuseExistingServer: true, env: { ...process.env, VITE_AUTH_DISABLED: 'true' } },
   projects: [

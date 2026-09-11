@@ -7,8 +7,10 @@ test('entra a la demo y navega por las áreas principales', async ({ page }) => 
   await demoButton.click()
   await expect(page.getByRole('heading', { name: /hola, danilo/i })).toBeVisible()
   await page.getByRole('link', { name: 'Actividad' }).click()
+  await expect(page).toHaveURL(/\/actividad$/)
   await expect(page.getByRole('heading', { name: 'Actividad' })).toBeVisible()
   await page.getByRole('link', { name: 'Plan' }).click()
+  await expect(page).toHaveURL(/\/plan$/)
   await expect(page.getByRole('heading', { name: 'Tu plan' })).toBeVisible()
 })
 
@@ -45,4 +47,20 @@ test('oculta montos y aplica las preferencias de tema y movimiento', async ({ pa
   await expect(page.locator('html')).toHaveAttribute('data-motion', 'off')
   await page.getByRole('link', { name: 'Inicio' }).click()
   await expect(page.getByText('••••••').first()).toBeVisible()
+})
+
+test('abre notificaciones sin solicitar permiso automáticamente', async ({ page }) => {
+  await page.addInitScript(() => {
+    window.__permissionRequests = 0
+    class TestNotification {}
+    TestNotification.permission = 'default'
+    TestNotification.requestPermission = async () => { window.__permissionRequests += 1; return 'default' }
+    Object.defineProperty(window, 'Notification', { value: TestNotification, configurable: true })
+  })
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Probar con datos de ejemplo' }).click()
+  await page.goto('/ajustes/notificaciones')
+  await expect(page.getByRole('heading', { name: 'Avisos privados de PataWallet' })).toBeVisible()
+  await expect(page.getByText('Solo para cuentas reales')).toBeVisible()
+  await expect.poll(() => page.evaluate(() => window.__permissionRequests)).toBe(0)
 })

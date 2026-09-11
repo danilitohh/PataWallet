@@ -1,12 +1,14 @@
 # PataWallet — paquete para Codex
 **Preparado para Danilo · 10 de septiembre de 2026 · Nombre provisional**
 
-Este repositorio reúne las imágenes disponibles, la dirección visual y el encargo de desarrollo de una web de finanzas personales para iPhone. **La Fase 1 ya contiene una SPA local ejecutable; el atajo y los servicios externos siguen sin instalar.**
+Este repositorio reúne las imágenes, la dirección visual y una SPA/PWA de finanzas personales para iPhone. **Las fases 1–4 tienen implementación local; las migraciones, notificaciones y recepción desde Atajos todavía requieren configuración remota y validación en iPhone. La plantilla está especificada, pero no se presenta como publicable hasta producirla en Apple Shortcuts.**
 
 ## Abrir la aplicación
 Requiere Node.js 22.12 o posterior. Ejecuta `npm install`, después `npm run dev` y abre `http://127.0.0.1:4173`.
 
-Con las variables de Supabase configuradas, la app exige registro o inicio de sesión y guarda cada espacio en PostgreSQL con RLS. También mantiene una cola IndexedDB separada por usuario, con reintentos idempotentes y conflictos visibles. Sin credenciales —o con `VITE_AUTH_DISABLED=true` para las pruebas— conserva la demo IndexedDB separada. Antes de usar cuentas reales, aplica las migraciones en orden y sigue [docs/AUTH_SETUP.md](docs/AUTH_SETUP.md) y [docs/DATA_SECURITY_AND_RECOVERY.md](docs/DATA_SECURITY_AND_RECOVERY.md).
+Verificación local: `npm run lint`, `npm test`, `npm run build`, `npm run test:e2e` y `npm run test:pwa`.
+
+Con las variables de Supabase configuradas, la app exige registro o inicio de sesión y guarda cada espacio en PostgreSQL con RLS. También mantiene una cola IndexedDB separada por usuario, con reintentos idempotentes y conflictos visibles. Sin credenciales —o con `VITE_AUTH_DISABLED=true` para las pruebas— conserva la demo IndexedDB separada. Antes de usar cuentas reales, aplica las migraciones en orden y sigue [docs/AUTH_SETUP.md](docs/AUTH_SETUP.md), [docs/DATA_SECURITY_AND_RECOVERY.md](docs/DATA_SECURITY_AND_RECOVERY.md), [docs/PWA_AND_PUSH.md](docs/PWA_AND_PUSH.md), [shortcuts/README.md](shortcuts/README.md) y [docs/FASE_4_PRUEBAS_IPHONE.md](docs/FASE_4_PRUEBAS_IPHONE.md).
 
 ## Organización del código
 
@@ -25,12 +27,17 @@ src/
 │   ├── settings/         # Preferencias locales
 │   └── transactions/     # Actividad, lista y editor de movimientos
 ├── shared/               # Componentes, hooks y utilidades reutilizables
+├── services/push/        # Capacidades, suscripción y cliente Web Push
+├── services/shortcuts/   # Cliente y contratos de Automatización
 ├── data/                 # Adaptadores de persistencia local y remota
 ├── lib/supabase/         # Cliente público de Supabase
 ├── domain/               # Reglas financieras y dinero entero
 ├── components/           # Recursos visuales transversales
 └── styles/               # Tokens y estilos globales
 supabase/migrations/      # Esquema PostgreSQL y políticas RLS
+api/push/                 # Funciones Node de suscripción, prueba y outbox
+api/shortcuts/            # Vinculación, eventos, reglas, mapeos y revisión
+shortcuts/                # Blueprint y metadatos; no es un .shortcut importable
 ```
 
 Cada `feature` puede contener subcarpetas `components/` y `model/`. Las reglas monetarias permanecen fuera de React en `domain/`, y las pantallas no acceden a detalles de inicialización de la aplicación.

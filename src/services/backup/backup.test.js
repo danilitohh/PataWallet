@@ -46,4 +46,11 @@ describe('respaldo versionado', () => {
     const demo = createBackup({ ...data, transactions: [{ ...data.transactions[0], source: 'demo' }] }, owner)
     expect(() => planBackupMerge(empty, demo)).toThrow(/demostración/i)
   })
+
+  it('no exporta ni restaura credenciales o eventos entrantes de Atajos', () => {
+    const serialized = JSON.stringify(createBackup({ ...data, deviceLinks: [{ token: 'secreto' }], incomingEvents: [{ event_id: 'evento' }] }, owner))
+    expect(serialized).not.toContain('secreto')
+    expect(serialized).not.toContain('incomingEvents')
+    expect(parseBackup(serialized, owner).data.transactions).toHaveLength(1)
+  })
 })

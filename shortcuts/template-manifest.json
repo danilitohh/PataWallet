@@ -1,0 +1,14 @@
+{
+  "artifact_type": "blueprint_not_importable",
+  "shortcutName": "PataWallet · Registrar compra",
+  "templateVersion": "1.0.0-blueprint",
+  "shortcutIcloudUrl": null,
+  "minSupportedVersionTested": null,
+  "availability": "pending",
+  "modes": ["pair", "connection_test", "capture"],
+  "retryPending": {
+    "available": false,
+    "reason": "No existe una cola duradera probada dentro de Atajos."
+  },
+  "contract": "../examples/shortcut-event.json"
+}

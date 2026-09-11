@@ -6,6 +6,7 @@ import { AppShell } from './AppShell.jsx'
 import { WelcomePage } from '../features/onboarding/WelcomePage.jsx'
 import { MovementSheet } from '../features/transactions/components/MovementSheet.jsx'
 import { LoadingScreen, Toast } from '../shared/components/Feedback.jsx'
+import { PwaUpdatePrompt } from '../features/pwa/PwaUpdatePrompt.jsx'
 
 export function Workspace({ data, actions, syncState = null, isDemo, user, signOut }) {
   const { accounts, categories, transactions, budgets, goals, allocations, settingsRows } = data
@@ -37,6 +38,7 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
         <AppShell><AppRoutes /></AppShell>
         <AnimatePresence>{sheet && <MovementSheet transaction={sheet === 'new' ? null : sheet} onClose={() => setSheet(null)} />}</AnimatePresence>
         <AnimatePresence>{toast && <Toast toast={toast} close={() => setToast(null)} />}</AnimatePresence>
+        <PwaUpdatePrompt />
       </MotionConfig>
     </AppContext.Provider>
   )

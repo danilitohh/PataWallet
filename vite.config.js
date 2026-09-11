@@ -1,8 +1,42 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    VitePWA({
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'service-worker.js',
+      registerType: 'prompt',
+      injectRegister: false,
+      includeAssets: ['patawallet-mark.svg', 'icons/patawallet-192.png', 'icons/patawallet-512.png', 'icons/apple-touch-icon.png'],
+      manifest: {
+        id: '/',
+        name: 'PataWallet · Finanzas personales',
+        short_name: 'PataWallet',
+        description: 'Finanzas personales privadas, claras y acompañadas por tu manada.',
+        lang: 'es-CO',
+        start_url: '/',
+        scope: '/',
+        display: 'standalone',
+        background_color: '#FAF8F6',
+        theme_color: '#123C50',
+        categories: ['finance', 'productivity'],
+        icons: [
+          { src: '/icons/patawallet-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: '/icons/patawallet-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: '/icons/patawallet-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        ],
+      },
+      injectManifest: {
+        globPatterns: ['**/*.{js,css,html,svg,png,webp}'],
+        globIgnores: ['**/assets/illustrations/*-800.webp', '**/assets/illustrations/*-1122.webp'],
+        maximumFileSizeToCacheInBytes: 700000,
+      },
+    }),
+  ],
   server: { host: '127.0.0.1', port: 4173 },
   preview: { host: '127.0.0.1', port: 4173 },
   build: {

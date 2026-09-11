@@ -9,6 +9,6 @@ export function SettingLink({ icon, title, detail, to }) {
   return <Link className="setting-link" to={to}><SettingRow icon={icon} title={title} detail={detail}><ChevronRight /></SettingRow></Link>
 }
 
-export function Switch({ checked, onChange, label }) {
-  return <button type="button" role="switch" aria-checked={checked} aria-label={label} className={`switch ${checked ? 'is-on' : ''}`} onClick={() => onChange(!checked)}><span /></button>
+export function Switch({ checked, onChange, label, disabled = false }) {
+  return <button type="button" role="switch" aria-checked={checked} aria-label={label} className={`switch ${checked ? 'is-on' : ''}`} onClick={() => onChange(!checked)} disabled={disabled}><span /></button>
 }

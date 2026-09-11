@@ -1,18 +1,26 @@
 import { Smartphone } from 'lucide-react'
+import { useApp } from '../../app/AppContext.jsx'
 import { IntegrationsHeader } from './components/IntegrationsHeader.jsx'
+import { ShortcutManagement } from './components/ShortcutManagement.jsx'
+import { ShortcutReviewList } from './components/ShortcutReviewList.jsx'
+import { ShortcutSetup } from './components/ShortcutSetup.jsx'
+import { useShortcutIntegration } from './hooks/useShortcutIntegration.js'
 
 export function AutomationPage() {
-  return (
-    <div className="route-stack">
-      <IntegrationsHeader title="Automatización" subtitle="Captura compatible mediante Atajos, separada de esta PWA." />
-      <section className="integration-card">
-        <span className="integration-icon"><Smartphone /></span>
-        <p className="status-label">Plantilla pendiente de publicar</p>
-        <h2>La integración aún no está disponible</h2>
-        <p>No existe un enlace iCloud, backend ni vinculación real. La app no puede leer Wallet directamente.</p>
-        <ol className="steps"><li><span>1</span><div><strong>Añadir la plantilla</strong><p>Se habilitará cuando exista un enlace real y versionado.</p></div></li><li><span>2</span><div><strong>Vincular esta cuenta</strong><p>Usará un ticket temporal, nunca un token permanente en la URL.</p></div></li><li><span>3</span><div><strong>Crear la automatización personal</strong><p>Se completa en Atajos y requiere una tarjeta compatible.</p></div></li><li><span>4</span><div><strong>Validar una compra normal</strong><p>Una prueba de conexión no crea gastos ni demuestra una compra.</p></div></li></ol>
-        <button className="button button--disabled" disabled>Añadir atajo</button>
-      </section>
-    </div>
-  )
+  const { isDemo, accounts, categories, transactions, notify } = useApp()
+  const integration = useShortcutIntegration(isDemo)
+  const review = integration.events.filter((item) => ['recorded_needs_category', 'needs_review', 'duplicate', 'conflict'].includes(item.result_status) && !item.resolved_at)
+  return <div className="route-stack">
+    <IntegrationsHeader title="Automatización" subtitle="Compras compatibles mediante Atajos, con revisión y permisos separados de esta PWA." />
+    <section className="integration-card shortcut-hero">
+      <span className="integration-icon"><Smartphone /></span>
+      <p className={`status-label ${integration.template.availability === 'available' ? 'status-label--active' : ''}`}>{integration.template.availability === 'available' ? 'Plantilla disponible' : 'Plantilla pendiente de publicar'}</p>
+      <h2>{integration.template.shortcutName}</h2>
+      <p>El atajo preparado recibirá únicamente los campos disponibles en una automatización de Transacción. No lee Wallet directamente ni importa historial.</p>
+      {integration.error && <p className="push-result push-result--failed" role="alert">{integration.error} La migración o configuración del servidor puede seguir pendiente.</p>}
+    </section>
+    <ShortcutSetup integration={integration} isDemo={isDemo} notify={notify} />
+    {!isDemo && <ShortcutManagement integration={integration} accounts={accounts} categories={categories} notify={notify} />}
+    {!isDemo && <section className="shortcut-section"><div className="section-heading"><div><h2>Por revisar</h2><p>{review.length} eventos requieren una decisión tuya.</p></div></div><ShortcutReviewList items={review} accounts={accounts} categories={categories} transactions={transactions} onResolve={integration.resolve} notify={notify} /></section>}
+  </div>
 }

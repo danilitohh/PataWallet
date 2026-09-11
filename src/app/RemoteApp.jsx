@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Workspace } from './Workspace.jsx'
 import { SyncController } from '../services/sync/syncController.js'
 import { LoadingScreen, StateMessage } from '../shared/components/Feedback.jsx'
+import { deactivatePush } from '../services/push/pushClient.js'
 
 export function RemoteApp({ user, signOut }) {
   const [data, setData] = useState(null)
@@ -32,12 +33,23 @@ export function RemoteApp({ user, signOut }) {
     return () => { active = false; unsubscribe(); controller.dispose() }
   }, [controller])
 
+  useEffect(() => {
+    const refreshWhenVisible = () => { if (document.visibilityState === 'visible') controller.syncNow().catch(() => {}) }
+    const interval = window.setInterval(refreshWhenVisible, 30_000)
+    document.addEventListener('visibilitychange', refreshWhenVisible)
+    return () => { window.clearInterval(interval); document.removeEventListener('visibilitychange', refreshWhenVisible) }
+  }, [controller])
+
   const actions = useMemo(() => controller.actions(refresh), [controller, refresh])
   const guardedSignOut = useCallback(async () => {
     const pending = await controller.pendingCount()
     if (pending && !confirm(`Hay ${pending} cambio${pending === 1 ? '' : 's'} sin sincronizar. Se conservarán en este dispositivo para esta cuenta. ¿Cerrar sesión de todos modos?`)) return
+    if ('serviceWorker' in navigator && 'Notification' in window && Notification.permission === 'granted') {
+      const { serverRemoved } = await deactivatePush(user.id)
+      if (!serverRemoved && !confirm('Se desactivó el aviso en este dispositivo, pero no se pudo confirmar la limpieza en el servidor. ¿Cerrar sesión de todos modos?')) return
+    }
     await signOut()
-  }, [controller, signOut])
+  }, [controller, signOut, user.id])
   if (error) return <StateMessage title="No pudimos abrir tu espacio" body={`${error} Verifica que la migración de Supabase esté aplicada.`} action={() => location.reload()} actionLabel="Reintentar" />
   if (!data) return <LoadingScreen />
   return <Workspace data={data} actions={actions} syncState={syncState} isDemo={false} user={user} signOut={guardedSignOut} />

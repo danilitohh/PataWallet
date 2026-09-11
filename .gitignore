@@ -2,8 +2,10 @@ node_modules/
 dist/
 .playwright-cli/
 output/playwright/results/
+output/playwright/pwa-results/
 playwright-report/
 graphify-out/
 .env.local
 .env.*.local
 client_secret*.json
+supabase/.temp/

@@ -1,58 +1,73 @@
 # Estado de implementación
 
-Actualizado: 2026-09-10. Fase actual: **Fase 2 en implementación local; migración y pruebas remotas pendientes**.
+Actualizado: 2026-09-10. Fase actual: **Fase 4 implementada localmente; plantilla Apple, migraciones remotas y validación en iPhone pendientes**.
 
-## Implementado
+## IMPLEMENTADO
 
 | Área | Estado actual | Evidencia / límite |
 |---|---|---|
-| Diseño y navegación | Conservados | No se rediseñaron rutas, composición ni ilustraciones de Fase 1 |
-| Demo | Separada | Sigue usando `patawallet-demo-v1`; nunca se importa automáticamente a usuarios reales |
-| Auth | Implementado | Supabase Auth para registro, confirmación compatible, correo/contraseña, Google, recuperación, sesión persistente y cierre |
-| Google OAuth | Verificado manualmente | El usuario completó el acceso y regresó a `pata-wallet.vercel.app`; no se modificó el flujo en esta fase |
-| Espacios por usuario | Implementado | Tablas con propietario, claves foráneas compuestas y RLS; la migración base fue aplicada por el usuario y la app abrió el espacio real |
-| Caché local privada | Implementada | Una base Dexie `patawallet-user-<uuid>` por usuario; no se consulta ni envía la cola de otra sesión |
-| Cola y reintentos | Implementados | `outbox` conserva `operation_id`, orden, intentos y error; reintentos reutilizan el UUID |
-| Estados de sincronización | Implementados | Guardado en dispositivo, pendiente, sincronizando, sincronizado y conflicto visibles; reintento manual y al volver la conexión |
-| Sesión vencida/cambio de usuario | Implementado en cliente | Una sesión inválida no borra la cola; cerrar con pendientes muestra advertencia; cada usuario usa almacenamiento distinto |
-| Conflictos | Implementados | Control de versión; el servidor no se sobrescribe silenciosamente. El usuario puede descartar explícitamente el cambio local conflictivo |
-| Movimientos y asientos | Implementados en migración | `ledger_entries` y RPC transaccional para crear, editar, anular y restaurar; aperturas/transferencias/pagos no se convierten en gasto nuevo |
-| Transferencias | Atómicas en migración | Movimiento, validación, versiones y reconstrucción de todos los asientos ocurren dentro de una función PostgreSQL |
-| Reservas | Validadas en migración | RPC idempotente comprueba activo/meta propios y saldo registrado no reservado antes de insertar |
-| Autorización | Endurecida en migración | Escritura directa de movimientos, asientos y reservas revocada; funciones privadas verifican `auth.uid()`; lectura con RLS |
-| Índices | Implementados en migración | Propietario, referencias, historial y recibos de idempotencia indexados |
-| CSV | Implementado y probado | Exportación de movimientos con celdas entrecomilladas y neutralización de fórmulas |
-| Respaldo JSON | Implementado y probado | Formato versionado, propietario, validación estricta, límite de tamaño y restauración por mezcla sin sobrescritura |
-| Documentación operativa | Actualizada | `docs/AUTH_SETUP.md` y `docs/DATA_SECURITY_AND_RECOVERY.md` |
+| Diseño, mascotas, navegación y datos | Conservados | No se rehízo la app ni se sustituyeron las ilustraciones estáticas |
+| Fases 1–2 | Conservadas | CRUD financiero, cuentas, presupuestos, metas, Auth, almacenamiento por usuario, sincronización y respaldo siguen operativos |
+| Fase 3 | Conservada | PWA, worker, actualización y Web Push permanecen; migración/entrega real siguen pendientes fuera de este equipo |
+| Pantalla Automatización | Implementada | Flujo Añadir → vincular → automatización personal → prueba → compra; estados independientes y avisos honestos |
+| Plantilla preparada | Blueprint completo | `shortcuts/README.md` y manifiesto describen acciones, modos y producción; no se creó un `.shortcut` falso ni enlace iCloud inventado |
+| Vinculación | Implementada localmente | Ticket aleatorio de 32 bytes, hash, cinco minutos, consumo atómico, token de 32 bytes con hash, expiración, estado incompleto hasta la primera prueba y revocación |
+| API de Atajos | Implementada localmente | Pairing, canje, prueba sin efecto financiero, eventos, estado, revocación, mapeos, reglas y resolución de revisión |
+| Autorización | Implementada en migración/API | El servidor deriva usuario/dispositivo de credenciales; el cuerpo no acepta `user_id`; RLS de lectura propia y escritura solo de servidor |
+| Recepción y dinero | Implementada en migración | COP en unidades menores enteras, fecha ocurrida separada de recepción, débito/crédito mediante el libro contable existente |
+| Idempotencia | Implementada en migración | Bloqueo transaccional y unicidad por usuario/evento; misma huella devuelve resultado, contenido distinto devuelve conflicto |
+| Posibles duplicados | Implementados | Eventos o movimientos manuales similares quedan para decisión; se pueden asociar sin crear asientos nuevos |
+| Categorías | Implementadas | Reglas exactas deterministas; sin regla crea gasto “Sin categoría”, cuenta en totales y queda por revisar |
+| Bandeja Por revisar | Implementada | Disponible en Automatización y como filtro de Actividad; permite completar, categorizar, crear regla futura o asociar duplicado |
+| Prueba vs compra | Separadas | `/test` solo actualiza `last_test_at`; `/events` actualiza el último evento y puede crear movimiento |
+| Estado de automatización iOS | Honesto | El usuario puede declararla configurada o retirar la declaración; la app la rotula como no verificada |
+| Revocación | Implementada | Invalida token sin borrar movimientos y advierte que la automatización de iOS debe desactivarse aparte |
+| Actualización con app activa | Implementada | La sesión real vuelve a consultar al hacerse visible y cada 30 segundos mientras la app está abierta |
+| Respaldo | Endurecido | La copia existente conserva movimientos automáticos, pero excluye tokens, vínculos y eventos de ingreso; restaurar no reactiva ni reemite |
 
-## Pruebas ejecutadas
+## PROBADO LOCALMENTE
 
-- Línea base previa: `npm run lint`, `npm test` (4/4), `npm run build` y `npm run test:e2e` (12/12) aprobados.
-- Después de implementar sincronización y respaldo: `npm run lint` aprobado.
-- `npm test`: 5 archivos, 19 pruebas aprobadas. Incluyen contrato de autenticación administrada por Supabase, reglas financieras, fin de mes en `America/Bogota`, anulación/edición, reembolso, reintento estable, conflicto, separación local por usuario, CSV y restauración aislada con referencias inválidas/duplicadas rechazadas antes de escribir.
-- `npm run build`: aprobado. El bundle usa únicamente la clave publicable en el cliente; no se añadió ninguna clave privilegiada.
-- `npm run test:e2e`: 12/12 pruebas aprobadas después de los cambios. Se revisaron además capturas a 390×844, 375×812 y 1440×900; esa inspección manual no mostró errores de consola. La ejecución E2E solo emitió el aviso informativo de Motion al activar movimiento reducido.
-- La restauración JSON se probó en colecciones aisladas en memoria; no se sobrescribieron datos remotos.
+- Línea base antes de Fase 4: `npm run lint`, `npm test` (26/26) y `npm run build` pasaron.
+- La línea base `npm run test:e2e` tuvo 13/18 aprobadas y 5 timeouts bajo seis navegadores concurrentes. Los timeouts afectaron navegación/capturas y se registran como fallo real, no como validación aprobada.
+- Después de implementar Fase 4: `npm run lint` aprobado; `npm test` aprobó 13 archivos y 54 pruebas; `npm run build` aprobado.
+- Las pruebas unitarias cubren contrato JSON, entero monetario, fecha con zona, formato ambiguo, normalización determinista, secretos de 32 bytes, huella de reintento/conflicto, ausencia de enlace iCloud falso, endpoints sin credencial/cuerpos grandes, exclusión de secretos en respaldos y contrato SQL de RLS/idempotencia.
+- La migración pgTAP se amplió a 20 aserciones para aislamiento A/B de vínculos, mapeos, reglas y eventos, además de denegar escritura directa del navegador. **No se ejecutó aún** porque no hay PostgreSQL/Docker local ni sesión remota autorizada.
+- El build mantiene un único service worker y excluye API/Auth de la caché; muestra la advertencia heredada de `inlineDynamicImports` sin impedir el artefacto.
+- `npx playwright test --workers=1`: 22 aprobadas y 2 omisiones intencionales (la variante noche/movimiento reducido se ejecuta una vez en 390×844; la pantalla clara se ejecuta en 390×844, 375×812 y 1440×900). Sin desbordamiento horizontal ni errores de consola. Las capturas están en `output/playwright/phase4-shortcuts-*.png`.
+- `npm run test:pwa`: 1/1 aprobada después de Fase 4; el shell ya cargado volvió a abrir una ruta interna sin red con un único worker.
+- `npm audit` y `npm audit --omit=dev`: 0 vulnerabilidades conocidas.
+- `supabase db lint --local` no se pudo ejecutar: no existe Docker/PostgreSQL local y la conexión `127.0.0.1:54322` fue rechazada. No se sustituyó esta prueba por una afirmación visual sobre SQL.
 
-## No ejecutado / fallos de entorno
+## PROBADO EN IPHONE
 
-- `supabase/tests/rls_isolation.sql` quedó preparado para dos usuarios y solicitudes directas, pero no se ejecutó: este equipo no tiene Docker, `psql` ni Supabase CLI local instalados.
-- La sintaxis/ejecución real de `20260910190327_phase2_ledger_sync_security.sql` no se ha comprobado en PostgreSQL.
-- No se aplicó la nueva migración al proyecto remoto y no se modificó Supabase desde Codex, conforme al límite solicitado.
-- No se verificó todavía una edición concurrente entre dos navegadores reales ni una restauración completa contra una rama/base aislada de Supabase.
-- Confirmación de correo y recuperación completa dependen de la configuración de correo/SMTP y necesitan una prueba manual real.
+**Nada de Fase 4 se ha probado en un iPhone.** No se afirma importación, almacenamiento persistente del token, ejecución automática, payload nativo, compra compatible, comportamiento sin red ni revocación real. La hoja exacta está en `docs/FASE_4_PRUEBAS_IPHONE.md`.
 
-## Pendiente por configuración externa
+## FALLOS O LIMITACIONES
 
-1. Aplicar `20260910190327_phase2_ledger_sync_security.sql` en una rama/proyecto aislado y ejecutar pruebas PostgreSQL.
-2. Ejecutar `supabase test db`, Security Advisor y Performance Advisor; corregir cualquier hallazgo antes de producción.
-3. Probar con dos usuarios reales que A no pueda leer, editar, borrar ni referenciar datos de B mediante peticiones directas a REST/RPC.
-4. Probar offline → recarga → reconexión y conflicto en navegadores reales.
-5. Probar descarga y restauración JSON en un entorno aislado del servidor.
-6. Configurar y validar SMTP, remitente, límites, confirmación y recuperación.
+- Este equipo Windows no puede abrir Apple Shortcuts, producir/firmar un `.shortcut`, publicar un enlace iCloud ni inspeccionar la entrada real del disparador Transacción.
+- Apple documenta el disparador al tocar una tarjeta seleccionada, pero no garantiza públicamente los campos de monto/comercio/alias. La plantilla debe mapear solo lo observado en el iPhone.
+- `retry_pending` no está incluido. Sin red, el atajo deberá informar que no pudo enviar; no promete una cola inexistente.
+- La migración Fase 4 depende de las migraciones pendientes de Fase 2 y Fase 3.
+- No se ejecutaron pruebas SQL reales de expiración, consumo doble/concurrente, evento concurrente, RLS A/B, débito/crédito o outbox. Existen migración y casos pgTAP, pero su ejecución remota está pendiente.
+- No se verificó el backend en Vercel ni se modificó el despliegue existente.
+- Siguen pendientes de fases anteriores: restauración PostgreSQL aislada, Security Advisor, correo/recuperación remotos y recepción Web Push en iPhone.
+
+## PENDIENTE POR CONFIGURACIÓN EXTERNA
+
+1. Resolver primero los pendientes remotos de Fase 2 y aplicar, en una rama/proyecto aislado y en orden, Fase 2 → `20260910210000_phase3_web_push.sql` → `20260911013904_phase4_shortcuts_categorization.sql`.
+2. Ejecutar `supabase test db`, Security Advisor y solicitudes directas con usuarios A/B; probar tickets y eventos concurrentes contra PostgreSQL real.
+3. Configurar solo en servidor `APP_ORIGIN`, `SUPABASE_SECRET_KEY`, `SHORTCUT_ICLOUD_URL`, `SHORTCUT_TEMPLATE_VERSION`, `SHORTCUT_NAME` y `SHORTCUT_MIN_IOS_TESTED`. No usar prefijo `VITE_` para secretos.
+4. La persona responsable debe construir el blueprint en Apple Shortcuts, probarlo en un segundo dispositivo limpio, publicar el enlace iCloud real y comprobar que no contiene credenciales.
+5. Autorizar por separado el despliegue de API/migraciones. Hasta entonces el sitio actualmente publicado no recibe estos endpoints.
+6. Completar `docs/FASE_4_PRUEBAS_IPHONE.md` con versión exacta de iOS y tarjetas solo por alias, usando la siguiente compra habitual compatible.
+7. Tras desplegar con autorización, repetir E2E sobre el origen real y completar los flujos autenticados de mapeo/revisión con la migración aplicada.
+
+## BLOQUEADO
+
+- **Publicación de la plantilla:** requiere una persona con un dispositivo Apple y permiso para compartir el atajo por iCloud.
+- **Validación remota:** requiere autorización explícita para aplicar migraciones, desplegar endpoints y usar el proyecto Supabase/Vercel.
+- **Certificación de compra compatible:** requiere el iPhone y una transacción habitual real; no puede simularse desde navegador o Windows.
 
 ## Decisión de preparación
 
-La Fase 2 **no está lista todavía para ser el único registro de datos personales reales**. La implementación local existe y sus pruebas unitarias pasan, pero la nueva migración, el aislamiento remoto con dos usuarios, los advisors y la restauración PostgreSQL aislada siguen pendientes.
-
-PWA/Web Push pertenecen a Fase 3. Wallet/Atajos y captura automática no se implementaron en esta fase.
+Fase 4 está construida y probada en la capa local disponible, pero **no está validada como integración real**. PataWallet no debe presentarse todavía como sincronizada con Wallet/Atajos ni como único registro financiero. No se inició Fase 5.
