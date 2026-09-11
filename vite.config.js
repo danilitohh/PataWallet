@@ -11,6 +11,12 @@ export default defineConfig({
       filename: 'service-worker.js',
       registerType: 'prompt',
       injectRegister: false,
+      integration: {
+        configureCustomSWViteBuild(config) {
+          config.build.codeSplitting = false
+          delete config.build.rollupOptions?.output?.inlineDynamicImports
+        },
+      },
       includeAssets: ['patawallet-mark.svg', 'icons/patawallet-192.png', 'icons/patawallet-512.png', 'icons/apple-touch-icon.png'],
       manifest: {
         id: '/',

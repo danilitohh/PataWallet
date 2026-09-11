@@ -27,7 +27,7 @@ Medido el 2026-09-10 con `npm run build`, caché de dependencias caliente y sin 
 | Precaché PWA | 1162,68 KiB | 1164,39 KiB | 30 entradas |
 | Compilación | 824 ms | 893 ms | Variación local, no benchmark controlado |
 
-Persiste una advertencia no bloqueante de `inlineDynamicImports` en la integración PWA. No se envían originales de diseño; `picture` elige 480, 800 o 1122 px.
+El build del worker usa la compatibilidad de Vite 8 `codeSplitting: false` y ya no emite la advertencia de `inlineDynamicImports`. `glob`, dependencia transitiva de Workbox, queda fijada en 13.0.6. No se envían originales de diseño; `picture` elige 480, 800 o 1122 px.
 
 ## Inventario de mascotas
 
@@ -72,4 +72,4 @@ La revisión de navegador comprobó composición, navegación, hoja horizontal, 
 - Crítico: migraciones en proyecto aislado autorizado, RLS A/B/API directa, asientos concurrentes y restauración PostgreSQL.
 - Alto: endpoints autorizados, push real, plantilla firmada/importable, revocación y compra habitual en iPhone.
 - Medio: VoiceOver, texto del sistema, teclado y orientación en iPhone.
-- Bajo: advertencia PWA y licencia explícita de redistribución de ilustraciones.
+- Bajo: licencia explícita de redistribución de ilustraciones.
