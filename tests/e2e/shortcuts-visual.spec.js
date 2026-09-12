@@ -6,7 +6,7 @@ test('presenta el flujo de Atajos con estados honestos y sin enlace falso', asyn
   await page.goto('/')
   await page.getByRole('button', { name: /probar con datos de ejemplo/i }).click()
   await page.goto('/ajustes/automatizacion')
-  await expect(page.getByRole('heading', { name: 'PataWallet · Registrar compra' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'PataWallet - Registrar compra' })).toBeVisible()
   await expect(page.getByText('Plantilla pendiente de publicar').first()).toBeVisible()
   await expect(page.getByRole('button', { name: /Añadir atajo — pendiente/i })).toBeDisabled()
   await expect(page.getByText(/prueba no crea gastos/i)).toBeVisible()

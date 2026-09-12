@@ -10,8 +10,10 @@ Actualizado: 2026-09-11. Fase actual: **Fase 5 revisada localmente; ampliaciones
 - Metas: corregido el modal compartido que quedaba dentro de un ancestro `inert`; X, Escape y Guardar vuelven a funcionar.
 - Próximas compras: alta, edición y eliminación, sin crear gastos. Compara el estimado con el presupuesto restante y con activos registrados menos reservas.
 - Migración `20260911120000_planned_purchases.sql` aplicada al proyecto remoto autorizado. Verificación SQL: tabla presente, RLS activo, 1 política propia, índice presente, `anon_select = false` y CRUD autenticado habilitado bajo RLS.
-- Automatización Apple: el receptor, vinculación y categorización de PataWallet siguen preparados; la plantilla importable y su automatización Transacción continúan pendientes de publicación/configuración y prueba en iPhone. La PWA no puede activar Wallet por sí sola.
-- Verificación de Atajos documentada en `docs/ATAJO_REGISTRAR_COMPRA.md`: Apple confirma el activador por tarjeta, solicitudes API y publicación iCloud; no documenta públicamente las propiedades del payload de Transacción, que deben inspeccionarse en el iPhone responsable antes de terminar y publicar la plantilla.
+- Automatización Apple: el receptor, vinculación y categorización de PataWallet están preparados. La plantilla `PataWallet - Registrar compra` fue construida y publicada por el usuario en iCloud; la automatización personal Wallet quedó configurada para ejecutar inmediatamente y sin aviso previo.
+- Enlace publicado: `https://www.icloud.com/shortcuts/12c4f7d2f466425ba3e9379203ab59f5`. El código distingue “publicada” de “probada”: `SHORTCUT_MIN_IOS_TESTED` permanece opcional hasta completar una prueba real.
+- Evidencia de iPhone recibida: el activador aparece como **Wallet**, permite escoger tarjetas y conduce a “Cuando use sin contacto…”. La automatización construye un diccionario con `amount`, `merchant_name` y `card_alias` antes de ejecutar la plantilla compartida.
+- Inspección de la variable real completada: entrada tipo `Transacción` con propiedades `Tarjeta o pase`, `Comercio`, `Cantidad` y `Nombre`. Fecha y moneda no aparecen; la plantilla añade fecha de ejecución y COP. Falta vincular contra el despliegue actualizado, probar conexión y confirmar valores/tipos mediante una compra habitual.
 
 ## Implementado
 
@@ -20,7 +22,7 @@ Actualizado: 2026-09-11. Fase actual: **Fase 5 revisada localmente; ampliaciones
 | Fase 1: SPA financiera | Implementada | Demo separada, navegación, movimientos, cuentas, presupuesto y metas |
 | Fase 2: Auth, datos y seguridad | Migraciones remotas aplicadas; RLS A/B probado | API HTTP directa, concurrencia y restauración PostgreSQL aislada pendientes |
 | Fase 3: PWA y Web Push | Implementada localmente | Recepción/apertura real y actualización en iPhone pendientes |
-| Fase 4: Atajos/categorización | Migración remota aplicada y esquema verificado | Blueprint, no `.shortcut`; endpoints con sesión, compra real y vínculo persistente pendientes |
+| Fase 4: Atajos/categorización | Plantilla iCloud publicada; receptor y migración preparados | Instalación desde enlace, vínculo persistente, prueba de conexión y compra real pendientes |
 | Fase 5: acabado | Implementada | Foco, horizontal/texto ampliado, estados accesibles, imágenes y temporizadores |
 | Mascotas | Cuatro escenas estáticas | 12 WebP; no hay capas, rigs ni gestos animados |
 | Operación | Documentada | Guía, validación final y publicación/recuperación |
@@ -28,8 +30,9 @@ Actualizado: 2026-09-11. Fase actual: **Fase 5 revisada localmente; ampliaciones
 ## Probado automáticamente
 
 - `npm run lint`: PASÓ.
-- `npm test`: PASÓ, 14 archivos y 56 pruebas. Incluye reglas financieras, COP, mes America/Bogota, reembolso, sincronización/idempotencia/conflictos, contratos Auth/PWA/Push/Atajos, respaldo/CSV y evaluación de próximas compras.
-- `npm run build`: PASÓ con Vite 8.3.0; 30 entradas y 1164,39 KiB de precaché. La configuración adapta el build del worker a `codeSplitting: false`, sin la opción obsoleta `inlineDynamicImports`.
+- `npm test`: PASÓ, 14 archivos y 57 pruebas. Incluye la separación entre plantilla publicada y versión de iOS probada.
+- `npm run build`: PASÓ con Vite 8.3.0; 30 entradas y 1177,53 KiB de precaché. La configuración adapta el build del worker a `codeSplitting: false`, sin la opción obsoleta `inlineDynamicImports`.
+- E2E dirigido de Automatización en escritorio: PASÓ 1/1. La ejecución completa paralela quedó inválida por `EBUSY` de Windows al observar sus propios artefactos de Playwright; tras caer el servidor produjo 32 fallos derivados y 5 pruebas alcanzaron a pasar.
 - Dependencias de build: `glob` se resuelve explícitamente a 13.0.6 bajo `workbox-build`; `npm audit --omit=dev` permanece en 0 vulnerabilidades conocidas.
 - Línea base E2E: 22 pruebas efectivas pasaron y 2 variantes se omitieron intencionalmente.
 - Suite ampliada final: 28 PASÓ y 2 variantes se omitieron intencionalmente. El retorno de foco había fallado primero en 390×844; corregido el disparador, la regresión pasó 3/3 en 390×844, 375×812 y escritorio.
@@ -54,7 +57,7 @@ VoiceOver, teclado/áreas seguras reales, instalación/actualización PWA, Web P
 ## Bloqueos
 
 - **Crítico:** API HTTP A/B directa, concurrencia de asientos y restauración PostgreSQL aislada.
-- **Alto:** endpoints autorizados, push real, plantilla Apple, segundo dispositivo limpio y compra compatible.
+- **Alto:** endpoints autorizados, push real, instalación/vinculación de la plantilla Apple, segundo dispositivo limpio y compra compatible.
 - **Medio:** VoiceOver, texto del sistema y teclado en iPhone.
 - **Bajo:** licencia explícita de redistribución de ilustraciones.
 

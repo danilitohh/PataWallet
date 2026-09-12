@@ -16,7 +16,7 @@ export function AutomationPage() {
       <span className="integration-icon"><Smartphone /></span>
       <p className={`status-label ${integration.template.availability === 'available' ? 'status-label--active' : ''}`}>{integration.template.availability === 'available' ? 'Plantilla disponible' : 'Plantilla pendiente de publicar'}</p>
       <h2>{integration.template.shortcutName}</h2>
-      <p>El atajo preparado recibirá únicamente los campos disponibles en una automatización de Transacción. No lee Wallet directamente ni importa historial.</p>
+      <p>El atajo recibe únicamente el diccionario que prepara la automatización personal con monto, comercio y alias de tarjeta. No lee Wallet directamente ni importa historial.</p>
       {integration.error && <p className="push-result push-result--failed" role="alert">{integration.error} La migración o configuración del servidor puede seguir pendiente.</p>}
     </section>
     <ShortcutSetup integration={integration} isDemo={isDemo} notify={notify} />

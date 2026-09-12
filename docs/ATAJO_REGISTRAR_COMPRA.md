@@ -2,9 +2,9 @@
 
 ## Conclusión verificada
 
-Apple documenta que el activador **Transacción → Cuando acerco el dispositivo** puede ejecutar una automatización al acercar una tarjeta seleccionada. También documenta que la acción **Obtener contenido de URL** realiza solicitudes a una API y que un atajo puede compartirse por iCloud.
+Apple documenta el activador de transacción. En el iPhone validado por el usuario aparece en español como **Wallet → Al realizar un pago sin contacto con mi tarjeta o pase de Wallet** y, dentro de la configuración, como **Cuando use sin contacto…**. Puede ejecutar una automatización al usar una tarjeta seleccionada. Apple también documenta que la acción **Obtener contenido de URL** realiza solicitudes a una API y que un atajo puede compartirse por iCloud.
 
-La documentación pública de Apple no enumera las propiedades que la entrada de Transacción expone al atajo. Por tanto, `monto`, `moneda`, `comercio` y `tarjeta` siguen siendo nombres de nuestro contrato, no nombres certificados de propiedades de iOS. Deben mapearse después de inspeccionar la entrada real en el iPhone responsable.
+La documentación pública de Apple no enumera las propiedades que la entrada de Transacción expone al atajo. La inspección realizada en el iPhone del responsable confirmó una entrada de tipo **Transacción** con estas propiedades: **Transacción**, **Tarjeta o pase**, **Comercio**, **Cantidad** y **Nombre**. No aparecieron fecha ni moneda como propiedades seleccionables. Estos nombres ya son evidencia del dispositivo observado, pero se mantiene la prueba con una compra habitual para confirmar sus valores y tipos efectivos.
 
 Fuentes oficiales:
 
@@ -16,11 +16,11 @@ Fuentes oficiales:
 
 La automatización personal y el atajo compartido son piezas distintas:
 
-1. El responsable construye y publica una sola plantilla llamada `PataWallet · Registrar compra`.
+1. El responsable construye y publica una sola plantilla llamada `PataWallet - Registrar compra`.
 2. Cada usuario añade esa plantilla desde el enlace iCloud de PataWallet.
 3. PataWallet genera un ticket de vinculación de cinco minutos y ejecuta la plantilla con ese ticket.
 4. La plantilla canjea el ticket por un token limitado a `test` y `event`; no puede leer, editar ni borrar el historial.
-5. Cada usuario crea la automatización personal Transacción, selecciona sus tarjetas y elige ejecutar la plantilla instalada.
+5. Cada usuario crea la automatización personal Wallet (el nombre puede aparecer como Transacción en otras versiones/regiones), selecciona sus tarjetas y elige ejecutar la plantilla instalada.
 6. En una compra compatible, la plantilla transforma la entrada real al contrato de PataWallet y llama a `/api/shortcuts/events`.
 
 La PWA no puede crear silenciosamente la automatización personal ni seleccionar tarjetas por el usuario.
@@ -29,7 +29,7 @@ La PWA no puede crear silenciosamente la automatización personal ni seleccionar
 
 - `API_ORIGIN`: `https://pata-wallet.vercel.app`
 - `TEMPLATE_VERSION`: versión publicada, por ejemplo `1.0.0`
-- `SHORTCUT_NAME`: `PataWallet · Registrar compra`
+- `SHORTCUT_NAME`: `PataWallet - Registrar compra`
 - `CONFIG_FILE`: archivo privado de configuración elegido durante la producción del atajo.
 
 El token no se incluye en la plantilla pública. Si se persiste mediante Archivos/iCloud Drive, debe describirse como un archivo de configuración con un token limitado, no como Keychain ni almacenamiento cifrado.
@@ -65,11 +65,11 @@ No mostrar “vinculado” si falta alguno de esos campos o falla el guardado.
 
 ## Flujo `capture`
 
-1. Recibir la entrada del activador Transacción.
-2. Extraer solo propiedades confirmadas en el iPhone de validación.
+1. Recibir un diccionario creado por la automatización personal.
+2. En esa automatización, mapear `Tarjeta o pase` → `card_alias`, `Comercio` → `merchant_name` y `Cantidad` → `amount`. La plantilla compartida consume esas tres claves sin depender del tipo privado Transacción.
 3. Generar UUID antes de enviar y conservarlo en cualquier reintento de esa ejecución.
 4. Convertir el monto decimal confirmado a unidades menores: multiplicar por 100 y redondear; producir una cadena entera positiva. No analizar texto localizado ambiguo.
-5. Formatear la fecha con ISO 8601 y zona/offset.
+5. Obtener la fecha actual durante la ejecución y formatearla con ISO 8601 y zona/offset, porque no aparece como propiedad de la entrada observada. Usar `COP` según la moneda única actual del perfil; no inferir moneda desde texto.
 6. Construir el JSON:
 
 ```json
@@ -93,13 +93,10 @@ No mostrar “vinculado” si falta alguno de esos campos o falla el guardado.
 
 ## Validación obligatoria en el iPhone responsable
 
-1. Crear temporalmente una automatización Transacción con una tarjeta de prueba por alias.
-2. Pasar la Entrada del atajo a una copia de diagnóstico que use Vista rápida/Mostrar resultado, sin enviar datos al servidor.
-3. En la siguiente compra habitual compatible, anotar los nombres y tipos de las propiedades realmente disponibles; no registrar número completo de tarjeta.
-4. Sustituir el bloque diagnóstico por las acciones `Obtener detalles de ...` confirmadas.
-5. Probar primero `pair`, después `connection_test`, y finalmente una compra habitual.
-6. Confirmar débito/crédito, mapeo de alias, categoría, duplicado y revocación con `docs/FASE_4_PRUEBAS_IPHONE.md`.
-7. Revisar que la plantilla no contenga tokens ni datos del creador y compartirla mediante iCloud.
-8. Configurar en Vercel `SHORTCUT_ICLOUD_URL`, `SHORTCUT_TEMPLATE_VERSION`, `SHORTCUT_NAME` y `SHORTCUT_MIN_IOS_TESTED` con valores realmente publicados/probados.
+1. Instalar la plantilla desde el enlace iCloud publicado y vincularla desde la sesión real de PataWallet.
+2. Probar primero `pair` y después `connection_test`; ninguna de estas operaciones crea una compra.
+3. En la siguiente compra habitual compatible, comprobar los valores y tipos efectivos de `Tarjeta o pase`, `Comercio` y `Cantidad`; no registrar número completo de tarjeta.
+4. Confirmar débito/crédito, mapeo de alias, categoría, duplicado y revocación con `docs/FASE_4_PRUEBAS_IPHONE.md`.
+5. Enlace publicado: `https://www.icloud.com/shortcuts/12c4f7d2f466425ba3e9379203ab59f5`. Configurar en Vercel `SHORTCUT_ICLOUD_URL`, `SHORTCUT_TEMPLATE_VERSION` y `SHORTCUT_NAME`. Añadir `SHORTCUT_MIN_IOS_TESTED` únicamente después de completar las pruebas reales en esa versión de iOS.
 
-Hasta completar esos pasos, la UI debe seguir mostrando **Plantilla pendiente de publicar**.
+Con URL, origen y versión válidos, la UI puede mostrar **Plantilla disponible**, pero debe indicar **pendiente de validación en iPhone** mientras falte `SHORTCUT_MIN_IOS_TESTED`.

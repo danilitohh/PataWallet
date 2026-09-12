@@ -24,9 +24,9 @@ Esta hoja se completa con una base y usuario aislados. No anotar número complet
 
 ## Automatización y compra compatible
 
-- [ ] Crear Automatización personal → Transacción → “Cuando toque” → tarjeta por alias.
+- [x] Crear Automatización personal → Wallet → “Cuando use sin contacto” → tarjetas seleccionadas.
 - [ ] Confirmar si “Ejecutar inmediatamente” está disponible y anotar su etiqueta exacta.
-- [ ] Pasar la entrada del evento a `PataWallet · Registrar compra`; no reconstruir el atajo.
+- [x] Crear el diccionario `amount`/`merchant_name`/`card_alias` y pasarlo a `PataWallet - Registrar compra`; no reconstruir el atajo.
 - [ ] En la siguiente compra habitual compatible, registrar qué campos entrega realmente Atajos.
 - [ ] Un evento completo con regla crea exactamente un gasto y los asientos correctos para débito/crédito.
 - [ ] Un evento completo sin regla crea un gasto “Sin categoría”, entra en totales y queda por revisar.

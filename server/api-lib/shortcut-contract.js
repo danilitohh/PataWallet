@@ -78,8 +78,8 @@ export const templateMetadata = () => {
   return {
     shortcutIcloudUrl: validUrl ? url : null,
     templateVersion: version,
-    shortcutName: process.env.SHORTCUT_NAME?.trim() || 'PataWallet · Registrar compra',
+    shortcutName: process.env.SHORTCUT_NAME?.trim() || 'PataWallet - Registrar compra',
     minSupportedVersionTested: testedVersion,
-    availability: validUrl && validOrigin && configuredVersion && testedVersion ? 'available' : 'pending',
+    availability: validUrl && validOrigin && configuredVersion ? 'available' : 'pending',
   }
 }

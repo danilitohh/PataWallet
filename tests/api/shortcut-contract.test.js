@@ -48,6 +48,23 @@ describe('contrato de eventos de Atajos', () => {
     else process.env.SHORTCUT_ICLOUD_URL = prior
   })
 
+  it('habilita una plantilla publicada aunque la prueba de iOS siga pendiente', () => {
+    const prior = Object.fromEntries(['SHORTCUT_ICLOUD_URL', 'APP_ORIGIN', 'SHORTCUT_TEMPLATE_VERSION', 'SHORTCUT_MIN_IOS_TESTED'].map((key) => [key, process.env[key]]))
+    process.env.SHORTCUT_ICLOUD_URL = 'https://www.icloud.com/shortcuts/12c4f7d2f466425ba3e9379203ab59f5'
+    process.env.APP_ORIGIN = 'https://pata-wallet.vercel.app'
+    process.env.SHORTCUT_TEMPLATE_VERSION = '1.0.0'
+    delete process.env.SHORTCUT_MIN_IOS_TESTED
+
+    const metadata = templateMetadata()
+    expect(metadata.availability).toBe('available')
+    expect(metadata.minSupportedVersionTested).toBeNull()
+
+    for (const [key, value] of Object.entries(prior)) {
+      if (value === undefined) delete process.env[key]
+      else process.env[key] = value
+    }
+  })
+
   it('normaliza alias sin fusionar signos o palabras diferentes', () => {
     expect(normalizeLabel('  Visa   Principal ')).toBe('visa principal')
     expect(normalizeLabel('Mercado Norte')).not.toBe(normalizeLabel('Mercado Sur'))

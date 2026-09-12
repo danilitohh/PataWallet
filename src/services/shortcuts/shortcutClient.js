@@ -25,6 +25,6 @@ export const deleteCategoryRule = (id) => request('/api/shortcuts/rules',{method
 export const resolveShortcutEvent = (id,value) => request(`/api/shortcuts/review/${encodeURIComponent(id)}`,{method:'POST',body:JSON.stringify(value)})
 
 export const pendingTemplate = {
-  shortcutIcloudUrl:null, templateVersion:'1.0.0-blueprint', shortcutName:'PataWallet · Registrar compra',
+  shortcutIcloudUrl:null, templateVersion:'1.0.0-blueprint', shortcutName:'PataWallet - Registrar compra',
   minSupportedVersionTested:null, availability:'pending',
 }
