@@ -10,6 +10,17 @@ export function useShortcutIntegration(isDemo) {
     catch(error){setState((current)=>({...current,loading:false,error:error.message}))}
   },[isDemo])
   useEffect(()=>{refresh()},[refresh])
+  // Actualiza el vínculo al regresar desde Atajos, que se abre fuera de la PWA.
+  useEffect(()=>{
+    if(isDemo) return undefined
+    const refreshOnReturn=()=>{if(document.visibilityState==='visible') refresh()}
+    window.addEventListener('focus',refreshOnReturn)
+    document.addEventListener('visibilitychange',refreshOnReturn)
+    return()=>{
+      window.removeEventListener('focus',refreshOnReturn)
+      document.removeEventListener('visibilitychange',refreshOnReturn)
+    }
+  },[isDemo,refresh])
   const run=useCallback(async(operation)=>{await operation();await refresh()},[refresh])
   return { ...state, refresh,
     pair:(label)=>createPairingTicket(label),
