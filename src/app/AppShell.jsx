@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { AlertTriangle, Check, CloudUpload, HardDrive, Home, LoaderCircle, Menu, PawPrint, PiggyBank, Plus, Settings, WalletCards } from 'lucide-react'
+import { AlertTriangle, Bot, Check, CloudUpload, HardDrive, Home, LoaderCircle, Menu, PawPrint, PiggyBank, Plus, Settings, WalletCards } from 'lucide-react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useApp } from './AppContext.jsx'
 
@@ -36,6 +36,7 @@ export function AppShell({ children }) {
         {!isDemo && syncState && syncState.kind !== 'synced' && <div className="mobile-sync"><SyncStatus state={syncState} retry={actions.retrySync} /></div>}
         {children}
       </main>
+      {location.pathname !== '/asistente' && <AssistantBubble isDemo={isDemo} />}
       <nav className="bottom-nav" aria-label="Navegación principal">
         {navigation.slice(0, 2).map(([to, Icon, label]) => <NavLink key={to} to={to} end={to === '/'}><Icon /><span>{label}</span></NavLink>)}
         <button aria-label="Nuevo movimiento" onClick={(event) => { event.currentTarget.focus(); setSheet('new') }}><Plus /></button>
@@ -44,6 +45,11 @@ export function AppShell({ children }) {
       <OnlineStatus />
     </div>
   )
+}
+
+// Mantiene el asistente a un toque desde Inicio sin convertirlo en una acción financiera automática.
+function AssistantBubble({ isDemo }) {
+  return <Link className="assistant-fab" to="/asistente" aria-label="Abrir asistente" title={isDemo ? 'Asistente disponible en cuentas reales' : 'Abrir asistente PataWallet'}><Bot aria-hidden="true" /><span>Asistente</span></Link>
 }
 
 function SyncStatus({ state, retry }) {

@@ -27,6 +27,7 @@ Actualizado: 2026-09-13. Fase actual: **Fase 5 revisada localmente; ampliaciones
 - Cuentas en móvil: las filas reordenan explícitamente icono, detalle, saldo y acciones para evitar que el auto-placement de CSS comprima el nombre; los avisos de sincronización ya fluyen dentro del contenido y no cubren el encabezado. Cada cambio de ruta restablece el scroll al inicio.
 - Inicio: el dashboard ahora incluye paneles rápidos de metas, próximas compras y cuentas, además del presupuesto y movimientos recientes, con enlaces a cada sección completa.
 - Asistente IA: se añadió `/asistente` como consulta de solo lectura. El servidor valida sesión, origen, tamaño y entrada antes de llamar a Ollama; la clave y el modelo son variables exclusivas de servidor y la demo nunca envía datos. El contexto incluye importes formateados en COP y dinero libre calculado; la respuesta elimina marcas Markdown para mantener una lectura directa.
+- Asistente IA: una burbuja flotante permite abrirlo directamente desde Inicio y las demás áreas de la app; se oculta dentro de la propia pantalla del asistente para no duplicar controles.
 - Vercel Hobby: las reglas de categorización comparten la función de mapeos mediante un rewrite interno para mantener 12 funciones Serverless, el máximo del plan, sin cambiar las rutas públicas del cliente.
 
 ## Ampliación de punto de partida financiero · 13 de septiembre
@@ -71,6 +72,7 @@ Actualizado: 2026-09-13. Fase actual: **Fase 5 revisada localmente; ampliaciones
 - E2E final `tests/e2e/app.spec.js`: PASÓ 42/42 en 390×844, 375×812 y 1440×900, incluyendo onboarding, cálculo de dinero libre y evaluación de compras futuras.
 - E2E del dashboard en 390×844, 375×812 y escritorio: PASÓ 3/3; Inicio muestra metas, compras futuras y cuentas sin overflow.
 - Contexto/end-point del asistente: PASÓ; los importes incluyen su representación colombiana (`$ 3.200.000`) y el endpoint limpia énfasis Markdown generado por el modelo.
+- E2E de acceso al asistente desde la burbuja: PASÓ 3/3 en 390×844, 375×812 y 1440×900.
 - E2E de legibilidad de Cuentas y reinicio de scroll en 390×844, 375×812 y 1440×900: PASÓ 3/3.
 - E2E de plan de cuotas e ingresos en 390×844, 375×812 y escritorio: PASÓ 3/3; la deuda conserva el avance y el sueldo aparece en Inicio.
 - E2E completo de la app en 390×844: PASÓ 15/15. Una ejecución paralela anterior sufrió contención y reveló que el input oculto del comprobante interceptaba Guardar; se corrigió y la repetición serial pasó.

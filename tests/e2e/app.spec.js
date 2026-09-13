@@ -14,6 +14,15 @@ test('entra a la demo y navega por las áreas principales', async ({ page }) => 
   await expect(page.getByRole('heading', { name: 'Tu plan' })).toBeVisible()
 })
 
+test('abre el asistente desde la burbuja flotante', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: /probar con datos de ejemplo/i }).click()
+  await expect(page.getByRole('link', { name: 'Abrir asistente' })).toBeVisible()
+  await page.getByRole('link', { name: 'Abrir asistente' }).click()
+  await expect(page).toHaveURL(/\/asistente$/)
+  await expect(page.getByRole('heading', { name: 'Asistente PataWallet' })).toBeVisible()
+})
+
 test('completa el punto de partida y calcula el dinero libre', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: 'Configurar mi espacio' }).click()
