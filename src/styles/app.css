@@ -240,6 +240,8 @@ select { cursor: pointer; }
 .allocation-explainer p { margin: 0; }
 .helper, .info-note { font-size: .79rem; }
 .info-note { padding: 11px 13px; background: var(--accent-soft); border-radius: 12px; color: var(--text); }
+.movement-type-help { display: grid; gap: 3px; margin: -3px 0 1px; line-height: 1.4; }
+.movement-type-help strong { font-size: .86rem; }
 
 .account-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; overflow: hidden; border-radius: 22px; border: 1px solid var(--border); background: var(--border); }
 .account-summary > div { min-width: 0; padding: 18px 14px; background: var(--surface); display: grid; gap: 7px; }
