@@ -3,6 +3,7 @@
   "rewrites": [
     { "source": "/api/shortcuts/pairing-tickets", "destination": "/api/shortcuts/pair?operation=create-ticket" },
     { "source": "/api/shortcuts/rules", "destination": "/api/shortcuts/mappings?operation=rules" },
+    { "source": "/api/push/test", "destination": "/api/push/process?operation=test" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
   "headers": [

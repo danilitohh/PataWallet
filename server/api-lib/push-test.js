@@ -1,9 +1,14 @@
-import { assertBodySize, assertTrustedOrigin, allowMethod, json, safeError } from '../../server/api-lib/http.js'
-import { notificationPayload, testRequestSchema } from '../../server/api-lib/push-schema.js'
-import { adminClient, authenticatedUser } from '../../server/api-lib/supabase-server.js'
-import { deliver, deliveryKind } from '../../server/api-lib/web-push.js'
+import { assertBodySize, assertTrustedOrigin, allowMethod, json, safeError } from './http.js'
+import { notificationPayload, testRequestSchema } from './push-schema.js'
+import { adminClient, authenticatedUser } from './supabase-server.js'
+import { deliver, deliveryKind } from './web-push.js'
 
-export default async function handler(req, res) {
+/**
+ * Envía una notificación de prueba para el propietario de la suscripción.
+ * Se mantiene en una utilidad compartida para que Vercel no cree otra función
+ * serverless solo para este endpoint.
+ */
+export async function handlePushTest(req, res) {
   if (!allowMethod(req, res, ['POST'])) return
   try {
     assertTrustedOrigin(req)

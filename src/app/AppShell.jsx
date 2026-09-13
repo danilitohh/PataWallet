@@ -33,7 +33,8 @@ export function AppShell({ children }) {
     return () => window.removeEventListener('couples:updated', refresh)
   }, [])
 
-  const items = !isDemo && hasActiveCouple ? [...navigation, ['/parejas', UsersRound, 'Parejas']] : navigation
+  // Parejas debe ser accesible antes de aceptar una invitación para poder crearla.
+  const items = !isDemo ? [...navigation, ['/parejas', UsersRound, 'Parejas']] : navigation
 
   useEffect(() => {
     // Cada ruta empieza arriba para que la barra móvil no cubra su encabezado.

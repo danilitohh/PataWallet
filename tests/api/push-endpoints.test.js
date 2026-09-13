@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import subscriptionsHandler from '../../api/push/subscriptions/index.js'
-import testHandler from '../../api/push/test.js'
+import { handlePushTest as testHandler } from '../../server/api-lib/push-test.js'
 
 function response() {
   return {
