@@ -61,7 +61,14 @@ export function GoalDialog({ close }) {
 }
 
 export function AllocationDialog({ goal, close, onComplete }) {
-  return <SimpleDialog title={`Reservar para ${goal.name}`} close={close}><AllocationForm goal={goal} close={close} onComplete={onComplete} /></SimpleDialog>
+  return <SimpleDialog title={`Reservar para ${goal.name}`} close={close}>
+    <div className="allocation-explainer">
+      <strong>¿Qué significa reservar?</strong>
+      <p>Es marcar una parte de tu saldo para esta meta. No mueve dinero, no crea un gasto y no cambia el saldo de tu cuenta.</p>
+      <p><b>Ejemplo:</b> si tienes $1.000.000 y reservas $200.000 para un viaje, tu cuenta sigue mostrando $1.000.000 y la meta muestra $200.000 de $500.000.</p>
+    </div>
+    <AllocationForm goal={goal} close={close} onComplete={onComplete} />
+  </SimpleDialog>
 }
 
 function AllocationForm({ goal, close, onComplete }) {

@@ -17,6 +17,7 @@ Actualizado: 2026-09-11. Fase actual: **Fase 5 revisada localmente; ampliaciones
 - La pantalla de Automatización refresca el estado al recuperar foco o visibilidad después de volver desde Atajos; el estado activo sigue dependiendo de una lectura autenticada del servidor.
 - El Inicio solo muestra la etiqueta de datos locales dentro de la demo; la cuenta real no muestra el banner de demo ni la píldora estable “Sincronizado”. Los estados pendientes, offline y conflicto siguen siendo visibles.
 - El formulario de nuevas metas bloquea envíos repetidos durante el guardado y cada tarjeta explica que una reserva es una separación interna, no un movimiento bancario.
+- El popup de cada reserva incluye la explicación y el ejemplo de saldo/progreso antes de solicitar cuenta y monto.
 
 ## Implementado
 
