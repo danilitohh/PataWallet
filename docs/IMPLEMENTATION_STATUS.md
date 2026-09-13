@@ -16,6 +16,7 @@ Actualizado: 2026-09-11. Fase actual: **Fase 5 revisada localmente; ampliaciones
 - Inspección de la variable real completada: entrada tipo `Transacción` con propiedades `Tarjeta o pase`, `Comercio`, `Cantidad` y `Nombre`. Fecha y moneda no aparecen; la plantilla añade fecha de ejecución y COP. La vinculación fue confirmada por la notificación de Atajos; falta que la PWA refresque el estado desde servidor, probar conexión y confirmar valores/tipos mediante una compra habitual.
 - La pantalla de Automatización refresca el estado al recuperar foco o visibilidad después de volver desde Atajos; el estado activo sigue dependiendo de una lectura autenticada del servidor.
 - El Inicio solo muestra la etiqueta de datos locales dentro de la demo; la cuenta real no muestra el banner de demo ni la píldora estable “Sincronizado”. Los estados pendientes, offline y conflicto siguen siendo visibles.
+- El formulario de nuevas metas bloquea envíos repetidos durante el guardado y cada tarjeta explica que una reserva es una separación interna, no un movimiento bancario.
 
 ## Implementado
 

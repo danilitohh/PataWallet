@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useApp } from '../../../app/AppContext.jsx'
 import { makeId } from '../../../shared/lib/id.js'
 import { calculateSummary } from '../../../domain/finance.js'
@@ -30,11 +30,17 @@ export function GoalDialog({ close }) {
   const [name, setName] = useState('')
   const [amount, setAmount] = useState('')
   const [error, setError] = useState('')
+  // Bloquea envíos repetidos mientras la meta se guarda localmente o en servidor.
+  const [saving, setSaving] = useState(false)
+  const savingRef = useRef(false)
 
   return (
     <SimpleDialog title="Nueva meta" close={close}>
       <form onSubmit={async (event) => {
         event.preventDefault()
+        if (savingRef.current) return
+        savingRef.current = true
+        setSaving(true)
         try {
           if (name.trim().length < 2) throw new Error('Escribe un nombre para la meta.')
           await actions.createGoal({ id: makeId('goal'), name: name.trim(), target_minor: parseLocalizedAmount(amount), currency: 'COP', completed_seen: false })
@@ -42,11 +48,13 @@ export function GoalDialog({ close }) {
           close()
         } catch (issue) {
           setError(issue.message)
+          savingRef.current = false
+          setSaving(false)
         }
       }}>
         <Field label="Nombre"><input value={name} onChange={(event) => setName(event.target.value)} /></Field>
         <Field label="Monto objetivo" error={error}><input inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="2.000.000" /></Field>
-        <button className="button button--primary" type="submit">Crear meta</button>
+        <button className="button button--primary" type="submit" disabled={saving}>{saving ? 'Creando…' : 'Crear meta'}</button>
       </form>
     </SimpleDialog>
   )

@@ -233,6 +233,7 @@ select { cursor: pointer; }
 .goal-card__top { display: flex; justify-content: space-between; }
 .goal-icon, .account-row__icon, .setting-row__icon, .integration-icon { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 14px; background: var(--accent-soft); color: var(--accent); }
 .goal-card > p { font-size: .84rem; }
+.goal-card__hint { font-size: .76rem !important; color: var(--text-2); }
 .goal-card .button { margin-top: 3px; }
 .helper, .info-note { font-size: .79rem; }
 .info-note { padding: 11px 13px; background: var(--accent-soft); border-radius: 12px; color: var(--text); }
