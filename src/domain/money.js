@@ -38,6 +38,23 @@ export function toInputAmount(minor) {
   return new Intl.NumberFormat('es-CO', { maximumFractionDigits: 2 }).format(amount)
 }
 
+// Formatea mientras se escribe sin cambiar el valor persistido en unidades menores.
+// Conserva la coma decimal para que la persona pueda completar los centavos.
+export function formatInputAmount(input) {
+  const raw = String(input ?? '').replace(/\s/g, '')
+  if (!raw) return ''
+
+  const commaIndex = raw.indexOf(',')
+  const hasDecimalSeparator = commaIndex >= 0
+  const wholePart = (hasDecimalSeparator ? raw.slice(0, commaIndex) : raw).replace(/\D/g, '')
+  const decimalPart = hasDecimalSeparator ? raw.slice(commaIndex + 1).replace(/\D/g, '').slice(0, 2) : ''
+  if (!wholePart) return hasDecimalSeparator ? `0,${decimalPart}` : ''
+
+  const normalizedWhole = wholePart.replace(/^0+(?=\d)/, '')
+  const groupedWhole = normalizedWhole.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+  return hasDecimalSeparator ? `${groupedWhole},${decimalPart}` : groupedWhole
+}
+
 export function safeAdd(a, b) {
   const result = Number(a) + Number(b)
   if (!Number.isSafeInteger(result)) throw new RangeError('La suma supera el rango seguro.')

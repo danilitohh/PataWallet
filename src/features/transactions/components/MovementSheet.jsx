@@ -4,7 +4,7 @@ import { motion } from 'motion/react'
 import { z } from 'zod'
 import { useApp } from '../../../app/AppContext.jsx'
 import { makeId } from '../../../shared/lib/id.js'
-import { parseLocalizedAmount, toInputAmount } from '../../../domain/money.js'
+import { formatInputAmount, parseLocalizedAmount, toInputAmount } from '../../../domain/money.js'
 import { Field } from '../../../shared/components/Modal.jsx'
 import { SimpleDialog } from '../../../shared/components/Modal.jsx'
 import { useModalBehavior } from '../../../shared/hooks/useModalBehavior.js'
@@ -106,7 +106,7 @@ export function MovementSheet({ transaction, onClose }) {
         <form onSubmit={submit}>
           <div className="segmented" aria-label="Tipo de movimiento">{['expense', 'income', 'transfer'].map((item) => <button type="button" key={item} className={type === item ? 'active' : ''} onClick={() => { setType(item); setCategory(''); if (item === 'income') setDestination(assets[0]?.id || '') }}>{labelForType[item]}</button>)}</div>
           <div className="info-note movement-type-help" role="note" aria-live="polite"><strong>{typeHelp.title}</strong><span>{typeHelp.body}</span></div>
-          <Field label="Monto" error={error}><div className="amount-input"><span>$</span><input autoFocus inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="0" aria-describedby={error ? 'movement-error' : undefined} /><small>COP</small></div></Field>
+          <Field label="Monto" error={error}><div className="amount-input"><span>$</span><input autoFocus inputMode="decimal" value={amount} onChange={(event) => setAmount(formatInputAmount(event.target.value))} placeholder="0" aria-describedby={error ? 'movement-error' : undefined} /><small>COP</small></div></Field>
           {type !== 'income' && <Field label={type === 'transfer' ? 'Desde' : 'Cuenta'}><select value={account} onChange={(event) => setAccount(event.target.value)}>{(type === 'transfer' ? assets : activeAccounts).map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></Field>}
           {type !== 'expense' && <Field label={type === 'income' ? 'Recibir en' : 'Hacia'}><select value={destination} onChange={(event) => setDestination(event.target.value)}>{(type === 'income' ? assets : activeAccounts.filter((item) => item.id !== account)).map((item) => <option key={item.id} value={item.id}>{item.name}{item.kind === 'liability' ? ' (pago de deuda)' : ''}</option>)}</select></Field>}
           {type !== 'transfer' && <Field label="Categoría"><div className="input-with-action"><select value={category} onChange={(event) => setCategory(event.target.value)}><option value="">Selecciona una categoría</option>{visibleCategories.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select><button type="button" className="icon-button" aria-label="Crear categoría" onClick={() => setCategoryDialog(true)}><Plus /></button></div></Field>}

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Plus, Trash2 } from 'lucide-react'
 import { useApp } from '../../../app/AppContext.jsx'
 import { fixedExpensesToInput, parseFixedExpenses, sumFixedExpenses } from '../../../domain/financialSetup.js'
-import { formatMinor } from '../../../domain/money.js'
+import { formatInputAmount, formatMinor } from '../../../domain/money.js'
 import { Field } from '../../../shared/components/Modal.jsx'
 import { makeId } from '../../../shared/lib/id.js'
 
@@ -16,7 +16,7 @@ export function FixedExpensesSettings() {
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
 
-  const update = (id, key) => (event) => setRows((items) => items.map((item) => item.id === id ? { ...item, [key]: event.target.value } : item))
+  const update = (id, key) => (event) => setRows((items) => items.map((item) => item.id === id ? { ...item, [key]: key === 'amount' ? formatInputAmount(event.target.value) : event.target.value } : item))
 
   const submit = async (event) => {
     event.preventDefault()
@@ -47,4 +47,3 @@ export function FixedExpensesSettings() {
     </form>
   </section>
 }
-

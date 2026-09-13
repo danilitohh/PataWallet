@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { useApp } from '../../../app/AppContext.jsx'
 import { makeId } from '../../../shared/lib/id.js'
 import { calculateSummary } from '../../../domain/finance.js'
-import { parseLocalizedAmount, toInputAmount } from '../../../domain/money.js'
+import { formatInputAmount, parseLocalizedAmount, toInputAmount } from '../../../domain/money.js'
 import { Field, SimpleDialog } from '../../../shared/components/Modal.jsx'
 import { currentMonth, today } from '../../../shared/lib/date.js'
 
@@ -22,7 +22,7 @@ export function BudgetDialog({ budget, month, close }) {
 function MoneyAction({ initial = 0, label, button, onSubmit }) {
   const [amount, setAmount] = useState(initial ? toInputAmount(initial) : '')
   const [error, setError] = useState('')
-  return <form onSubmit={async (event) => { event.preventDefault(); try { await onSubmit(parseLocalizedAmount(amount)) } catch (issue) { setError(issue.message) } }}><Field label={label} error={error}><input inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="0" /></Field><button className="button button--primary" type="submit">{button}</button></form>
+  return <form onSubmit={async (event) => { event.preventDefault(); try { await onSubmit(parseLocalizedAmount(amount)) } catch (issue) { setError(issue.message) } }}><Field label={label} error={error}><input inputMode="decimal" value={amount} onChange={(event) => setAmount(formatInputAmount(event.target.value))} placeholder="0" /></Field><button className="button button--primary" type="submit">{button}</button></form>
 }
 
 export function GoalDialog({ close }) {
@@ -53,7 +53,7 @@ export function GoalDialog({ close }) {
         }
       }}>
         <Field label="Nombre"><input value={name} onChange={(event) => setName(event.target.value)} /></Field>
-        <Field label="Monto objetivo" error={error}><input inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="2.000.000" /></Field>
+        <Field label="Monto objetivo" error={error}><input inputMode="decimal" value={amount} onChange={(event) => setAmount(formatInputAmount(event.target.value))} placeholder="2.000.000" /></Field>
         <button className="button button--primary" type="submit" disabled={saving}>{saving ? 'Creando…' : 'Crear meta'}</button>
       </form>
     </SimpleDialog>
@@ -98,7 +98,7 @@ function AllocationForm({ goal, close, onComplete }) {
   return (
     <form onSubmit={submit}>
       <Field label="Cuenta"><select value={account} onChange={(event) => setAccount(event.target.value)}>{accounts.filter((item) => item.kind === 'asset' && !item.archived).map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></Field>
-      <Field label="Monto" error={error}><input inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="300.000" /></Field>
+      <Field label="Monto" error={error}><input inputMode="decimal" value={amount} onChange={(event) => setAmount(formatInputAmount(event.target.value))} placeholder="300.000" /></Field>
       <p className="helper">Reservar no mueve dinero ni modifica el saldo de la cuenta.</p>
       <button className="button button--primary" type="submit">Crear reserva</button>
     </form>

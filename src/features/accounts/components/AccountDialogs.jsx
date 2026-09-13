@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useApp } from '../../../app/AppContext.jsx'
 import { makeId } from '../../../shared/lib/id.js'
-import { parseLocalizedAmount, toInputAmount } from '../../../domain/money.js'
+import { formatInputAmount, parseLocalizedAmount, toInputAmount } from '../../../domain/money.js'
 import { DEBT_PAYMENT_FREQUENCIES, installmentsLimit, parseDebtSchedule, readDebtSchedule } from '../../../domain/debtSchedule.js'
 import { Field, SimpleDialog } from '../../../shared/components/Modal.jsx'
 import { today } from '../../../shared/lib/date.js'
@@ -85,7 +85,7 @@ export function AccountDialog({ close }) {
         <Field label={kind === 'asset' ? 'Tipo de cuenta' : 'Tipo de deuda'}><select value={subtype} onChange={(event) => setSubtype(event.target.value)}>{ACCOUNT_TYPE_OPTIONS[kind].map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}</select></Field>
         {/* Explica el efecto del tipo antes de pedir el saldo o la deuda inicial. */}
         <div className="account-type-guide" role="note"><strong>{kind === 'asset' ? 'Dinero que tienes' : 'Dinero que debes'}</strong><p>{kind === 'asset' ? 'Usa este tipo para efectivo, una cuenta bancaria o una billetera como Nequi. Una tarjeta débito pertenece a su cuenta bancaria.' : subtype === 'credit_card' ? 'Cada compra aumenta la deuda; pagarla reduce la deuda y el dinero de tu banco, sin duplicar el gasto.' : 'Registra aquí el capital que aún debes. Los pagos reducirán la deuda y el dinero de la cuenta desde la que pagues.'}</p></div>
-        <Field label={kind === 'asset' ? 'Saldo inicial' : 'Deuda inicial'} error={error}><input inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="0" /></Field>
+        <Field label={kind === 'asset' ? 'Saldo inicial' : 'Deuda inicial'} error={error}><input inputMode="decimal" value={amount} onChange={(event) => setAmount(formatInputAmount(event.target.value))} placeholder="0" /></Field>
         <p className="helper">El saldo inicial no cuenta como ingreso ni gasto.</p>
         {kind === 'liability' && <DebtScheduleFields values={schedule} onChange={setSchedule} error={scheduleError} />}
         <button className="button button--primary" type="submit">Crear cuenta</button>
@@ -108,7 +108,7 @@ function scheduleValues(account) {
 
 // Agrupa los campos opcionales que describen el calendario de una deuda sin generar pagos automáticos.
 function DebtScheduleFields({ values, onChange, error }) {
-  const update = (key) => (event) => onChange({ ...values, [key]: event.target.value })
+  const update = (key) => (event) => onChange({ ...values, [key]: key === 'amount' ? formatInputAmount(event.target.value) : event.target.value })
   return <fieldset className="account-debt-schedule">
     <legend>Plan de pago <small>Opcional</small></legend>
     <p className="helper">Sirve para llevar seguimiento. No crea movimientos ni cambia el saldo de la deuda.</p>

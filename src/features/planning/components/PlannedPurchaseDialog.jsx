@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useApp } from '../../../app/AppContext.jsx'
-import { parseLocalizedAmount, toInputAmount } from '../../../domain/money.js'
+import { formatInputAmount, parseLocalizedAmount, toInputAmount } from '../../../domain/money.js'
 import { Field, SimpleDialog } from '../../../shared/components/Modal.jsx'
 import { today } from '../../../shared/lib/date.js'
 import { makeId } from '../../../shared/lib/id.js'
@@ -20,7 +20,7 @@ export function PlannedPurchaseDialog({ purchase, close }) {
       notify(purchase ? 'Próxima compra actualizada' : 'Próxima compra guardada'); close()
     } catch (issue) { setError(issue.message) } }}>
       <Field label="Compra"><input autoFocus value={name} maxLength="80" onChange={(event) => setName(event.target.value)} placeholder="Ej. Computador" /></Field>
-      <Field label="Monto estimado" error={error}><input inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="2.000.000" /></Field>
+      <Field label="Monto estimado" error={error}><input inputMode="decimal" value={amount} onChange={(event) => setAmount(formatInputAmount(event.target.value))} placeholder="2.000.000" /></Field>
       <div className="form-grid"><Field label="Fecha prevista"><input type="date" min={today()} value={targetDate} onChange={(event) => setTargetDate(event.target.value)} /></Field><Field label="Categoría" optional><select value={categoryId} onChange={(event) => setCategoryId(event.target.value)}><option value="">Sin categoría</option>{categories.filter((item) => item.type === 'expense').map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></Field></div>
       <Field label="Nota" optional><input value={note} maxLength="240" onChange={(event) => setNote(event.target.value)} /></Field>
       <p className="helper">Esto no crea un gasto ni reserva dinero. Sirve para planear y comparar.</p>

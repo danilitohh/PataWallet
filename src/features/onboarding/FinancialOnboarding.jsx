@@ -3,7 +3,7 @@ import { ArrowLeft, ArrowRight, Check, Plus, Trash2, WalletCards } from 'lucide-
 import { useApp } from '../../app/AppContext.jsx'
 import { calculateAvailableMoney } from '../../domain/finance.js'
 import { parseFixedExpenses } from '../../domain/financialSetup.js'
-import { formatMinor, parseLocalizedAmount, toInputAmount } from '../../domain/money.js'
+import { formatInputAmount, formatMinor, parseLocalizedAmount, toInputAmount } from '../../domain/money.js'
 import { Field } from '../../shared/components/Modal.jsx'
 import { makeId } from '../../shared/lib/id.js'
 import { today } from '../../shared/lib/date.js'
@@ -96,7 +96,7 @@ export function FinancialOnboarding() {
 function IncomeStep({ salary, frequency, nextPayDate, setSalary, setFrequency, setNextPayDate, error }) {
   return <section className="onboarding-step">
     <p className="eyebrow">1 de 3 · Lo que recibes</p><h2>¿Con cuánto cuentas cada mes?</h2><p className="helper">Usaremos el valor mensual equivalente, aunque recibas tu pago por semanas o quincenas.</p>
-    <Field label="Salario mensual equivalente" error={error}><div className="amount-input"><span>$</span><input autoFocus inputMode="decimal" value={salary} onChange={(event) => setSalary(event.target.value)} placeholder="2.500.000" /><small>COP</small></div></Field>
+    <Field label="Salario mensual equivalente" error={error}><div className="amount-input"><span>$</span><input autoFocus inputMode="decimal" value={salary} onChange={(event) => setSalary(formatInputAmount(event.target.value))} placeholder="2.500.000" /><small>COP</small></div></Field>
     <Field label="¿Cada cuánto recibes tu pago?"><select value={frequency} onChange={(event) => setFrequency(event.target.value)}><option value="">Selecciona una frecuencia</option>{PAY_FREQUENCY_OPTIONS.map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}</select></Field>
     <Field label="Fecha de tu próximo pago" optional><input type="date" min={today()} value={nextPayDate} onChange={(event) => setNextPayDate(event.target.value)} /></Field>
     <p className="info-note"><strong>{payFrequencyLabel(frequency) || 'Tu frecuencia de pago'}</strong><span> La fecha es opcional; si la completas podremos avisarte cuando una compra te deja con poco margen antes de cobrar.</span></p>
@@ -105,7 +105,7 @@ function IncomeStep({ salary, frequency, nextPayDate, setSalary, setFrequency, s
 
 // Registra deudas y sus pagos mensuales como compromisos informativos, sin inventar cobros.
 function DebtStep({ debts, setDebts, error }) {
-  const update = (id, key) => (event) => setDebts((rows) => rows.map((row) => row.id === id ? { ...row, [key]: event.target.value } : row))
+  const update = (id, key) => (event) => setDebts((rows) => rows.map((row) => row.id === id ? { ...row, [key]: ['amount', 'monthlyPayment'].includes(key) ? formatInputAmount(event.target.value) : event.target.value } : row))
   return <section className="onboarding-step">
     <p className="eyebrow">2 de 3 · Tus deudas</p><h2>¿Qué compromisos ya tienes?</h2><p className="helper">Anota el total pendiente y el pago mensual aproximado. Así no confundiremos deuda con un gasto nuevo.</p>
     <div className="onboarding-repeatable">{debts.map((row, index) => <div className="onboarding-repeatable__item" key={row.id}><div className="repeatable-heading"><strong>Deuda {index + 1}</strong>{!row.accountId && <button type="button" className="icon-button icon-button--small" aria-label={`Quitar deuda ${index + 1}`} onClick={() => setDebts((items) => items.filter((item) => item.id !== row.id))}><Trash2 /></button>}</div><Field label="Nombre"><input value={row.name} onChange={update(row.id, 'name')} placeholder="Tarjeta o préstamo" disabled={Boolean(row.accountId)} /></Field><div className="form-grid"><Field label="Total pendiente"><input inputMode="decimal" value={row.amount} onChange={update(row.id, 'amount')} placeholder="1.200.000" disabled={Boolean(row.accountId)} /></Field><Field label="Pago mensual"><input inputMode="decimal" value={row.monthlyPayment} onChange={update(row.id, 'monthlyPayment')} placeholder="100.000" disabled={Boolean(row.accountId)} /></Field></div><Field label="Tipo"><select value={row.subtype} onChange={update(row.id, 'subtype')} disabled={Boolean(row.accountId)}>{ACCOUNT_TYPE_OPTIONS.liability.map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}</select></Field></div>)}</div>
@@ -117,7 +117,7 @@ function DebtStep({ debts, setDebts, error }) {
 
 // Recoge los compromisos mensuales que deben salir antes de considerar compras nuevas.
 function FixedExpensesStep({ fixedExpenses, setFixedExpenses, preview, error }) {
-  const update = (id, key) => (event) => setFixedExpenses((rows) => rows.map((row) => row.id === id ? { ...row, [key]: event.target.value } : row))
+  const update = (id, key) => (event) => setFixedExpenses((rows) => rows.map((row) => row.id === id ? { ...row, [key]: key === 'amount' ? formatInputAmount(event.target.value) : event.target.value } : row))
   return <section className="onboarding-step">
     <p className="eyebrow">3 de 3 · Gastos fijos</p><h2>¿Qué sale todos los meses?</h2><p className="helper">Arriendo, internet, comida u otros compromisos. Son una referencia mensual y no crean movimientos por sí solos.</p>
     <div className="onboarding-repeatable">{fixedExpenses.map((row, index) => <div className="onboarding-repeatable__item" key={row.id}><div className="repeatable-heading"><strong>Gasto fijo {index + 1}</strong><button type="button" className="icon-button icon-button--small" aria-label={`Quitar gasto fijo ${index + 1}`} onClick={() => setFixedExpenses((items) => items.filter((item) => item.id !== row.id))}><Trash2 /></button></div><div className="form-grid"><Field label="Nombre"><input value={row.name} onChange={update(row.id, 'name')} placeholder="Arriendo" /></Field><Field label="Monto mensual"><input inputMode="decimal" value={row.amount} onChange={update(row.id, 'amount')} placeholder="900.000" /></Field></div></div>)}</div>

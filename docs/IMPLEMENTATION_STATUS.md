@@ -35,6 +35,7 @@ Actualizado: 2026-09-13. Fase actual: **Fase 5 revisada localmente; ampliaciones
 - Las deudas nuevas se guardan como pasivos con apertura explícita y un campo separado de pago mensual declarado; no se inventa un número de cuotas para una deuda cuyo plazo no se conoce.
 - Inicio y Plan muestran el desglose del dinero libre. Las próximas compras advierten cuando dejarían el margen en cero/negativo o cuando faltan más de 14 días para el próximo pago y el remanente sería menor al 25% del dinero libre mensual.
 - Ajustes permite editar los gastos fijos. La migración `20260913100000_financial_onboarding.sql` añade las claves de configuración y `20260913103000_debt_monthly_payment.sql` añade el pago mensual de deuda; ambas requieren aplicación remota autorizada.
+- Importes: los campos monetarios agrupan miles con el formato local (`1.750.000`) mientras se escriben, conservando unidades menores enteras al guardar. Los contenedores y grids de formularios permiten encogimiento en móvil; el onboarding deja de centrarse verticalmente cuando supera la altura disponible para evitar recortes.
 
 ## Implementado
 
@@ -52,8 +53,8 @@ Actualizado: 2026-09-13. Fase actual: **Fase 5 revisada localmente; ampliaciones
 ## Probado automáticamente
 
 - `npm run lint`: PASÓ.
-- `npm test`: PASÓ, 20 archivos y 85 pruebas. Incluye dinero libre, gastos fijos, fecha de próximo pago, pago mensual declarado de deuda y contratos de migración.
-- `npm run build`: PASÓ con Vite 8.3.0; 30 entradas y 1229,94 KiB de precaché. La configuración adapta el build del worker a `codeSplitting: false`, sin la opción obsoleta `inlineDynamicImports`.
+- `npm test`: PASÓ, 21 archivos y 87 pruebas. Incluye formato de importes, dinero libre, gastos fijos, fecha de próximo pago, pago mensual declarado de deuda y contratos de migración.
+- `npm run build`: PASÓ con Vite 8.3.0; 30 entradas y 1230,55 KiB de precaché. La configuración adapta el build del worker a `codeSplitting: false`, sin la opción obsoleta `inlineDynamicImports`.
 - E2E dirigido de Automatización en escritorio: PASÓ 1/1. La ejecución completa paralela quedó inválida por `EBUSY` de Windows al observar sus propios artefactos de Playwright; tras caer el servidor produjo 32 fallos derivados y 5 pruebas alcanzaron a pasar.
 - Dependencias de build: `glob` se resuelve explícitamente a 13.0.6 bajo `workbox-build`; `npm audit --omit=dev` permanece en 0 vulnerabilidades conocidas.
 - Línea base E2E: 22 pruebas efectivas pasaron y 2 variantes se omitieron intencionalmente.
@@ -67,6 +68,7 @@ Actualizado: 2026-09-13. Fase actual: **Fase 5 revisada localmente; ampliaciones
 - E2E del dashboard en 390×844, 375×812 y escritorio: PASÓ 3/3; Inicio muestra metas, compras futuras y cuentas sin overflow.
 - E2E de plan de cuotas e ingresos en 390×844, 375×812 y escritorio: PASÓ 3/3; la deuda conserva el avance y el sueldo aparece en Inicio.
 - E2E completo de la app en 390×844: PASÓ 15/15. Una ejecución paralela anterior sufrió contención y reveló que el input oculto del comprobante interceptaba Guardar; se corrigió y la repetición serial pasó.
+- Revisión visual del onboarding en 390×844, 375×812 y 1440×900: PASÓ; el salario se muestra como `1.750.000`, los campos quedan dentro de su tarjeta y no hay desplazamiento horizontal.
 - `npx supabase db lint --local`: BLOQUEADO; no hay PostgreSQL/Docker en `127.0.0.1:54322`.
 - Supabase remoto: PASÓ 20/20 pruebas pgTAP transaccionales de aislamiento A/B, referencias cruzadas, tablas Push/Atajos y bloqueo anónimo; los fixtures y pgTAP temporal terminaron con `ROLLBACK`.
 - Fase 4 remota: existen sus seis tablas, RLS está activo en las cuatro públicas, `anon` no puede leer vinculaciones y las funciones privilegiadas principales están instaladas.

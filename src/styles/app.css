@@ -49,7 +49,7 @@ html { scrollbar-color: var(--text-2) var(--surface-muted); }
 body { margin: 0; min-width: 320px; min-height: 100dvh; background: radial-gradient(circle at 85% 5%, color-mix(in srgb, var(--peach) 48%, transparent), transparent 24rem), var(--bg); color: var(--text); }
 body, button, input, select { font: inherit; }
 ::selection { color: var(--on-primary); background: var(--primary); }
-input, select, textarea { font-size: 1rem; caret-color: var(--accent); }
+input, select, textarea { min-width: 0; max-width: 100%; font-size: 1rem; caret-color: var(--accent); }
 button, a, input, select { -webkit-tap-highlight-color: transparent; }
 button, a { touch-action: manipulation; }
 button { color: inherit; }
@@ -314,6 +314,7 @@ html.standalone-app, html.standalone-app body { touch-action: pan-x pan-y; overs
 .onboarding-page { width: min(1080px, 100%); min-height: 100dvh; margin: 0 auto; padding: max(24px, env(safe-area-inset-top)) 20px max(24px, env(safe-area-inset-bottom)); display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(240px, .85fr); align-items: center; gap: 28px; }
 .onboarding-card { min-width: 0; padding: clamp(20px, 4vw, 34px); border-radius: 28px; background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow); }
 .onboarding-card__top { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
+.onboarding-card__top > div:first-child { min-width: 0; }
 .onboarding-card h1 { margin-top: 5px; font-size: clamp(1.9rem, 5vw, 3.1rem); letter-spacing: -.045em; }
 .onboarding-card h2 { margin-top: 7px; font-size: clamp(1.35rem, 4vw, 1.85rem); }
 .onboarding-card__mark { width: 46px; height: 46px; display: grid; place-items: center; flex: 0 0 46px; border-radius: 15px; color: var(--accent); background: var(--accent-soft); }
@@ -440,7 +441,7 @@ html.standalone-app, html.standalone-app body { touch-action: pan-x pan-y; overs
 .segmented { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; background: var(--surface-muted); border-radius: 16px; }
 .segmented button { min-height: 42px; border-radius: 12px; background: transparent; font-size: .84rem; font-weight: 700; }
 .segmented button.active { background: var(--surface); box-shadow: 0 3px 10px color-mix(in srgb, var(--primary) 9%, transparent); color: var(--accent); }
-.field { display: grid; gap: 7px; font-size: .85rem; font-weight: 700; }
+.field { min-width: 0; display: grid; gap: 7px; font-size: .85rem; font-weight: 700; }
 .field > span small { color: var(--text-2); font-weight: 500; }
 .field em { color: var(--danger); font-size: .78rem; font-style: normal; font-weight: 600; }
 .input-with-action { display: grid; grid-template-columns: 1fr 48px; gap: 8px; align-items: center; }
@@ -458,9 +459,9 @@ html.standalone-app, html.standalone-app body { touch-action: pan-x pan-y; overs
 .advice { display: block; margin-top: 9px; color: var(--danger); font-size: .78rem; line-height: 1.4; }
 .advice--good { color: var(--success); }
 .empty-inline { padding: 20px; display: flex; align-items: center; gap: 10px; color: var(--text-2); border: 1px dashed var(--border); border-radius: 18px; }
-.amount-input { min-height: 76px; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 0 15px; border-radius: 18px; background: var(--surface); border: 1px solid var(--border); }
+.amount-input { min-width: 0; min-height: 76px; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 0 15px; border-radius: 18px; background: var(--surface); border: 1px solid var(--border); }
 .amount-input > span { font-size: 1.5rem; }
-.amount-input input { height: 70px; border: 0; padding: 0; font-size: clamp(1.8rem, 9vw, 2.6rem); font-weight: 780; letter-spacing: -.04em; font-variant-numeric: tabular-nums; background: transparent; }
+.amount-input input { min-width: 0; height: 70px; border: 0; padding: 0; font-size: clamp(1.45rem, 7vw, 2.25rem); font-weight: 780; letter-spacing: -.04em; font-variant-numeric: tabular-nums; background: transparent; }
 .amount-input small { color: var(--text-2); }
 .form-grid { display: grid; gap: 15px; }
 .sheet__actions { display: flex; justify-content: flex-end; gap: 10px; padding-top: 5px; }
@@ -499,7 +500,7 @@ html.standalone-app, html.standalone-app body { touch-action: pan-x pan-y; overs
 }
 
 @media (max-width: 699px) {
-  .onboarding-page { grid-template-columns: 1fr; align-content: center; }
+  .onboarding-page { grid-template-columns: 1fr; align-content: start; overflow-x: hidden; }
   .onboarding-art { order: -1; grid-template-columns: 92px 1fr; align-items: center; }
   .onboarding-art .pet-scene { height: 92px; border-radius: 22px; }
   .onboarding-art p { text-align: left; }
