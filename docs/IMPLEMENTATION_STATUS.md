@@ -24,6 +24,7 @@ Actualizado: 2026-09-13. Fase actual: **Fase 5 revisada localmente; ampliaciones
 - Ingresos: Ajustes permite guardar sueldo mensual equivalente y frecuencia de pago como referencia opcional; Inicio lo resume y enlaza a su edición, sin crear ingresos automáticos.
 - Movimientos: el selector de Gasto, Ingreso y Transferencia muestra una explicación contextual; Transferencia aclara que mueve dinero entre cuentas y no altera ingresos ni gastos.
 - PWA móvil: los campos usan al menos 16 px para evitar el zoom automático al enfocarlos; el viewport y los gestos de zoom se bloquean únicamente en modo app instalada, no en la web abierta en Safari.
+- Cuentas en móvil: las filas reordenan explícitamente icono, detalle, saldo y acciones para evitar que el auto-placement de CSS comprima el nombre; los avisos de sincronización ya fluyen dentro del contenido y no cubren el encabezado. Cada cambio de ruta restablece el scroll al inicio.
 - Inicio: el dashboard ahora incluye paneles rápidos de metas, próximas compras y cuentas, además del presupuesto y movimientos recientes, con enlaces a cada sección completa.
 - Asistente IA: se añadió `/asistente` como consulta de solo lectura. El servidor valida sesión, origen, tamaño y entrada antes de llamar a Ollama; la clave y el modelo son variables exclusivas de servidor y la demo nunca envía datos.
 - Vercel Hobby: las reglas de categorización comparten la función de mapeos mediante un rewrite interno para mantener 12 funciones Serverless, el máximo del plan, sin cambiar las rutas públicas del cliente.

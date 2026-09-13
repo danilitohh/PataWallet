@@ -16,6 +16,8 @@ export function AppShell({ children }) {
   const mainRef = useRef(null)
 
   useEffect(() => {
+    // Cada ruta empieza arriba para que la barra móvil no cubra su encabezado.
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
     mainRef.current?.focus({ preventScroll: true })
   }, [location.pathname])
 
@@ -30,14 +32,16 @@ export function AppShell({ children }) {
         {!isDemo && <SyncStatus state={syncState} retry={actions.retrySync} />}
       </aside>
       <div className="mobile-top"><span className="wordmark wordmark--small"><PawPrint /> PataWallet</span><Link to="/ajustes" aria-label="Abrir ajustes"><Settings /></Link></div>
-      <main ref={mainRef} tabIndex="-1" className="page" aria-label="Contenido principal">{children}</main>
+      <main ref={mainRef} tabIndex="-1" className="page" aria-label="Contenido principal">
+        {!isDemo && syncState && syncState.kind !== 'synced' && <div className="mobile-sync"><SyncStatus state={syncState} retry={actions.retrySync} /></div>}
+        {children}
+      </main>
       <nav className="bottom-nav" aria-label="Navegación principal">
         {navigation.slice(0, 2).map(([to, Icon, label]) => <NavLink key={to} to={to} end={to === '/'}><Icon /><span>{label}</span></NavLink>)}
         <button aria-label="Nuevo movimiento" onClick={(event) => { event.currentTarget.focus(); setSheet('new') }}><Plus /></button>
         {navigation.slice(2).map(([to, Icon, label]) => <NavLink key={to} to={to}><Icon /><span>{label}</span></NavLink>)}
       </nav>
       <OnlineStatus />
-      {!isDemo && <div className="mobile-sync"><SyncStatus state={syncState} retry={actions.retrySync} /></div>}
     </div>
   )
 }

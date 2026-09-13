@@ -97,6 +97,25 @@ test('no produce desplazamiento horizontal', async ({ page }) => {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true)
 })
 
+test('mantiene cuentas legibles y reinicia el scroll al cambiar de ruta', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: /probar con datos de ejemplo/i }).click()
+  await page.getByRole('link', { name: 'Plan', exact: true }).click()
+  await page.evaluate(() => window.scrollTo(0, 500))
+  await page.getByRole('link', { name: 'Cuentas', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Cuentas', exact: true })).toBeVisible()
+  expect(await page.evaluate(() => window.scrollY)).toBe(0)
+
+  const layout = await page.locator('.account-row').first().evaluate((row) => {
+    const rowRect = row.getBoundingClientRect()
+    const [icon, details, amount, edit, archive] = Array.from(row.children).map((item) => item.getBoundingClientRect())
+    return { detailsAfterIcon: details.left > icon.right, amountInside: amount.right <= rowRect.right, actionsInside: archive.right <= rowRect.right && edit.right <= rowRect.right }
+  })
+  expect(layout.detailsAfterIcon).toBe(true)
+  expect(layout.amountInside).toBe(true)
+  expect(layout.actionsInside).toBe(true)
+})
+
 test('registra un gasto y lo conserva al recargar', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: /probar con datos de ejemplo/i }).click()

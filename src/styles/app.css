@@ -116,7 +116,7 @@ html.standalone-app, html.standalone-app body { touch-action: pan-x pan-y; overs
 .bottom-nav > button { width: 54px; height: 54px; border-radius: 18px; place-self: center; display: grid; place-items: center; background: var(--primary); color: var(--on-primary); box-shadow: 0 8px 20px color-mix(in srgb, var(--primary) 23%, transparent); }
 .bottom-nav > button svg { width: 25px; height: 25px; }
 .local-status { position: fixed; z-index: 15; left: 20px; right: 20px; bottom: calc(89px + env(safe-area-inset-bottom)); display: flex; justify-content: space-between; pointer-events: none; font-size: .7rem; color: var(--text-2); }
-.mobile-sync { position: fixed; z-index: 18; top: calc(70px + env(safe-area-inset-top)); right: 16px; max-width: calc(100% - 32px); }
+.mobile-sync { display: flex; justify-content: flex-end; width: 100%; max-width: 100%; margin: 0 0 13px; }
 .sync-status { min-height: 34px; max-width: 100%; display: flex; align-items: center; gap: 7px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 12px; background: color-mix(in srgb, var(--surface) 94%, transparent); color: var(--text-2); box-shadow: 0 7px 20px color-mix(in srgb, var(--primary) 7%, transparent); font-size: .72rem; font-weight: 700; text-align: left; }
 .sync-status svg { width: 15px; height: 15px; flex: 0 0 15px; }
 .sync-status--synced { color: var(--success); cursor: default; }
@@ -544,9 +544,12 @@ html.standalone-app, html.standalone-app body { touch-action: pan-x pan-y; overs
   .budget-ring { width: 76px; height: 76px; flex-basis: 76px; }
   .account-summary { grid-template-columns: 1fr; }
   .account-summary > div { grid-template-columns: 1fr auto; align-items: center; }
-  .account-row { grid-template-columns: 42px minmax(0, 1fr) 38px 38px; }
-  .account-row > strong { grid-column: 2; grid-row: 2; }
-  .account-row .icon-button { grid-row: 1 / span 2; }
+  .account-row { grid-template-columns: 42px minmax(0, 1fr) 38px 38px; align-items: start; }
+  .account-row > .account-row__icon { grid-column: 1; grid-row: 1 / span 2; }
+  .account-row > div { grid-column: 2; grid-row: 1; }
+  .account-row > strong { grid-column: 2; grid-row: 2; align-self: end; }
+  .account-row > .account-row__action--edit { grid-column: 3; grid-row: 1 / span 2; }
+  .account-row > .account-row__action--archive { grid-column: 4; grid-row: 1 / span 2; }
   .filters { grid-template-columns: 1fr; }
   .transaction { grid-template-columns: 42px minmax(0, 1fr) auto; }
   .transaction__chevron { display: none; }
