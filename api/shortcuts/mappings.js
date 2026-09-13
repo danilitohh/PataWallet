@@ -1,9 +1,11 @@
 import { assertBodySize, assertTrustedOrigin, allowMethod, json } from '../../server/api-lib/http.js'
 import { mappingSchema, normalizeLabel } from '../../server/api-lib/shortcut-contract.js'
 import { shortcutError } from '../../server/api-lib/shortcut-server.js'
+import { categoryRuleHandler } from '../../server/api-lib/shortcut-rules.js'
 import { adminClient, authenticatedUser } from '../../server/api-lib/supabase-server.js'
 
 export default async function handler(req, res) {
+  if (req.query?.operation === 'rules') return categoryRuleHandler(req, res)
   if (!allowMethod(req, res, ['POST','DELETE'])) return
   try {
     assertTrustedOrigin(req); assertBodySize(req, 2_000); const user = await authenticatedUser(req); const admin = adminClient()
