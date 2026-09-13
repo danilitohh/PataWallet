@@ -175,6 +175,21 @@ html.standalone-app, html.standalone-app body { touch-action: pan-x pan-y; overs
 .stat.positive strong { color: var(--success); }
 .stat.negative strong { color: var(--danger); }
 .feature-panel { padding: 20px; border-radius: 26px; background: var(--surface); border: 1px solid color-mix(in srgb, var(--border) 72%, transparent); box-shadow: 0 12px 34px color-mix(in srgb, var(--primary) 6%, transparent); }
+.dashboard-preview-grid { display: grid; gap: 14px; }
+.dashboard-preview { min-width: 0; }
+.dashboard-preview__list { display: grid; gap: 12px; }
+.dashboard-preview__row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.dashboard-preview__row strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dashboard-preview__row span { flex: 0 0 auto; color: var(--text-2); font-size: .76rem; font-variant-numeric: tabular-nums; }
+.dashboard-goal { display: grid; gap: 6px; }
+.dashboard-list-row { min-width: 0; display: grid; grid-template-columns: 42px minmax(0, 1fr) auto; align-items: center; gap: 10px; }
+.dashboard-list-row > div { min-width: 0; display: grid; gap: 3px; }
+.dashboard-list-row strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dashboard-list-row > strong { font-size: .86rem; font-variant-numeric: tabular-nums; }
+.dashboard-list-row small { color: var(--text-2); font-size: .74rem; }
+.dashboard-empty { min-height: 60px; display: flex; align-items: center; gap: 10px; color: var(--text-2); }
+.dashboard-empty svg { flex: 0 0 auto; color: var(--accent); }
+.dashboard-empty p { font-size: .8rem; }
 .section-heading { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 13px; }
 .section-heading p { font-size: .82rem; margin-top: 3px; }
 .section-heading > a { color: var(--accent); font-size: .83rem; font-weight: 720; }
@@ -387,6 +402,8 @@ html.standalone-app, html.standalone-app body { touch-action: pan-x pan-y; overs
   .welcome__art { height: min(82dvh, 720px); }
   .welcome__actions .button { max-width: 370px; }
   .goals-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dashboard-preview-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dashboard-preview--accounts { grid-column: 1 / -1; }
   .form-grid { grid-template-columns: .8fr 1.2fr; }
   .toast { left: 50%; right: auto; bottom: 30px; width: min(500px, calc(100% - 30px)); transform: translateX(-50%); }
   .pwa-update { left: 50%; right: auto; bottom: 30px; width: min(640px, calc(100% - 30px)); transform: translateX(-50%); }

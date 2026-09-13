@@ -22,6 +22,7 @@ Actualizado: 2026-09-12. Fase actual: **Fase 5 revisada localmente; ampliaciones
 - Cuentas: se añadieron subtipos de deuda para préstamos de libre inversión y préstamos con personas o entidades; la migración remota correspondiente queda pendiente de aplicar.
 - Movimientos: el selector de Gasto, Ingreso y Transferencia muestra una explicación contextual; Transferencia aclara que mueve dinero entre cuentas y no altera ingresos ni gastos.
 - PWA móvil: los campos usan al menos 16 px para evitar el zoom automático al enfocarlos; el viewport y los gestos de zoom se bloquean únicamente en modo app instalada, no en la web abierta en Safari.
+- Inicio: el dashboard ahora incluye paneles rápidos de metas, próximas compras y cuentas, además del presupuesto y movimientos recientes, con enlaces a cada sección completa.
 
 ## Implementado
 
@@ -38,7 +39,7 @@ Actualizado: 2026-09-12. Fase actual: **Fase 5 revisada localmente; ampliaciones
 ## Probado automáticamente
 
 - `npm run lint`: PASÓ.
-- `npm test`: PASÓ, 14 archivos y 57 pruebas. Incluye la separación entre plantilla publicada y versión de iOS probada.
+- `npm test`: PASÓ, 15 archivos y 60 pruebas. Incluye la separación entre plantilla publicada y versión de iOS probada.
 - `npm run build`: PASÓ con Vite 8.3.0; 30 entradas y 1177,53 KiB de precaché. La configuración adapta el build del worker a `codeSplitting: false`, sin la opción obsoleta `inlineDynamicImports`.
 - E2E dirigido de Automatización en escritorio: PASÓ 1/1. La ejecución completa paralela quedó inválida por `EBUSY` de Windows al observar sus propios artefactos de Playwright; tras caer el servidor produjo 32 fallos derivados y 5 pruebas alcanzaron a pasar.
 - Dependencias de build: `glob` se resuelve explícitamente a 13.0.6 bajo `workbox-build`; `npm audit --omit=dev` permanece en 0 vulnerabilidades conocidas.
@@ -47,7 +48,8 @@ Actualizado: 2026-09-12. Fase actual: **Fase 5 revisada localmente; ampliaciones
 - `npm run test:pwa -- --workers=1`: PASÓ 1/1; shell/ruta previamente cargados abren sin red.
 - `npm audit --omit=dev`: PASÓ, 0 vulnerabilidades conocidas.
 - E2E de ampliaciones en escritorio y 375×812: PASÓ 3/3 en cada tamaño (modales de Metas, categoría/hora/comprobante y próxima compra).
-- E2E completo de la app en 390×844: PASÓ 10/10. Una ejecución paralela anterior sufrió contención y reveló que el input oculto del comprobante interceptaba Guardar; se corrigió y la repetición serial pasó.
+- E2E del dashboard en 390×844, 375×812 y escritorio: PASÓ 3/3; Inicio muestra metas, compras futuras y cuentas sin overflow.
+- E2E completo de la app en 390×844: PASÓ 14/14. Una ejecución paralela anterior sufrió contención y reveló que el input oculto del comprobante interceptaba Guardar; se corrigió y la repetición serial pasó.
 - `npx supabase db lint --local`: BLOQUEADO; no hay PostgreSQL/Docker en `127.0.0.1:54322`.
 - Supabase remoto: PASÓ 20/20 pruebas pgTAP transaccionales de aislamiento A/B, referencias cruzadas, tablas Push/Atajos y bloqueo anónimo; los fixtures y pgTAP temporal terminaron con `ROLLBACK`.
 - Fase 4 remota: existen sus seis tablas, RLS está activo en las cuatro públicas, `anon` no puede leer vinculaciones y las funciones privilegiadas principales están instaladas.

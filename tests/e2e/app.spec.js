@@ -14,6 +14,17 @@ test('entra a la demo y navega por las áreas principales', async ({ page }) => 
   await expect(page.getByRole('heading', { name: 'Tu plan' })).toBeVisible()
 })
 
+test('muestra el resumen rápido de metas, compras y cuentas en Inicio', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: /probar con datos de ejemplo/i }).click()
+  await expect(page.getByRole('heading', { name: 'Metas', exact: true })).toBeVisible()
+  await expect(page.getByText('Un viaje especial')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Próximas compras', exact: true })).toBeVisible()
+  await expect(page.getByText('Sin compras anotadas')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Cuentas', exact: true })).toBeVisible()
+  await expect(page.getByText('Cuenta principal', { exact: true })).toBeVisible()
+})
+
 test('no produce desplazamiento horizontal', async ({ page }) => {
   await page.goto('/')
   const demoButton = page.getByRole('button', { name: /probar con datos de ejemplo/i })
