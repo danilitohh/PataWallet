@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { AlertTriangle, Bot, Check, CloudUpload, HardDrive, Home, LoaderCircle, Menu, PawPrint, PiggyBank, Plus, Settings, WalletCards } from 'lucide-react'
+import { AlertTriangle, Bot, Check, CloudUpload, HardDrive, Home, LoaderCircle, Menu, PawPrint, PiggyBank, Plus, Settings, UsersRound, WalletCards } from 'lucide-react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useApp } from './AppContext.jsx'
+import { getCoupleOverview } from '../services/couples/couplesClient.js'
 
 const navigation = [
   ['/', Home, 'Inicio'],
@@ -14,6 +15,25 @@ export function AppShell({ children }) {
   const { setSheet, isDemo, user, syncState, actions } = useApp()
   const location = useLocation()
   const mainRef = useRef(null)
+  const [hasActiveCouple, setHasActiveCouple] = useState(false)
+
+  useEffect(() => {
+    // La navegación de Parejas aparece solo cuando existe una membresía activa.
+    if (isDemo) return undefined
+    let cancelled = false
+    getCoupleOverview().then((data) => {
+      if (!cancelled) setHasActiveCouple(Boolean(data.couples?.some((couple) => couple.status === 'active')))
+    }).catch(() => { if (!cancelled) setHasActiveCouple(false) })
+    return () => { cancelled = true }
+  }, [isDemo, location.pathname])
+
+  useEffect(() => {
+    const refresh = () => getCoupleOverview().then((data) => setHasActiveCouple(Boolean(data.couples?.some((couple) => couple.status === 'active')))).catch(() => setHasActiveCouple(false))
+    window.addEventListener('couples:updated', refresh)
+    return () => window.removeEventListener('couples:updated', refresh)
+  }, [])
+
+  const items = !isDemo && hasActiveCouple ? [...navigation, ['/parejas', UsersRound, 'Parejas']] : navigation
 
   useEffect(() => {
     // Cada ruta empieza arriba para que la barra móvil no cubra su encabezado.
@@ -25,7 +45,7 @@ export function AppShell({ children }) {
     <div className="app-shell">
       <aside className="side-nav" aria-label="Navegación principal">
         <div className="wordmark wordmark--small"><PawPrint /> <span>PataWallet</span></div>
-        <nav>{navigation.map(([to, Icon, label]) => <NavLink key={to} to={to} end={to === '/'}><Icon /><span>{label}</span></NavLink>)}</nav>
+        <nav>{items.map(([to, Icon, label]) => <NavLink key={to} to={to} end={to === '/'}><Icon /><span>{label}</span></NavLink>)}</nav>
         <button className="side-nav__add" onClick={(event) => { event.currentTarget.focus(); setSheet('new') }}><Plus /> Nuevo movimiento</button>
         <NavLink to="/ajustes"><Settings /> <span>Ajustes</span></NavLink>
         <p className="side-nav__demo">{isDemo ? 'Demo local' : user?.email}</p>
@@ -37,10 +57,10 @@ export function AppShell({ children }) {
         {children}
       </main>
       {location.pathname !== '/asistente' && <AssistantBubble isDemo={isDemo} />}
-      <nav className="bottom-nav" aria-label="Navegación principal">
-        {navigation.slice(0, 2).map(([to, Icon, label]) => <NavLink key={to} to={to} end={to === '/'}><Icon /><span>{label}</span></NavLink>)}
+      <nav className={`bottom-nav ${!isDemo && hasActiveCouple ? 'bottom-nav--couple' : ''}`} aria-label="Navegación principal">
+        {items.slice(0, 2).map(([to, Icon, label]) => <NavLink key={to} to={to} end={to === '/'}><Icon /><span>{label}</span></NavLink>)}
         <button aria-label="Nuevo movimiento" onClick={(event) => { event.currentTarget.focus(); setSheet('new') }}><Plus /></button>
-        {navigation.slice(2).map(([to, Icon, label]) => <NavLink key={to} to={to}><Icon /><span>{label}</span></NavLink>)}
+        {items.slice(2).map(([to, Icon, label]) => <NavLink key={to} to={to}><Icon /><span>{label}</span></NavLink>)}
       </nav>
       <OnlineStatus />
     </div>

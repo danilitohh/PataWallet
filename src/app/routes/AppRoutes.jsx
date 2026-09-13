@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router-dom'
 import { AccountsPage } from '../../features/accounts/AccountsPage.jsx'
 import { AssistantPage } from '../../features/assistant/AssistantPage.jsx'
+import { CouplesPage } from '../../features/couples/CouplesPage.jsx'
 import { DashboardPage } from '../../features/dashboard/DashboardPage.jsx'
 import { AutomationPage } from '../../features/integrations/AutomationPage.jsx'
 import { NotificationsPage } from '../../features/integrations/NotificationsPage.jsx'
@@ -16,6 +17,7 @@ export function AppRoutes() {
       <Route path="/actividad" element={<ActivityPage />} />
       <Route path="/plan" element={<PlanPage />} />
       <Route path="/cuentas" element={<AccountsPage />} />
+      <Route path="/parejas" element={<CouplesPage />} />
       <Route path="/asistente" element={<AssistantPage />} />
       <Route path="/ajustes" element={<SettingsPage />} />
       <Route path="/ajustes/notificaciones" element={<NotificationsPage />} />

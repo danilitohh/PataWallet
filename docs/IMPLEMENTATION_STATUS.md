@@ -40,6 +40,14 @@ Actualizado: 2026-09-13. Fase actual: **Fase 5 revisada localmente; ampliaciones
 - Onboarding: el salario ahora se asocia a una cuenta disponible existente o permite crear una cuenta bancaria identificada por nombre/banco. La cuenta nueva queda con saldo cero: no crea un ingreso ni un movimiento automático, así que el pago real se registra una sola vez desde Nuevo movimiento.
 - Importes: los campos monetarios agrupan miles con el formato local (`1.750.000`) mientras se escriben, conservando unidades menores enteras al guardar. Los contenedores y grids de formularios permiten encogimiento en móvil; el onboarding deja de centrarse verticalmente cuando supera la altura disponible para evitar recortes.
 
+## Cuentas en pareja · 13 de septiembre
+
+- Se preparó un espacio compartido separado: la invitación es por correo, la aceptación requiere iniciar sesión con ese correo y cada propietario selecciona sus propias cuentas o deudas para compartir.
+- La nueva ruta `/parejas` permite administrar la selección, ver únicamente las cuentas compartidas y proponer ajustes de saldo o cambios de cuota mensual.
+- Los cambios sensibles quedan pendientes hasta la aprobación de la otra persona; el RPC transaccional aplica el cambio de cuenta o crea un ajuste contable solo después de aprobarlo. La persona que propone no puede aprobar su propia solicitud.
+- La navegación añade Parejas únicamente cuando existe una membresía activa. En demo no se hacen peticiones ni se mezclan datos.
+- La migración `20260913150000_couple_spaces.sql` está preparada con RLS, permisos solo para `service_role`, invitaciones con token hash y control de versión; requiere aplicación y validación remota autorizada antes de uso real. No se configuró envío de correo: hasta añadir un proveedor, el enlace se copia desde la pantalla.
+
 ## Implementado
 
 | Fase / área | Estado | Límite honesto |
@@ -50,6 +58,7 @@ Actualizado: 2026-09-13. Fase actual: **Fase 5 revisada localmente; ampliaciones
 | Fase 4: Atajos/categorización | Plantilla iCloud publicada; receptor y migración preparados | Instalación desde enlace, vínculo persistente, prueba de conexión y compra real pendientes |
 | Fase 5: acabado | Implementada | Foco, horizontal/texto ampliado, estados accesibles, imágenes y temporizadores |
 | Punto de partida financiero | Implementado localmente | Migraciones nuevas y onboarding autenticado requieren aplicación/prueba remota |
+| Cuentas en pareja | Implementado localmente | Migración, API autenticada, correo de invitación y pruebas A/B remotas pendientes |
 | Mascotas | Cuatro escenas estáticas | 12 WebP; no hay capas, rigs ni gestos animados |
 | Operación | Documentada | Guía, validación final y publicación/recuperación |
 
