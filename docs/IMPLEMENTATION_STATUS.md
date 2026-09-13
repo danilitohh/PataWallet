@@ -45,8 +45,9 @@ Actualizado: 2026-09-13. Fase actual: **Fase 5 revisada localmente; ampliaciones
 - Se preparó un espacio compartido separado: la invitación es por correo, la aceptación requiere iniciar sesión con ese correo y cada propietario selecciona sus propias cuentas o deudas para compartir.
 - La nueva ruta `/parejas` permite administrar la selección, ver únicamente las cuentas compartidas y proponer ajustes de saldo o cambios de cuota mensual.
 - Los cambios sensibles quedan pendientes hasta la aprobación de la otra persona; el RPC transaccional aplica el cambio de cuenta o crea un ajuste contable solo después de aprobarlo. La persona que propone no puede aprobar su propia solicitud.
-- La navegación añade Parejas únicamente cuando existe una membresía activa. En demo no se hacen peticiones ni se mezclan datos.
-- La migración `20260913150000_couple_spaces.sql` está preparada con RLS, permisos solo para `service_role`, invitaciones con token hash y control de versión; requiere aplicación y validación remota autorizada antes de uso real. No se configuró envío de correo: hasta añadir un proveedor, el enlace se copia desde la pantalla.
+- La navegación muestra Parejas a cuentas reales desde el primer momento para poder crear una invitación; en demo no se hacen peticiones ni se mezclan datos.
+- La migración `20260913150000_couple_spaces.sql` está aplicada en el proyecto remoto autorizado. Sus cinco tablas tienen RLS activo, las invitaciones usan token hash y control de versión, y el RPC de revisión quedó instalado. No se configuró envío de correo: hasta añadir un proveedor, el enlace se copia desde la pantalla.
+- Vercel Hobby: la prueba Push comparte la función de procesamiento mediante un rewrite interno; el despliegue quedó dentro del límite de 12 funciones y publica `/api/couples`.
 
 ## Implementado
 
@@ -58,14 +59,14 @@ Actualizado: 2026-09-13. Fase actual: **Fase 5 revisada localmente; ampliaciones
 | Fase 4: Atajos/categorización | Plantilla iCloud publicada; receptor y migración preparados | Instalación desde enlace, vínculo persistente, prueba de conexión y compra real pendientes |
 | Fase 5: acabado | Implementada | Foco, horizontal/texto ampliado, estados accesibles, imágenes y temporizadores |
 | Punto de partida financiero | Implementado localmente | Migraciones nuevas y onboarding autenticado requieren aplicación/prueba remota |
-| Cuentas en pareja | Implementado localmente | Migración, API autenticada, correo de invitación y pruebas A/B remotas pendientes |
+| Cuentas en pareja | Implementado y desplegado | Correo automático y pruebas A/B desde dos dispositivos siguen pendientes |
 | Mascotas | Cuatro escenas estáticas | 12 WebP; no hay capas, rigs ni gestos animados |
 | Operación | Documentada | Guía, validación final y publicación/recuperación |
 
 ## Probado automáticamente
 
 - `npm run lint`: PASÓ.
-- `npm test`: PASÓ, 21 archivos y 87 pruebas. Incluye formato de importes, dinero libre, gastos fijos, fecha de próximo pago, pago mensual declarado de deuda y contratos de migración.
+- `npm test`: PASÓ, 21 archivos y 87 pruebas. Incluye formato de importes, dinero libre, gastos fijos, fecha de próximo pago, pago mensual declarado de deuda, contratos de migración y protección de Push.
 - `npm run build`: PASÓ con Vite 8.3.0; 30 entradas y 1230,55 KiB de precaché. La configuración adapta el build del worker a `codeSplitting: false`, sin la opción obsoleta `inlineDynamicImports`.
 - E2E dirigido de Automatización en escritorio: PASÓ 1/1. La ejecución completa paralela quedó inválida por `EBUSY` de Windows al observar sus propios artefactos de Playwright; tras caer el servidor produjo 32 fallos derivados y 5 pruebas alcanzaron a pasar.
 - Dependencias de build: `glob` se resuelve explícitamente a 13.0.6 bajo `workbox-build`; `npm audit --omit=dev` permanece en 0 vulnerabilidades conocidas.
@@ -107,7 +108,7 @@ VoiceOver, teclado/áreas seguras reales, instalación/actualización PWA, Web P
 - **Medio:** VoiceOver, texto del sistema y teclado en iPhone.
 - **Bajo:** licencia explícita de redistribución de ilustraciones.
 
-La app está desplegada en Vercel y las migraciones 1–4 están presentes en Supabase. La migración `20260913042149_debt_schedule_and_income_settings.sql` está preparada en el repositorio y queda pendiente de aplicar remotamente con autorización. No se enviaron avisos reales ni se modificaron servicios Apple. Pasos restantes: `docs/PLAN_DE_PUBLICACION_Y_RECUPERACION.md`.
+La app está desplegada en Vercel y las migraciones de las fases 1–4 y ampliaciones de punto de partida/cuentas en pareja están presentes en Supabase. No se enviaron avisos reales ni se modificaron servicios Apple. Pasos restantes: `docs/PLAN_DE_PUBLICACION_Y_RECUPERACION.md`.
 
 ## Decisión
 
