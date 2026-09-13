@@ -2,6 +2,13 @@ import { db, resetDemo } from './db.js'
 
 export const localActions = {
   setSetting: (key, value) => db.settings.put({ key, value }),
+  // Entra a la demo en una sola transacción para no mostrar el onboarding a mitad del cambio.
+  completeDemoSetup: () => db.transaction('rw', db.settings, async () => {
+    await db.settings.bulkPut([
+      { key: 'entered', value: true },
+      { key: 'financialOnboardingComplete', value: true },
+    ])
+  }),
   saveTransaction: (record) => db.transactions.put(record),
   saveReceipt: (receipt) => db.receipts.put(receipt),
   deleteReceipt: (transactionId) => db.receipts.delete(transactionId),
@@ -33,6 +40,9 @@ export const localActions = {
   },
   async resetWorkspace() {
     await resetDemo()
-    await db.settings.put({ key: 'entered', value: true })
+    await db.settings.bulkPut([
+      { key: 'entered', value: true },
+      { key: 'financialOnboardingComplete', value: true },
+    ])
   },
 }

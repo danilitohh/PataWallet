@@ -1,4 +1,6 @@
 import { assertMinor, safeAdd } from './money.js'
+import { sumFixedExpenses } from './financialSetup.js'
+import { totalMonthlyDebtPayments } from './debtSchedule.js'
 
 export const NON_BUDGET_TYPES = new Set(['opening', 'transfer', 'card_payment', 'adjustment'])
 
@@ -58,6 +60,18 @@ export function calculateSummary(accounts, transactions, month, timeZone = 'Amer
     return sum
   }, 0)
   return { balances, assets, debt, net: safeAdd(assets, -debt), income, expenses }
+}
+
+// Calcula el dinero libre mensual desde ingresos, gastos fijos, cuotas declaradas y gastos ya registrados.
+export function calculateAvailableMoney({ monthlySalaryMinor, fixedExpenses = [], accounts = [], transactions = [], month, timeZone = 'America/Bogota' }) {
+  const salary = Number.isSafeInteger(Number(monthlySalaryMinor)) && Number(monthlySalaryMinor) > 0 ? Number(monthlySalaryMinor) : null
+  const fixedExpensesMinor = sumFixedExpenses(fixedExpenses)
+  const debtPaymentsMinor = totalMonthlyDebtPayments(accounts)
+  const committedMinor = safeAdd(fixedExpensesMinor, debtPaymentsMinor)
+  const trackedExpensesMinor = month ? calculateSummary(accounts, transactions, month, timeZone).expenses : 0
+  const monthlyFreeMinor = salary === null ? null : safeAdd(salary, -committedMinor)
+  const availableNowMinor = monthlyFreeMinor === null ? null : safeAdd(monthlyFreeMinor, -trackedExpensesMinor)
+  return { salaryMinor: salary, fixedExpensesMinor, debtPaymentsMinor, committedMinor, trackedExpensesMinor, monthlyFreeMinor, availableNowMinor }
 }
 
 export function goalProgress(goal, allocations) {

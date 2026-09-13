@@ -1,5 +1,6 @@
 import { assertMinor } from '../../domain/money.js'
 import { readDebtSchedule } from '../../domain/debtSchedule.js'
+import { readFixedExpenses } from '../../domain/financialSetup.js'
 import { z } from 'zod'
 
 export const BACKUP_FORMAT = 'patawallet-backup'
@@ -26,6 +27,7 @@ const backupDataSchema = z.object({
     debt_installments_paid: z.number().int().min(0).max(600).optional(),
     debt_installment_amount_minor: minor.nullable().optional(),
     debt_payment_frequency: z.enum(['weekly', 'biweekly', 'semimonthly', 'monthly']).nullable().optional(),
+    debt_monthly_payment_minor: minor.nullable().optional(),
   }).strict()).max(100000),
   categories: z.array(z.object({ id, name: z.string().min(2).max(50), type: z.enum(['income', 'expense']) }).strict()).max(100000),
   transactions: z.array(z.object({
@@ -37,7 +39,7 @@ const backupDataSchema = z.object({
   budgets: z.array(z.object({ month: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/), limit_minor: minor, currency: currency.optional() }).strict()).max(100000),
   goals: z.array(z.object({ id, name: z.string().min(2).max(80), target_minor: minor, currency, completed_seen: z.boolean() }).strict()).max(100000),
   allocations: z.array(z.object({ id, goal_id: id, account_id: id, amount_minor: minor, allocated_on: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) }).strict()).max(100000),
-  settingsRows: z.array(z.object({ key: z.enum(['entered', 'theme', 'hiddenAmounts', 'motion', 'monthlySalaryMinor', 'payFrequency']), value: z.unknown() }).strict()).max(20),
+  settingsRows: z.array(z.object({ key: z.enum(['entered', 'theme', 'hiddenAmounts', 'motion', 'monthlySalaryMinor', 'payFrequency', 'financialOnboardingComplete', 'fixedExpenses', 'nextPayDate']), value: z.unknown() }).strict()).max(20),
   plannedPurchases: z.array(z.object({ id, name: z.string().min(2).max(80), amount_minor: minor, currency, target_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), category_id: id.nullable().optional(), note: z.string().max(240), status: z.enum(['planned', 'purchased', 'cancelled']) }).strict()).max(100000).optional().default([]),
 }).strict()
 
@@ -83,10 +85,14 @@ export function parseBackup(text, expectedOwnerId) {
   for (const row of parsed.data.accounts) {
     if (row.debt_installments_total !== undefined && row.debt_installments_total !== null) assertDebtSchedule(row)
     if (row.debt_installment_amount_minor !== undefined && row.debt_installment_amount_minor !== null) assertMinor(row.debt_installment_amount_minor)
+    if (row.debt_monthly_payment_minor !== undefined && row.debt_monthly_payment_minor !== null) assertMinor(row.debt_monthly_payment_minor)
   }
   for (const row of parsed.data.settingsRows) {
     if (row.key === 'monthlySalaryMinor' && row.value !== null) assertMinor(row.value)
     if (row.key === 'payFrequency' && row.value !== null && !['weekly', 'biweekly', 'semimonthly', 'monthly'].includes(row.value)) throw new Error('La frecuencia de pago del respaldo no es válida.')
+    if (row.key === 'financialOnboardingComplete' && typeof row.value !== 'boolean') throw new Error('El estado del onboarding del respaldo no es válido.')
+    if (row.key === 'fixedExpenses' && (!Array.isArray(row.value) || readFixedExpenses(row.value).length !== row.value.length)) throw new Error('Los gastos fijos del respaldo no son válidos.')
+    if (row.key === 'nextPayDate' && row.value !== null && !/^\d{4}-\d{2}-\d{2}$/.test(String(row.value))) throw new Error('La fecha de pago del respaldo no es válida.')
   }
   return parsed
 }
@@ -114,6 +120,7 @@ function validateRelationships(data) {
     const validSubtype = row.kind === 'asset' ? ['bank', 'cash'].includes(row.subtype) : ['credit_card', 'investment_loan', 'private_loan'].includes(row.subtype)
     if (!validSubtype) throw new Error(`La cuenta ${row.id} combina un tipo y subtipo incompatibles.`)
     const hasScheduleData = (row.debt_installments_total !== undefined && row.debt_installments_total !== null) || (row.debt_installments_paid || 0) > 0 || (row.debt_installment_amount_minor !== undefined && row.debt_installment_amount_minor !== null) || (row.debt_payment_frequency !== undefined && row.debt_payment_frequency !== null)
+    if (row.debt_monthly_payment_minor !== undefined && row.debt_monthly_payment_minor !== null && row.kind !== 'liability') throw new Error(`El pago mensual de ${row.id} requiere una deuda.`)
     if (hasScheduleData && !readDebtSchedule(row)) throw new Error(`El plan de cuotas de ${row.id} no es válido.`)
     if (row.kind === 'asset' && hasScheduleData) throw new Error(`La cuenta de activo ${row.id} no puede tener cuotas.`)
   }

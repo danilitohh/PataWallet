@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { debtScheduleLabel, parseDebtSchedule, readDebtSchedule } from './debtSchedule.js'
+import { debtScheduleLabel, monthlyDebtPaymentMinor, parseDebtSchedule, readDebtSchedule } from './debtSchedule.js'
 
 describe('plan de cuotas de deuda', () => {
   it('convierte un plan completo a columnas persistibles', () => {
@@ -29,5 +29,10 @@ describe('plan de cuotas de deuda', () => {
     const account = { kind: 'liability', debt_installments_total: 10, debt_installments_paid: 2, debt_installment_amount_minor: 15000000, debt_payment_frequency: 'biweekly' }
     expect(readDebtSchedule(account)?.frequencyLabel).toBe('Cada 2 semanas')
     expect(debtScheduleLabel(account, (value) => `$${value}`)).toBe('2 de 10 cuotas · $15000000 cada 2 semanas')
+  })
+
+  it('usa el pago mensual declarado sin inventar un total de cuotas', () => {
+    const account = { kind: 'liability', debt_monthly_payment_minor: 10000000 }
+    expect(monthlyDebtPaymentMinor(account)).toBe(10000000)
   })
 })

@@ -1,4 +1,4 @@
-import { assertMinor, parseLocalizedAmount } from './money.js'
+import { assertMinor, parseLocalizedAmount, safeAdd } from './money.js'
 
 const MAX_INSTALLMENTS = 600
 
@@ -70,4 +70,23 @@ export function debtScheduleLabel(account, formatAmount) {
 
 export function installmentsLimit() {
   return MAX_INSTALLMENTS
+}
+
+// Convierte una cuota según su frecuencia a un compromiso mensual conservador y entero.
+export function monthlyDebtPaymentMinor(account) {
+  const declaredMonthlyPayment = Number(account?.debt_monthly_payment_minor)
+  if (Number.isSafeInteger(declaredMonthlyPayment) && declaredMonthlyPayment > 0) {
+    try { return assertMinor(declaredMonthlyPayment) } catch { return 0 }
+  }
+  const schedule = readDebtSchedule(account)
+  if (!schedule) return 0
+  if (schedule.frequency === 'monthly') return schedule.amount
+  if (schedule.frequency === 'semimonthly') return safeAdd(schedule.amount, schedule.amount)
+  if (schedule.frequency === 'biweekly') return Math.ceil((schedule.amount * 26) / 12)
+  return Math.ceil((schedule.amount * 52) / 12)
+}
+
+// Suma las cuotas mensuales declaradas sin convertir una deuda en pagos automáticos.
+export function totalMonthlyDebtPayments(accounts = []) {
+  return accounts.filter((account) => account.kind === 'liability' && !account.archived).reduce((total, account) => safeAdd(total, monthlyDebtPaymentMinor(account)), 0)
 }

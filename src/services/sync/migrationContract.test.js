@@ -4,6 +4,8 @@ import { describe, expect, it } from 'vitest'
 const initial = fs.readFileSync(new URL('../../../supabase/migrations/20260910190000_auth_and_user_data.sql', import.meta.url), 'utf8')
 const phase2 = fs.readFileSync(new URL('../../../supabase/migrations/20260910190327_phase2_ledger_sync_security.sql', import.meta.url), 'utf8')
 const debtAndIncome = fs.readFileSync(new URL('../../../supabase/migrations/20260913042149_debt_schedule_and_income_settings.sql', import.meta.url), 'utf8')
+const onboarding = fs.readFileSync(new URL('../../../supabase/migrations/20260913100000_financial_onboarding.sql', import.meta.url), 'utf8')
+const debtMonthlyPayment = fs.readFileSync(new URL('../../../supabase/migrations/20260913103000_debt_monthly_payment.sql', import.meta.url), 'utf8')
 
 describe('contrato de seguridad PostgreSQL', () => {
   it('activa RLS y limita cada tabla expuesta al propietario autenticado', () => {
@@ -37,5 +39,16 @@ describe('contrato de seguridad PostgreSQL', () => {
     expect(debtAndIncome).toContain("debt_payment_frequency in ('weekly', 'biweekly', 'semimonthly', 'monthly')")
     expect(debtAndIncome).toContain("'monthlySalaryMinor', 'payFrequency'")
     expect(debtAndIncome).toContain('No genera movimientos automáticos')
+  })
+
+  it('permite persistir el punto de partida financiero con restricciones', () => {
+    expect(onboarding).toContain("'financialOnboardingComplete', 'fixedExpenses', 'nextPayDate'")
+    expect(onboarding).toContain('jsonb_array_length(value) <= 50')
+    expect(onboarding).toContain('value #>>')
+  })
+
+  it('conserva el pago mensual de una deuda sin inventar cuotas', () => {
+    expect(debtMonthlyPayment).toContain('debt_monthly_payment_minor bigint')
+    expect(debtMonthlyPayment).toContain('kind = \'liability\'')
   })
 })

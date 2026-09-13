@@ -3,7 +3,8 @@ import { ArrowDownLeft, ArrowUpRight, CalendarClock, CreditCard, Eye, EyeOff, Go
 import { Link } from 'react-router-dom'
 import { useApp } from '../../app/AppContext.jsx'
 import { PetScene } from '../../components/PetScene.jsx'
-import { calculateSummary, goalProgress } from '../../domain/finance.js'
+import { calculateAvailableMoney, calculateSummary, goalProgress } from '../../domain/finance.js'
+import { readFixedExpenses } from '../../domain/financialSetup.js'
 import { formatMinor } from '../../domain/money.js'
 import { PageHeader } from '../../shared/components/PageHeader.jsx'
 import { Progress } from '../../shared/components/Progress.jsx'
@@ -16,6 +17,7 @@ export function DashboardPage() {
   const { accounts, transactions, budgets, goals, allocations, plannedPurchases, settings, setSheet, actions, user, isDemo } = useApp()
   const [month, setMonth] = useState(currentMonth())
   const summary = calculateSummary(accounts, transactions, month)
+  const available = calculateAvailableMoney({ monthlySalaryMinor: settings.monthlySalaryMinor, fixedExpenses: readFixedExpenses(settings.fixedExpenses), accounts, transactions, month })
   const budget = budgets.find((item) => item.month === month) || budgets[0]
   const remaining = budget ? budget.limit_minor - summary.expenses : 0
   const used = budget?.limit_minor ? (summary.expenses / budget.limit_minor) * 100 : 0
@@ -44,7 +46,8 @@ export function DashboardPage() {
         <div className="section-heading"><div><h2>Presupuesto mensual</h2><p>{remaining >= 0 ? `Te quedan ${formatMinor(remaining, 'COP', hidden)}` : `Superaste el presupuesto por ${formatMinor(Math.abs(remaining), 'COP', hidden)}`}</p></div><Link to="/plan">Ver plan</Link></div>
         <Progress value={used} label={`${Math.round(used)}% usado`} />
       </section>
-      <IncomeSummary salary={settings.monthlySalaryMinor} frequency={settings.payFrequency} hidden={hidden} />
+      <IncomeSummary salary={settings.monthlySalaryMinor} frequency={settings.payFrequency} nextPayDate={settings.nextPayDate} hidden={hidden} />
+      <AvailableMoneyCard available={available} hidden={hidden} />
       <DashboardPreviewGrid goals={activeGoals} goalCount={goals.length} allocations={allocations} planned={plannedPreview} plannedCount={planned.length} accounts={activeAccounts} accountCount={accounts.filter((item) => !item.archived).length} balances={summary.balances} hidden={hidden} />
       <section>
         <div className="section-heading"><h2>Últimos movimientos</h2><Link to="/actividad">Ver todos</Link></div>
@@ -56,12 +59,19 @@ export function DashboardPage() {
 }
 
 // Invita a completar los ingresos y, cuando existen, los resume sin crear movimientos por su cuenta.
-function IncomeSummary({ salary, frequency, hidden }) {
+function IncomeSummary({ salary, frequency, nextPayDate, hidden }) {
   const configured = Number(salary) > 0 && Boolean(payFrequencyLabel(frequency))
   return <section className="feature-panel income-summary">
     <div className="section-heading"><div><h2>Mis ingresos</h2><p>{configured ? 'Referencia para organizar tu presupuesto.' : 'Completa esta información para tenerla a mano.'}</p></div><Link to="/ajustes#ingresos">{configured ? 'Editar' : 'Configurar'}</Link></div>
-    {configured ? <div className="income-summary__value"><strong>{formatMinor(salary, 'COP', hidden)}</strong><span>{payFrequencyLabel(frequency)}</span></div> : <p className="dashboard-empty__text">Indica tu sueldo mensual y cada cuánto te pagan desde Ajustes.</p>}
+    {configured ? <div className="income-summary__value"><strong>{formatMinor(salary, 'COP', hidden)}</strong><span>{payFrequencyLabel(frequency)}</span>{nextPayDate && <small>Próximo pago: {formatDashboardDate(nextPayDate)}</small>}</div> : <p className="dashboard-empty__text">Indica tu sueldo mensual y cada cuánto te pagan desde Ajustes.</p>}
   </section>
+}
+
+// Explica el dinero libre y separa el compromiso mensual del gasto ya registrado.
+function AvailableMoneyCard({ available, hidden }) {
+  if (available.monthlyFreeMinor === null) return <section className="feature-panel available-money-card"><div className="section-heading"><div><h2>Dinero libre</h2><p>El resultado aparece al completar tu punto de partida.</p></div><Link to="/ajustes#ingresos">Configurar</Link></div><p className="dashboard-empty__text">Necesitamos tu salario mensual, gastos fijos y pagos de deuda para decirte cuánto puedes usar con tranquilidad.</p></section>
+  const negative = available.monthlyFreeMinor < 0
+  return <section className={`feature-panel available-money-card ${negative ? 'available-money-card--warning' : ''}`}><div className="section-heading"><div><h2>Dinero libre este mes</h2><p>{negative ? 'Tus compromisos superan el ingreso declarado.' : 'Después de compromisos mensuales.'}</p></div><Link to="/ajustes#gastos-fijos">Editar</Link></div><strong className="available-money-card__value">{formatMinor(available.monthlyFreeMinor, 'COP', hidden)}</strong><div className="available-money-card__breakdown"><span>Salario <b>{formatMinor(available.salaryMinor, 'COP', hidden)}</b></span><span>Gastos fijos <b>− {formatMinor(available.fixedExpensesMinor, 'COP', hidden)}</b></span><span>Pagos de deuda <b>− {formatMinor(available.debtPaymentsMinor, 'COP', hidden)}</b></span></div>{available.trackedExpensesMinor > 0 && <p className="available-money-card__after">Tras gastos registrados: <strong>{formatMinor(available.availableNowMinor, 'COP', hidden)}</strong></p>}</section>
 }
 
 // Reúne las piezas del plan y las cuentas en paneles breves para una lectura rápida del Inicio.

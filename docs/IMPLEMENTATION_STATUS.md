@@ -1,6 +1,6 @@
 # Estado de implementación
 
-Actualizado: 2026-09-13. Fase actual: **Fase 5 revisada localmente; ampliaciones funcionales en validación**.
+Actualizado: 2026-09-13. Fase actual: **Fase 5 revisada localmente; ampliaciones funcionales validadas localmente**.
 
 ## Ampliaciones del 11 de septiembre
 
@@ -28,6 +28,14 @@ Actualizado: 2026-09-13. Fase actual: **Fase 5 revisada localmente; ampliaciones
 - Asistente IA: se añadió `/asistente` como consulta de solo lectura. El servidor valida sesión, origen, tamaño y entrada antes de llamar a Ollama; la clave y el modelo son variables exclusivas de servidor y la demo nunca envía datos.
 - Vercel Hobby: las reglas de categorización comparten la función de mapeos mediante un rewrite interno para mantener 12 funciones Serverless, el máximo del plan, sin cambiar las rutas públicas del cliente.
 
+## Ampliación de punto de partida financiero · 13 de septiembre
+
+- Onboarding guiado al entrar al espacio: salario mensual equivalente, frecuencia y próximo pago opcional; deudas con total pendiente y pago mensual; y gastos fijos repetibles.
+- El resultado **Dinero libre** se calcula como salario − gastos fijos − pagos mensuales declarados de deuda. Los datos se guardan por usuario y no crean ingresos, gastos ni cobros automáticos.
+- Las deudas nuevas se guardan como pasivos con apertura explícita y un campo separado de pago mensual declarado; no se inventa un número de cuotas para una deuda cuyo plazo no se conoce.
+- Inicio y Plan muestran el desglose del dinero libre. Las próximas compras advierten cuando dejarían el margen en cero/negativo o cuando faltan más de 14 días para el próximo pago y el remanente sería menor al 25% del dinero libre mensual.
+- Ajustes permite editar los gastos fijos. La migración `20260913100000_financial_onboarding.sql` añade las claves de configuración y `20260913103000_debt_monthly_payment.sql` añade el pago mensual de deuda; ambas requieren aplicación remota autorizada.
+
 ## Implementado
 
 | Fase / área | Estado | Límite honesto |
@@ -37,14 +45,15 @@ Actualizado: 2026-09-13. Fase actual: **Fase 5 revisada localmente; ampliaciones
 | Fase 3: PWA y Web Push | Implementada localmente | Recepción/apertura real y actualización en iPhone pendientes |
 | Fase 4: Atajos/categorización | Plantilla iCloud publicada; receptor y migración preparados | Instalación desde enlace, vínculo persistente, prueba de conexión y compra real pendientes |
 | Fase 5: acabado | Implementada | Foco, horizontal/texto ampliado, estados accesibles, imágenes y temporizadores |
+| Punto de partida financiero | Implementado localmente | Migraciones nuevas y onboarding autenticado requieren aplicación/prueba remota |
 | Mascotas | Cuatro escenas estáticas | 12 WebP; no hay capas, rigs ni gestos animados |
 | Operación | Documentada | Guía, validación final y publicación/recuperación |
 
 ## Probado automáticamente
 
 - `npm run lint`: PASÓ.
-- `npm test`: PASÓ, 19 archivos y 77 pruebas. Incluye el contexto acotado del asistente, sus guardas HTTP, llamada simulada server-only a Ollama, planes de deuda, referencias de ingresos y el contrato de la migración.
-- `npm run build`: PASÓ con Vite 8.3.0; 30 entradas y 1203,60 KiB de precaché. La configuración adapta el build del worker a `codeSplitting: false`, sin la opción obsoleta `inlineDynamicImports`.
+- `npm test`: PASÓ, 20 archivos y 85 pruebas. Incluye dinero libre, gastos fijos, fecha de próximo pago, pago mensual declarado de deuda y contratos de migración.
+- `npm run build`: PASÓ con Vite 8.3.0; 30 entradas y 1229,94 KiB de precaché. La configuración adapta el build del worker a `codeSplitting: false`, sin la opción obsoleta `inlineDynamicImports`.
 - E2E dirigido de Automatización en escritorio: PASÓ 1/1. La ejecución completa paralela quedó inválida por `EBUSY` de Windows al observar sus propios artefactos de Playwright; tras caer el servidor produjo 32 fallos derivados y 5 pruebas alcanzaron a pasar.
 - Dependencias de build: `glob` se resuelve explícitamente a 13.0.6 bajo `workbox-build`; `npm audit --omit=dev` permanece en 0 vulnerabilidades conocidas.
 - Línea base E2E: 22 pruebas efectivas pasaron y 2 variantes se omitieron intencionalmente.
@@ -53,6 +62,8 @@ Actualizado: 2026-09-13. Fase actual: **Fase 5 revisada localmente; ampliaciones
 - E2E del asistente: PASÓ 1/1 en 390×844, 375×812 y escritorio; la demo muestra el estado no disponible y no hace solicitudes de IA.
 - `npm audit --omit=dev`: PASÓ, 0 vulnerabilidades conocidas.
 - E2E de ampliaciones en escritorio y 375×812: PASÓ 3/3 en cada tamaño (modales de Metas, categoría/hora/comprobante y próxima compra).
+- E2E del onboarding financiero: PASÓ en 390×844, 375×812 y 1440×900; creó una deuda, guardó gastos fijos y mostró el cálculo de dinero libre en Inicio.
+- E2E final `tests/e2e/app.spec.js`: PASÓ 42/42 en 390×844, 375×812 y 1440×900, incluyendo onboarding, cálculo de dinero libre y evaluación de compras futuras.
 - E2E del dashboard en 390×844, 375×812 y escritorio: PASÓ 3/3; Inicio muestra metas, compras futuras y cuentas sin overflow.
 - E2E de plan de cuotas e ingresos en 390×844, 375×812 y escritorio: PASÓ 3/3; la deuda conserva el avance y el sueldo aparece en Inicio.
 - E2E completo de la app en 390×844: PASÓ 15/15. Una ejecución paralela anterior sufrió contención y reveló que el input oculto del comprobante interceptaba Guardar; se corrigió y la repetición serial pasó.

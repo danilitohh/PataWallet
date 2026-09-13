@@ -9,6 +9,7 @@ export function IncomeSettings() {
   const { settings, actions, notify } = useApp()
   const [salary, setSalary] = useState(settings.monthlySalaryMinor ? toInputAmount(settings.monthlySalaryMinor) : '')
   const [frequency, setFrequency] = useState(settings.payFrequency || '')
+  const [nextPayDate, setNextPayDate] = useState(settings.nextPayDate || '')
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
 
@@ -16,10 +17,11 @@ export function IncomeSettings() {
     event.preventDefault()
     setError('')
     try {
-      const parsed = parseIncomeSettings({ salary, frequency })
+      const parsed = parseIncomeSettings({ salary, frequency, nextPayDate })
       setSaving(true)
       await actions.setSetting('monthlySalaryMinor', parsed.monthlySalaryMinor)
       await actions.setSetting('payFrequency', parsed.payFrequency)
+      await actions.setSetting('nextPayDate', parsed.nextPayDate)
       notify('Ingresos guardados')
     } catch (issue) {
       setError(issue.message)
@@ -34,6 +36,7 @@ export function IncomeSettings() {
     <form onSubmit={submit}>
       <Field label="Sueldo mensual equivalente" optional error={error}><input inputMode="decimal" value={salary} onChange={(event) => setSalary(event.target.value)} placeholder="2.500.000" /></Field>
       <Field label="¿Cada cuánto recibes tu pago?" optional><select value={frequency} onChange={(event) => setFrequency(event.target.value)}><option value="">Elige una frecuencia</option>{PAY_FREQUENCY_OPTIONS.map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}</select></Field>
+      <Field label="Fecha de tu próximo pago" optional><input type="date" value={nextPayDate} onChange={(event) => setNextPayDate(event.target.value)} /></Field>
       <p className="helper">Si dejas ambos campos vacíos, se quitará esta referencia.</p>
       <button className="button button--primary" type="submit" disabled={saving}>{saving ? 'Guardando…' : 'Guardar ingresos'}</button>
     </form>

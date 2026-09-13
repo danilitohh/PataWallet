@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { AnimatePresence } from 'motion/react'
 import { CalendarClock, Goal, Pencil, Plus, Trash2 } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { useApp } from '../../app/AppContext.jsx'
 import { PetScene } from '../../components/PetScene.jsx'
-import { calculateSummary, goalProgress } from '../../domain/finance.js'
+import { calculateAvailableMoney, calculateSummary, goalProgress } from '../../domain/finance.js'
+import { readFixedExpenses } from '../../domain/financialSetup.js'
 import { formatMinor } from '../../domain/money.js'
 import { assessPlannedPurchase } from '../../domain/plannedPurchases.js'
 import { PageHeader } from '../../shared/components/PageHeader.jsx'
@@ -18,6 +20,7 @@ export function PlanPage() {
   const { accounts, transactions, budgets, goals, allocations, plannedPurchases, settings, notify, actions } = useApp()
   const month = currentMonth()
   const summary = calculateSummary(accounts, transactions, month)
+  const available = calculateAvailableMoney({ monthlySalaryMinor: settings.monthlySalaryMinor, fixedExpenses: readFixedExpenses(settings.fixedExpenses), accounts, transactions, month })
   const budget = budgets.find((item) => item.month === month) || budgets[0]
   const [budgetOpen, setBudgetOpen] = useState(false)
   const [goalOpen, setGoalOpen] = useState(false)
@@ -35,13 +38,15 @@ export function PlanPage() {
         <PetScene name="budget" />
         <button className="button button--secondary" onClick={() => setBudgetOpen(true)}><Pencil /> Editar límite</button>
       </section>
+      <AvailablePlanSummary available={available} hidden={settings.hiddenAmounts} />
       <section>
         <div className="section-heading"><div><h2>Próximas compras</h2><p>Evalúa una compra antes de convertirla en gasto.</p></div><button className="button button--quiet" onClick={() => setPlannedOpen('new')}><Plus /> Agregar</button></div>
         <div className="planned-grid">{plannedPurchases.filter((item) => item.status === 'planned').map((item) => {
           const reserved = allocations.reduce((sum, row) => sum + Number(row.amount_minor), 0)
-          const liquidAssets = accounts.filter((row) => row.kind === 'asset').reduce((sum, row) => sum + Number(summary.balances[row.id] || 0), 0)
-          const assessment = assessPlannedPurchase({ amountMinor: item.amount_minor, budgetLimitMinor: budget?.limit_minor || null, monthlyExpensesMinor: summary.expenses, liquidAssetsMinor: liquidAssets, reservedMinor: reserved })
-          const message = assessment.kind === 'unknown' ? assessment.message : assessment.kind === 'good' ? `Cabe en el presupuesto y en tus fondos registrados después de reservas.` : assessment.reason === 'funds' ? `Faltarían ${formatMinor(assessment.shortfall, 'COP', settings.hiddenAmounts)} en fondos registrados después de reservas.` : `Supera el presupuesto mensual restante por ${formatMinor(assessment.shortfall, 'COP', settings.hiddenAmounts)}.`
+          const assetAccounts = accounts.filter((row) => row.kind === 'asset' && !row.archived)
+          const liquidAssets = assetAccounts.length ? assetAccounts.reduce((sum, row) => sum + Number(summary.balances[row.id] || 0), 0) : null
+          const assessment = assessPlannedPurchase({ amountMinor: item.amount_minor, budgetLimitMinor: budget?.limit_minor || null, monthlyExpensesMinor: summary.expenses, liquidAssetsMinor: liquidAssets, reservedMinor: reserved, monthlyFreeMinor: available.monthlyFreeMinor, nextPayDate: settings.nextPayDate })
+          const message = plannedPurchaseMessage(assessment, settings.hiddenAmounts)
           return <article className="planned-card" key={item.id}><span className="goal-icon"><CalendarClock /></span><div><h3>{item.name}</h3><p>{formatMinor(item.amount_minor, 'COP', settings.hiddenAmounts)} · {new Intl.DateTimeFormat('es-CO', { dateStyle: 'medium', timeZone: 'UTC' }).format(new Date(`${item.target_date}T12:00:00Z`))}</p><strong className={assessment.kind === 'good' ? 'advice advice--good' : 'advice'}>{message}</strong></div><div className="planned-card__actions"><button className="icon-button icon-button--small" aria-label={`Editar ${item.name}`} onClick={() => setPlannedOpen(item)}><Pencil /></button><button className="icon-button icon-button--small" aria-label={`Eliminar ${item.name}`} onClick={async () => { if (!confirm('¿Eliminar esta compra prevista?')) return; await actions.deletePlannedPurchase(item.id); notify('Compra prevista eliminada') }}><Trash2 /></button></div></article>
         })}{!plannedPurchases.some((item) => item.status === 'planned') && <div className="empty-inline"><CalendarClock /><p>Aún no has anotado compras futuras.</p></div>}</div>
       </section>
@@ -59,4 +64,23 @@ export function PlanPage() {
       <AnimatePresence>{plannedOpen && <PlannedPurchaseDialog purchase={plannedOpen === 'new' ? null : plannedOpen} close={() => setPlannedOpen(null)} />}</AnimatePresence>
     </div>
   )
+}
+
+// Presenta el cálculo base que se usará para evaluar compras sin confundirlo con el presupuesto.
+function AvailablePlanSummary({ available, hidden }) {
+  if (available.monthlyFreeMinor === null) return <section className="feature-panel available-plan-summary"><h2>Dinero libre</h2><p>Completa tus ingresos y gastos fijos en <Link to="/ajustes#ingresos">Ajustes</Link> para evaluar compras con una referencia personal.</p></section>
+  return <section className={`feature-panel available-plan-summary ${available.monthlyFreeMinor < 0 ? 'available-plan-summary--warning' : ''}`}><div><span>Dinero libre después de compromisos</span><strong>{formatMinor(available.monthlyFreeMinor, 'COP', hidden)}</strong></div><p>{formatMinor(available.salaryMinor, 'COP', hidden)} de ingreso − {formatMinor(available.fixedExpensesMinor, 'COP', hidden)} en gastos fijos − {formatMinor(available.debtPaymentsMinor, 'COP', hidden)} en pagos de deuda.</p>{available.trackedExpensesMinor > 0 && <small>Los movimientos del mes también se tienen en cuenta al evaluar una compra.</small>}</section>
+}
+
+// Traduce cada motivo de advertencia a una explicación accionable y honesta.
+function plannedPurchaseMessage(assessment, hidden) {
+  if (assessment.kind === 'unknown') return assessment.message
+  if (assessment.kind === 'good') {
+    const margin = assessment.remainingAfterPurchase ?? assessment.availableAfterReserves
+    return margin === null ? 'Puedes hacerla según los datos configurados.' : `Puedes hacerla: conservarías ${formatMinor(margin, 'COP', hidden)} de margen.`
+  }
+  if (assessment.reason === 'free_money') return assessment.remainingAfterPurchase <= 0 ? 'No es recomendable: te dejaría sin dinero libre este mes.' : `No es recomendable: te dejaría ${formatMinor(assessment.remainingAfterPurchase, 'COP', hidden)} para el resto del mes.`
+  if (assessment.reason === 'before_payday') return `Espera o revisa el monto: faltan ${assessment.daysUntilPay} días para tu próximo pago y te quedarían ${formatMinor(assessment.remainingAfterPurchase, 'COP', hidden)}.`
+  if (assessment.reason === 'funds') return `No es recomendable: faltarían ${formatMinor(assessment.shortfall, 'COP', hidden)} en fondos registrados después de reservas.`
+  return `No es recomendable: supera el presupuesto restante por ${formatMinor(assessment.shortfall, 'COP', hidden)}.`
 }

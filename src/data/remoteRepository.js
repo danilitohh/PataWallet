@@ -3,9 +3,12 @@ import { SyncConflictError } from '../services/sync/syncErrors.js'
 
 const defaultSettings = [
   { key: 'entered', value: true },
+  { key: 'financialOnboardingComplete', value: false },
   { key: 'theme', value: 'system' },
   { key: 'hiddenAmounts', value: false },
   { key: 'motion', value: 'system' },
+  { key: 'fixedExpenses', value: [] },
+  { key: 'nextPayDate', value: null },
 ]
 
 const defaultCategories = [
@@ -26,10 +29,12 @@ export async function ensureRemoteWorkspace(userId) {
   const displayName = preferredName.trim().length >= 2 ? preferredName.trim().slice(0, 80) : 'Usuario'
   const { error: profileError } = await supabase.from('profiles').upsert({ id: userId, display_name: displayName })
   ensure(profileError)
-  const { count, error } = await supabase.from('user_settings').select('key', { count: 'exact', head: true }).eq('user_id', userId)
-  ensure(error)
-  if (!count) {
-    const { error: settingsError } = await supabase.from('user_settings').insert(defaultSettings.map((row) => ({ ...row, user_id: userId })))
+  const { data: existingSettings, error: settingsReadError } = await supabase.from('user_settings').select('key').eq('user_id', userId)
+  ensure(settingsReadError)
+  const existingKeys = new Set(existingSettings.map((row) => row.key))
+  const missingSettings = defaultSettings.filter((row) => !existingKeys.has(row.key))
+  if (missingSettings.length) {
+    const { error: settingsError } = await supabase.from('user_settings').insert(missingSettings.map((row) => ({ ...row, user_id: userId })))
     ensure(settingsError)
   }
   const { count: categoryCount, error: categoryReadError } = await supabase.from('categories').select('id', { count: 'exact', head: true }).eq('user_id', userId)
@@ -69,7 +74,7 @@ function cleanWrite(row) {
 function normalizeServerRow(row) {
   if (!row) return row
   const copy = { ...row }
-  for (const key of ['amount_minor', 'limit_minor', 'target_minor', 'version', 'debt_installments_total', 'debt_installments_paid', 'debt_installment_amount_minor']) {
+  for (const key of ['amount_minor', 'limit_minor', 'target_minor', 'version', 'debt_installments_total', 'debt_installments_paid', 'debt_installment_amount_minor', 'debt_monthly_payment_minor']) {
     if (copy[key] !== undefined && copy[key] !== null) copy[key] = Number(copy[key])
   }
   return copy
