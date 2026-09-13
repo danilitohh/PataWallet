@@ -43,7 +43,8 @@ export function AppShell({ children }) {
 }
 
 function SyncStatus({ state, retry }) {
-  if (!state) return null
+  // Oculta el estado estable para no añadir ruido visual; conserva avisos accionables.
+  if (!state || state.kind === 'synced') return null
   const Icon = state.kind === 'synced' ? Check : state.kind === 'syncing' ? LoaderCircle : state.kind === 'conflict' ? AlertTriangle : state.kind === 'local' ? HardDrive : CloudUpload
   return <button type="button" className={`sync-status sync-status--${state.kind}`} onClick={() => state.kind !== 'synced' && state.kind !== 'syncing' && retry?.()} title={state.lastSyncedAt ? `Última confirmación: ${new Date(state.lastSyncedAt).toLocaleString('es-CO')}` : undefined}><Icon aria-hidden="true" /><span>{state.label}</span></button>
 }

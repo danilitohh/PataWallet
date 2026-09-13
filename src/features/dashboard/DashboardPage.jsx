@@ -11,7 +11,7 @@ import { currentMonth } from '../../shared/lib/date.js'
 import { TransactionList } from '../transactions/components/TransactionList.jsx'
 
 export function DashboardPage() {
-  const { accounts, transactions, budgets, settings, setSheet, actions, user } = useApp()
+  const { accounts, transactions, budgets, settings, setSheet, actions, user, isDemo } = useApp()
   const [month, setMonth] = useState(currentMonth())
   const summary = calculateSummary(accounts, transactions, month)
   const budget = budgets.find((item) => item.month === month) || budgets[0]
@@ -23,7 +23,7 @@ export function DashboardPage() {
   return (
     <div className="route-stack">
       <PageHeader title={`Hola, ${user?.user_metadata?.display_name?.split(' ')[0] || user?.user_metadata?.full_name?.split(' ')[0] || 'Danilo'}`} subtitle="Qué bueno tenerte por aquí." action={<button className="icon-button" aria-label={hidden ? 'Mostrar montos' : 'Ocultar montos'} onClick={() => actions.setSetting('hiddenAmounts', !hidden)}>{hidden ? <EyeOff /> : <Eye />}</button>} />
-      <DemoBanner />
+      {isDemo && <DemoBanner />}
       <section className="balance-hero">
         <div className="balance-hero__numbers"><span>Saldo en cuentas</span><strong aria-label={hidden ? 'Monto oculto' : undefined}>{formatMinor(summary.assets, 'COP', hidden)}</strong><small>Dinero registrado en activos</small></div>
         <div className="balance-hero__scene" aria-hidden="true"><PetScene name="welcome" /></div>
