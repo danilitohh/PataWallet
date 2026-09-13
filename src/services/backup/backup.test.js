@@ -30,6 +30,18 @@ describe('respaldo versionado', () => {
     expect(planBackupMerge(changed, backup).conflicts).toEqual([{ collection: 'accounts', id: 'account-1' }])
   })
 
+  it('acepta préstamos como subtipos de deuda en un respaldo', () => {
+    const withLoans = {
+      ...data,
+      accounts: [
+        ...data.accounts,
+        { id: 'loan-investment', name: 'Libre inversión', kind: 'liability', subtype: 'investment_loan', currency: 'COP', archived: false },
+        { id: 'loan-private', name: 'Préstamo personal', kind: 'liability', subtype: 'private_loan', currency: 'COP', archived: false },
+      ],
+    }
+    expect(() => parseBackup(JSON.stringify(createBackup(withLoans, owner)), owner)).not.toThrow()
+  })
+
   it('neutraliza fórmulas en CSV', () => {
     const csv = transactionsCsv(data)
     expect(csv).toContain("'=2+2")

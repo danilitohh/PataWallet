@@ -7,6 +7,7 @@ import { formatMinor } from '../../domain/money.js'
 import { PageHeader } from '../../shared/components/PageHeader.jsx'
 import { currentMonth } from '../../shared/lib/date.js'
 import { AccountDialog, AccountEditDialog } from './components/AccountDialogs.jsx'
+import { accountTypeLabel } from './model/accountTypes.js'
 
 export function AccountsPage() {
   const { accounts, transactions, settings, notify, actions } = useApp()
@@ -16,7 +17,7 @@ export function AccountsPage() {
   // Los dos grupos reflejan el modelo contable mínimo: patrimonio disponible frente a deuda.
   const groups = [
     { title: 'Dinero disponible', kind: 'asset', description: 'Efectivo, bancos y billeteras que son tuyos.' },
-    { title: 'Tarjetas de crédito (deuda)', kind: 'liability', description: 'Compras que todavía le debes al emisor.' },
+    { title: 'Deudas', kind: 'liability', description: 'Tarjetas, préstamos y otras obligaciones pendientes.' },
   ]
 
   return (
@@ -28,11 +29,4 @@ export function AccountsPage() {
       <AnimatePresence>{editingAccount && <AccountEditDialog account={editingAccount} close={() => setEditingAccount(null)} />}</AnimatePresence>
     </div>
   )
-}
-
-// Traduce el subtipo técnico a una explicación útil para quien usa la cuenta.
-function accountTypeLabel(account) {
-  if (account.kind === 'liability') return 'Tarjeta de crédito · deuda'
-  if (account.subtype === 'cash') return 'Efectivo · dinero disponible'
-  return 'Banco o billetera · dinero disponible'
 }

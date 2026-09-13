@@ -19,7 +19,7 @@ const id = z.string().min(1).max(180)
 const minor = z.number().int().positive().max(999_999_999_999)
 const currency = z.literal('COP')
 const backupDataSchema = z.object({
-  accounts: z.array(z.object({ id, name: z.string().min(2).max(80), kind: z.enum(['asset', 'liability']), subtype: z.enum(['bank', 'cash', 'credit_card']), currency, archived: z.boolean() }).strict()).max(100000),
+  accounts: z.array(z.object({ id, name: z.string().min(2).max(80), kind: z.enum(['asset', 'liability']), subtype: z.enum(['bank', 'cash', 'credit_card', 'investment_loan', 'private_loan']), currency, archived: z.boolean() }).strict()).max(100000),
   categories: z.array(z.object({ id, name: z.string().min(2).max(50), type: z.enum(['income', 'expense']) }).strict()).max(100000),
   transactions: z.array(z.object({
     id, type: z.enum(['opening', 'income', 'expense', 'transfer', 'card_payment', 'adjustment', 'refund']), amount_minor: minor, currency,
@@ -91,7 +91,7 @@ function validateRelationships(data) {
   const categories = new Map(data.categories.map((row) => [row.id, row]))
   const goals = new Set(data.goals.map((row) => row.id))
   for (const row of data.accounts) {
-    const validSubtype = row.kind === 'asset' ? ['bank', 'cash'].includes(row.subtype) : row.subtype === 'credit_card'
+    const validSubtype = row.kind === 'asset' ? ['bank', 'cash'].includes(row.subtype) : ['credit_card', 'investment_loan', 'private_loan'].includes(row.subtype)
     if (!validSubtype) throw new Error(`La cuenta ${row.id} combina un tipo y subtipo incompatibles.`)
   }
   for (const row of data.transactions) {
