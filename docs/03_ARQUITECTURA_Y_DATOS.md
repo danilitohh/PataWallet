@@ -70,7 +70,7 @@ Para cuentas de activos, saldo positivo = dinero registrado. Para tarjetas, sald
 | Ajuste explícito de saldo | Corrige activo/deuda con trazabilidad | No |
 | Reembolso vinculado | Activo + monto o deuda − monto | Reduce gasto, no es salario/ingreso ordinario |
 
-No admitir avances de crédito, cuotas o intereses automáticos en el MVP. No llamar a un gasto “pago de tarjeta” para ocultarlo en presupuesto. Los saldos pueden resultar negativos por movimientos reales; no clavar los números a cero para disimularlos. Un crédito a favor de la tarjeta requiere etiqueta clara y no debe confundirse con dinero líquido.
+El plan de cuotas de una deuda es opcional y descriptivo: no genera pagos ni intereses automáticos. No llamar a un gasto “pago de tarjeta” para ocultarlo en presupuesto. Los saldos pueden resultar negativos por movimientos reales; no clavar los números a cero para disimularlos. Un crédito a favor de la tarjeta requiere etiqueta clara y no debe confundirse con dinero líquido.
 
 **Saldo en cuentas** = suma de activos. **Deuda registrada** = suma de obligaciones, con créditos a favor explicados. **Posición neta registrada** = activos − deuda (opcional en Cuentas). **Gasto del mes** = gastos menos reembolsos según fecha del evento, excluyendo aperturas, ajustes, transferencias, pagos de tarjeta y reservas. **Restante del presupuesto** = límite − gasto computable. No presentar estas cifras como intercambiables.
 

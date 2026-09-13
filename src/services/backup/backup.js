@@ -1,4 +1,5 @@
 import { assertMinor } from '../../domain/money.js'
+import { readDebtSchedule } from '../../domain/debtSchedule.js'
 import { z } from 'zod'
 
 export const BACKUP_FORMAT = 'patawallet-backup'
@@ -19,7 +20,13 @@ const id = z.string().min(1).max(180)
 const minor = z.number().int().positive().max(999_999_999_999)
 const currency = z.literal('COP')
 const backupDataSchema = z.object({
-  accounts: z.array(z.object({ id, name: z.string().min(2).max(80), kind: z.enum(['asset', 'liability']), subtype: z.enum(['bank', 'cash', 'credit_card', 'investment_loan', 'private_loan']), currency, archived: z.boolean() }).strict()).max(100000),
+  accounts: z.array(z.object({
+    id, name: z.string().min(2).max(80), kind: z.enum(['asset', 'liability']), subtype: z.enum(['bank', 'cash', 'credit_card', 'investment_loan', 'private_loan']), currency, archived: z.boolean(),
+    debt_installments_total: z.number().int().min(1).max(600).nullable().optional(),
+    debt_installments_paid: z.number().int().min(0).max(600).optional(),
+    debt_installment_amount_minor: minor.nullable().optional(),
+    debt_payment_frequency: z.enum(['weekly', 'biweekly', 'semimonthly', 'monthly']).nullable().optional(),
+  }).strict()).max(100000),
   categories: z.array(z.object({ id, name: z.string().min(2).max(50), type: z.enum(['income', 'expense']) }).strict()).max(100000),
   transactions: z.array(z.object({
     id, type: z.enum(['opening', 'income', 'expense', 'transfer', 'card_payment', 'adjustment', 'refund']), amount_minor: minor, currency,
@@ -30,7 +37,7 @@ const backupDataSchema = z.object({
   budgets: z.array(z.object({ month: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/), limit_minor: minor, currency: currency.optional() }).strict()).max(100000),
   goals: z.array(z.object({ id, name: z.string().min(2).max(80), target_minor: minor, currency, completed_seen: z.boolean() }).strict()).max(100000),
   allocations: z.array(z.object({ id, goal_id: id, account_id: id, amount_minor: minor, allocated_on: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) }).strict()).max(100000),
-  settingsRows: z.array(z.object({ key: z.enum(['entered', 'theme', 'hiddenAmounts', 'motion']), value: z.unknown() }).strict()).max(20),
+  settingsRows: z.array(z.object({ key: z.enum(['entered', 'theme', 'hiddenAmounts', 'motion', 'monthlySalaryMinor', 'payFrequency']), value: z.unknown() }).strict()).max(20),
   plannedPurchases: z.array(z.object({ id, name: z.string().min(2).max(80), amount_minor: minor, currency, target_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), category_id: id.nullable().optional(), note: z.string().max(240), status: z.enum(['planned', 'purchased', 'cancelled']) }).strict()).max(100000).optional().default([]),
 }).strict()
 
@@ -73,7 +80,20 @@ export function parseBackup(text, expectedOwnerId) {
   for (const row of parsed.data.goals) assertMinor(row.target_minor)
   for (const row of parsed.data.allocations) assertMinor(row.amount_minor)
   for (const row of parsed.data.plannedPurchases) assertMinor(row.amount_minor)
+  for (const row of parsed.data.accounts) {
+    if (row.debt_installments_total !== undefined && row.debt_installments_total !== null) assertDebtSchedule(row)
+    if (row.debt_installment_amount_minor !== undefined && row.debt_installment_amount_minor !== null) assertMinor(row.debt_installment_amount_minor)
+  }
+  for (const row of parsed.data.settingsRows) {
+    if (row.key === 'monthlySalaryMinor' && row.value !== null) assertMinor(row.value)
+    if (row.key === 'payFrequency' && row.value !== null && !['weekly', 'biweekly', 'semimonthly', 'monthly'].includes(row.value)) throw new Error('La frecuencia de pago del respaldo no es válida.')
+  }
   return parsed
+}
+
+// Comprueba la relación entre cuotas totales, pagadas, importe y frecuencia al importar datos.
+function assertDebtSchedule(account) {
+  if (account.kind !== 'liability' || !readDebtSchedule(account)) throw new Error(`El plan de cuotas de ${account.id} no es válido.`)
 }
 
 function ordered(value) {
@@ -93,6 +113,9 @@ function validateRelationships(data) {
   for (const row of data.accounts) {
     const validSubtype = row.kind === 'asset' ? ['bank', 'cash'].includes(row.subtype) : ['credit_card', 'investment_loan', 'private_loan'].includes(row.subtype)
     if (!validSubtype) throw new Error(`La cuenta ${row.id} combina un tipo y subtipo incompatibles.`)
+    const hasScheduleData = (row.debt_installments_total !== undefined && row.debt_installments_total !== null) || (row.debt_installments_paid || 0) > 0 || (row.debt_installment_amount_minor !== undefined && row.debt_installment_amount_minor !== null) || (row.debt_payment_frequency !== undefined && row.debt_payment_frequency !== null)
+    if (hasScheduleData && !readDebtSchedule(row)) throw new Error(`El plan de cuotas de ${row.id} no es válido.`)
+    if (row.kind === 'asset' && hasScheduleData) throw new Error(`La cuenta de activo ${row.id} no puede tener cuotas.`)
   }
   for (const row of data.transactions) {
     if (row.source === 'demo') throw new Error('Un respaldo de demostración no se puede mezclar con una cuenta real.')

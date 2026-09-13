@@ -39,7 +39,7 @@ export function getUserDatabase(userId) {
 
 function normalizeRow(table, row) {
   const copy = { ...row }
-  for (const key of ['amount_minor', 'limit_minor', 'target_minor', 'version']) {
+  for (const key of ['amount_minor', 'limit_minor', 'target_minor', 'version', 'debt_installments_total', 'debt_installments_paid', 'debt_installment_amount_minor']) {
     if (copy[key] !== undefined && copy[key] !== null) copy[key] = Number(copy[key])
   }
   if (table === 'transactions') copy.note ||= ''

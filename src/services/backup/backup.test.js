@@ -42,6 +42,22 @@ describe('respaldo versionado', () => {
     expect(() => parseBackup(JSON.stringify(createBackup(withLoans, owner)), owner)).not.toThrow()
   })
 
+  it('conserva planes de cuotas e ingresos de referencia en el respaldo', () => {
+    const withSchedule = {
+      ...data,
+      accounts: [{ ...data.accounts[0], id: 'loan-1', name: 'Préstamo', kind: 'liability', subtype: 'investment_loan', debt_installments_total: 12, debt_installments_paid: 3, debt_installment_amount_minor: 10000000, debt_payment_frequency: 'monthly' }],
+      settingsRows: [{ key: 'monthlySalaryMinor', value: 320000000 }, { key: 'payFrequency', value: 'monthly' }],
+    }
+    const backup = parseBackup(JSON.stringify(createBackup(withSchedule, owner)), owner)
+    expect(backup.data.accounts[0].debt_installments_total).toBe(12)
+    expect(backup.data.settingsRows).toHaveLength(2)
+  })
+
+  it('rechaza un plan de cuotas incompleto', () => {
+    const incomplete = { ...data, accounts: [{ ...data.accounts[0], kind: 'liability', subtype: 'private_loan', debt_installments_total: 12, debt_installments_paid: 2 }] }
+    expect(() => parseBackup(JSON.stringify(createBackup(incomplete, owner)), owner)).toThrow(/plan de cuotas/i)
+  })
+
   it('neutraliza fórmulas en CSV', () => {
     const csv = transactionsCsv(data)
     expect(csv).toContain("'=2+2")

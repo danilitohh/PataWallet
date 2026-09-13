@@ -20,6 +20,8 @@ Actualizado: 2026-09-12. Fase actual: **Fase 5 revisada localmente; ampliaciones
 - El popup de cada reserva incluye la explicación y el ejemplo de saldo/progreso antes de solicitar cuenta y monto.
 - Cuentas: la pantalla explica que “dinero disponible” incluye efectivo, bancos y billeteras, mientras “tarjeta de crédito (deuda)” representa lo pendiente con el emisor; también aclara que pagar la tarjeta no duplica el gasto.
 - Cuentas: se añadieron subtipos de deuda para préstamos de libre inversión y préstamos con personas o entidades; la migración remota correspondiente queda pendiente de aplicar.
+- Cuentas: cada deuda admite un plan de pago opcional con total de cuotas, cuotas pagadas, valor y frecuencia; es informativo y no genera movimientos automáticos. Se puede editar después desde la cuenta.
+- Ingresos: Ajustes permite guardar sueldo mensual equivalente y frecuencia de pago como referencia opcional; Inicio lo resume y enlaza a su edición, sin crear ingresos automáticos.
 - Movimientos: el selector de Gasto, Ingreso y Transferencia muestra una explicación contextual; Transferencia aclara que mueve dinero entre cuentas y no altera ingresos ni gastos.
 - PWA móvil: los campos usan al menos 16 px para evitar el zoom automático al enfocarlos; el viewport y los gestos de zoom se bloquean únicamente en modo app instalada, no en la web abierta en Safari.
 - Inicio: el dashboard ahora incluye paneles rápidos de metas, próximas compras y cuentas, además del presupuesto y movimientos recientes, con enlaces a cada sección completa.
@@ -39,8 +41,8 @@ Actualizado: 2026-09-12. Fase actual: **Fase 5 revisada localmente; ampliaciones
 ## Probado automáticamente
 
 - `npm run lint`: PASÓ.
-- `npm test`: PASÓ, 15 archivos y 60 pruebas. Incluye la separación entre plantilla publicada y versión de iOS probada.
-- `npm run build`: PASÓ con Vite 8.3.0; 30 entradas y 1177,53 KiB de precaché. La configuración adapta el build del worker a `codeSplitting: false`, sin la opción obsoleta `inlineDynamicImports`.
+- `npm test`: PASÓ, 17 archivos y 71 pruebas. Incluye validación de planes de deuda, referencias de ingresos y el contrato de la migración.
+- `npm run build`: PASÓ con Vite 8.3.0; 30 entradas y 1195,57 KiB de precaché. La configuración adapta el build del worker a `codeSplitting: false`, sin la opción obsoleta `inlineDynamicImports`.
 - E2E dirigido de Automatización en escritorio: PASÓ 1/1. La ejecución completa paralela quedó inválida por `EBUSY` de Windows al observar sus propios artefactos de Playwright; tras caer el servidor produjo 32 fallos derivados y 5 pruebas alcanzaron a pasar.
 - Dependencias de build: `glob` se resuelve explícitamente a 13.0.6 bajo `workbox-build`; `npm audit --omit=dev` permanece en 0 vulnerabilidades conocidas.
 - Línea base E2E: 22 pruebas efectivas pasaron y 2 variantes se omitieron intencionalmente.
@@ -49,7 +51,8 @@ Actualizado: 2026-09-12. Fase actual: **Fase 5 revisada localmente; ampliaciones
 - `npm audit --omit=dev`: PASÓ, 0 vulnerabilidades conocidas.
 - E2E de ampliaciones en escritorio y 375×812: PASÓ 3/3 en cada tamaño (modales de Metas, categoría/hora/comprobante y próxima compra).
 - E2E del dashboard en 390×844, 375×812 y escritorio: PASÓ 3/3; Inicio muestra metas, compras futuras y cuentas sin overflow.
-- E2E completo de la app en 390×844: PASÓ 14/14. Una ejecución paralela anterior sufrió contención y reveló que el input oculto del comprobante interceptaba Guardar; se corrigió y la repetición serial pasó.
+- E2E de plan de cuotas e ingresos en 390×844, 375×812 y escritorio: PASÓ 3/3; la deuda conserva el avance y el sueldo aparece en Inicio.
+- E2E completo de la app en 390×844: PASÓ 15/15. Una ejecución paralela anterior sufrió contención y reveló que el input oculto del comprobante interceptaba Guardar; se corrigió y la repetición serial pasó.
 - `npx supabase db lint --local`: BLOQUEADO; no hay PostgreSQL/Docker en `127.0.0.1:54322`.
 - Supabase remoto: PASÓ 20/20 pruebas pgTAP transaccionales de aislamiento A/B, referencias cruzadas, tablas Push/Atajos y bloqueo anónimo; los fixtures y pgTAP temporal terminaron con `ROLLBACK`.
 - Fase 4 remota: existen sus seis tablas, RLS está activo en las cuatro públicas, `anon` no puede leer vinculaciones y las funciones privilegiadas principales están instaladas.
@@ -71,7 +74,7 @@ VoiceOver, teclado/áreas seguras reales, instalación/actualización PWA, Web P
 - **Medio:** VoiceOver, texto del sistema y teclado en iPhone.
 - **Bajo:** licencia explícita de redistribución de ilustraciones.
 
-La app está desplegada en Vercel y las migraciones 1–4 están presentes en Supabase. No se enviaron avisos reales ni se modificaron servicios Apple. Pasos restantes: `docs/PLAN_DE_PUBLICACION_Y_RECUPERACION.md`.
+La app está desplegada en Vercel y las migraciones 1–4 están presentes en Supabase. La migración `20260913042149_debt_schedule_and_income_settings.sql` está preparada en el repositorio y queda pendiente de aplicar remotamente con autorización. No se enviaron avisos reales ni se modificaron servicios Apple. Pasos restantes: `docs/PLAN_DE_PUBLICACION_Y_RECUPERACION.md`.
 
 ## Decisión
 

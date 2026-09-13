@@ -25,8 +25,10 @@
 11. Reembolso vinculado reduce gasto y modifica activo/deuda correctamente; no se cuenta como salario.
 12. Presupuesto superado muestra importe negativo/restante o exceso claro, no un cero engañoso.
 13. Monto es-CO `85.000,50` se almacena como `8500050`; rechazar ambigüedad no contemplada y exceso de rango.
-14. Fechas cercanas a medianoche y fin de mes usan la zona del perfil correctamente.
-15. Cambio de usuario nunca mezcla bases locales, colas, cuentas o categorías.
+14. Un plan de deuda conserva total, cuotas pagadas, valor y frecuencia; rechazar planes incompletos o cuotas pagadas por encima del total.
+15. Sueldo mensual y frecuencia de pago son referencias opcionales; no crean ingresos automáticos y se pueden quitar dejando ambos campos vacíos.
+16. Fechas cercanas a medianoche y fin de mes usan la zona del perfil correctamente.
+17. Cambio de usuario nunca mezcla bases locales, colas, cuentas o categorías.
 
 `examples/demo-fixtures.json` incluye un conjunto ficticio estable con resultados esperados. No confundir sus fechas con la fecha actual de producción.
 

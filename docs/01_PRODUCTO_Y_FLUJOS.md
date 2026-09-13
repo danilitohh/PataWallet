@@ -8,7 +8,7 @@ La marca provisional es **PataWallet**. No se ha confirmado un nombre comercial,
 ## Alcance de la primera versión funcional
 Cuentas de efectivo, banco/billetera y tarjeta de crédito; gastos, ingresos, transferencias, pagos de tarjeta, presupuesto mensual, categorías, reglas por comercio, metas de ahorro, búsqueda e historial. Una moneda activa por perfil en el MVP. Cambiarla con datos existentes requiere migración explícita; no convertir números sin tipo de cambio.
 
-Desde el diseño se contemplan PWA, notificaciones y captura compatible mediante Atajos. Su funcionamiento real llega por fases. Fuera del MVP: conexión bancaria directa, inversiones, impuestos, préstamos complejos, intereses automáticos, cuotas, lectura OCR de recibos, presupuestos compartidos y seguimiento de caminatas. El apartado de caminatas de un mockup es un error, no una función solicitada.
+Desde el diseño se contemplan PWA, notificaciones y captura compatible mediante Atajos. Su funcionamiento real llega por fases. Fuera del MVP: conexión bancaria directa, inversiones, impuestos, préstamos complejos, intereses automáticos, generación automática de cuotas, lectura OCR de recibos, presupuestos compartidos y seguimiento de caminatas. El apartado de caminatas de un mockup es un error, no una función solicitada.
 
 ## Navegación
 Barra inferior: **Inicio · Actividad · + · Plan · Cuentas**. `+` abre un panel, no una página vacía. Ajustes se abre desde la cabecera. En escritorio usar navegación lateral compacta o adaptación equivalente; no escalar un teléfono gigante al ancho completo.
@@ -47,7 +47,7 @@ Dos apartados: presupuesto mensual y metas. Presupuesto global con categorías o
 Meta: nombre, monto objetivo y fecha opcional; aportes/reservas ligados a una cuenta propia. Reservar no mueve dinero en el banco. Mostrarlo como organización interna y no sumarlo de nuevo a los activos. Reservas editables y reversibles; advertir cuando dejan de estar cubiertas por fondos de esa cuenta. Celebrar la primera vez que la meta se alcanza, no cada vez que se abre la pantalla.
 
 ## Cuentas
-Crear cuenta con nombre/alias, tipo y saldo o deuda inicial. Modificar nombre y archivar; no borrar movimientos en cascada sin confirmación. Correcciones de saldo se registran como ajustes explícitos no presupuestables. Mostrar activos separados de tarjetas/deuda. El alias de tarjeta utilizado por Atajos se relaciona con una cuenta; no almacenar números completos, CVV ni acceso bancario.
+Crear cuenta con nombre/alias, tipo y saldo o deuda inicial. En una deuda se puede registrar opcionalmente un plan informativo con total de cuotas, cuotas pagadas, valor de cuota y frecuencia. Modificar nombre y archivar; no borrar movimientos en cascada sin confirmación. Correcciones de saldo se registran como ajustes explícitos no presupuestables. Mostrar activos separados de tarjetas/deuda. El alias de tarjeta utilizado por Atajos se relaciona con una cuenta; no almacenar números completos, CVV ni acceso bancario.
 
 ## Ajustes
 Tema Claro/Noche/Sistema, montos ocultos, movimiento Sistema/Suave/Desactivado, moneda/configuración, exportación, notificaciones, automatización, seguridad y salida. No llamar “Face ID” a un botón ornamental. Los controles deben funcionar o explicar de forma visible por qué están pendientes.

@@ -9,6 +9,7 @@ import { PageHeader } from '../../shared/components/PageHeader.jsx'
 import { Progress } from '../../shared/components/Progress.jsx'
 import { currentMonth } from '../../shared/lib/date.js'
 import { accountTypeLabel } from '../accounts/model/accountTypes.js'
+import { payFrequencyLabel } from '../settings/model/incomeSettings.js'
 import { TransactionList } from '../transactions/components/TransactionList.jsx'
 
 export function DashboardPage() {
@@ -43,6 +44,7 @@ export function DashboardPage() {
         <div className="section-heading"><div><h2>Presupuesto mensual</h2><p>{remaining >= 0 ? `Te quedan ${formatMinor(remaining, 'COP', hidden)}` : `Superaste el presupuesto por ${formatMinor(Math.abs(remaining), 'COP', hidden)}`}</p></div><Link to="/plan">Ver plan</Link></div>
         <Progress value={used} label={`${Math.round(used)}% usado`} />
       </section>
+      <IncomeSummary salary={settings.monthlySalaryMinor} frequency={settings.payFrequency} hidden={hidden} />
       <DashboardPreviewGrid goals={activeGoals} goalCount={goals.length} allocations={allocations} planned={plannedPreview} plannedCount={planned.length} accounts={activeAccounts} accountCount={accounts.filter((item) => !item.archived).length} balances={summary.balances} hidden={hidden} />
       <section>
         <div className="section-heading"><h2>Últimos movimientos</h2><Link to="/actividad">Ver todos</Link></div>
@@ -51,6 +53,15 @@ export function DashboardPage() {
       <button className="button button--primary desktop-hidden" onClick={() => setSheet('new')}><Plus /> Registrar movimiento</button>
     </div>
   )
+}
+
+// Invita a completar los ingresos y, cuando existen, los resume sin crear movimientos por su cuenta.
+function IncomeSummary({ salary, frequency, hidden }) {
+  const configured = Number(salary) > 0 && Boolean(payFrequencyLabel(frequency))
+  return <section className="feature-panel income-summary">
+    <div className="section-heading"><div><h2>Mis ingresos</h2><p>{configured ? 'Referencia para organizar tu presupuesto.' : 'Completa esta información para tenerla a mano.'}</p></div><Link to="/ajustes#ingresos">{configured ? 'Editar' : 'Configurar'}</Link></div>
+    {configured ? <div className="income-summary__value"><strong>{formatMinor(salary, 'COP', hidden)}</strong><span>{payFrequencyLabel(frequency)}</span></div> : <p className="dashboard-empty__text">Indica tu sueldo mensual y cada cuánto te pagan desde Ajustes.</p>}
+  </section>
 }
 
 // Reúne las piezas del plan y las cuentas en paneles breves para una lectura rápida del Inicio.

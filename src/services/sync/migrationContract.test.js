@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 
 const initial = fs.readFileSync(new URL('../../../supabase/migrations/20260910190000_auth_and_user_data.sql', import.meta.url), 'utf8')
 const phase2 = fs.readFileSync(new URL('../../../supabase/migrations/20260910190327_phase2_ledger_sync_security.sql', import.meta.url), 'utf8')
+const debtAndIncome = fs.readFileSync(new URL('../../../supabase/migrations/20260913042149_debt_schedule_and_income_settings.sql', import.meta.url), 'utf8')
 
 describe('contrato de seguridad PostgreSQL', () => {
   it('activa RLS y limita cada tabla expuesta al propietario autenticado', () => {
@@ -28,5 +29,13 @@ describe('contrato de seguridad PostgreSQL', () => {
     expect(phase2).toContain('revoke insert, update, delete on public.transactions from authenticated')
     expect(phase2).toContain('Los movimientos de demostración no se sincronizan con cuentas reales.')
     expect(phase2).toContain('grant execute on function public.mutate_transaction')
+  })
+
+  it('conserva el plan opcional de deuda y las referencias de ingresos', () => {
+    expect(debtAndIncome).toContain('debt_installments_total integer')
+    expect(debtAndIncome).toContain('debt_installments_paid integer not null default 0')
+    expect(debtAndIncome).toContain("debt_payment_frequency in ('weekly', 'biweekly', 'semimonthly', 'monthly')")
+    expect(debtAndIncome).toContain("'monthlySalaryMinor', 'payFrequency'")
+    expect(debtAndIncome).toContain('No genera movimientos automáticos')
   })
 })
