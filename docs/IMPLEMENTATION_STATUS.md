@@ -1,6 +1,6 @@
 # Estado de implementación
 
-Actualizado: 2026-09-12. Fase actual: **Fase 5 revisada localmente; ampliaciones funcionales en validación**.
+Actualizado: 2026-09-13. Fase actual: **Fase 5 revisada localmente; ampliaciones funcionales en validación**.
 
 ## Ampliaciones del 11 de septiembre
 
@@ -25,6 +25,7 @@ Actualizado: 2026-09-12. Fase actual: **Fase 5 revisada localmente; ampliaciones
 - Movimientos: el selector de Gasto, Ingreso y Transferencia muestra una explicación contextual; Transferencia aclara que mueve dinero entre cuentas y no altera ingresos ni gastos.
 - PWA móvil: los campos usan al menos 16 px para evitar el zoom automático al enfocarlos; el viewport y los gestos de zoom se bloquean únicamente en modo app instalada, no en la web abierta en Safari.
 - Inicio: el dashboard ahora incluye paneles rápidos de metas, próximas compras y cuentas, además del presupuesto y movimientos recientes, con enlaces a cada sección completa.
+- Asistente IA: se añadió `/asistente` como consulta de solo lectura. El servidor valida sesión, origen, tamaño y entrada antes de llamar a Ollama; la clave y el modelo son variables exclusivas de servidor y la demo nunca envía datos.
 
 ## Implementado
 
@@ -41,13 +42,14 @@ Actualizado: 2026-09-12. Fase actual: **Fase 5 revisada localmente; ampliaciones
 ## Probado automáticamente
 
 - `npm run lint`: PASÓ.
-- `npm test`: PASÓ, 17 archivos y 71 pruebas. Incluye validación de planes de deuda, referencias de ingresos y el contrato de la migración.
-- `npm run build`: PASÓ con Vite 8.3.0; 30 entradas y 1195,57 KiB de precaché. La configuración adapta el build del worker a `codeSplitting: false`, sin la opción obsoleta `inlineDynamicImports`.
+- `npm test`: PASÓ, 19 archivos y 77 pruebas. Incluye el contexto acotado del asistente, sus guardas HTTP, llamada simulada server-only a Ollama, planes de deuda, referencias de ingresos y el contrato de la migración.
+- `npm run build`: PASÓ con Vite 8.3.0; 30 entradas y 1203,60 KiB de precaché. La configuración adapta el build del worker a `codeSplitting: false`, sin la opción obsoleta `inlineDynamicImports`.
 - E2E dirigido de Automatización en escritorio: PASÓ 1/1. La ejecución completa paralela quedó inválida por `EBUSY` de Windows al observar sus propios artefactos de Playwright; tras caer el servidor produjo 32 fallos derivados y 5 pruebas alcanzaron a pasar.
 - Dependencias de build: `glob` se resuelve explícitamente a 13.0.6 bajo `workbox-build`; `npm audit --omit=dev` permanece en 0 vulnerabilidades conocidas.
 - Línea base E2E: 22 pruebas efectivas pasaron y 2 variantes se omitieron intencionalmente.
 - Suite ampliada final: 28 PASÓ y 2 variantes se omitieron intencionalmente. El retorno de foco había fallado primero en 390×844; corregido el disparador, la regresión pasó 3/3 en 390×844, 375×812 y escritorio.
 - `npm run test:pwa -- --workers=1`: PASÓ 1/1; shell/ruta previamente cargados abren sin red.
+- E2E del asistente: PASÓ 1/1 en 390×844, 375×812 y escritorio; la demo muestra el estado no disponible y no hace solicitudes de IA.
 - `npm audit --omit=dev`: PASÓ, 0 vulnerabilidades conocidas.
 - E2E de ampliaciones en escritorio y 375×812: PASÓ 3/3 en cada tamaño (modales de Metas, categoría/hora/comprobante y próxima compra).
 - E2E del dashboard en 390×844, 375×812 y escritorio: PASÓ 3/3; Inicio muestra metas, compras futuras y cuentas sin overflow.

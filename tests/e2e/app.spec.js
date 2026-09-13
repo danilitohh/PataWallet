@@ -54,6 +54,17 @@ test('registra un plan opcional de deuda y configura los ingresos de referencia'
   await expect(page.locator('.income-summary').getByText(/3\.200\.000/)).toBeVisible()
 })
 
+test('muestra el acceso al asistente y protege la demo', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: /probar con datos de ejemplo/i }).click()
+  await expect(page.getByRole('heading', { name: /hola, danilo/i })).toBeVisible()
+  await page.goto('/ajustes')
+  await expect(page.getByRole('link', { name: /asistente patawallet/i })).toBeVisible()
+  await page.getByRole('link', { name: /asistente patawallet/i }).click()
+  await expect(page.getByRole('heading', { name: 'Asistente PataWallet' })).toBeVisible()
+  await expect(page.getByText('Disponible para cuentas reales')).toBeVisible()
+})
+
 test('no produce desplazamiento horizontal', async ({ page }) => {
   await page.goto('/')
   const demoButton = page.getByRole('button', { name: /probar con datos de ejemplo/i })

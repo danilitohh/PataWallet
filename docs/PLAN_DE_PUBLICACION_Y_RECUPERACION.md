@@ -4,7 +4,7 @@ Estado: procedimiento preparado; **publicación no autorizada ni ejecutada**.
 
 ## Configuración sin secretos
 
-Cliente: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_VAPID_PUBLIC_KEY` y bandera pública de Google. Servidor: `SUPABASE_URL`, claves pública/privilegiada, `APP_ORIGIN`, VAPID, `CRON_SECRET` y variables del Atajo. Las claves privilegiadas nunca usan `VITE_`, Git, chat, URL o captura.
+Cliente: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_VAPID_PUBLIC_KEY` y bandera pública de Google. Servidor: `SUPABASE_URL`, claves pública/privilegiada, `APP_ORIGIN`, VAPID, `CRON_SECRET`, `OLLAMA_BASE_URL`, `OLLAMA_MODEL`, `OLLAMA_API_KEY` y variables del Atajo. Las claves privilegiadas nunca usan `VITE_`, Git, chat, URL o captura.
 
 Configura en Supabase los orígenes/redirecciones HTTPS exactos para registro, Google y recuperación. Revisa correo, cuota y costo del plan real; no se asumen copias automáticas.
 
@@ -36,4 +36,3 @@ Si falla una promoción:
 Si el servidor cae, conserva la app instalada y no borres datos del sitio. Descarga JSON si la pantalla opera. Al volver el servicio, entra con la misma cuenta, revisa el indicador y reintenta una vez. Ante conflicto, conserva respaldos y resuelve explícitamente.
 
 Perder el navegador sin JSON y sin persistencia remota verificada puede ser irrecuperable. Por eso el cierre actual permanece bloqueado para datos reales.
-
