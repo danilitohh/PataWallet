@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 import { AlertTriangle, Bot, Check, CloudUpload, HardDrive, Home, LoaderCircle, Menu, PawPrint, PiggyBank, Plus, Settings, UsersRound, WalletCards } from 'lucide-react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useApp } from './AppContext.jsx'
-import { getCoupleOverview } from '../services/couples/couplesClient.js'
 
 const navigation = [
   ['/', Home, 'Inicio'],
@@ -15,23 +14,6 @@ export function AppShell({ children }) {
   const { setSheet, isDemo, user, syncState, actions } = useApp()
   const location = useLocation()
   const mainRef = useRef(null)
-  const [hasActiveCouple, setHasActiveCouple] = useState(false)
-
-  useEffect(() => {
-    // La navegación de Parejas aparece solo cuando existe una membresía activa.
-    if (isDemo) return undefined
-    let cancelled = false
-    getCoupleOverview().then((data) => {
-      if (!cancelled) setHasActiveCouple(Boolean(data.couples?.some((couple) => couple.status === 'active')))
-    }).catch(() => { if (!cancelled) setHasActiveCouple(false) })
-    return () => { cancelled = true }
-  }, [isDemo, location.pathname])
-
-  useEffect(() => {
-    const refresh = () => getCoupleOverview().then((data) => setHasActiveCouple(Boolean(data.couples?.some((couple) => couple.status === 'active')))).catch(() => setHasActiveCouple(false))
-    window.addEventListener('couples:updated', refresh)
-    return () => window.removeEventListener('couples:updated', refresh)
-  }, [])
 
   // Parejas debe ser accesible antes de aceptar una invitación para poder crearla.
   const items = !isDemo ? [...navigation, ['/parejas', UsersRound, 'Parejas']] : navigation
@@ -58,7 +40,7 @@ export function AppShell({ children }) {
         {children}
       </main>
       {location.pathname !== '/asistente' && <AssistantBubble isDemo={isDemo} />}
-      <nav className={`bottom-nav ${!isDemo && hasActiveCouple ? 'bottom-nav--couple' : ''}`} aria-label="Navegación principal">
+      <nav className={`bottom-nav ${!isDemo ? 'bottom-nav--couple' : ''}`} aria-label="Navegación principal">
         {items.slice(0, 2).map(([to, Icon, label]) => <NavLink key={to} to={to} end={to === '/'}><Icon /><span>{label}</span></NavLink>)}
         <button aria-label="Nuevo movimiento" onClick={(event) => { event.currentTarget.focus(); setSheet('new') }}><Plus /></button>
         {items.slice(2).map(([to, Icon, label]) => <NavLink key={to} to={to}><Icon /><span>{label}</span></NavLink>)}
