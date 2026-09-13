@@ -21,6 +21,7 @@ Actualizado: 2026-09-12. Fase actual: **Fase 5 revisada localmente; ampliaciones
 - Cuentas: la pantalla explica que “dinero disponible” incluye efectivo, bancos y billeteras, mientras “tarjeta de crédito (deuda)” representa lo pendiente con el emisor; también aclara que pagar la tarjeta no duplica el gasto.
 - Cuentas: se añadieron subtipos de deuda para préstamos de libre inversión y préstamos con personas o entidades; la migración remota correspondiente queda pendiente de aplicar.
 - Movimientos: el selector de Gasto, Ingreso y Transferencia muestra una explicación contextual; Transferencia aclara que mueve dinero entre cuentas y no altera ingresos ni gastos.
+- PWA móvil: los campos usan al menos 16 px para evitar el zoom automático al enfocarlos; el viewport y los gestos de zoom se bloquean únicamente en modo app instalada, no en la web abierta en Safari.
 
 ## Implementado
 

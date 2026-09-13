@@ -49,7 +49,7 @@ html { scrollbar-color: var(--text-2) var(--surface-muted); }
 body { margin: 0; min-width: 320px; min-height: 100dvh; background: radial-gradient(circle at 85% 5%, color-mix(in srgb, var(--peach) 48%, transparent), transparent 24rem), var(--bg); color: var(--text); }
 body, button, input, select { font: inherit; }
 ::selection { color: var(--on-primary); background: var(--primary); }
-input, select, textarea { caret-color: var(--accent); }
+input, select, textarea { font-size: 1rem; caret-color: var(--accent); }
 button, a, input, select { -webkit-tap-highlight-color: transparent; }
 button, a { touch-action: manipulation; }
 button { color: inherit; }
@@ -71,6 +71,7 @@ select { cursor: pointer; }
 .sr-only, .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
 
 .app-shell { min-height: 100dvh; }
+html.standalone-app, html.standalone-app body { touch-action: pan-x pan-y; overscroll-behavior-x: none; }
 .page { width: min(100%, 1040px); min-height: 100dvh; margin: 0 auto; padding: 86px 20px calc(122px + env(safe-area-inset-bottom)); outline: none; }
 .route-stack { display: grid; gap: 22px; }
 .page-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
