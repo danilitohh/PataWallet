@@ -18,6 +18,7 @@ Actualizado: 2026-09-11. Fase actual: **Fase 5 revisada localmente; ampliaciones
 - El Inicio solo muestra la etiqueta de datos locales dentro de la demo; la cuenta real no muestra el banner de demo ni la píldora estable “Sincronizado”. Los estados pendientes, offline y conflicto siguen siendo visibles.
 - El formulario de nuevas metas bloquea envíos repetidos durante el guardado y cada tarjeta explica que una reserva es una separación interna, no un movimiento bancario.
 - El popup de cada reserva incluye la explicación y el ejemplo de saldo/progreso antes de solicitar cuenta y monto.
+- Cuentas: la pantalla explica que “dinero disponible” incluye efectivo, bancos y billeteras, mientras “tarjeta de crédito (deuda)” representa lo pendiente con el emisor; también aclara que pagar la tarjeta no duplica el gasto.
 
 ## Implementado
 

@@ -57,7 +57,9 @@ export function AccountDialog({ close }) {
     <SimpleDialog title="Agregar cuenta" close={close}>
       <form onSubmit={submit}>
         <Field label="Nombre"><input value={name} onChange={(event) => setName(event.target.value)} placeholder="Cuenta de ahorro" /></Field>
-        <Field label="Tipo"><select value={kind} onChange={(event) => setKind(event.target.value)}><option value="asset">Dinero disponible</option><option value="liability">Tarjeta de crédito</option></select></Field>
+        <Field label="Tipo"><select value={kind} onChange={(event) => setKind(event.target.value)}><option value="asset">Dinero disponible</option><option value="liability">Tarjeta de crédito (deuda)</option></select></Field>
+        {/* Explica el efecto del tipo antes de pedir el saldo o la deuda inicial. */}
+        <div className="account-type-guide" role="note"><strong>{kind === 'asset' ? 'Dinero que tienes' : 'Dinero que debes'}</strong><p>{kind === 'asset' ? 'Usa este tipo para efectivo, una cuenta bancaria o una billetera como Nequi. Una tarjeta débito pertenece a su cuenta bancaria.' : 'Usa este tipo para una tarjeta de crédito. Cada compra aumenta la deuda; pagarla reduce la deuda y el dinero de tu banco, sin duplicar el gasto.'}</p></div>
         <Field label={kind === 'asset' ? 'Saldo inicial' : 'Deuda inicial'} error={error}><input inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="0" /></Field>
         <p className="helper">El saldo inicial no cuenta como ingreso ni gasto.</p>
         <button className="button button--primary" type="submit">Crear cuenta</button>
