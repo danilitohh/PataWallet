@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { ArrowLeft, ArrowRight, Check, Plus, Trash2, WalletCards } from 'lucide-react'
 import { useApp } from '../../app/AppContext.jsx'
 import { calculateAvailableMoney } from '../../domain/finance.js'
@@ -12,6 +12,7 @@ import { PAY_FREQUENCY_OPTIONS, parseIncomeSettings, payFrequencyLabel } from '.
 import { ACCOUNT_TYPE_OPTIONS } from '../accounts/model/accountTypes.js'
 
 const STEP_LABELS = ['Ingresos', 'Deudas', 'Gastos fijos']
+const NEW_ACCOUNT_OPTION = '__new_account__'
 
 // Solicita los datos mínimos para construir un punto de partida financiero personalizado.
 export function FinancialOnboarding() {
@@ -20,6 +21,10 @@ export function FinancialOnboarding() {
   const [salary, setSalary] = useState(settings.monthlySalaryMinor ? toInputAmount(settings.monthlySalaryMinor) : '')
   const [frequency, setFrequency] = useState(settings.payFrequency || '')
   const [nextPayDate, setNextPayDate] = useState(settings.nextPayDate || '')
+  const [salaryAccountId, setSalaryAccountId] = useState('')
+  const [salaryAccountName, setSalaryAccountName] = useState('')
+  // Mantiene una identidad estable si el usuario reintenta guardar después de un fallo de red.
+  const salaryAccountNewId = useRef(makeId('salary-account'))
   const [debts, setDebts] = useState([])
   const [fixedExpenses, setFixedExpenses] = useState(() => {
     const saved = Array.isArray(settings.fixedExpenses) ? settings.fixedExpenses.map((item) => ({ id: item.id || makeId('fixed'), name: item.name || '', amount: item.amount_minor ? toInputAmount(item.amount_minor) : '' })) : []
@@ -33,7 +38,10 @@ export function FinancialOnboarding() {
   const next = () => {
     setError('')
     try {
-      if (step === 0) parseIncomeSettings({ salary, frequency, nextPayDate })
+      if (step === 0) {
+        parseIncomeSettings({ salary, frequency, nextPayDate })
+        parseSalaryAccountSelection({ salary, accountId: salaryAccountId, accountName: salaryAccountName, accounts })
+      }
       if (step === 1) parseDebtDrafts(debts)
       setStep((current) => Math.min(current + 1, STEP_LABELS.length - 1))
     } catch (issue) {
@@ -48,8 +56,13 @@ export function FinancialOnboarding() {
     setSaving(true)
     try {
       const income = parseIncomeSettings({ salary, frequency, nextPayDate })
+      const salaryAccount = parseSalaryAccountSelection({ salary, accountId: salaryAccountId, accountName: salaryAccountName, accounts })
       const parsedFixedExpenses = parseFixedExpenses(fixedExpenses)
       const parsedDebts = parseDebtDrafts(debts)
+      // Registra solo la cuenta de destino; no crea saldo inicial ni movimiento de salario.
+      if (income.monthlySalaryMinor !== null && salaryAccount?.kind === 'new' && !accounts.some((account) => account.id === salaryAccountNewId.current)) {
+        await actions.createAccount({ id: salaryAccountNewId.current, name: salaryAccount.name, kind: 'asset', subtype: 'bank', currency: 'COP', archived: false })
+      }
       const nextDebts = [...debts]
       // Crea cada deuda como un pasivo con apertura; la apertura no se cuenta como ingreso ni gasto.
       for (const [index, debt] of parsedDebts.entries()) {
@@ -80,7 +93,7 @@ export function FinancialOnboarding() {
       <div className="onboarding-card__top"><div><p className="eyebrow">Tu punto de partida</p><h1 id="onboarding-title">Hagamos cuentas con calma.</h1></div><div className="onboarding-card__mark" aria-hidden="true"><WalletCards /></div></div>
       <p className="onboarding-intro">Con estos datos estimaremos cuánto dinero puedes usar cada mes. Nada crea movimientos automáticos: tú decides qué registrar.</p>
       <div className="onboarding-progress" aria-label={`Paso ${step + 1} de ${STEP_LABELS.length}`}><div className="onboarding-progress__bar"><span style={{ width: `${((step + 1) / STEP_LABELS.length) * 100}%` }} /></div><div>{STEP_LABELS.map((label, index) => <span className={index <= step ? 'is-active' : ''} key={label}>{index < step ? <Check aria-hidden="true" /> : index + 1} {label}</span>)}</div></div>
-      {step === 0 && <IncomeStep salary={salary} frequency={frequency} nextPayDate={nextPayDate} setSalary={setSalary} setFrequency={setFrequency} setNextPayDate={setNextPayDate} error={error} />}
+      {step === 0 && <IncomeStep salary={salary} frequency={frequency} nextPayDate={nextPayDate} salaryAccountId={salaryAccountId} salaryAccountName={salaryAccountName} accounts={accounts} setSalary={setSalary} setFrequency={setFrequency} setNextPayDate={setNextPayDate} setSalaryAccountId={setSalaryAccountId} setSalaryAccountName={setSalaryAccountName} error={error} />}
       {step === 1 && <DebtStep debts={debts} setDebts={setDebts} error={error} />}
       {step === 2 && <FixedExpensesStep fixedExpenses={fixedExpenses} setFixedExpenses={setFixedExpenses} preview={preview} error={error} />}
       <div className="onboarding-actions">
@@ -93,13 +106,23 @@ export function FinancialOnboarding() {
 }
 
 // Recoge el salario mensual equivalente y la fecha de referencia para evaluar compras futuras.
-function IncomeStep({ salary, frequency, nextPayDate, setSalary, setFrequency, setNextPayDate, error }) {
+function IncomeStep({ salary, frequency, nextPayDate, salaryAccountId, salaryAccountName, accounts, setSalary, setFrequency, setNextPayDate, setSalaryAccountId, setSalaryAccountName, error }) {
+  const assetAccounts = accounts.filter((account) => account.kind === 'asset' && !account.archived)
+  const creatingAccount = !assetAccounts.length || salaryAccountId === NEW_ACCOUNT_OPTION
   return <section className="onboarding-step">
     <p className="eyebrow">1 de 3 · Lo que recibes</p><h2>¿Con cuánto cuentas cada mes?</h2><p className="helper">Usaremos el valor mensual equivalente, aunque recibas tu pago por semanas o quincenas.</p>
     <Field label="Salario mensual equivalente" error={error}><div className="amount-input"><span>$</span><input autoFocus inputMode="decimal" value={salary} onChange={(event) => setSalary(formatInputAmount(event.target.value))} placeholder="2.500.000" /><small>COP</small></div></Field>
     <Field label="¿Cada cuánto recibes tu pago?"><select value={frequency} onChange={(event) => setFrequency(event.target.value)}><option value="">Selecciona una frecuencia</option>{PAY_FREQUENCY_OPTIONS.map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}</select></Field>
     <Field label="Fecha de tu próximo pago" optional><input type="date" min={today()} value={nextPayDate} onChange={(event) => setNextPayDate(event.target.value)} /></Field>
-    <p className="info-note"><strong>{payFrequencyLabel(frequency) || 'Tu frecuencia de pago'}</strong><span> La fecha es opcional; si la completas podremos avisarte cuando una compra te deja con poco margen antes de cobrar.</span></p>
+    <Field label="Cuenta donde recibes el salario" optional={!String(salary).trim()}>
+      {assetAccounts.length > 0 && <select aria-label="Cuenta donde recibes el salario" value={salaryAccountId} onChange={(event) => { setSalaryAccountId(event.target.value); if (event.target.value !== NEW_ACCOUNT_OPTION) setSalaryAccountName('') }}>
+        <option value="">Selecciona una cuenta</option>
+        {assetAccounts.map((account) => <option value={account.id} key={account.id}>{account.name}</option>)}
+        <option value={NEW_ACCOUNT_OPTION}>Agregar otra cuenta…</option>
+      </select>}
+      {creatingAccount && <input aria-label="Nombre de la cuenta donde recibes el salario" value={salaryAccountName} onChange={(event) => setSalaryAccountName(event.target.value)} placeholder="Ahorros Bancolombia" />}
+    </Field>
+    <p className="info-note"><strong>{payFrequencyLabel(frequency) || 'Tu frecuencia de pago'}</strong><span> La cuenta solo queda disponible como destino. No crea saldo ni un ingreso automático; registra el pago real una sola vez en Nuevo movimiento.</span></p>
   </section>
 }
 
@@ -143,6 +166,21 @@ function parseDebtDrafts(rows) {
     const monthlyPaymentMinor = parseLocalizedAmount(row.monthlyPayment)
     return { ...row, name, total: row.amount, totalMinor, monthlyPaymentMinor }
   })
+}
+
+// Valida la cuenta asociada al salario sin convertir el dato de referencia en un movimiento.
+function parseSalaryAccountSelection({ salary, accountId, accountName, accounts }) {
+  if (!String(salary ?? '').trim()) return null
+  const selectedId = String(accountId ?? '').trim()
+  const activeAssets = accounts.filter((account) => account.kind === 'asset' && !account.archived)
+  if (selectedId && selectedId !== NEW_ACCOUNT_OPTION) {
+    if (!activeAssets.some((account) => account.id === selectedId)) throw new Error('Selecciona una cuenta disponible para recibir tu salario.')
+    return { kind: 'existing', id: selectedId }
+  }
+  const name = String(accountName ?? '').trim()
+  if (name.length < 2) throw new Error('Indica la cuenta donde recibes tu salario o agrega una nueva.')
+  if (activeAssets.some((account) => account.name.trim().toLocaleLowerCase() === name.toLocaleLowerCase())) throw new Error('Esa cuenta ya existe. Selecciónala de la lista para no duplicarla.')
+  return { kind: 'new', name }
 }
 
 // Calcula una vista previa incluyendo las deudas que todavía están en el formulario.
