@@ -25,7 +25,8 @@ export const localActions = {
   createCategory: (category) => db.categories.add(category),
   savePlannedPurchase: (purchase) => db.planned_purchases.put(purchase),
   deletePlannedPurchase: (id) => db.planned_purchases.delete(id),
-  createGoal: (goal) => db.goals.add(goal),
+  // Usa la identidad entregada por el diálogo para que reintentos del mismo envío sean idempotentes.
+  createGoal: (goal) => db.goals.put(goal),
   async deleteGoal(id, allocationIds) {
     await db.transaction('rw', db.goals, db.allocations, async () => {
       await db.goals.delete(id)

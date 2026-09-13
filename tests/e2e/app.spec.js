@@ -178,8 +178,9 @@ test('cierra y guarda las ventanas de metas', async ({ page }) => {
   await page.getByRole('button', { name: /nueva meta/i }).click()
   await page.getByRole('dialog', { name: 'Nueva meta' }).getByLabel('Nombre').fill('Viaje familiar')
   await page.getByRole('dialog', { name: 'Nueva meta' }).getByLabel('Monto objetivo').fill('500.000')
-  await page.getByRole('button', { name: 'Crear meta' }).click()
-  await expect(page.getByRole('heading', { name: 'Viaje familiar' })).toBeVisible()
+  // Simula un doble toque rápido: la meta debe persistirse una sola vez.
+  await page.getByRole('button', { name: 'Crear meta' }).click({ clickCount: 2 })
+  await expect(page.getByRole('heading', { name: 'Viaje familiar' })).toHaveCount(1)
 })
 
 test('crea categoría, hora y comprobante opcionales', async ({ page }) => {
@@ -207,7 +208,8 @@ test('agrega y evalúa una próxima compra sin crear gasto', async ({ page }) =>
   const dialog = page.getByRole('dialog', { name: 'Agregar próxima compra' })
   await dialog.getByLabel('Compra').fill('Audífonos')
   await dialog.getByLabel('Monto estimado').fill('120.000')
-  await dialog.getByRole('button', { name: 'Guardar próxima compra' }).click()
-  await expect(page.getByRole('heading', { name: 'Audífonos' })).toBeVisible()
+  // Simula un doble toque rápido: la próxima compra debe persistirse una sola vez.
+  await dialog.getByRole('button', { name: 'Guardar próxima compra' }).click({ clickCount: 2 })
+  await expect(page.getByRole('heading', { name: 'Audífonos' })).toHaveCount(1)
   await expect(page.getByText(/presupuesto|fondos registrados/i).last()).toBeVisible()
 })

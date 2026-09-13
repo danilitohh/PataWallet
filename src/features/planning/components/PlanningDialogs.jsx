@@ -33,6 +33,8 @@ export function GoalDialog({ close }) {
   // Bloquea envíos repetidos mientras la meta se guarda localmente o en servidor.
   const [saving, setSaving] = useState(false)
   const savingRef = useRef(false)
+  // Conserva el mismo identificador durante toda la apertura para hacer el envío idempotente.
+  const goalIdRef = useRef(makeId('goal'))
 
   return (
     <SimpleDialog title="Nueva meta" close={close}>
@@ -43,7 +45,7 @@ export function GoalDialog({ close }) {
         setSaving(true)
         try {
           if (name.trim().length < 2) throw new Error('Escribe un nombre para la meta.')
-          await actions.createGoal({ id: makeId('goal'), name: name.trim(), target_minor: parseLocalizedAmount(amount), currency: 'COP', completed_seen: false })
+          await actions.createGoal({ id: goalIdRef.current, name: name.trim(), target_minor: parseLocalizedAmount(amount), currency: 'COP', completed_seen: false })
           notify('Meta creada')
           close()
         } catch (issue) {

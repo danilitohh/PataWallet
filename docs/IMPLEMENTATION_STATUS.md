@@ -16,7 +16,7 @@ Actualizado: 2026-09-13. Fase actual: **Fase 5 revisada localmente; ampliaciones
 - Inspección de la variable real completada: entrada tipo `Transacción` con propiedades `Tarjeta o pase`, `Comercio`, `Cantidad` y `Nombre`. Fecha y moneda no aparecen; la plantilla añade fecha de ejecución y COP. La vinculación fue confirmada por la notificación de Atajos; falta que la PWA refresque el estado desde servidor, probar conexión y confirmar valores/tipos mediante una compra habitual.
 - La pantalla de Automatización refresca el estado al recuperar foco o visibilidad después de volver desde Atajos; el estado activo sigue dependiendo de una lectura autenticada del servidor.
 - El Inicio solo muestra la etiqueta de datos locales dentro de la demo; la cuenta real no muestra el banner de demo ni la píldora estable “Sincronizado”. Los estados pendientes, offline y conflicto siguen siendo visibles.
-- El formulario de nuevas metas bloquea envíos repetidos durante el guardado y cada tarjeta explica que una reserva es una separación interna, no un movimiento bancario.
+- Metas y próximas compras: cada apertura del formulario conserva un identificador estable, bloquea reenvíos mientras guarda y usa escrituras locales idempotentes; un doble toque no crea filas duplicadas. Cada tarjeta de meta explica que una reserva es una separación interna, no un movimiento bancario.
 - El popup de cada reserva incluye la explicación y el ejemplo de saldo/progreso antes de solicitar cuenta y monto.
 - Cuentas: la pantalla explica que “dinero disponible” incluye efectivo, bancos y billeteras, mientras “tarjeta de crédito (deuda)” representa lo pendiente con el emisor; también aclara que pagar la tarjeta no duplica el gasto.
 - Cuentas: se añadieron subtipos de deuda para préstamos de libre inversión y préstamos con personas o entidades; la migración remota correspondiente queda pendiente de aplicar.
@@ -63,6 +63,7 @@ Actualizado: 2026-09-13. Fase actual: **Fase 5 revisada localmente; ampliaciones
 - E2E del asistente: PASÓ 1/1 en 390×844, 375×812 y escritorio; la demo muestra el estado no disponible y no hace solicitudes de IA.
 - `npm audit --omit=dev`: PASÓ, 0 vulnerabilidades conocidas.
 - E2E de ampliaciones en escritorio y 375×812: PASÓ 3/3 en cada tamaño (modales de Metas, categoría/hora/comprobante y próxima compra).
+- E2E de doble toque en metas y próximas compras en 390×844, 375×812 y 1440×900: PASÓ 9/9; cada flujo termina con una sola tarjeta persistida.
 - E2E del onboarding financiero: PASÓ en 390×844, 375×812 y 1440×900; creó una deuda, guardó gastos fijos y mostró el cálculo de dinero libre en Inicio.
 - E2E final `tests/e2e/app.spec.js`: PASÓ 42/42 en 390×844, 375×812 y 1440×900, incluyendo onboarding, cálculo de dinero libre y evaluación de compras futuras.
 - E2E del dashboard en 390×844, 375×812 y escritorio: PASÓ 3/3; Inicio muestra metas, compras futuras y cuentas sin overflow.
