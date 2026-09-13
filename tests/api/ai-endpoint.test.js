@@ -45,7 +45,7 @@ describe('endpoint seguro del asistente Ollama', () => {
     const previous = Object.fromEntries(['OLLAMA_BASE_URL', 'OLLAMA_MODEL', 'OLLAMA_API_KEY'].map((key) => [key, process.env[key]]))
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
       ok: true,
-      json: async () => ({ message: { content: 'Tus gastos bajaron este mes.' } }),
+      json: async () => ({ message: { content: '**Tus gastos bajaron este mes.**' } }),
     })
     process.env.OLLAMA_BASE_URL = 'https://ollama.com/api'
     process.env.OLLAMA_MODEL = 'modelo-de-prueba'
