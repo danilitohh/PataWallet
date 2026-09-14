@@ -1,6 +1,7 @@
 import { assertMinor } from '../../domain/money.js'
 import { readDebtSchedule } from '../../domain/debtSchedule.js'
 import { readFixedExpenses } from '../../domain/financialSetup.js'
+import { readIncomeSources } from '../../features/settings/model/incomeSources.js'
 import { z } from 'zod'
 
 export const BACKUP_FORMAT = 'patawallet-backup'
@@ -39,7 +40,7 @@ const backupDataSchema = z.object({
   budgets: z.array(z.object({ month: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/), limit_minor: minor, currency: currency.optional() }).strict()).max(100000),
   goals: z.array(z.object({ id, name: z.string().min(2).max(80), target_minor: minor, currency, completed_seen: z.boolean() }).strict()).max(100000),
   allocations: z.array(z.object({ id, goal_id: id, account_id: id, amount_minor: minor, allocated_on: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) }).strict()).max(100000),
-  settingsRows: z.array(z.object({ key: z.enum(['entered', 'theme', 'hiddenAmounts', 'motion', 'monthlySalaryMinor', 'payFrequency', 'financialOnboardingComplete', 'fixedExpenses', 'nextPayDate']), value: z.unknown() }).strict()).max(20),
+  settingsRows: z.array(z.object({ key: z.enum(['entered', 'theme', 'hiddenAmounts', 'motion', 'monthlySalaryMinor', 'payFrequency', 'financialOnboardingComplete', 'fixedExpenses', 'nextPayDate', 'incomeSources']), value: z.unknown() }).strict()).max(20),
   plannedPurchases: z.array(z.object({ id, name: z.string().min(2).max(80), amount_minor: minor, currency, target_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), category_id: id.nullable().optional(), note: z.string().max(240), status: z.enum(['planned', 'purchased', 'cancelled']) }).strict()).max(100000).optional().default([]),
 }).strict()
 
@@ -93,6 +94,7 @@ export function parseBackup(text, expectedOwnerId) {
     if (row.key === 'financialOnboardingComplete' && typeof row.value !== 'boolean') throw new Error('El estado del onboarding del respaldo no es válido.')
     if (row.key === 'fixedExpenses' && (!Array.isArray(row.value) || readFixedExpenses(row.value).length !== row.value.length)) throw new Error('Los gastos fijos del respaldo no son válidos.')
     if (row.key === 'nextPayDate' && row.value !== null && !/^\d{4}-\d{2}-\d{2}$/.test(String(row.value))) throw new Error('La fecha de pago del respaldo no es válida.')
+    if (row.key === 'incomeSources' && (!Array.isArray(row.value) || row.value.length > 50 || readIncomeSources(row.value, parsed.data.accounts).length !== row.value.length)) throw new Error('Las fuentes de ingreso del respaldo no son válidas.')
   }
   return parsed
 }

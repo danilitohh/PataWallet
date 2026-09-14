@@ -15,12 +15,14 @@ import { currentMonth } from '../../shared/lib/date.js'
 import { AllocationDialog, BudgetDialog, GoalDialog } from './components/PlanningDialogs.jsx'
 import { BudgetRing } from './components/BudgetRing.jsx'
 import { PlannedPurchaseDialog } from './components/PlannedPurchaseDialog.jsx'
+import { incomeReference } from '../settings/model/incomeSources.js'
 
 export function PlanPage() {
   const { accounts, transactions, budgets, goals, allocations, plannedPurchases, settings, notify, actions } = useApp()
   const month = currentMonth()
   const summary = calculateSummary(accounts, transactions, month)
-  const available = calculateAvailableMoney({ monthlySalaryMinor: settings.monthlySalaryMinor, fixedExpenses: readFixedExpenses(settings.fixedExpenses), accounts, transactions, month })
+  const income = incomeReference(settings, accounts)
+  const available = calculateAvailableMoney({ monthlySalaryMinor: income.salaryMinor, fixedExpenses: readFixedExpenses(settings.fixedExpenses), accounts, transactions, month })
   const budget = budgets.find((item) => item.month === month) || budgets[0]
   const [budgetOpen, setBudgetOpen] = useState(false)
   const [goalOpen, setGoalOpen] = useState(false)
@@ -45,7 +47,7 @@ export function PlanPage() {
           const reserved = allocations.reduce((sum, row) => sum + Number(row.amount_minor), 0)
           const assetAccounts = accounts.filter((row) => row.kind === 'asset' && !row.archived)
           const liquidAssets = assetAccounts.length ? assetAccounts.reduce((sum, row) => sum + Number(summary.balances[row.id] || 0), 0) : null
-          const assessment = assessPlannedPurchase({ amountMinor: item.amount_minor, budgetLimitMinor: budget?.limit_minor || null, monthlyExpensesMinor: summary.expenses, liquidAssetsMinor: liquidAssets, reservedMinor: reserved, monthlyFreeMinor: available.monthlyFreeMinor, nextPayDate: settings.nextPayDate })
+          const assessment = assessPlannedPurchase({ amountMinor: item.amount_minor, budgetLimitMinor: budget?.limit_minor || null, monthlyExpensesMinor: summary.expenses, liquidAssetsMinor: liquidAssets, reservedMinor: reserved, monthlyFreeMinor: available.monthlyFreeMinor, nextPayDate: income.primary?.next_pay_date || null })
           const message = plannedPurchaseMessage(assessment, settings.hiddenAmounts)
           return <article className="planned-card" key={item.id}><span className="goal-icon"><CalendarClock /></span><div><h3>{item.name}</h3><p>{formatMinor(item.amount_minor, 'COP', settings.hiddenAmounts)} · {new Intl.DateTimeFormat('es-CO', { dateStyle: 'medium', timeZone: 'UTC' }).format(new Date(`${item.target_date}T12:00:00Z`))}</p><strong className={assessment.kind === 'good' ? 'advice advice--good' : 'advice'}>{message}</strong></div><div className="planned-card__actions"><button className="icon-button icon-button--small" aria-label={`Editar ${item.name}`} onClick={() => setPlannedOpen(item)}><Pencil /></button><button className="icon-button icon-button--small" aria-label={`Eliminar ${item.name}`} onClick={async () => { if (!confirm('¿Eliminar esta compra prevista?')) return; await actions.deletePlannedPurchase(item.id); notify('Compra prevista eliminada') }}><Trash2 /></button></div></article>
         })}{!plannedPurchases.some((item) => item.status === 'planned') && <div className="empty-inline"><CalendarClock /><p>Aún no has anotado compras futuras.</p></div>}</div>

@@ -2,6 +2,7 @@ import { calculateAvailableMoney, calculateSummary, goalProgress } from '../../.
 import { readDebtSchedule } from '../../../domain/debtSchedule.js'
 import { readFixedExpenses } from '../../../domain/financialSetup.js'
 import { formatMinor } from '../../../domain/money.js'
+import { incomeReference, incomeSourceTypeLabel } from '../../settings/model/incomeSources.js'
 
 const MAX_RECENT_TRANSACTIONS = 20
 
@@ -12,9 +13,25 @@ function compactBudget(budgets, month) {
 }
 
 // Incluye el ingreso de referencia sin enviar filas internas de configuración.
-function compactIncome(settings = {}) {
-  const salary = Number.isSafeInteger(settings.monthlySalaryMinor) && settings.monthlySalaryMinor > 0 ? settings.monthlySalaryMinor : null
-  return salary || settings.payFrequency ? { monthly_salary_minor: salary, monthly_salary_formatted: salary === null ? null : formatMinor(salary, 'COP'), pay_frequency: settings.payFrequency || null } : null
+function compactIncome(settings = {}, accounts = []) {
+  const reference = incomeReference(settings, accounts)
+  if (!reference.sources.length && reference.salaryMinor === null) return null
+  if (!reference.sources.length) {
+    return { monthly_salary_minor: reference.salaryMinor, monthly_salary_formatted: formatMinor(reference.salaryMinor, 'COP'), pay_frequency: reference.primary?.frequency || null }
+  }
+  const accountNames = new Map(accounts.map((account) => [account.id, account.name]))
+  return {
+    monthly_salary_minor: reference.salaryMinor,
+    monthly_salary_formatted: reference.salaryMinor === null ? null : formatMinor(reference.salaryMinor, 'COP'),
+    pay_frequency: reference.primary?.frequency || null,
+    sources: reference.sources.map((source) => ({
+      name: source.name,
+      type: incomeSourceTypeLabel(source.type),
+      account: accountNames.get(source.account_id) || 'Cuenta',
+      amount_minor: source.amount_minor,
+      amount_formatted: source.amount_minor === null ? null : formatMinor(source.amount_minor, 'COP'),
+    })),
+  }
 }
 
 // Añade una representación legible para que el modelo no tenga que convertir centavos a pesos.
@@ -26,7 +43,8 @@ function formattedAmount(minor) {
 export function buildAssistantContext({ accounts, transactions, budgets, goals, allocations, plannedPurchases, month, settings }) {
   const summary = calculateSummary(accounts, transactions, month)
   const balances = summary.balances
-  const availableMoney = calculateAvailableMoney({ monthlySalaryMinor: settings?.monthlySalaryMinor, fixedExpenses: readFixedExpenses(settings?.fixedExpenses), accounts, transactions, month })
+  const income = incomeReference(settings, accounts)
+  const availableMoney = calculateAvailableMoney({ monthlySalaryMinor: income.salaryMinor, fixedExpenses: readFixedExpenses(settings?.fixedExpenses), accounts, transactions, month })
   return {
     currency: 'COP',
     month,
@@ -67,7 +85,7 @@ export function buildAssistantContext({ accounts, transactions, budgets, goals, 
       monthly_free_minor: availableMoney.monthlyFreeMinor,
       monthly_free_formatted: availableMoney.monthlyFreeMinor === null ? null : formattedAmount(availableMoney.monthlyFreeMinor),
     },
-    income_reference: compactIncome(settings),
+    income_reference: compactIncome(settings, accounts),
     goals: goals.slice(0, 20).map((goal) => {
       const progress = goalProgress(goal, allocations)
       return { name: goal.name, target_minor: goal.target_minor, target_formatted: formattedAmount(goal.target_minor), reserved_minor: progress.reserved, reserved_formatted: formattedAmount(progress.reserved), percent: Math.round(progress.percent) }

@@ -31,11 +31,12 @@ export async function seedDemo() {
   const alreadySeeded = await db.settings.get('seeded')
   if (alreadySeeded) {
     // Conserva una demo ya usada y añade solo las preferencias nuevas que aún no existan.
-    const existing = await db.settings.bulkGet(['entered', 'financialOnboardingComplete', 'fixedExpenses', 'nextPayDate'])
+    const existing = await db.settings.bulkGet(['entered', 'financialOnboardingComplete', 'fixedExpenses', 'nextPayDate', 'incomeSources'])
     const additions = []
     if (!existing[1]) additions.push({ key: 'financialOnboardingComplete', value: Boolean(existing[0]?.value) })
     if (!existing[2]) additions.push({ key: 'fixedExpenses', value: [] })
     if (!existing[3]) additions.push({ key: 'nextPayDate', value: null })
+    if (!existing[4]) additions.push({ key: 'incomeSources', value: [] })
     if (additions.length) await db.settings.bulkPut(additions)
     return
   }
@@ -53,6 +54,7 @@ export async function seedDemo() {
       { key: 'theme', value: 'system' },
       { key: 'hiddenAmounts', value: false },
       { key: 'motion', value: 'system' },
+      { key: 'incomeSources', value: [] },
       { key: 'fixedExpenses', value: [] },
       { key: 'nextPayDate', value: null },
     ])

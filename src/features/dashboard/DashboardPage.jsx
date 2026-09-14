@@ -11,13 +11,15 @@ import { Progress } from '../../shared/components/Progress.jsx'
 import { currentMonth } from '../../shared/lib/date.js'
 import { accountTypeLabel } from '../accounts/model/accountTypes.js'
 import { payFrequencyLabel } from '../settings/model/incomeSettings.js'
+import { incomeReference } from '../settings/model/incomeSources.js'
 import { TransactionList } from '../transactions/components/TransactionList.jsx'
 
 export function DashboardPage() {
   const { accounts, transactions, budgets, goals, allocations, plannedPurchases, settings, setSheet, actions, user, isDemo } = useApp()
   const [month, setMonth] = useState(currentMonth())
   const summary = calculateSummary(accounts, transactions, month)
-  const available = calculateAvailableMoney({ monthlySalaryMinor: settings.monthlySalaryMinor, fixedExpenses: readFixedExpenses(settings.fixedExpenses), accounts, transactions, month })
+  const income = incomeReference(settings, accounts)
+  const available = calculateAvailableMoney({ monthlySalaryMinor: income.salaryMinor, fixedExpenses: readFixedExpenses(settings.fixedExpenses), accounts, transactions, month })
   const budget = budgets.find((item) => item.month === month) || budgets[0]
   const remaining = budget ? budget.limit_minor - summary.expenses : 0
   const used = budget?.limit_minor ? (summary.expenses / budget.limit_minor) * 100 : 0
@@ -46,7 +48,7 @@ export function DashboardPage() {
         <div className="section-heading"><div><h2>Presupuesto mensual</h2><p>{remaining >= 0 ? `Te quedan ${formatMinor(remaining, 'COP', hidden)}` : `Superaste el presupuesto por ${formatMinor(Math.abs(remaining), 'COP', hidden)}`}</p></div><Link to="/plan">Ver plan</Link></div>
         <Progress value={used} label={`${Math.round(used)}% usado`} />
       </section>
-      <IncomeSummary salary={settings.monthlySalaryMinor} frequency={settings.payFrequency} nextPayDate={settings.nextPayDate} hidden={hidden} />
+      <IncomeSummary income={income} hidden={hidden} />
       <AvailableMoneyCard available={available} hidden={hidden} />
       <DashboardPreviewGrid goals={activeGoals} goalCount={goals.length} allocations={allocations} planned={plannedPreview} plannedCount={planned.length} accounts={activeAccounts} accountCount={accounts.filter((item) => !item.archived).length} balances={summary.balances} hidden={hidden} />
       <section>
@@ -59,11 +61,15 @@ export function DashboardPage() {
 }
 
 // Invita a completar los ingresos y, cuando existen, los resume sin crear movimientos por su cuenta.
-function IncomeSummary({ salary, frequency, nextPayDate, hidden }) {
-  const configured = Number(salary) > 0 && Boolean(payFrequencyLabel(frequency))
+function IncomeSummary({ income, hidden }) {
+  const configured = income.sources.length > 0 || Number(income.salaryMinor) > 0
+  const fixed = income.primary && income.primary.type === 'fixed_salary' ? income.primary : null
+  const frequency = fixed?.frequency || income.primary?.frequency
+  const nextPayDate = fixed?.next_pay_date || income.primary?.next_pay_date
+  const extras = income.sources.filter((source) => source.type === 'occasional')
   return <section className="feature-panel income-summary">
     <div className="section-heading"><div><h2>Mis ingresos</h2><p>{configured ? 'Referencia para organizar tu presupuesto.' : 'Completa esta información para tenerla a mano.'}</p></div><Link to="/ajustes#ingresos">{configured ? 'Editar' : 'Configurar'}</Link></div>
-    {configured ? <div className="income-summary__value"><strong>{formatMinor(salary, 'COP', hidden)}</strong><span>{payFrequencyLabel(frequency)}</span>{nextPayDate && <small>Próximo pago: {formatDashboardDate(nextPayDate)}</small>}</div> : <p className="dashboard-empty__text">Indica tu sueldo mensual y cada cuánto te pagan desde Ajustes.</p>}
+    {configured ? <div className="income-summary__value">{income.salaryMinor !== null && <><strong>{formatMinor(income.salaryMinor, 'COP', hidden)}</strong><span>{payFrequencyLabel(frequency) || 'Sueldo fijo'}</span>{nextPayDate && <small>Próximo pago: {formatDashboardDate(nextPayDate)}</small>}</>}{income.salaryMinor === null && <span>Sin sueldo fijo declarado</span>}{extras.length > 0 && <small>{formatOccasionalCount(extras.length)}</small>}</div> : <p className="dashboard-empty__text">Agrega una fuente de ingreso y la cuenta donde la recibes desde Ajustes.</p>}
   </section>
 }
 
@@ -98,6 +104,11 @@ function DashboardPreviewGrid({ goals, goalCount, allocations, planned, plannedC
 // Formatea fechas de compras sin depender de la zona horaria del dispositivo.
 function formatDashboardDate(value) {
   return new Intl.DateTimeFormat('es-CO', { dateStyle: 'medium', timeZone: 'UTC' }).format(new Date(`${value}T12:00:00Z`))
+}
+
+// Mantiene la etiqueta de ingresos esporádicos en singular y plural correctos.
+function formatOccasionalCount(count) {
+  return count === 1 ? '1 ingreso extra esporádico' : `${count} ingresos extra esporádicos`
 }
 
 // Mantiene un estado vacío pequeño y accionable dentro de cada panel del dashboard.

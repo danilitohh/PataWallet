@@ -63,6 +63,10 @@ export function FinancialOnboarding() {
       if (income.monthlySalaryMinor !== null && salaryAccount?.kind === 'new' && !accounts.some((account) => account.id === salaryAccountNewId.current)) {
         await actions.createAccount({ id: salaryAccountNewId.current, name: salaryAccount.name, kind: 'asset', subtype: 'bank', currency: 'COP', archived: false })
       }
+      const incomeSources = income.monthlySalaryMinor === null ? [] : [{
+        id: 'income-salary', name: 'Salario', type: 'fixed_salary', account_id: salaryAccount?.kind === 'existing' ? salaryAccount.id : salaryAccountNewId.current,
+        amount_minor: income.monthlySalaryMinor, frequency: income.payFrequency, next_pay_date: income.nextPayDate,
+      }]
       const nextDebts = [...debts]
       // Crea cada deuda como un pasivo con apertura; la apertura no se cuenta como ingreso ni gasto.
       for (const [index, debt] of parsedDebts.entries()) {
@@ -75,6 +79,7 @@ export function FinancialOnboarding() {
         nextDebts[index] = { ...nextDebts[index], accountId }
       }
       setDebts(nextDebts)
+      await actions.setSetting('incomeSources', incomeSources)
       await actions.setSetting('monthlySalaryMinor', income.monthlySalaryMinor)
       await actions.setSetting('payFrequency', income.payFrequency)
       await actions.setSetting('nextPayDate', income.nextPayDate)

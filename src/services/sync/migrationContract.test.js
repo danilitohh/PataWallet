@@ -7,6 +7,7 @@ const debtAndIncome = fs.readFileSync(new URL('../../../supabase/migrations/2026
 const onboarding = fs.readFileSync(new URL('../../../supabase/migrations/20260913100000_financial_onboarding.sql', import.meta.url), 'utf8')
 const debtMonthlyPayment = fs.readFileSync(new URL('../../../supabase/migrations/20260913103000_debt_monthly_payment.sql', import.meta.url), 'utf8')
 const optionalNullSettings = fs.readFileSync(new URL('../../../supabase/migrations/20260913170000_allow_optional_null_user_settings.sql', import.meta.url), 'utf8')
+const incomeSources = fs.readFileSync(new URL('../../../supabase/migrations/20260913190000_income_sources.sql', import.meta.url), 'utf8')
 
 describe('contrato de seguridad PostgreSQL', () => {
   it('activa RLS y limita cada tabla expuesta al propietario autenticado', () => {
@@ -62,5 +63,11 @@ describe('contrato de seguridad PostgreSQL', () => {
     const repository = fs.readFileSync(new URL('../../../src/data/remoteRepository.js', import.meta.url), 'utf8')
     expect(repository).toContain('reconcileEmptyUserSetting')
     expect(repository).toContain("table === 'user_settings' && desired.value === null")
+  })
+
+  it('conserva fuentes de ingreso asociadas a cuentas sin crear movimientos', () => {
+    expect(incomeSources).toContain("'incomeSources'")
+    expect(incomeSources).toContain('jsonb_array_length(value) <= 50')
+    expect(incomeSources).toContain('value is not null')
   })
 })

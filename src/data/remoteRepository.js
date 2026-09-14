@@ -7,6 +7,7 @@ const defaultSettings = [
   { key: 'theme', value: 'system' },
   { key: 'hiddenAmounts', value: false },
   { key: 'motion', value: 'system' },
+  { key: 'incomeSources', value: [] },
   { key: 'fixedExpenses', value: [] },
   { key: 'nextPayDate', value: null },
 ]
