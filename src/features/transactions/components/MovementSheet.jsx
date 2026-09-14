@@ -6,10 +6,10 @@ import { useApp } from '../../../app/AppContext.jsx'
 import { makeId } from '../../../shared/lib/id.js'
 import { formatInputAmount, parseLocalizedAmount, toInputAmount } from '../../../domain/money.js'
 import { Field } from '../../../shared/components/Modal.jsx'
-import { SimpleDialog } from '../../../shared/components/Modal.jsx'
 import { useModalBehavior } from '../../../shared/hooks/useModalBehavior.js'
 import { today } from '../../../shared/lib/date.js'
 import { labelForType } from '../model/transactionTypes.js'
+import { CategoryDialog } from '../../../shared/components/CategoryDialog.jsx'
 
 // Explica el efecto contable de cada opción justo donde la persona elige el tipo.
 const MOVEMENT_TYPE_HELP = {
@@ -109,7 +109,7 @@ export function MovementSheet({ transaction, onClose }) {
           <Field label="Monto" error={error}><div className="amount-input"><span>$</span><input autoFocus inputMode="decimal" value={amount} onChange={(event) => setAmount(formatInputAmount(event.target.value))} placeholder="0" aria-describedby={error ? 'movement-error' : undefined} /><small>COP</small></div></Field>
           {type !== 'income' && <Field label={type === 'transfer' ? 'Desde' : 'Cuenta'}><select value={account} onChange={(event) => setAccount(event.target.value)}>{(type === 'transfer' ? assets : activeAccounts).map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></Field>}
           {type !== 'expense' && <Field label={type === 'income' ? 'Recibir en' : 'Hacia'}><select value={destination} onChange={(event) => setDestination(event.target.value)}>{(type === 'income' ? assets : activeAccounts.filter((item) => item.id !== account)).map((item) => <option key={item.id} value={item.id}>{item.name}{item.kind === 'liability' ? ' (pago de deuda)' : ''}</option>)}</select></Field>}
-          {type !== 'transfer' && <Field label="Categoría"><div className="input-with-action"><select value={category} onChange={(event) => setCategory(event.target.value)}><option value="">Selecciona una categoría</option>{visibleCategories.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select><button type="button" className="icon-button" aria-label="Crear categoría" onClick={() => setCategoryDialog(true)}><Plus /></button></div></Field>}
+          {type !== 'transfer' && <div className="field"><span>Categoría</span><div className="input-with-action"><select aria-label="Categoría" value={category} onChange={(event) => setCategory(event.target.value)}><option value="">Selecciona una categoría</option>{visibleCategories.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select><button type="button" className="icon-button" aria-label="Crear categoría" onClick={() => setCategoryDialog(true)}><Plus /></button></div></div>}
           <div className="form-grid"><Field label="Fecha"><input type="date" value={date} onChange={(event) => setDate(event.target.value)} /></Field><Field label="Hora" optional><input type="time" value={time} onChange={(event) => setTime(event.target.value)} /></Field></div>
           <Field label="Comercio o nota" optional><input value={note} onChange={(event) => setNote(event.target.value)} maxLength="120" placeholder="Opcional" /></Field>
           <Field label="Foto del comprobante" optional><label className="receipt-picker"><ImagePlus /><span>{receipt ? 'Cambiar imagen' : 'Añadir screenshot o foto'}</span><input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => readReceipt(event.target.files?.[0], setReceipt, setError)} /></label>{receipt && <div className="receipt-preview"><img src={receipt} alt="Vista previa del comprobante" /><button type="button" className="button button--quiet" onClick={() => setReceipt('')}>Quitar</button><small>Se conserva de forma privada en este dispositivo.</small></div>}</Field>
@@ -130,14 +130,4 @@ function readReceipt(file, setReceipt, setError) {
   reader.onload = () => setReceipt(String(reader.result))
   reader.onerror = () => setError('No pudimos leer la imagen.')
   reader.readAsDataURL(file)
-}
-
-function CategoryDialog({ type, close, onCreated }) {
-  const { actions, notify } = useApp()
-  const [name, setName] = useState('')
-  const [error, setError] = useState('')
-  return <SimpleDialog title="Nueva categoría" close={close}><form onSubmit={async (event) => { event.preventDefault(); try {
-    const clean = name.trim(); if (clean.length < 2 || clean.length > 50) throw new Error('Usa entre 2 y 50 caracteres.')
-    const id = makeId('category'); await actions.createCategory({ id, name: clean, type, version: 1, updated_at: new Date().toISOString() }); onCreated(id); notify('Categoría creada'); close()
-  } catch (issue) { setError(issue.message) } }}><Field label="Nombre" error={error}><input autoFocus value={name} maxLength="50" onChange={(event) => setName(event.target.value)} /></Field><p className="helper">Se creará como categoría de {type === 'income' ? 'ingreso' : 'gasto'}.</p><button className="button button--primary" type="submit">Crear categoría</button></form></SimpleDialog>
 }

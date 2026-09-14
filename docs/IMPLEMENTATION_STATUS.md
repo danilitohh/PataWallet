@@ -1,6 +1,6 @@
 # Estado de implementación
 
-Actualizado: 2026-09-13. Fase actual: **Fase 5 revisada localmente; ampliaciones funcionales validadas localmente**.
+Actualizado: 2026-09-14. Fase actual: **Fase 5 revisada localmente; ampliaciones funcionales validadas localmente**.
 
 ## Ampliaciones del 11 de septiembre
 
@@ -9,6 +9,7 @@ Actualizado: 2026-09-13. Fase actual: **Fase 5 revisada localmente; ampliaciones
 - Categorías: creación personalizada desde el formulario de movimiento, respetando el tipo ingreso/gasto y el aislamiento existente.
 - Metas: corregido el modal compartido que quedaba dentro de un ancestro `inert`; X, Escape y Guardar vuelven a funcionar.
 - Próximas compras: alta, edición y eliminación, sin crear gastos. Compara el estimado con el presupuesto restante y con activos registrados menos reservas.
+- Próximas compras: el selector de categoría incluye un botón para crear una nueva categoría de gasto desde el mismo formulario; la categoría queda seleccionada automáticamente y comparte el diálogo protegido contra doble toque con Nuevo movimiento.
 - Migración `20260911120000_planned_purchases.sql` aplicada al proyecto remoto autorizado. Verificación SQL: tabla presente, RLS activo, 1 política propia, índice presente, `anon_select = false` y CRUD autenticado habilitado bajo RLS.
 - Automatización Apple: el receptor, vinculación y categorización de PataWallet están preparados. La plantilla `PataWallet - Registrar compra` fue construida y publicada por el usuario en iCloud; la automatización personal Wallet quedó configurada para ejecutar inmediatamente y sin aviso previo.
 - Enlace publicado: `https://www.icloud.com/shortcuts/12c4f7d2f466425ba3e9379203ab59f5`. El código distingue “publicada” de “probada”: `SHORTCUT_MIN_IOS_TESTED` permanece opcional hasta completar una prueba real.

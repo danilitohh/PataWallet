@@ -246,3 +246,19 @@ test('agrega y evalúa una próxima compra sin crear gasto', async ({ page }) =>
   await expect(page.getByRole('heading', { name: 'Audífonos' })).toHaveCount(1)
   await expect(page.getByText(/presupuesto|fondos registrados/i).last()).toBeVisible()
 })
+
+test('crea una categoría desde una próxima compra', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: /probar con datos de ejemplo/i }).click()
+  await page.getByRole('link', { name: 'Plan', exact: true }).click()
+  // El CTA del plan comparte la animación de entrada del panel en móvil.
+  await page.getByRole('button', { name: 'Agregar' }).click({ force: true })
+  const dialog = page.getByRole('dialog', { name: 'Agregar próxima compra' })
+  // En el viewport móvil el botón puede quedar dentro de un contenedor animado; fuerza el clic
+  // solo después de resolver el botón para validar el evento real sin depender de la estabilidad del transform.
+  await dialog.getByRole('button', { name: 'Crear categoría' }).click({ force: true })
+  const categoryDialog = page.getByRole('dialog', { name: 'Nueva categoría' })
+  await categoryDialog.getByLabel('Nombre').fill('Hogar')
+  await categoryDialog.getByRole('button', { name: 'Crear categoría' }).click({ force: true })
+  await expect(dialog.locator('.field').filter({ hasText: /^Categoría/ }).locator('select')).toHaveValue(/.+/)
+})

@@ -1,6 +1,8 @@
 import { useRef, useState } from 'react'
+import { Plus } from 'lucide-react'
 import { useApp } from '../../../app/AppContext.jsx'
 import { formatInputAmount, parseLocalizedAmount, toInputAmount } from '../../../domain/money.js'
+import { CategoryDialog } from '../../../shared/components/CategoryDialog.jsx'
 import { Field, SimpleDialog } from '../../../shared/components/Modal.jsx'
 import { today } from '../../../shared/lib/date.js'
 import { makeId } from '../../../shared/lib/id.js'
@@ -11,6 +13,7 @@ export function PlannedPurchaseDialog({ purchase, close }) {
   const [amount, setAmount] = useState(purchase ? toInputAmount(purchase.amount_minor) : '')
   const [targetDate, setTargetDate] = useState(purchase?.target_date || today())
   const [categoryId, setCategoryId] = useState(purchase?.category_id || '')
+  const [categoryDialog, setCategoryDialog] = useState(false)
   const [note, setNote] = useState(purchase?.note || '')
   const [error, setError] = useState('')
   // Mantiene una sola identidad por apertura del diálogo para que reintentos no dupliquen filas.
@@ -42,10 +45,11 @@ export function PlannedPurchaseDialog({ purchase, close }) {
     <form onSubmit={submit}>
       <Field label="Compra"><input autoFocus value={name} maxLength="80" onChange={(event) => setName(event.target.value)} placeholder="Ej. Computador" /></Field>
       <Field label="Monto estimado" error={error}><input inputMode="decimal" value={amount} onChange={(event) => setAmount(formatInputAmount(event.target.value))} placeholder="2.000.000" /></Field>
-      <div className="form-grid"><Field label="Fecha prevista"><input type="date" min={today()} value={targetDate} onChange={(event) => setTargetDate(event.target.value)} /></Field><Field label="Categoría" optional><select value={categoryId} onChange={(event) => setCategoryId(event.target.value)}><option value="">Sin categoría</option>{categories.filter((item) => item.type === 'expense').map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></Field></div>
+      <div className="form-grid"><Field label="Fecha prevista"><input type="date" min={today()} value={targetDate} onChange={(event) => setTargetDate(event.target.value)} /></Field><div className="field"><span>Categoría<small> Opcional</small></span><div className="input-with-action"><select aria-label="Categoría" value={categoryId} onChange={(event) => setCategoryId(event.target.value)}><option value="">Sin categoría</option>{categories.filter((item) => item.type === 'expense').map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select><button type="button" className="icon-button" aria-label="Crear categoría" onClick={() => setCategoryDialog(true)}><Plus /></button></div></div></div>
       <Field label="Nota" optional><input value={note} maxLength="240" onChange={(event) => setNote(event.target.value)} /></Field>
       <p className="helper">Esto no crea un gasto ni reserva dinero. Sirve para planear y comparar.</p>
       <button className="button button--primary" type="submit" disabled={saving}>{saving ? 'Guardando…' : 'Guardar próxima compra'}</button>
     </form>
+    {categoryDialog && <CategoryDialog type="expense" close={() => setCategoryDialog(false)} onCreated={setCategoryId} />}
   </SimpleDialog>
 }
