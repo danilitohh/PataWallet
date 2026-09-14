@@ -80,6 +80,22 @@ function normalizeServerRow(row) {
   return copy
 }
 
+// Resuelve una operación antigua que creó un ajuste opcional vacío antes de que
+// existiera la fila remota. Si el bootstrap ya creó esa clave, la actualización
+// idempotente conserva la intención local sin dejar la operación atascada.
+async function reconcileEmptyUserSetting(userId, idColumn, idValue, existing) {
+  const currentVersion = Number(existing.version || 1)
+  const { data, error } = await supabase.from('user_settings').update({
+    value: null,
+    version: currentVersion + 1,
+    updated_at: new Date().toISOString(),
+  })
+    .eq('user_id', userId).eq(idColumn, idValue).eq('version', currentVersion).select().maybeSingle()
+  conflict(error)
+  if (!data) throw new SyncConflictError('El ajuste cambió en otro dispositivo. Revisa la fecha de pago antes de reintentar.')
+  return normalizeServerRow(data)
+}
+
 function conflict(error, fallback = 'El dato cambió en otro dispositivo.') {
   if (error?.code === 'PT409' || error?.status === 409 || error?.code === '23505') {
     throw new SyncConflictError(error.message || fallback, error)
@@ -106,6 +122,9 @@ async function insertStable(table, userId, payload, idColumn = 'id') {
   const existingResult = await supabase.from(table).select('*').eq('user_id', userId).eq(idColumn, idValue).maybeSingle()
   ensure(existingResult.error)
   if (!existingResult.data) throw new SyncConflictError('El identificador ya existe, pero no pertenece a esta sesión.')
+  if (table === 'user_settings' && desired.value === null && existingResult.data.value !== null) {
+    return reconcileEmptyUserSetting(userId, idColumn, idValue, existingResult.data)
+  }
   const comparableKeys = Object.keys(cleanWrite(payload)).filter((key) => !['version', 'updated_at'].includes(key))
   const identical = comparableKeys.every((key) => JSON.stringify(existingResult.data[key]) === JSON.stringify(desired[key]))
   if (!identical) throw new SyncConflictError('El mismo identificador contiene datos diferentes en el servidor.')

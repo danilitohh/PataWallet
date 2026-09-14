@@ -38,6 +38,7 @@ Actualizado: 2026-09-13. Fase actual: **Fase 5 revisada localmente; ampliaciones
 - Inicio y Plan muestran el desglose del dinero libre. Las próximas compras advierten cuando dejarían el margen en cero/negativo o cuando faltan más de 14 días para el próximo pago y el remanente sería menor al 25% del dinero libre mensual.
 - Ajustes permite editar los gastos fijos. Las migraciones `20260913100000_financial_onboarding.sql` y `20260913103000_debt_monthly_payment.sql` añaden las claves de configuración y el pago mensual de deuda; ambas están aplicadas en Supabase.
 - Primer acceso autenticado: `20260913170000_allow_optional_null_user_settings.sql` permite `NULL` solo en salario, frecuencia y fecha de pago opcionales; la columna mantiene valores obligatorios para preferencias y banderas. Verificado remotamente con la restricción `user_settings_value_required_for_non_optional`.
+- Sincronización: las operaciones antiguas de `nextPayDate` vacío se reconcilian de forma idempotente si el bootstrap ya creó la clave remota; no se descarta información financiera.
 - Onboarding: el salario ahora se asocia a una cuenta disponible existente o permite crear una cuenta bancaria identificada por nombre/banco. La cuenta nueva queda con saldo cero: no crea un ingreso ni un movimiento automático, así que el pago real se registra una sola vez desde Nuevo movimiento.
 - Importes: los campos monetarios agrupan miles con el formato local (`1.750.000`) mientras se escriben, conservando unidades menores enteras al guardar. Los contenedores y grids de formularios permiten encogimiento en móvil; el onboarding deja de centrarse verticalmente cuando supera la altura disponible para evitar recortes.
 
@@ -67,7 +68,7 @@ Actualizado: 2026-09-13. Fase actual: **Fase 5 revisada localmente; ampliaciones
 ## Probado automáticamente
 
 - `npm run lint`: PASÓ.
-- `npm test`: PASÓ, 21 archivos y 88 pruebas. Incluye formato de importes, dinero libre, gastos fijos, fecha de próximo pago, pago mensual declarado de deuda, contratos de migración y protección de Push.
+- `npm test`: PASÓ, 22 archivos y 90 pruebas. Incluye formato de importes, dinero libre, gastos fijos, fecha de próximo pago, pago mensual declarado de deuda, contratos de migración, reconciliación de sincronización y protección de Push.
 - `npm run build`: PASÓ con Vite 8.3.0; 30 entradas y 1230,55 KiB de precaché. La configuración adapta el build del worker a `codeSplitting: false`, sin la opción obsoleta `inlineDynamicImports`.
 - E2E dirigido de Automatización en escritorio: PASÓ 1/1. La ejecución completa paralela quedó inválida por `EBUSY` de Windows al observar sus propios artefactos de Playwright; tras caer el servidor produjo 32 fallos derivados y 5 pruebas alcanzaron a pasar.
 - Dependencias de build: `glob` se resuelve explícitamente a 13.0.6 bajo `workbox-build`; `npm audit --omit=dev` permanece en 0 vulnerabilidades conocidas.

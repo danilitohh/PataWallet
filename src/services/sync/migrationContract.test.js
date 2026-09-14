@@ -57,4 +57,10 @@ describe('contrato de seguridad PostgreSQL', () => {
     expect(optionalNullSettings).toContain('alter column value drop not null')
     expect(optionalNullSettings).toContain("key in ('monthlySalaryMinor', 'payFrequency', 'nextPayDate')")
   })
+
+  it('reconcilia pendientes antiguos de ajustes opcionales vacíos', () => {
+    const repository = fs.readFileSync(new URL('../../../src/data/remoteRepository.js', import.meta.url), 'utf8')
+    expect(repository).toContain('reconcileEmptyUserSetting')
+    expect(repository).toContain("table === 'user_settings' && desired.value === null")
+  })
 })
