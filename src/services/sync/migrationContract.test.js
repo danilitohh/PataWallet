@@ -6,6 +6,7 @@ const phase2 = fs.readFileSync(new URL('../../../supabase/migrations/20260910190
 const debtAndIncome = fs.readFileSync(new URL('../../../supabase/migrations/20260913042149_debt_schedule_and_income_settings.sql', import.meta.url), 'utf8')
 const onboarding = fs.readFileSync(new URL('../../../supabase/migrations/20260913100000_financial_onboarding.sql', import.meta.url), 'utf8')
 const debtMonthlyPayment = fs.readFileSync(new URL('../../../supabase/migrations/20260913103000_debt_monthly_payment.sql', import.meta.url), 'utf8')
+const optionalNullSettings = fs.readFileSync(new URL('../../../supabase/migrations/20260913170000_allow_optional_null_user_settings.sql', import.meta.url), 'utf8')
 
 describe('contrato de seguridad PostgreSQL', () => {
   it('activa RLS y limita cada tabla expuesta al propietario autenticado', () => {
@@ -50,5 +51,10 @@ describe('contrato de seguridad PostgreSQL', () => {
   it('conserva el pago mensual de una deuda sin inventar cuotas', () => {
     expect(debtMonthlyPayment).toContain('debt_monthly_payment_minor bigint')
     expect(debtMonthlyPayment).toContain('kind = \'liability\'')
+  })
+
+  it('permite NULL solo en ajustes financieros opcionales', () => {
+    expect(optionalNullSettings).toContain('alter column value drop not null')
+    expect(optionalNullSettings).toContain("key in ('monthlySalaryMinor', 'payFrequency', 'nextPayDate')")
   })
 })

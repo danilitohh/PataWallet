@@ -36,7 +36,8 @@ Actualizado: 2026-09-13. Fase actual: **Fase 5 revisada localmente; ampliaciones
 - El resultado **Dinero libre** se calcula como salario − gastos fijos − pagos mensuales declarados de deuda. Los datos se guardan por usuario y no crean ingresos, gastos ni cobros automáticos.
 - Las deudas nuevas se guardan como pasivos con apertura explícita y un campo separado de pago mensual declarado; no se inventa un número de cuotas para una deuda cuyo plazo no se conoce.
 - Inicio y Plan muestran el desglose del dinero libre. Las próximas compras advierten cuando dejarían el margen en cero/negativo o cuando faltan más de 14 días para el próximo pago y el remanente sería menor al 25% del dinero libre mensual.
-- Ajustes permite editar los gastos fijos. La migración `20260913100000_financial_onboarding.sql` añade las claves de configuración y `20260913103000_debt_monthly_payment.sql` añade el pago mensual de deuda; ambas requieren aplicación remota autorizada.
+- Ajustes permite editar los gastos fijos. Las migraciones `20260913100000_financial_onboarding.sql` y `20260913103000_debt_monthly_payment.sql` añaden las claves de configuración y el pago mensual de deuda; ambas están aplicadas en Supabase.
+- Primer acceso autenticado: `20260913170000_allow_optional_null_user_settings.sql` permite `NULL` solo en salario, frecuencia y fecha de pago opcionales; la columna mantiene valores obligatorios para preferencias y banderas. Verificado remotamente con la restricción `user_settings_value_required_for_non_optional`.
 - Onboarding: el salario ahora se asocia a una cuenta disponible existente o permite crear una cuenta bancaria identificada por nombre/banco. La cuenta nueva queda con saldo cero: no crea un ingreso ni un movimiento automático, así que el pago real se registra una sola vez desde Nuevo movimiento.
 - Importes: los campos monetarios agrupan miles con el formato local (`1.750.000`) mientras se escriben, conservando unidades menores enteras al guardar. Los contenedores y grids de formularios permiten encogimiento en móvil; el onboarding deja de centrarse verticalmente cuando supera la altura disponible para evitar recortes.
 
@@ -66,7 +67,7 @@ Actualizado: 2026-09-13. Fase actual: **Fase 5 revisada localmente; ampliaciones
 ## Probado automáticamente
 
 - `npm run lint`: PASÓ.
-- `npm test`: PASÓ, 21 archivos y 87 pruebas. Incluye formato de importes, dinero libre, gastos fijos, fecha de próximo pago, pago mensual declarado de deuda, contratos de migración y protección de Push.
+- `npm test`: PASÓ, 21 archivos y 88 pruebas. Incluye formato de importes, dinero libre, gastos fijos, fecha de próximo pago, pago mensual declarado de deuda, contratos de migración y protección de Push.
 - `npm run build`: PASÓ con Vite 8.3.0; 30 entradas y 1230,55 KiB de precaché. La configuración adapta el build del worker a `codeSplitting: false`, sin la opción obsoleta `inlineDynamicImports`.
 - E2E dirigido de Automatización en escritorio: PASÓ 1/1. La ejecución completa paralela quedó inválida por `EBUSY` de Windows al observar sus propios artefactos de Playwright; tras caer el servidor produjo 32 fallos derivados y 5 pruebas alcanzaron a pasar.
 - Dependencias de build: `glob` se resuelve explícitamente a 13.0.6 bajo `workbox-build`; `npm audit --omit=dev` permanece en 0 vulnerabilidades conocidas.
@@ -108,7 +109,7 @@ VoiceOver, teclado/áreas seguras reales, instalación/actualización PWA, Web P
 - **Medio:** VoiceOver, texto del sistema y teclado en iPhone.
 - **Bajo:** licencia explícita de redistribución de ilustraciones.
 
-La app está desplegada en Vercel y las migraciones de las fases 1–4 y ampliaciones de punto de partida/cuentas en pareja están presentes en Supabase. No se enviaron avisos reales ni se modificaron servicios Apple. Pasos restantes: `docs/PLAN_DE_PUBLICACION_Y_RECUPERACION.md`.
+La app está desplegada en Vercel y las migraciones de las fases 1–4, punto de partida, cuentas en pareja y ajustes opcionales de primer acceso están presentes en Supabase. No se enviaron avisos reales ni se modificaron servicios Apple. Pasos restantes: `docs/PLAN_DE_PUBLICACION_Y_RECUPERACION.md`.
 
 ## Decisión
 
