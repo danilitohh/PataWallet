@@ -8,6 +8,7 @@ const onboarding = fs.readFileSync(new URL('../../../supabase/migrations/2026091
 const debtMonthlyPayment = fs.readFileSync(new URL('../../../supabase/migrations/20260913103000_debt_monthly_payment.sql', import.meta.url), 'utf8')
 const optionalNullSettings = fs.readFileSync(new URL('../../../supabase/migrations/20260913170000_allow_optional_null_user_settings.sql', import.meta.url), 'utf8')
 const incomeSources = fs.readFileSync(new URL('../../../supabase/migrations/20260913190000_income_sources.sql', import.meta.url), 'utf8')
+const optionalNullShape = fs.readFileSync(new URL('../../../supabase/migrations/20260914120000_fix_optional_user_settings_shape.sql', import.meta.url), 'utf8')
 
 describe('contrato de seguridad PostgreSQL', () => {
   it('activa RLS y limita cada tabla expuesta al propietario autenticado', () => {
@@ -57,6 +58,14 @@ describe('contrato de seguridad PostgreSQL', () => {
   it('permite NULL solo en ajustes financieros opcionales', () => {
     expect(optionalNullSettings).toContain('alter column value drop not null')
     expect(optionalNullSettings).toContain("key in ('monthlySalaryMinor', 'payFrequency', 'nextPayDate')")
+  })
+
+  it('acepta NULL SQL en la forma de los ajustes opcionales', () => {
+    expect(optionalNullShape).toContain('value is null')
+    expect(optionalNullShape).toContain("key = 'monthlySalaryMinor'")
+    expect(optionalNullShape).toContain("key = 'payFrequency'")
+    expect(optionalNullShape).toContain("key = 'nextPayDate'")
+    expect(optionalNullShape).toContain("key = 'incomeSources'")
   })
 
   it('reconcilia pendientes antiguos de ajustes opcionales vacíos', () => {
