@@ -5,7 +5,6 @@ import { PageHeader } from '../../shared/components/PageHeader.jsx'
 import { SettingLink, SettingRow, Switch } from './components/SettingsControls.jsx'
 import { DataTransfer } from './components/DataTransfer.jsx'
 import { IncomeSettings } from './components/IncomeSettings.jsx'
-import { FixedExpensesSettings } from './components/FixedExpensesSettings.jsx'
 
 export function SettingsPage() {
   const { settings, syncState, notify, actions, isDemo, user, signOut, accounts, categories, transactions, budgets, goals, allocations, plannedPurchases } = useApp()
@@ -23,7 +22,6 @@ export function SettingsPage() {
         <SettingRow icon={Menu} title="Movimiento" detail="Respeta Reducir movimiento"><select value={settings.motion || 'system'} onChange={(event) => setSetting('motion', event.target.value)}><option value="system">Sistema</option><option value="soft">Suave</option><option value="off">Desactivado</option></select></SettingRow>
       </section>
       <IncomeSettings />
-      <FixedExpensesSettings />
       {!isDemo && <section className="settings-group"><h2>Compartir</h2><SettingLink icon={Handshake} title="Cuentas en pareja" detail="Elige qué cuentas o deudas compartir" to="/parejas" /></section>}
       <section className="settings-group"><h2>Asistencia</h2><SettingLink icon={Bot} title="Asistente PataWallet" detail="Preguntas y resúmenes de solo lectura" to="/asistente" /></section>
       <section className="settings-group"><h2>Integraciones</h2><SettingLink icon={Bell} title="Notificaciones" detail="Instalación, permiso y privacidad" to="/ajustes/notificaciones" /><SettingLink icon={Smartphone} title="Automatización" detail="Atajo, tarjetas, reglas y revisión" to="/ajustes/automatizacion" /></section>

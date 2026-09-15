@@ -70,7 +70,7 @@ export function PlanPage() {
 
 // Presenta el cálculo base que se usará para evaluar compras sin confundirlo con el presupuesto.
 function AvailablePlanSummary({ available, hidden }) {
-  if (available.monthlyFreeMinor === null) return <section className="feature-panel available-plan-summary"><h2>Dinero libre</h2><p>Completa tus ingresos y gastos fijos en <Link to="/ajustes#ingresos">Ajustes</Link> para evaluar compras con una referencia personal.</p></section>
+  if (available.monthlyFreeMinor === null) return <section className="feature-panel available-plan-summary"><h2>Dinero libre</h2><p>Completa tus ingresos en <Link to="/ajustes#ingresos">Ajustes</Link> y tus gastos fijos en <Link to="/cuentas#gastos-fijos">Cuentas</Link> para evaluar compras con una referencia personal.</p></section>
   return <section className={`feature-panel available-plan-summary ${available.monthlyFreeMinor < 0 ? 'available-plan-summary--warning' : ''}`}><div><span>Dinero libre después de compromisos</span><strong>{formatMinor(available.monthlyFreeMinor, 'COP', hidden)}</strong></div><p>{formatMinor(available.salaryMinor, 'COP', hidden)} de ingreso − {formatMinor(available.fixedExpensesMinor, 'COP', hidden)} en gastos fijos − {formatMinor(available.debtPaymentsMinor, 'COP', hidden)} en pagos de deuda.</p>{available.trackedExpensesMinor > 0 && <small>Los movimientos del mes también se tienen en cuenta al evaluar una compra.</small>}</section>
 }
 

@@ -68,7 +68,7 @@ test('registra un plan opcional de deuda y configura los ingresos de referencia'
   await page.getByRole('button', { name: /probar con datos de ejemplo/i }).click()
   await expect(page.getByRole('heading', { name: /hola, danilo/i })).toBeVisible()
   await page.goto('/cuentas')
-  await page.getByRole('button', { name: 'Agregar' }).click()
+  await page.getByRole('button', { name: 'Agregar', exact: true }).click()
   const accountDialog = page.getByRole('dialog', { name: 'Agregar cuenta' })
   await accountDialog.getByLabel('Nombre').fill('Libre inversión')
   await accountDialog.getByLabel('Naturaleza').selectOption('liability')
@@ -82,7 +82,14 @@ test('registra un plan opcional de deuda y configura los ingresos de referencia'
   await expect(page.getByRole('heading', { name: 'Libre inversión', exact: true })).toBeVisible()
   await expect(page.getByText(/2 de 12 cuotas · .* cada mes/)).toBeVisible()
 
+  const fixedExpenses = page.locator('.fixed-expenses-settings')
+  await fixedExpenses.getByLabel('Nombre').fill('Arriendo')
+  await fixedExpenses.getByLabel('Monto mensual').fill('900.000')
+  await fixedExpenses.getByRole('button', { name: 'Guardar gastos fijos' }).click()
+  await expect(page.getByText('Gastos fijos guardados')).toBeVisible()
+
   await page.goto('/ajustes')
+  await expect(page.getByRole('heading', { name: 'Gastos fijos', exact: true })).toHaveCount(0)
   await page.getByLabel('Sueldo mensual equivalente').fill('3.200.000')
   await page.getByLabel('¿Cada cuánto recibes tu pago?').selectOption('monthly')
   await page.getByRole('button', { name: 'Guardar ingresos' }).click()
