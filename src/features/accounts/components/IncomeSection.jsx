@@ -1,15 +1,14 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
 import { Plus, Trash2 } from 'lucide-react'
 import { useApp } from '../../../app/AppContext.jsx'
 import { formatInputAmount, toInputAmount } from '../../../domain/money.js'
 import { Field } from '../../../shared/components/Modal.jsx'
 import { makeId } from '../../../shared/lib/id.js'
-import { PAY_FREQUENCY_OPTIONS } from '../model/incomeSettings.js'
-import { fixedIncomeSummary, incomeSourcesToInput, INCOME_SOURCE_TYPES, parseIncomeSources } from '../model/incomeSources.js'
+import { PAY_FREQUENCY_OPTIONS } from '../../settings/model/incomeSettings.js'
+import { fixedIncomeSummary, incomeSourcesToInput, INCOME_SOURCE_TYPES, parseIncomeSources } from '../../settings/model/incomeSources.js'
 
-// Permite asociar cada fuente de ingreso a una cuenta real sin crear movimientos automáticos.
-export function IncomeSettings() {
+// Administra fuentes de ingreso vinculadas a cuentas sin crear movimientos automáticos.
+export function IncomeSection() {
   const { settings, accounts, actions, notify } = useApp()
   const activeAssets = accounts.filter((account) => account.kind === 'asset' && !account.archived)
   const [rows, setRows] = useState(() => initialRows(settings, activeAssets))
@@ -51,12 +50,12 @@ export function IncomeSettings() {
   const add = () => setRows((items) => [...items, blankRow(activeAssets[0]?.id || '')])
   const remove = (id) => setRows((items) => items.filter((item) => item.id !== id))
 
-  return <section className="settings-group income-settings" id="ingresos">
-    <h2>Ingresos</h2>
-    <p className="settings-group__intro">Agrega la cuenta donde recibes cada ingreso y clasifícalo. También puedes hacerlo al crear una cuenta desde Cuentas. El sueldo fijo sirve para estimar tu dinero libre; los extras esporádicos solo quedan como referencia hasta que registres el movimiento.</p>
+  return <section className="settings-group income-section" id="ingresos">
+    <div className="section-heading"><div><h2>Ingresos</h2><p>Fuentes de dinero asociadas a tus cuentas disponibles.</p></div></div>
+    <p className="settings-group__intro">Clasifica cada ingreso y elige la cuenta donde lo recibes. El sueldo fijo sirve para estimar tu dinero libre; los extras esporádicos solo quedan como referencia hasta que registres el movimiento.</p>
     <form onSubmit={submit}>
       {rows.length > 0 && <div className="settings-repeatable">{rows.map((row, index) => <IncomeSourceRow key={row.id} row={row} index={index} accounts={activeAssets} update={update} changeType={changeType} remove={remove} error={error} />)}</div>}
-      {!activeAssets.length && <div className="info-note"><strong>Primero agrega una cuenta</strong><span> La cuenta de destino se crea en Cuentas; después podrás seleccionarla aquí.</span><Link className="back-link" to="/cuentas">Ir a Cuentas</Link></div>}
+      {!activeAssets.length && <div className="info-note"><strong>Primero agrega una cuenta disponible</strong><span>La cuenta de destino se crea desde el botón Agregar de esta pantalla; después podrás asociarle el ingreso.</span></div>}
       <div className="settings-repeatable__actions"><button type="button" className="button button--secondary" onClick={add}><Plus /> Agregar ingreso</button><span>{incomeSummaryLabel(rows)}</span></div>
       <p className="helper">Los ingresos extras no se suman al dinero libre mensual porque no son recurrentes. Regístralos desde Nuevo movimiento cuando los recibas.</p>
       <button className="button button--primary" type="submit" disabled={saving}>{saving ? 'Guardando…' : 'Guardar ingresos'}</button>
@@ -88,7 +87,7 @@ function initialRows(settings, accounts) {
 }
 
 function blankRow(accountId) {
-  // Leave a new row empty; the parser supplies “Salario” only once data is entered.
+  // Deja una fila nueva vacía; el parser asigna “Salario” cuando la persona ingresa datos.
   return { id: makeId('income'), name: '', type: 'fixed_salary', accountId, amount: '', frequency: '', nextPayDate: '' }
 }
 
