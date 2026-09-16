@@ -37,7 +37,7 @@ Actualizado: 2026-09-15. Fase actual: **Fase 5 revisada localmente; ampliaciones
 - El resultado **Dinero libre** se calcula como salario − gastos fijos − pagos mensuales declarados de deuda. Los datos se guardan por usuario y no crean ingresos, gastos ni cobros automáticos.
 - Las deudas nuevas se guardan como pasivos con apertura explícita y un campo separado de pago mensual declarado; no se inventa un número de cuotas para una deuda cuyo plazo no se conoce.
 - Inicio y Plan muestran el desglose del dinero libre. Las próximas compras advierten cuando dejarían el margen en cero/negativo o cuando faltan más de 14 días para el próximo pago y el remanente sería menor al 25% del dinero libre mensual.
-- Cuentas concentra la edición de gastos fijos junto a cuentas y deudas; Ajustes conserva las preferencias y fuentes de ingreso. Las migraciones `20260913100000_financial_onboarding.sql` y `20260913103000_debt_monthly_payment.sql` añaden las claves de configuración y el pago mensual de deuda; ambas están aplicadas en Supabase.
+- Cuentas concentra la edición de ingresos y gastos fijos junto a cuentas y deudas; ambas opciones se presentan como botones plegables para mantener la pantalla compacta. Ajustes conserva las preferencias. Las migraciones `20260913100000_financial_onboarding.sql` y `20260913103000_debt_monthly_payment.sql` añaden las claves de configuración y el pago mensual de deuda; ambas están aplicadas en Supabase.
 - Primer acceso autenticado: `20260913170000_allow_optional_null_user_settings.sql` permite `NULL` solo en salario, frecuencia y fecha de pago opcionales; la columna mantiene valores obligatorios para preferencias y banderas. Verificado remotamente con la restricción `user_settings_value_required_for_non_optional`.
 - Primer acceso autenticado: corregida la restricción `user_settings_value_shape` con `20260914120000_fix_optional_user_settings_shape.sql`; ahora acepta `NULL` SQL en salario, frecuencia y próximo pago, tal como envía PostgREST al guardar valores opcionales. Verificado en Supabase con los ocho ajustes de arranque y prueba de regresión local.
 - Sincronización: las operaciones antiguas de `nextPayDate` vacío se reconcilian de forma idempotente si el bootstrap ya creó la clave remota; no se descarta información financiera.
@@ -71,7 +71,7 @@ Actualizado: 2026-09-15. Fase actual: **Fase 5 revisada localmente; ampliaciones
 
 - `npm run lint`: PASÓ.
 - `npm test`: PASÓ, 23 archivos y 97 pruebas. Incluye fuentes de ingreso vinculadas a cuentas, formato de importes, dinero libre, gastos fijos, fecha de próximo pago, pago mensual declarado de deuda, contratos de migración, reconciliación de sincronización y protección de Push.
-- `npm run build`: PASÓ con Vite 8.3.0; 30 entradas y 1263,77 KiB de precaché. La configuración adapta el build del worker a `codeSplitting: false`, sin la opción obsoleta `inlineDynamicImports`.
+- `npm run build`: PASÓ con Vite 8.3.0; 30 entradas y 1266,48 KiB de precaché. La configuración adapta el build del worker a `codeSplitting: false`, sin la opción obsoleta `inlineDynamicImports`.
 - E2E dirigido de Automatización en escritorio: PASÓ 1/1. La ejecución completa paralela quedó inválida por `EBUSY` de Windows al observar sus propios artefactos de Playwright; tras caer el servidor produjo 32 fallos derivados y 5 pruebas alcanzaron a pasar.
 - Dependencias de build: `glob` se resuelve explícitamente a 13.0.6 bajo `workbox-build`; `npm audit --omit=dev` permanece en 0 vulnerabilidades conocidas.
 - Línea base E2E: 22 pruebas efectivas pasaron y 2 variantes se omitieron intencionalmente.
@@ -84,6 +84,7 @@ Actualizado: 2026-09-15. Fase actual: **Fase 5 revisada localmente; ampliaciones
 - E2E del onboarding financiero: PASÓ en 390×844, 375×812 y 1440×900; creó una deuda, guardó gastos fijos y mostró el cálculo de dinero libre en Inicio.
 - E2E del onboarding con cuenta salarial: PASÓ en 390×844, 375×812 y 1440×900; reutiliza o crea la cuenta elegida, la muestra en Cuentas y no genera un movimiento de ingreso implícito.
 - E2E de ubicación de ingresos y gastos fijos: PASÓ 3/3 en 390×844, 375×812 y 1440×900; ambos formularios se guardan desde Cuentas y no aparecen en Ajustes.
+- E2E de secciones plegables en Cuentas: PASÓ 3/3 en 390×844, 375×812 y 1440×900; Ingresos y Gastos fijos empiezan cerrados y muestran sus opciones al pulsar el botón correspondiente.
 - E2E focalizado del formulario de gastos fijos en Cuentas: PASÓ 3/3 en 390×844, 375×812 y 1440×900; confirmó guardado y ausencia del formulario en Ajustes.
 - La corrida completa actual de `tests/e2e/app.spec.js` quedó incompleta por un timeout preexistente en la prueba de creación de categoría desde Próximas compras (mobile-390), no relacionado con el cambio de ubicación de gastos fijos.
 - E2E del dashboard en 390×844, 375×812 y escritorio: PASÓ 3/3; Inicio muestra metas, compras futuras y cuentas sin overflow.

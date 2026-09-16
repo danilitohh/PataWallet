@@ -4,6 +4,7 @@ import { useApp } from '../../../app/AppContext.jsx'
 import { formatInputAmount, toInputAmount } from '../../../domain/money.js'
 import { Field } from '../../../shared/components/Modal.jsx'
 import { makeId } from '../../../shared/lib/id.js'
+import { AccountSectionToggle, useAccountSectionExpansion } from './AccountSectionToggle.jsx'
 import { PAY_FREQUENCY_OPTIONS } from '../../settings/model/incomeSettings.js'
 import { fixedIncomeSummary, incomeSourcesToInput, INCOME_SOURCE_TYPES, parseIncomeSources } from '../../settings/model/incomeSources.js'
 
@@ -11,6 +12,7 @@ import { fixedIncomeSummary, incomeSourcesToInput, INCOME_SOURCE_TYPES, parseInc
 export function IncomeSection() {
   const { settings, accounts, actions, notify } = useApp()
   const activeAssets = accounts.filter((account) => account.kind === 'asset' && !account.archived)
+  const [expanded, setExpanded] = useAccountSectionExpansion('ingresos')
   const [rows, setRows] = useState(() => initialRows(settings, activeAssets))
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
@@ -50,16 +52,19 @@ export function IncomeSection() {
   const add = () => setRows((items) => [...items, blankRow(activeAssets[0]?.id || '')])
   const remove = (id) => setRows((items) => items.filter((item) => item.id !== id))
 
+  const configuredRows = rows.filter((row) => [row.name, row.amount, row.frequency, row.nextPayDate].some((value) => String(value || '').trim()))
   return <section className="settings-group income-section" id="ingresos">
-    <div className="section-heading"><div><h2>Ingresos</h2><p>Fuentes de dinero asociadas a tus cuentas disponibles.</p></div></div>
-    <p className="settings-group__intro">Clasifica cada ingreso y elige la cuenta donde lo recibes. El sueldo fijo sirve para estimar tu dinero libre; los extras esporádicos solo quedan como referencia hasta que registres el movimiento.</p>
-    <form onSubmit={submit}>
-      {rows.length > 0 && <div className="settings-repeatable">{rows.map((row, index) => <IncomeSourceRow key={row.id} row={row} index={index} accounts={activeAssets} update={update} changeType={changeType} remove={remove} error={error} />)}</div>}
-      {!activeAssets.length && <div className="info-note"><strong>Primero agrega una cuenta disponible</strong><span>La cuenta de destino se crea desde el botón Agregar de esta pantalla; después podrás asociarle el ingreso.</span></div>}
-      <div className="settings-repeatable__actions"><button type="button" className="button button--secondary" onClick={add}><Plus /> Agregar ingreso</button><span>{incomeSummaryLabel(rows)}</span></div>
-      <p className="helper">Los ingresos extras no se suman al dinero libre mensual porque no son recurrentes. Regístralos desde Nuevo movimiento cuando los recibas.</p>
-      <button className="button button--primary" type="submit" disabled={saving}>{saving ? 'Guardando…' : 'Guardar ingresos'}</button>
-    </form>
+    <AccountSectionToggle sectionId="ingresos" title="Ingresos" description="Fuentes de dinero asociadas a tus cuentas disponibles." summary={configuredRows.length ? incomeSummaryLabel(configuredRows) : 'Sin fuentes configuradas'} expanded={expanded} onToggle={() => setExpanded((value) => !value)} />
+    {expanded && <div id="ingresos-content" className="account-section-toggle__content">
+      <p className="settings-group__intro">Clasifica cada ingreso y elige la cuenta donde lo recibes. El sueldo fijo sirve para estimar tu dinero libre; los extras esporádicos solo quedan como referencia hasta que registres el movimiento.</p>
+      <form onSubmit={submit}>
+        {rows.length > 0 && <div className="settings-repeatable">{rows.map((row, index) => <IncomeSourceRow key={row.id} row={row} index={index} accounts={activeAssets} update={update} changeType={changeType} remove={remove} error={error} />)}</div>}
+        {!activeAssets.length && <div className="info-note"><strong>Primero agrega una cuenta disponible</strong><span>La cuenta de destino se crea desde el botón Agregar de esta pantalla; después podrás asociarle el ingreso.</span></div>}
+        <div className="settings-repeatable__actions"><button type="button" className="button button--secondary" onClick={add}><Plus /> Agregar ingreso</button><span>{incomeSummaryLabel(configuredRows)}</span></div>
+        <p className="helper">Los ingresos extras no se suman al dinero libre mensual porque no son recurrentes. Regístralos desde Nuevo movimiento cuando los recibas.</p>
+        <button className="button button--primary" type="submit" disabled={saving}>{saving ? 'Guardando…' : 'Guardar ingresos'}</button>
+      </form>
+    </div>}
   </section>
 }
 

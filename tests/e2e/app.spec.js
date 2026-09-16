@@ -82,13 +82,17 @@ test('registra un plan opcional de deuda y configura los ingresos de referencia'
   await expect(page.getByRole('heading', { name: 'Libre inversión', exact: true })).toBeVisible()
   await expect(page.getByText(/2 de 12 cuotas · .* cada mes/)).toBeVisible()
 
-  const fixedExpenses = page.locator('.fixed-expenses-settings')
+  const fixedExpenses = page.locator('.fixed-expenses-section')
+  await expect(fixedExpenses.locator('form')).toHaveCount(0)
+  await fixedExpenses.getByRole('button', { name: 'Gastos fijos', exact: true }).click()
   await fixedExpenses.getByLabel('Nombre').fill('Arriendo')
   await fixedExpenses.getByLabel('Monto mensual').fill('900.000')
   await fixedExpenses.getByRole('button', { name: 'Guardar gastos fijos' }).click()
   await expect(page.getByText('Gastos fijos guardados')).toBeVisible()
 
   const incomeSection = page.locator('.income-section')
+  await expect(incomeSection.locator('form')).toHaveCount(0)
+  await incomeSection.getByRole('button', { name: 'Ingresos', exact: true }).click()
   await incomeSection.getByLabel('Nombre del ingreso').fill('Salario')
   await incomeSection.getByLabel('Cuenta donde recibes el ingreso').selectOption({ label: 'Cuenta principal' })
   await incomeSection.getByLabel('Sueldo mensual equivalente').fill('3.200.000')
