@@ -1,4 +1,5 @@
 import { assertMinor, parseLocalizedAmount, safeAdd, toInputAmount } from './money.js'
+import { isCalendarDate, normalizeExpenseSchedule, readPaymentHistory } from './recurringExpenses.js'
 
 const MAX_FIXED_EXPENSES = 50
 
@@ -12,7 +13,16 @@ export function readFixedExpenses(value) {
       if (name.length < 2 || !Number.isSafeInteger(amount) || amount <= 0) return null
       try {
         assertMinor(amount)
-        return { id: String(item.id || `fixed-${index}`), name: name.slice(0, 80), amount_minor: amount, currency: 'COP' }
+        const schedule = normalizeExpenseSchedule(item?.frequency, item?.next_due_date)
+        return {
+          id: String(item.id || `fixed-${index}`),
+          name: name.slice(0, 80),
+          amount_minor: amount,
+          currency: 'COP',
+          frequency: schedule.frequency,
+          next_due_date: schedule.nextDueDate,
+          payment_history: readPaymentHistory(item?.payment_history),
+        }
       } catch {
         return null
       }
@@ -30,8 +40,21 @@ export function parseFixedExpenses(rows) {
     const amountInput = String(row?.amount ?? '').trim()
     if (!name && !amountInput) continue
     if (name.length < 2 || name.length > 80) throw new Error('Cada gasto fijo necesita un nombre de 2 a 80 caracteres.')
-    if (!amountInput) throw new Error(`Indica el monto mensual de ${name}.`)
-    parsed.push({ id: String(row.id || `fixed-${parsed.length}`), name, amount_minor: parseLocalizedAmount(amountInput), currency: 'COP' })
+    const frequency = String(row?.frequency || 'monthly')
+    if (!['monthly', 'payday', 'biweekly', 'weekly'].includes(frequency)) throw new Error(`Elige cada cuánto se repite ${name}.`)
+    if (!amountInput) throw new Error(`Indica el ${frequency === 'monthly' ? 'monto mensual' : 'monto de cada pago'} de ${name}.`)
+    const nextDueDate = String(row?.nextDueDate || '').trim()
+    if (nextDueDate && !isCalendarDate(nextDueDate)) throw new Error(`La próxima fecha de ${name} no es válida.`)
+    if (frequency !== 'monthly' && !nextDueDate) throw new Error(`Indica la próxima fecha de ${name} para generar su checklist.`)
+    parsed.push({
+      id: String(row.id || `fixed-${parsed.length}`),
+      name,
+      amount_minor: parseLocalizedAmount(amountInput),
+      currency: 'COP',
+      frequency,
+      next_due_date: nextDueDate || null,
+      payment_history: readPaymentHistory(row?.paymentHistory),
+    })
   }
   return parsed
 }
@@ -42,6 +65,13 @@ export function sumFixedExpenses(expenses = []) {
 }
 
 // Prepara el valor persistido para editarlo con inputs localizados es-CO.
-export function fixedExpensesToInput(value) {
-  return readFixedExpenses(value).map((item) => ({ id: item.id, name: item.name, amount: toInputAmount(item.amount_minor) }))
+export function fixedExpensesToInput(value, { defaultDueDate = '' } = {}) {
+  return readFixedExpenses(value).map((item) => ({
+    id: item.id,
+    name: item.name,
+    amount: toInputAmount(item.amount_minor),
+    frequency: item.frequency,
+    nextDueDate: item.next_due_date || defaultDueDate,
+    paymentHistory: item.payment_history,
+  }))
 }

@@ -23,6 +23,7 @@ Actualizado: 2026-09-15. Fase actual: **Fase 5 revisada localmente; ampliaciones
 - Cuentas: se añadieron subtipos de deuda para préstamos de libre inversión y préstamos con personas o entidades; las restricciones `accounts_subtype_check` y `accounts_kind_subtype_consistent` están instaladas en Supabase.
 - Cuentas: cada deuda admite un plan de pago opcional con total de cuotas, cuotas pagadas, valor y frecuencia; es informativo y no genera movimientos automáticos. Se puede editar después desde la cuenta.
 - Ingresos: Cuentas permite administrar varias fuentes vinculadas a cuentas de activo, y “Agregar cuenta” ofrece registrar la primera fuente en el mismo formulario. Cada fuente se clasifica como sueldo fijo (monto mensual, frecuencia y próximo pago opcional) o ingreso extra esporádico; los extras no se suman al dinero libre y se registran como movimientos cuando ocurren. Las claves antiguas de salario siguen sincronizadas para compatibilidad. La migración `20260913190000_income_sources.sql` añade la lista validada de fuentes y está aplicada en Supabase; la verificación confirmó las tres restricciones y que `user_settings.value` admite NULL solo donde corresponde.
+- Gastos fijos: cada compromiso puede repetirse mensualmente, con cada pago, cada 15 días o cada semana; la próxima fecha ancla el calendario, el total mensual estima todas sus ocurrencias y la checklist permite marcar cada vencimiento como pagado sin crear movimientos automáticos.
 - Movimientos: el selector de Gasto, Ingreso y Transferencia muestra una explicación contextual; Transferencia aclara que mueve dinero entre cuentas y no altera ingresos ni gastos.
 - PWA móvil: los campos usan al menos 16 px para evitar el zoom automático al enfocarlos; el viewport y los gestos de zoom se bloquean únicamente en modo app instalada, no en la web abierta en Safari.
 - Cuentas en móvil: las filas reordenan explícitamente icono, detalle, saldo y acciones para evitar que el auto-placement de CSS comprima el nombre; los avisos de sincronización ya fluyen dentro del contenido y no cubren el encabezado. Cada cambio de ruta restablece el scroll al inicio.
@@ -34,7 +35,7 @@ Actualizado: 2026-09-15. Fase actual: **Fase 5 revisada localmente; ampliaciones
 ## Ampliación de punto de partida financiero · 13 de septiembre
 
 - Onboarding guiado al entrar al espacio: salario mensual equivalente, frecuencia y próximo pago opcional; deudas con total pendiente y pago mensual; y gastos fijos repetibles.
-- El resultado **Dinero libre** se calcula como salario − gastos fijos − pagos mensuales declarados de deuda. Los datos se guardan por usuario y no crean ingresos, gastos ni cobros automáticos.
+- El resultado **Dinero libre** se calcula como salario − compromisos recurrentes esperados del mes − pagos mensuales declarados de deuda. Los datos se guardan por usuario y no crean ingresos, gastos ni cobros automáticos.
 - Las deudas nuevas se guardan como pasivos con apertura explícita y un campo separado de pago mensual declarado; no se inventa un número de cuotas para una deuda cuyo plazo no se conoce.
 - Inicio y Plan muestran el desglose del dinero libre. Las próximas compras advierten cuando dejarían el margen en cero/negativo o cuando faltan más de 14 días para el próximo pago y el remanente sería menor al 25% del dinero libre mensual.
 - Cuentas concentra la edición de ingresos y gastos fijos junto a cuentas y deudas; ambas opciones se presentan como botones plegables para mantener la pantalla compacta. Ajustes conserva las preferencias. Las migraciones `20260913100000_financial_onboarding.sql` y `20260913103000_debt_monthly_payment.sql` añaden las claves de configuración y el pago mensual de deuda; ambas están aplicadas en Supabase.
@@ -70,8 +71,8 @@ Actualizado: 2026-09-15. Fase actual: **Fase 5 revisada localmente; ampliaciones
 ## Probado automáticamente
 
 - `npm run lint`: PASÓ.
-- `npm test`: PASÓ, 23 archivos y 97 pruebas. Incluye fuentes de ingreso vinculadas a cuentas, formato de importes, dinero libre, gastos fijos, fecha de próximo pago, pago mensual declarado de deuda, contratos de migración, reconciliación de sincronización y protección de Push.
-- `npm run build`: PASÓ con Vite 8.3.0; 30 entradas y 1266,48 KiB de precaché. La configuración adapta el build del worker a `codeSplitting: false`, sin la opción obsoleta `inlineDynamicImports`.
+- `npm test`: PASÓ, 24 archivos y 100 pruebas. Incluye fuentes de ingreso vinculadas a cuentas, formato de importes, dinero libre, gastos recurrentes, generación de vencimientos, checklist de pagos, fecha de próximo pago, pago mensual declarado de deuda, contratos de migración, reconciliación de sincronización y protección de Push.
+- `npm run build`: PASÓ con Vite 8.3.0; 30 entradas y 1279,07 KiB de precaché. La configuración adapta el build del worker a `codeSplitting: false`, sin la opción obsoleta `inlineDynamicImports`.
 - E2E dirigido de Automatización en escritorio: PASÓ 1/1. La ejecución completa paralela quedó inválida por `EBUSY` de Windows al observar sus propios artefactos de Playwright; tras caer el servidor produjo 32 fallos derivados y 5 pruebas alcanzaron a pasar.
 - Dependencias de build: `glob` se resuelve explícitamente a 13.0.6 bajo `workbox-build`; `npm audit --omit=dev` permanece en 0 vulnerabilidades conocidas.
 - Línea base E2E: 22 pruebas efectivas pasaron y 2 variantes se omitieron intencionalmente.
@@ -84,6 +85,7 @@ Actualizado: 2026-09-15. Fase actual: **Fase 5 revisada localmente; ampliaciones
 - E2E del onboarding financiero: PASÓ en 390×844, 375×812 y 1440×900; creó una deuda, guardó gastos fijos y mostró el cálculo de dinero libre en Inicio.
 - E2E del onboarding con cuenta salarial: PASÓ en 390×844, 375×812 y 1440×900; reutiliza o crea la cuenta elegida, la muestra en Cuentas y no genera un movimiento de ingreso implícito.
 - E2E de ubicación de ingresos y gastos fijos: PASÓ 3/3 en 390×844, 375×812 y 1440×900; ambos formularios se guardan desde Cuentas y no aparecen en Ajustes.
+- E2E de checklist de gastos recurrentes: PASÓ 3/3 en 390×844, 375×812 y 1440×900; genera ocurrencias según la frecuencia, permite marcar un pago como pagado y conserva el flujo de ingresos.
 - E2E de secciones plegables en Cuentas: PASÓ 3/3 en 390×844, 375×812 y 1440×900; Ingresos y Gastos fijos empiezan cerrados y muestran sus opciones al pulsar el botón correspondiente.
 - E2E focalizado del formulario de gastos fijos en Cuentas: PASÓ 3/3 en 390×844, 375×812 y 1440×900; confirmó guardado y ausencia del formulario en Ajustes.
 - La corrida completa actual de `tests/e2e/app.spec.js` quedó incompleta por un timeout preexistente en la prueba de creación de categoría desde Próximas compras (mobile-390), no relacionado con el cambio de ubicación de gastos fijos.

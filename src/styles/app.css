@@ -356,6 +356,28 @@ html.standalone-app, html.standalone-app body { touch-action: pan-x pan-y; overs
 .account-section-toggle__content { display: grid; gap: 9px; }
 .income-section form { display: grid; gap: 12px; max-width: 560px; }
 .fixed-expenses-section form { display: grid; gap: 12px; max-width: 760px; }
+.fixed-expense-row { gap: 13px; }
+.recurring-payments { display: grid; gap: 12px; margin-top: 5px; padding: 16px; border: 1px solid var(--border); border-radius: 19px; background: var(--surface-muted); }
+.recurring-payments__heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+.recurring-payments__heading h3 { display: flex; align-items: center; gap: 7px; font-size: 1rem; }
+.recurring-payments__heading h3 svg { width: 19px; height: 19px; color: var(--accent); }
+.recurring-payments__heading p { max-width: 52ch; margin-top: 4px; color: var(--text-2); font-size: .79rem; line-height: 1.4; }
+.recurring-payments__heading > strong { flex: 0 0 auto; color: var(--accent); font-size: .78rem; text-align: right; }
+.recurring-payments__list { display: grid; gap: 8px; }
+.recurring-payment { min-width: 0; display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px; border: 1px solid var(--border); border-radius: 15px; background: var(--surface); }
+.recurring-payment--overdue { border-color: color-mix(in srgb, var(--danger) 35%, var(--border)); background: color-mix(in srgb, var(--danger) 6%, var(--surface)); }
+.recurring-payment--paid .recurring-payment__details strong { color: var(--success); }
+.recurring-payment__check { position: relative; width: 44px; height: 44px; display: grid; place-items: center; cursor: pointer; }
+.recurring-payment__check input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.recurring-payment__check span { width: 28px; height: 28px; display: grid; place-items: center; border: 2px solid var(--border); border-radius: 9px; color: transparent; background: var(--surface); transition: background .2s ease, border-color .2s ease, color .2s ease; }
+.recurring-payment__check span svg { width: 17px; height: 17px; stroke-width: 3; }
+.recurring-payment__check input:checked + span { border-color: var(--accent); background: var(--accent); color: var(--on-primary); }
+.recurring-payment__check input:focus-visible + span { outline: 3px solid color-mix(in srgb, var(--accent) 35%, transparent); outline-offset: 2px; }
+.recurring-payment__check input:disabled + span { opacity: .55; }
+.recurring-payment__details { min-width: 0; }
+.recurring-payment__details strong { display: block; overflow-wrap: anywhere; font-size: .86rem; }
+.recurring-payment__details p { margin-top: 3px; color: var(--text-2); font-size: .74rem; line-height: 1.35; }
+.recurring-payment__amount { font-size: .82rem; font-variant-numeric: tabular-nums; text-align: right; }
 .settings-repeatable, .onboarding-repeatable { display: grid; gap: 10px; }
 .settings-repeatable__item, .onboarding-repeatable__item { display: grid; gap: 11px; padding: 14px; border-radius: 18px; border: 1px solid var(--border); background: var(--surface); }
 .repeatable-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
@@ -592,6 +614,9 @@ html.standalone-app, html.standalone-app body { touch-action: pan-x pan-y; overs
 @media (max-width: 520px) {
   .account-section-toggle-row { align-items: flex-start; }
   .account-section-toggle__summary { max-width: 42%; }
+  .recurring-payments { padding: 13px; }
+  .recurring-payments__heading { flex-direction: column; gap: 5px; }
+  .recurring-payments__heading > strong { text-align: left; }
   .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .stat:last-child { grid-column: 1 / -1; grid-template-columns: auto 1fr auto; align-items: center; }
   .plan-hero { grid-template-columns: minmax(0, 1fr) 106px; grid-template-areas: "heading heading" "metric scene" "action action"; }

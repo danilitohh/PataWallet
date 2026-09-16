@@ -22,7 +22,7 @@ export function PlanPage() {
   const month = currentMonth()
   const summary = calculateSummary(accounts, transactions, month)
   const income = incomeReference(settings, accounts)
-  const available = calculateAvailableMoney({ monthlySalaryMinor: income.salaryMinor, fixedExpenses: readFixedExpenses(settings.fixedExpenses), accounts, transactions, month })
+  const available = calculateAvailableMoney({ monthlySalaryMinor: income.salaryMinor, fixedExpenses: readFixedExpenses(settings.fixedExpenses), accounts, transactions, month, payFrequency: income.primary?.frequency, nextPayDate: income.primary?.next_pay_date })
   const budget = budgets.find((item) => item.month === month) || budgets[0]
   const [budgetOpen, setBudgetOpen] = useState(false)
   const [goalOpen, setGoalOpen] = useState(false)

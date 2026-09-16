@@ -2,8 +2,9 @@ import { useMemo, useRef, useState } from 'react'
 import { ArrowLeft, ArrowRight, Check, Plus, Trash2, WalletCards } from 'lucide-react'
 import { useApp } from '../../app/AppContext.jsx'
 import { calculateAvailableMoney } from '../../domain/finance.js'
-import { parseFixedExpenses } from '../../domain/financialSetup.js'
+import { fixedExpensesToInput, parseFixedExpenses } from '../../domain/financialSetup.js'
 import { formatInputAmount, formatMinor, parseLocalizedAmount, toInputAmount } from '../../domain/money.js'
+import { FIXED_EXPENSE_FREQUENCY_OPTIONS } from '../../domain/recurringExpenses.js'
 import { Field } from '../../shared/components/Modal.jsx'
 import { makeId } from '../../shared/lib/id.js'
 import { today } from '../../shared/lib/date.js'
@@ -27,13 +28,13 @@ export function FinancialOnboarding() {
   const salaryAccountNewId = useRef(makeId('salary-account'))
   const [debts, setDebts] = useState([])
   const [fixedExpenses, setFixedExpenses] = useState(() => {
-    const saved = Array.isArray(settings.fixedExpenses) ? settings.fixedExpenses.map((item) => ({ id: item.id || makeId('fixed'), name: item.name || '', amount: item.amount_minor ? toInputAmount(item.amount_minor) : '' })) : []
-    return saved.length ? saved : [{ id: makeId('fixed'), name: '', amount: '' }]
+    const saved = fixedExpensesToInput(settings.fixedExpenses, { defaultDueDate: today() })
+    return saved.length ? saved : [blankFixedExpense(today())]
   })
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
 
-  const preview = useMemo(() => buildPreview({ salary, frequency, fixedExpenses, debts, accounts, transactions }), [salary, frequency, fixedExpenses, debts, accounts, transactions])
+  const preview = useMemo(() => buildPreview({ salary, frequency, nextPayDate, fixedExpenses, debts, accounts, transactions }), [salary, frequency, nextPayDate, fixedExpenses, debts, accounts, transactions])
 
   const next = () => {
     setError('')
@@ -147,12 +148,17 @@ function DebtStep({ debts, setDebts, error }) {
 function FixedExpensesStep({ fixedExpenses, setFixedExpenses, preview, error }) {
   const update = (id, key) => (event) => setFixedExpenses((rows) => rows.map((row) => row.id === id ? { ...row, [key]: key === 'amount' ? formatInputAmount(event.target.value) : event.target.value } : row))
   return <section className="onboarding-step">
-    <p className="eyebrow">3 de 3 · Gastos fijos</p><h2>¿Qué sale todos los meses?</h2><p className="helper">Arriendo, internet, comida u otros compromisos. Son una referencia mensual y no crean movimientos por sí solos.</p>
-    <div className="onboarding-repeatable">{fixedExpenses.map((row, index) => <div className="onboarding-repeatable__item" key={row.id}><div className="repeatable-heading"><strong>Gasto fijo {index + 1}</strong><button type="button" className="icon-button icon-button--small" aria-label={`Quitar gasto fijo ${index + 1}`} onClick={() => setFixedExpenses((items) => items.filter((item) => item.id !== row.id))}><Trash2 /></button></div><div className="form-grid"><Field label="Nombre"><input value={row.name} onChange={update(row.id, 'name')} placeholder="Arriendo" /></Field><Field label="Monto mensual"><input inputMode="decimal" value={row.amount} onChange={update(row.id, 'amount')} placeholder="900.000" /></Field></div></div>)}</div>
+    <p className="eyebrow">3 de 3 · Gastos fijos</p><h2>¿Qué pagos se repiten?</h2><p className="helper">Arriendo, internet, comida u otros compromisos. Elige cada cuánto ocurren para calcular sus vencimientos y tu dinero libre.</p>
+    <div className="onboarding-repeatable">{fixedExpenses.map((row, index) => <div className="onboarding-repeatable__item" key={row.id}><div className="repeatable-heading"><strong>Gasto fijo {index + 1}</strong><button type="button" className="icon-button icon-button--small" aria-label={`Quitar gasto fijo ${index + 1}`} onClick={() => setFixedExpenses((items) => items.filter((item) => item.id !== row.id))}><Trash2 /></button></div><div className="form-grid"><Field label="Nombre"><input value={row.name} onChange={update(row.id, 'name')} placeholder="Internet o mercado" /></Field><Field label={row.frequency === 'monthly' ? 'Monto mensual' : 'Monto por pago'}><input inputMode="decimal" value={row.amount} onChange={update(row.id, 'amount')} placeholder="900.000" /></Field></div><div className="form-grid"><Field label="¿Cada cuánto se hace este pago?"><select value={row.frequency} onChange={update(row.id, 'frequency')}>{FIXED_EXPENSE_FREQUENCY_OPTIONS.map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}</select></Field><Field label="Próxima fecha de pago"><input type="date" value={row.nextDueDate} onChange={update(row.id, 'nextDueDate')} /></Field></div></div>)}</div>
     {error && <p className="form-error" role="alert">{error}</p>}
-    <button type="button" className="button button--secondary" onClick={() => setFixedExpenses((items) => [...items, { id: makeId('fixed'), name: '', amount: '' }])}><Plus /> Agregar gasto fijo</button>
+    <button type="button" className="button button--secondary" onClick={() => setFixedExpenses((items) => [...items, blankFixedExpense(today())])}><Plus /> Agregar gasto fijo</button>
     <AvailablePreview preview={preview} />
   </section>
+}
+
+function blankFixedExpense(nextDueDate) {
+  // Prepara una fila mensual lista para completar y con una fecha de referencia visible.
+  return { id: makeId('fixed'), name: '', amount: '', frequency: 'monthly', nextDueDate, paymentHistory: [] }
 }
 
 // Muestra el resultado estimado antes de guardar para que la persona entienda de dónde sale.
@@ -189,7 +195,7 @@ function parseSalaryAccountSelection({ salary, accountId, accountName, accounts 
 }
 
 // Calcula una vista previa incluyendo las deudas que todavía están en el formulario.
-function buildPreview({ salary, frequency, fixedExpenses, debts, accounts, transactions }) {
+function buildPreview({ salary, frequency, nextPayDate, fixedExpenses, debts, accounts, transactions }) {
   let monthlySalaryMinor = null
   try { monthlySalaryMinor = parseIncomeSettings({ salary, frequency }).monthlySalaryMinor } catch { /* El mensaje del formulario se muestra al continuar. */ }
   let parsedFixed = []
@@ -197,5 +203,5 @@ function buildPreview({ salary, frequency, fixedExpenses, debts, accounts, trans
   const previewDebts = debts.filter((row) => !row.accountId).flatMap((row) => {
     try { return [{ kind: 'liability', archived: false, debt_monthly_payment_minor: parseLocalizedAmount(row.monthlyPayment) }] } catch { return [] }
   })
-  return calculateAvailableMoney({ monthlySalaryMinor, fixedExpenses: parsedFixed, accounts: [...accounts, ...previewDebts], transactions, month: null })
+  return calculateAvailableMoney({ monthlySalaryMinor, fixedExpenses: parsedFixed, accounts: [...accounts, ...previewDebts], transactions, month: today().slice(0, 7), payFrequency: frequency, nextPayDate })
 }
