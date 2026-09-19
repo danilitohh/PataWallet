@@ -1,0 +1,183 @@
+/* Profundidad táctil compartida: aporta volumen sin convertir la interfaz en un juguete. */
+:root {
+  --depth-primary: color-mix(in srgb, var(--primary) 58%, #07131d);
+  --depth-surface: color-mix(in srgb, var(--surface) 68%, #07131d);
+  --depth-highlight: #ffffff65;
+  --depth-shadow: color-mix(in srgb, var(--primary) 22%, transparent);
+  --depth-shadow-soft: color-mix(in srgb, var(--primary) 13%, transparent);
+  --depth-radius: 12px;
+}
+
+/* En noche, la profundidad se apoya en sombras azuladas más suaves para conservar el ambiente. */
+:root:not([data-theme="light"]) {
+  --depth-primary: #7765b7;
+  --depth-surface: #080f1d;
+  --depth-highlight: #ffffff38;
+  --depth-shadow: #00000052;
+  --depth-shadow-soft: #00000035;
+}
+
+/* Base óptica de los controles: una luz superior y una sombra desplazada crean volumen. */
+.button,
+.icon-button,
+.compact-action,
+.auth-google,
+.activity-type-chips button,
+.segmented button.active,
+.side-nav__add,
+.bottom-nav > button {
+  transform-style: preserve-3d;
+  transition: transform 180ms cubic-bezier(.22, 1, .36, 1), box-shadow 220ms ease, border-color 180ms ease, background-color 180ms ease;
+}
+
+/* Los botones principales tienen una capa de brillo integrada y una sombra con profundidad real. */
+.button--primary,
+.side-nav__add,
+.bottom-nav > button {
+  background-image: linear-gradient(180deg, #ffffff38 0%, transparent 43%), var(--button-fill);
+  box-shadow: inset 0 1px 0 var(--depth-highlight), inset 0 -2px 0 color-mix(in srgb, var(--depth-primary) 54%, transparent), 0 7px 18px var(--depth-shadow);
+}
+
+/* Los controles secundarios usan menos contraste para mantener la jerarquía de acciones. */
+.button--secondary,
+.button--quiet,
+.auth-google,
+.compact-action,
+.activity-type-chips button,
+.segmented button.active,
+.icon-button {
+  box-shadow: inset 0 1px 0 var(--depth-highlight), 0 5px 15px var(--depth-shadow-soft);
+}
+
+/* Iconos de cuentas, actividad, metas y ajustes se elevan de forma coherente al pasar por su módulo. */
+.goal-icon,
+.account-row__icon,
+.setting-row__icon,
+.integration-icon,
+.couple-card__icon,
+.transaction__icon,
+.stat svg,
+.account-section-toggle__icon {
+  transform: translateZ(0);
+  transform-style: preserve-3d;
+  transition: transform 180ms cubic-bezier(.22, 1, .36, 1), box-shadow 200ms ease, border-color 180ms ease;
+  box-shadow: inset 0 1px 0 var(--depth-highlight), 0 5px 14px var(--depth-shadow-soft);
+}
+
+/* La navegación inferior conserva su elevación especial, ahora con una lectura más física. */
+.bottom-nav > button {
+  box-shadow: inset 0 2px 0 #ffffff68, inset 0 -3px 0 color-mix(in srgb, var(--depth-primary) 58%, transparent), 0 9px 22px var(--depth-shadow);
+}
+
+/* Hover de escritorio: levanta el control y rota apenas su plano para sugerir tridimensionalidad. */
+@media (hover: hover) {
+  .button:not(:disabled):not(.button--disabled):hover,
+  .icon-button:not(:disabled):hover,
+  .compact-action:not(:disabled):hover,
+  .auth-google:not(:disabled):hover,
+  .activity-type-chips button:hover,
+  .segmented button.active:hover,
+  .side-nav__add:hover {
+    transform: perspective(480px) translateY(-2px) rotateX(1.5deg);
+    box-shadow: inset 0 1px 0 var(--depth-highlight), 0 11px 25px var(--depth-shadow);
+  }
+
+  .button--primary:not(:disabled):hover,
+  .side-nav__add:hover,
+  .bottom-nav > button:hover {
+    box-shadow: inset 0 2px 0 #ffffff78, inset 0 -2px 0 color-mix(in srgb, var(--depth-primary) 54%, transparent), 0 12px 28px var(--depth-shadow);
+  }
+
+  .icon-button:not(:disabled):hover,
+  .goal-card:hover .goal-icon,
+  .account-row:hover .account-row__icon,
+  .setting-row:hover .setting-row__icon,
+  .integration-card:hover .integration-icon,
+  .couple-card:hover .couple-card__icon,
+  .transaction:hover .transaction__icon,
+  .dashboard-list-row:hover .goal-icon,
+  .dashboard-list-row:hover .account-row__icon,
+  .stat:hover svg,
+  .account-section-toggle:hover .account-section-toggle__icon {
+    transform: perspective(360px) translateY(-2px) rotateX(5deg) rotateY(-4deg);
+    box-shadow: inset 0 1px 0 var(--depth-highlight), 0 9px 19px var(--depth-shadow);
+  }
+
+  .bottom-nav > button:hover {
+    transform: perspective(460px) translateY(-18px) rotateX(5deg) rotateY(-4deg);
+  }
+
+  .bottom-nav a:hover:not(.active) svg {
+    transform: translateY(-1px) scale(1.06);
+    filter: drop-shadow(0 5px 8px var(--depth-shadow-soft));
+  }
+}
+
+/* Presionar hunde cada superficie; el botón central conserva su posición flotante. */
+.button:active:not(:disabled),
+.icon-button:active:not(:disabled),
+.compact-action:active:not(:disabled),
+.auth-google:active:not(:disabled),
+.activity-type-chips button:active,
+.segmented button.active:active,
+.side-nav__add:active {
+  transform: translateY(1px) scale(.985);
+  box-shadow: inset 0 2px 5px color-mix(in srgb, var(--depth-primary) 32%, transparent), 0 3px 8px var(--depth-shadow-soft);
+}
+
+.bottom-nav > button:active:not(:disabled) {
+  transform: translateY(-13px) scale(.96);
+  box-shadow: inset 0 3px 6px color-mix(in srgb, var(--depth-primary) 34%, transparent), 0 5px 13px var(--depth-shadow);
+}
+
+/* Un control deshabilitado no debe aparentar que puede elevarse o recibir interacción. */
+.button:disabled,
+.icon-button:disabled,
+.compact-action:disabled,
+.auth-google:disabled {
+  transform: none;
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--depth-highlight) 55%, transparent);
+}
+
+/* Respeta tanto la preferencia del sistema como el ajuste de movimiento de PataWallet. */
+@media (prefers-reduced-motion: reduce) {
+  .button,
+  .icon-button,
+  .compact-action,
+  .auth-google,
+  .activity-type-chips button,
+  .segmented button.active,
+  .side-nav__add,
+  .bottom-nav > button,
+  .goal-icon,
+  .account-row__icon,
+  .setting-row__icon,
+  .integration-icon,
+  .couple-card__icon,
+  .transaction__icon,
+  .stat svg,
+  .account-section-toggle__icon {
+    transition: none;
+    transform: none !important;
+  }
+}
+
+:root[data-motion="off"] .button,
+:root[data-motion="off"] .icon-button,
+:root[data-motion="off"] .compact-action,
+:root[data-motion="off"] .auth-google,
+:root[data-motion="off"] .activity-type-chips button,
+:root[data-motion="off"] .segmented button.active,
+:root[data-motion="off"] .side-nav__add,
+:root[data-motion="off"] .bottom-nav > button,
+:root[data-motion="off"] .goal-icon,
+:root[data-motion="off"] .account-row__icon,
+:root[data-motion="off"] .setting-row__icon,
+:root[data-motion="off"] .integration-icon,
+:root[data-motion="off"] .couple-card__icon,
+:root[data-motion="off"] .transaction__icon,
+:root[data-motion="off"] .stat svg,
+:root[data-motion="off"] .account-section-toggle__icon {
+  transition: none;
+  transform: none !important;
+}

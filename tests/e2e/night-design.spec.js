@@ -19,6 +19,33 @@ test('mantiene el diseño noche sin desbordes en todos los módulos', async ({ p
   expect(errors).toEqual([])
 })
 
+// La profundidad táctil debe existir en los controles compartidos y conservarse con la preferencia de movimiento reducido.
+test('aplica profundidad 3D accesible a botones e iconos', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Probar con datos de ejemplo' }).click()
+  await expect(page.getByRole('heading', { name: 'Hola, Danilo' })).toBeVisible()
+
+  const depth = await page.evaluate(() => {
+    const button = document.querySelector('.side-nav__add')
+    const icon = document.querySelector('.transaction__icon')
+    const root = getComputedStyle(document.documentElement)
+    return {
+      buttonShadow: getComputedStyle(button).boxShadow,
+      iconShadow: getComputedStyle(icon).boxShadow,
+      depthToken: root.getPropertyValue('--depth-shadow').trim(),
+    }
+  })
+  expect(depth.buttonShadow).not.toBe('none')
+  expect(depth.iconShadow).not.toBe('none')
+  expect(depth.depthToken).not.toBe('')
+
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.reload()
+  await expect(page.getByRole('heading', { name: 'Hola, Danilo' })).toBeVisible()
+  const reducedDuration = await page.locator('.side-nav__add').evaluate((element) => parseFloat(getComputedStyle(element).transitionDuration))
+  expect(reducedDuration).toBeLessThan(0.001)
+})
+
 // Una preferencia existente se conserva y la reducción del sistema prevalece sobre «Suave».
 test('conserva tema claro y reduce efectos por sistema o preferencia propia', async ({ page }) => {
   await page.goto('/')
