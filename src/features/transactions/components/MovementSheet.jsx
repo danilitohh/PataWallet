@@ -13,8 +13,8 @@ import { CategoryDialog } from '../../../shared/components/CategoryDialog.jsx'
 
 // Explica el efecto contable de cada opción justo donde la persona elige el tipo.
 const MOVEMENT_TYPE_HELP = {
-  expense: { title: 'Gasto', body: 'El dinero sale de una cuenta hacia un comercio o persona y cuenta para tus gastos del mes.' },
-  income: { title: 'Ingreso', body: 'El dinero llega a una cuenta y cuenta como ingreso del mes.' },
+  expense: { title: 'Gasto', body: 'Sale de una cuenta y suma a tus gastos del mes.' },
+  income: { title: 'Ingreso', body: 'Llega a una cuenta y suma a tus ingresos del mes.' },
   transfer: { title: 'Transferencia', body: 'Mueve dinero entre tus cuentas. No cuenta como ingreso ni gasto; si eliges una deuda como destino, se registra como pago de deuda.' },
 }
 
@@ -104,7 +104,7 @@ export function MovementSheet({ transaction, onClose }) {
       <motion.section ref={dialogRef} tabIndex="-1" role="dialog" aria-modal="true" aria-labelledby="movement-title" className="sheet" initial={{ y: 80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 60, opacity: 0 }} transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}>
         <header><div><p className="eyebrow">{editing ? 'Editar' : 'Registrar'}</p><h2 id="movement-title">{editing ? 'Detalle del movimiento' : 'Nuevo movimiento'}</h2></div><button className="icon-button" aria-label="Cerrar" onClick={onClose}><X /></button></header>
         <form onSubmit={submit}>
-          <div className="segmented" aria-label="Tipo de movimiento">{['expense', 'income', 'transfer'].map((item) => <button type="button" key={item} className={type === item ? 'active' : ''} onClick={() => { setType(item); setCategory(''); if (item === 'income') setDestination(assets[0]?.id || '') }}>{labelForType[item]}</button>)}</div>
+          <div className="segmented" aria-label="Tipo de movimiento">{['expense', 'income', 'transfer'].map((item) => <button type="button" key={item} aria-pressed={type === item} className={type === item ? 'active' : ''} onClick={() => { setType(item); setCategory(''); if (item === 'income') setDestination(assets[0]?.id || '') }}>{labelForType[item]}</button>)}</div>
           <div className="info-note movement-type-help" role="note" aria-live="polite"><strong>{typeHelp.title}</strong><span>{typeHelp.body}</span></div>
           <Field label="Monto" error={error}><div className="amount-input"><span>$</span><input autoFocus inputMode="decimal" value={amount} onChange={(event) => setAmount(formatInputAmount(event.target.value))} placeholder="0" aria-describedby={error ? 'movement-error' : undefined} /><small>COP</small></div></Field>
           {type !== 'income' && <Field label={type === 'transfer' ? 'Desde' : 'Cuenta'}><select value={account} onChange={(event) => setAccount(event.target.value)}>{(type === 'transfer' ? assets : activeAccounts).map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></Field>}

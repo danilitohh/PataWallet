@@ -1,6 +1,19 @@
 # Estado de implementación
 
-Actualizado: 2026-09-15. Fase actual: **Fase 5 revisada localmente; ampliaciones funcionales validadas localmente**.
+Actualizado: 2026-09-18. Fase actual: **Rediseño Noche con Mascotas revisado localmente; validación en iPhone real pendiente**.
+
+## Rediseño Noche con Mascotas · 18 de septiembre
+
+- Nueva dirección visual pedida explícitamente: azul noche, lavanda/rosa, luz cálida, navegación flotante y nueva escena nocturna complementaria. Las cuatro ilustraciones originales se conservan sin alterar.
+- Revisión de Inicio, Actividad, Plan, Cuentas, ingresos, gastos fijos/checklist, Ajustes, acceso, onboarding, formularios, Asistente, notificaciones y Atajos. Parejas recibe controles/superficies compartidos; no se verificaron sus operaciones autenticadas reales.
+- Estilos nuevos separados por módulo; botones con brillo al interactuar, fondo ambiental CSS pausado en segundo plano y reducido por preferencia. No se añadieron paquetes ni se modificaron cálculos o esquemas de servidor.
+- Tema Noche inicial para espacios nuevos, sin sobrescribir elecciones anteriores. Claro y Sistema siguen disponibles y se verificó que Sistema reacciona al cambio del SO.
+- Verificación: `npm run lint` aprobado; `npm run test` **100/100**; suite previa `npm run test:e2e` **58 aprobadas, 2 omitidas** (la captura adicional de Atajos en noche/movimiento reducido solo se ejecuta en mobile-390); nueva suite `night-design.spec.js` **9/9**; `npm run build` aprobado; `npm run test:pwa` **1/1**.
+- La primera pasada de E2E detectó enlaces accesibles ambiguos y una navegación de prueba que adelantó el guardado de la demo; la segunda pasada estable aprobó los casos. No se debilitaron las aserciones para ocultar fallos.
+- Capturas inspeccionadas a 390×844, 375×812 y 1440×900. Revisión de errores de formulario, vacío, offline, montos ocultos y reducción de movimiento; comprobación de consola y de desbordes en las rutas principales. No equivale a auditoría exhaustiva de contraste ni a prueba de iPhone físico.
+- Acceso/registro/recuperación revisados sin enviar datos ni solicitudes reales. No se probó OAuth, IA real, colaboración entre usuarios, Web Push ni Wallet durante esta tarea; conservan sus pendientes anteriores.
+- Diseño, procedencia de la nueva imagen, prompt y mapa de módulos: `design/NIGHT_REDESIGN.md`. Capturas reproducibles: `output/playwright/night-*`.
+- Para ejecutar localmente: `npm run dev`. Para demo aislada en PowerShell: `$env:VITE_AUTH_DISABLED='true'; npm run dev`. Usuarios con preferencia anterior: **Ajustes → Tema → Noche**. No se desplegó manualmente ni se modificó la base remota.
 
 ## Ampliaciones del 11 de septiembre
 

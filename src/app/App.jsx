@@ -7,10 +7,11 @@ import { AuthPage } from '../features/auth/AuthPage.jsx'
 import { AuthProvider } from '../features/auth/AuthProvider.jsx'
 import { useAuth } from '../features/auth/AuthContext.jsx'
 import { isSupabaseConfigured } from '../lib/supabase/client.js'
+import { NightAmbience } from '../components/ambience/NightAmbience.jsx'
 
 export function App() {
-  if (isSupabaseConfigured) return <AuthProvider><AuthenticatedApp /></AuthProvider>
-  return <LocalDemo />
+  // El fondo se comparte con acceso, onboarding y rutas sin duplicar animaciones.
+  return <><NightAmbience />{isSupabaseConfigured ? <AuthProvider><AuthenticatedApp /></AuthProvider> : <LocalDemo />}</>
 }
 
 function AuthenticatedApp() {

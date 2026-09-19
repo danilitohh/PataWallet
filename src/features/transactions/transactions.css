@@ -1,0 +1,24 @@
+/* Lista compacta con iconos semánticos y chips que reutilizan el filtro existente. */
+.activity-type-chips { display: flex; gap: 6px; overflow-x: auto; padding: 2px 1px 7px; scrollbar-width: thin; }
+.activity-type-chips button { flex: 0 0 auto; min-height: 44px; padding: 0 14px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text-2); font-size: .78rem; font-weight: 650; }
+.activity-type-chips button[aria-pressed="true"] { color: var(--on-primary); background: var(--button-fill); border-color: transparent; }
+.activity-groups { gap: 20px; }
+.transaction-group > h2 { color: var(--text); font-size: .8rem; letter-spacing: 0; }
+.transaction-group .transaction-list { border-radius: 16px; background: var(--panel-fill); }
+.transaction { min-height: 67px; gap: 9px; padding-block: 11px; }
+.transaction__icon { width: 38px; height: 38px; border-radius: 11px; box-shadow: inset 0 1px 0 #ffffff20; }
+.transaction__main strong { font-size: .85rem; font-weight: 650; }
+.transaction__main small { font-size: .68rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.transaction__amount strong { font-size: .8rem; }
+.transaction__amount small { font-size: .65rem; }
+.transaction__amount.negative strong { color: var(--text); }
+:root:not([data-theme="light"]) .tone-market { background: #784552; color: #ffd2d5; }
+:root:not([data-theme="light"]) .tone-transport { background: #294f96; color: #d9e9ff; }
+:root:not([data-theme="light"]) .tone-food { background: #795241; color: #ffe0bd; }
+:root:not([data-theme="light"]) .tone-pets { background: #6e536e; color: #ffe0db; }
+:root:not([data-theme="light"]) .tone-salary { background: #265c4b; color: #c3f6de; }
+:root:not([data-theme="light"]) .tone-card_payment { background: #493a75; color: #e9d4ff; }
+.sheet__actions { padding-top: 14px; border-top: 1px solid var(--border); }
+.sheet__actions { position: sticky; bottom: calc(-22px - env(safe-area-inset-bottom)); z-index: 2; background: var(--surface); padding-block: 12px calc(12px + env(safe-area-inset-bottom)); }
+@media (min-width: 1000px) { .sheet__actions { bottom: -32px; } }
+@media (max-width: 520px) { .transaction { grid-template-columns: 38px minmax(0, 1fr) auto; } }

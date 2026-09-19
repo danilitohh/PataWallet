@@ -27,8 +27,8 @@ export default defineConfig({
         start_url: '/',
         scope: '/',
         display: 'standalone',
-        background_color: '#FAF8F6',
-        theme_color: '#123C50',
+        background_color: '#0b1425',
+        theme_color: '#0b1425',
         categories: ['finance', 'productivity'],
         icons: [
           { src: '/icons/patawallet-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
@@ -43,7 +43,8 @@ export default defineConfig({
       },
     }),
   ],
-  server: { host: '127.0.0.1', port: 4173 },
+  // Las capturas y trazas no son código: evitan recargas durante verificación visual.
+  server: { host: '127.0.0.1', port: 4173, watch: { ignored: ['**/output/**', '**/.playwright-cli/**'] } },
   preview: { host: '127.0.0.1', port: 4173 },
   build: {
     rolldownOptions: {

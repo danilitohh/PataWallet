@@ -1,15 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
-import { AlertTriangle, Bot, Check, CloudUpload, HardDrive, Home, LoaderCircle, Menu, PawPrint, PiggyBank, Plus, Settings, UsersRound, WalletCards } from 'lucide-react'
+import { AlertTriangle, Bell, Bot, Check, CloudUpload, HardDrive, Home, LoaderCircle, ListOrdered, PawPrint, PiggyBank, Plus, Settings, UsersRound, WalletCards } from 'lucide-react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useApp } from './AppContext.jsx'
 
 const navigation = [
   ['/', Home, 'Inicio'],
-  ['/actividad', Menu, 'Actividad'],
+  ['/actividad', ListOrdered, 'Actividad'],
   ['/plan', PiggyBank, 'Plan'],
   ['/cuentas', WalletCards, 'Cuentas'],
 ]
 
+// Adapta las rutas compartidas a dock móvil y barra lateral sin modificar acciones financieras.
 export function AppShell({ children }) {
   const { setSheet, isDemo, user, syncState, actions } = useApp()
   const location = useLocation()
@@ -30,11 +31,12 @@ export function AppShell({ children }) {
         <div className="wordmark wordmark--small"><PawPrint /> <span>PataWallet</span></div>
         <nav>{items.map(([to, Icon, label]) => <NavLink key={to} to={to} end={to === '/'}><Icon /><span>{label}</span></NavLink>)}</nav>
         <button className="side-nav__add" onClick={(event) => { event.currentTarget.focus(); setSheet('new') }}><Plus /> Nuevo movimiento</button>
+        <p className="side-nav__note">Tu dinero,<br />tu paz, tu manada.</p>
         <NavLink to="/ajustes"><Settings /> <span>Ajustes</span></NavLink>
         <p className="side-nav__demo">{isDemo ? 'Demo local' : user?.email}</p>
         {!isDemo && <SyncStatus state={syncState} retry={actions.retrySync} />}
       </aside>
-      <div className="mobile-top"><span className="wordmark wordmark--small"><PawPrint /> PataWallet</span><Link to="/ajustes" aria-label="Abrir ajustes"><Settings /></Link></div>
+      <div className="mobile-top"><Link to="/" className="wordmark wordmark--small" aria-label="PataWallet"><PawPrint /> PataWallet</Link><div className="mobile-top__actions"><Link to="/ajustes/notificaciones" aria-label="Abrir notificaciones"><Bell /></Link><Link to="/ajustes" aria-label="Abrir ajustes"><Settings /></Link></div></div>
       <main ref={mainRef} tabIndex="-1" className="page" aria-label="Contenido principal">
         {!isDemo && syncState && syncState.kind !== 'synced' && <div className="mobile-sync"><SyncStatus state={syncState} retry={actions.retrySync} /></div>}
         {children}

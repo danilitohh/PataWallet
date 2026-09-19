@@ -1,0 +1,24 @@
+/* El presupuesto es protagonista; las ilustraciones permanecen pequeñas y separadas de cifras. */
+.plan-hero { grid-template-columns: minmax(0, 1fr) 125px; grid-template-areas: 'heading heading' 'metric scene' 'action action'; padding: 19px; gap: 18px; }
+.plan-hero__heading h2 { font-size: 1.25rem; }
+.plan-hero__heading .eyebrow { font-size: .72rem; color: var(--text-2); }
+.plan-hero .pet-scene { width: 125px; height: 140px; min-height: 0; margin: 0; border-radius: 16px; border: 1px solid var(--border); }
+.plan-hero__metric { min-width: 0; }
+.budget-ring { width: 92px; height: 92px; flex-basis: 92px; }
+.budget-ring strong { font-size: 1.15rem; }
+.goal-card { position: relative; gap: 10px; border-radius: 17px; overflow: hidden; }
+.goal-card::before { content: ''; position: absolute; inset: 0 0 auto; height: 3px; background: linear-gradient(90deg, var(--accent), var(--coral)); }
+.goal-card:nth-child(even)::before { background: linear-gradient(90deg, var(--success), var(--accent)); }
+.goal-card__top { align-items: center; }
+.goal-card .goal-icon { color: var(--warm); background: var(--peach); }
+.goal-card__hint { line-height: 1.5; }
+.planned-card { grid-template-columns: 42px minmax(0, 1fr) auto; padding: 15px; }
+.available-plan-summary { border-left: 3px solid var(--accent); }
+@media (max-width: 520px) {
+  .plan-hero { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'heading' 'metric' 'action'; }
+  .plan-hero .pet-scene { display: none; }
+  .plan-hero__metric { gap: 23px; }
+  .plan-hero__metric strong { font-size: 1.45rem; }
+  .plan-hero > .button { width: 100%; }
+  .planned-card__actions { grid-column: 2 / -1; justify-content: flex-end; }
+}

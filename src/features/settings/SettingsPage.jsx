@@ -5,6 +5,7 @@ import { PageHeader } from '../../shared/components/PageHeader.jsx'
 import { SettingLink, SettingRow, Switch } from './components/SettingsControls.jsx'
 import { DataTransfer } from './components/DataTransfer.jsx'
 
+// Agrupa preferencias e integraciones manteniendo separados datos demo y datos autenticados.
 export function SettingsPage() {
   const { settings, syncState, notify, actions, isDemo, user, signOut, accounts, categories, transactions, budgets, goals, allocations, plannedPurchases } = useApp()
   const navigate = useNavigate()
@@ -16,9 +17,9 @@ export function SettingsPage() {
       {!isDemo && <section className="settings-group"><h2>Cuenta</h2><SettingRow icon={UserRound} title={user?.user_metadata?.display_name || user?.user_metadata?.full_name || 'Tu cuenta'} detail={user?.email || 'Sesión autenticada'}><span /></SettingRow><button className="button button--secondary" onClick={signOut}><LogOut /> Cerrar sesión</button></section>}
       <section className="settings-group">
         <h2>Apariencia</h2>
-        <SettingRow icon={settings.theme === 'dark' ? Moon : Sun} title="Tema" detail="Claro, noche o sistema"><select value={settings.theme || 'system'} onChange={(event) => setSetting('theme', event.target.value)}><option value="system">Sistema</option><option value="light">Claro</option><option value="dark">Noche</option></select></SettingRow>
+        <SettingRow icon={settings.theme === 'light' ? Sun : Moon} title="Tema" detail="Claro, noche o sistema"><select aria-label="Tema" value={settings.theme || 'dark'} onChange={(event) => setSetting('theme', event.target.value)}><option value="system">Sistema</option><option value="light">Claro</option><option value="dark">Noche</option></select></SettingRow>
         <SettingRow icon={settings.hiddenAmounts ? EyeOff : Eye} title="Ocultar montos" detail="Privacidad visual, no autenticación"><Switch checked={Boolean(settings.hiddenAmounts)} label="Ocultar montos" onChange={(value) => setSetting('hiddenAmounts', value)} /></SettingRow>
-        <SettingRow icon={Menu} title="Movimiento" detail="Respeta Reducir movimiento"><select value={settings.motion || 'system'} onChange={(event) => setSetting('motion', event.target.value)}><option value="system">Sistema</option><option value="soft">Suave</option><option value="off">Desactivado</option></select></SettingRow>
+        <SettingRow icon={Menu} title="Movimiento" detail="Respeta Reducir movimiento"><select aria-label="Movimiento" value={settings.motion || 'system'} onChange={(event) => setSetting('motion', event.target.value)}><option value="system">Sistema</option><option value="soft">Suave</option><option value="off">Desactivado</option></select></SettingRow>
       </section>
       {!isDemo && <section className="settings-group"><h2>Compartir</h2><SettingLink icon={Handshake} title="Cuentas en pareja" detail="Elige qué cuentas o deudas compartir" to="/parejas" /></section>}
       <section className="settings-group"><h2>Asistencia</h2><SettingLink icon={Bot} title="Asistente PataWallet" detail="Preguntas y resúmenes de solo lectura" to="/asistente" /></section>

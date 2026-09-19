@@ -1,0 +1,28 @@
+/* Cuentas, ingresos y pagos conservan sus responsabilidades dentro de una misma familia visual. */
+.account-summary { border-radius: 18px; }
+.account-summary > div { padding: 17px; background: var(--panel-fill); }
+.account-summary > div:first-child strong { color: var(--success); }
+.account-summary > div:nth-child(2) strong { color: var(--danger); }
+.account-row { padding: 13px; gap: 9px; grid-template-columns: 42px minmax(0, 1fr) auto 44px 44px; }
+.account-row__icon { background: var(--sky); color: var(--accent); }
+.account-section-toggle-row { padding: 15px; border: 1px solid var(--border); border-radius: 17px; background: var(--panel-fill); }
+.account-section-toggle-row > div { min-width: 0; }
+.account-section-toggle-row h2 { margin: 0; }
+.account-section-toggle { padding: 0; background: transparent; border: 0; font-size: 1rem; gap: 10px; }
+.account-section-toggle:hover, .account-section-toggle[aria-expanded="true"] { background: transparent; }
+.account-section-toggle .account-section-toggle__icon { padding: 9px; width: 38px; height: 38px; border: 1px solid var(--border); border-radius: 12px; color: var(--warm); background: var(--accent-soft); transform: none; }
+.account-section-toggle-row p { font-size: .75rem; }
+.account-section-toggle__summary { font-size: .72rem; }
+.account-section-toggle__content { padding: 16px; border: 1px solid var(--border); border-radius: 17px; background: var(--panel-fill); }
+.income-section form, .fixed-expenses-section form { max-width: none; }
+.settings-repeatable__item { background: var(--bg); border-radius: 13px; }
+.recurring-payments { background: var(--bg); border-radius: 14px; }
+.recurring-payment { background: var(--surface); border-radius: 12px; }
+.recurring-payment--paid { border-color: color-mix(in srgb, var(--success) 38%, var(--border)); }
+.recurring-payment__check input:checked + span { background: var(--success); border-color: var(--success); color: var(--bg); }
+@media (max-width: 520px) {
+  .account-row { grid-template-columns: 38px minmax(0, 1fr) 44px 44px; }
+  .account-section-toggle__content { padding: 12px; }
+  .account-section-toggle-row { padding: 12px; }
+  .account-section-toggle__summary { max-width: 32%; }
+}

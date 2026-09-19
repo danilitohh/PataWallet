@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { ArrowDownLeft, ArrowUpRight, CalendarClock, CreditCard, Eye, EyeOff, Goal, Landmark, Plus } from 'lucide-react'
+import { ArrowDownLeft, ArrowUpRight, CalendarClock, CreditCard, Eye, EyeOff, Goal, Landmark, PawPrint, Plus } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useApp } from '../../app/AppContext.jsx'
-import { PetScene } from '../../components/PetScene.jsx'
+import { NightScene } from '../../components/NightScene.jsx'
+import { BudgetRing } from '../planning/components/BudgetRing.jsx'
 import { calculateAvailableMoney, calculateSummary, goalProgress } from '../../domain/finance.js'
 import { readFixedExpenses } from '../../domain/financialSetup.js'
 import { formatMinor } from '../../domain/money.js'
@@ -14,6 +15,7 @@ import { payFrequencyLabel } from '../settings/model/incomeSettings.js'
 import { incomeReference } from '../settings/model/incomeSources.js'
 import { TransactionList } from '../transactions/components/TransactionList.jsx'
 
+// Ordena saldo, presupuesto y movimientos con cifras derivadas exclusivamente del modelo financiero.
 export function DashboardPage() {
   const { accounts, transactions, budgets, goals, allocations, plannedPurchases, settings, setSheet, actions, user, isDemo } = useApp()
   const [month, setMonth] = useState(currentMonth())
@@ -31,12 +33,13 @@ export function DashboardPage() {
   const hidden = Boolean(settings.hiddenAmounts)
 
   return (
-    <div className="route-stack">
+    <div className="route-stack dashboard">
       <PageHeader title={`Hola, ${user?.user_metadata?.display_name?.split(' ')[0] || user?.user_metadata?.full_name?.split(' ')[0] || 'Danilo'}`} subtitle="Qué bueno tenerte por aquí." action={<button className="icon-button" aria-label={hidden ? 'Mostrar montos' : 'Ocultar montos'} onClick={() => actions.setSetting('hiddenAmounts', !hidden)}>{hidden ? <EyeOff /> : <Eye />}</button>} />
       {isDemo && <DemoBanner />}
       <section className="balance-hero">
         <div className="balance-hero__numbers"><span>Saldo en cuentas</span><strong aria-label={hidden ? 'Monto oculto' : undefined}>{formatMinor(summary.assets, 'COP', hidden)}</strong><small>Dinero registrado en activos</small></div>
-        <div className="balance-hero__scene" aria-hidden="true"><PetScene name="welcome" /></div>
+        <div className="balance-hero__scene"><NightScene hero /></div>
+        <p className="balance-hero__caption">Pequeños pasos.<br />Grandes sueños.</p>
       </section>
       <div className="month-row"><label htmlFor="month-home">Mes</label><input id="month-home" type="month" value={month} onChange={(event) => setMonth(event.target.value)} /></div>
       <section className="stat-grid" aria-label="Resumen del mes">
@@ -45,16 +48,18 @@ export function DashboardPage() {
         <Stat icon={CreditCard} label="Deuda" value={formatMinor(summary.debt, 'COP', hidden)} />
       </section>
       <section className="feature-panel budget-summary">
-        <div className="section-heading"><div><h2>Presupuesto mensual</h2><p>{remaining >= 0 ? `Te quedan ${formatMinor(remaining, 'COP', hidden)}` : `Superaste el presupuesto por ${formatMinor(Math.abs(remaining), 'COP', hidden)}`}</p></div><Link to="/plan">Ver plan</Link></div>
-        <Progress value={used} label={`${Math.round(used)}% usado`} />
+        <div className="section-heading"><h2>Presupuesto mensual</h2><Link to="/plan">Ver plan</Link></div>
+        <div className="dashboard-budget__body"><BudgetRing value={used} /><div><p>Has usado <strong>{formatMinor(summary.expenses, 'COP', hidden)}</strong><br />de {formatMinor(budget?.limit_minor || 0, 'COP', hidden)}</p><Progress value={used} label={`${Math.round(used)}% usado`} /><small>{remaining >= 0 ? `Te quedan ${formatMinor(remaining, 'COP', hidden)}` : `Superaste el presupuesto por ${formatMinor(Math.abs(remaining), 'COP', hidden)}`}</small></div></div>
+        <div className="pet-note"><PawPrint aria-hidden="true" /><p>Un poco de orden hoy,<br />más calma para mañana.</p></div>
+      </section>
+      <section className="dashboard-recent">
+        <div className="section-heading"><h2>Últimos movimientos</h2><Link to="/actividad">Ver todos</Link></div>
+        <TransactionList items={recent} compact />
+        {!recent.length && <p className="helper">Tu primer movimiento aparecerá aquí.</p>}
       </section>
       <IncomeSummary income={income} hidden={hidden} />
       <AvailableMoneyCard available={available} hidden={hidden} />
       <DashboardPreviewGrid goals={activeGoals} goalCount={goals.length} allocations={allocations} planned={plannedPreview} plannedCount={planned.length} accounts={activeAccounts} accountCount={accounts.filter((item) => !item.archived).length} balances={summary.balances} hidden={hidden} />
-      <section>
-        <div className="section-heading"><h2>Últimos movimientos</h2><Link to="/actividad">Ver todos</Link></div>
-        <TransactionList items={recent} compact />
-      </section>
       <button className="button button--primary desktop-hidden" onClick={() => setSheet('new')}><Plus /> Registrar movimiento</button>
     </div>
   )

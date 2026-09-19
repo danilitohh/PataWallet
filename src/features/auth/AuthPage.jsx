@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ArrowLeft, Eye, EyeOff, LogIn, PawPrint } from 'lucide-react'
 import { PetScene } from '../../components/PetScene.jsx'
+import { NightScene } from '../../components/NightScene.jsx'
 import { supabase } from '../../lib/supabase/client.js'
 
 const googleEnabled = import.meta.env.VITE_GOOGLE_AUTH_ENABLED === 'true'
@@ -16,6 +17,7 @@ function friendlyError(error) {
   return messages[error?.message] || error?.message || 'No pudimos completar la solicitud. Intenta de nuevo.'
 }
 
+// Presenta acceso, registro y recuperación reales con la misma identidad nocturna.
 export function AuthPage() {
   const recovery = new URLSearchParams(location.search).has('recovery')
   const [mode, setMode] = useState(recovery ? 'update' : 'login')
@@ -74,8 +76,9 @@ export function AuthPage() {
     <main className="auth-layout">
       <section className="auth-art" aria-label="Bienvenida a PataWallet">
         <div className="wordmark"><PawPrint /> PataWallet</div>
-        <div><p className="eyebrow">Tus finanzas, en tu espacio</p><h1>Orden y calma para cada cuenta.</h1><p>Cada usuario conserva sus propios movimientos, presupuestos y metas.</p></div>
+        <div><p className="eyebrow">Tu hogar financiero</p><h1>Tu dinero,<br />tu paz, tu manada.</h1><p>Buenas finanzas. Más espacio para lo que quieres.</p></div>
         <PetScene name="welcome" />
+        <NightScene hero />
       </section>
       <section className="auth-panel">
         <div className="wordmark auth-mobile-brand"><PawPrint /> PataWallet</div>
@@ -84,9 +87,7 @@ export function AuthPage() {
           <p className="eyebrow">{mode === 'register' ? 'Registro' : 'Acceso seguro'}</p>
           <h2>{title}</h2>
           <p>{mode === 'register' ? 'Empieza con un espacio financiero privado.' : mode === 'forgot' ? 'Te enviaremos un enlace seguro a tu correo.' : mode === 'update' ? 'Elige una contraseña que no uses en otros sitios.' : 'Inicia sesión para ver únicamente tus datos.'}</p>
-          {mode !== 'forgot' && mode !== 'update' && <button className="button auth-google" type="button" onClick={google} disabled={busy || !googleEnabled} title={!googleEnabled ? 'Activa Google en Supabase para usar esta opción' : undefined}><span className="google-mark" aria-hidden="true">G</span> {googleEnabled ? 'Continuar con Google' : 'Google · pendiente de habilitar'}</button>}
-          {mode !== 'forgot' && mode !== 'update' && !googleEnabled && <p className="auth-provider-note">El acceso con Google estará disponible cuando se configure el proveedor.</p>}
-          {mode !== 'forgot' && mode !== 'update' && <div className="auth-divider"><span>o con correo</span></div>}
+          {googleEnabled && mode !== 'forgot' && mode !== 'update' && <><button className="button auth-google" type="button" onClick={google} disabled={busy}><span className="google-mark" aria-hidden="true">G</span> Continuar con Google</button><div className="auth-divider"><span>o con correo</span></div></>}
           <form className="auth-form" onSubmit={submit}>
             {mode === 'register' && <label>Nombre<input autoComplete="name" value={name} onChange={(event) => setName(event.target.value)} required /></label>}
             {mode !== 'update' && <label>Correo<input type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} required /></label>}
@@ -99,6 +100,7 @@ export function AuthPage() {
           {mode === 'login' && <p className="auth-switch">¿Primera vez aquí? <button type="button" onClick={() => changeMode('register')}>Crear una cuenta</button></p>}
           {mode === 'register' && <p className="auth-switch">¿Ya tienes cuenta? <button type="button" onClick={() => changeMode('login')}>Iniciar sesión</button></p>}
         </div>
+        <NightScene className="auth-mobile-scene" />
       </section>
     </main>
   )

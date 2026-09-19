@@ -189,6 +189,23 @@
       ]
     }
   ],
+  "complementary_illustrations": [
+    {
+      "id": "night-companions",
+      "created_on": "2026-09-18",
+      "title": "Compañía bajo la luna",
+      "uses": ["Bienvenida noche", "Acceso", "Saldo en Inicio"],
+      "provenance": "Generada con la herramienta integrada image_gen a partir de night-pets y welcome-family como referencias. Prompt en design/NIGHT_REDESIGN.md.",
+      "format": "webp",
+      "has_alpha": false,
+      "animated": false,
+      "variants": [
+        { "file": "public/assets/illustrations/night-companions-480.webp", "public_url": "/assets/illustrations/night-companions-480.webp", "width": 480, "height": 320, "bytes": 27156, "sha256": "7b5974352fe46401512f692821068c99755a5b31e07b71872264109374564a99" },
+        { "file": "public/assets/illustrations/night-companions-800.webp", "public_url": "/assets/illustrations/night-companions-800.webp", "width": 800, "height": 533, "bytes": 57418, "sha256": "e0f26fef1b7656199344f65d5a363d108c6190e69fd118816031287ca54c966f" },
+        { "file": "public/assets/illustrations/night-companions-1122.webp", "public_url": "/assets/illustrations/night-companions-1122.webp", "width": 1122, "height": 748, "bytes": 95036, "sha256": "6631247b3c919a55a832b01bd6291ccec1f82929e022be2a6834cdbe801f9c3b" }
+      ]
+    }
+  ],
   "references": [
     {
       "id": "light-patawallet",

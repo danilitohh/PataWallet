@@ -4,7 +4,7 @@ import { SyncConflictError } from '../services/sync/syncErrors.js'
 const defaultSettings = [
   { key: 'entered', value: true },
   { key: 'financialOnboardingComplete', value: false },
-  { key: 'theme', value: 'system' },
+  { key: 'theme', value: 'dark' },
   { key: 'hiddenAmounts', value: false },
   { key: 'motion', value: 'system' },
   { key: 'incomeSources', value: [] },

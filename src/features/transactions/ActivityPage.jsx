@@ -7,8 +7,9 @@ import { TransactionList } from './components/TransactionList.jsx'
 import { ShortcutReviewList } from '../integrations/components/ShortcutReviewList.jsx'
 import { useShortcutIntegration } from '../integrations/hooks/useShortcutIntegration.js'
 
+// Combina búsqueda, chips de tipo y cuenta sin alterar los movimientos guardados.
 export function ActivityPage() {
-  const { transactions, accounts, categories, isDemo, notify } = useApp()
+  const { transactions, accounts, categories, isDemo, notify, setSheet } = useApp()
   const shortcut = useShortcutIntegration(isDemo)
   const [query, setQuery] = useState('')
   const [type, setType] = useState('all')
@@ -25,11 +26,12 @@ export function ActivityPage() {
     <div className="route-stack">
       <PageHeader title="Actividad" subtitle={showingReview ? `${review.length} eventos por revisar` : `${items.length} movimientos visibles`} />
       <div className="search-box"><Search /><label className="sr-only" htmlFor="search">Buscar movimientos</label><input id="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar por comercio, nota o categoría" /></div>
+      {/* Todos los tipos permanecen accesibles mediante desplazamiento horizontal, sin filtros duplicados. */}
+      <div className="activity-type-chips" aria-label="Tipos de movimiento">{[['all', 'Todos'], ['expense', 'Gastos'], ['income', 'Ingresos'], ['transfer', 'Transferencias'], ['card_payment', 'Pagos de deuda'], ...(!isDemo ? [['review', 'Por revisar']] : [])].map(([value, label]) => <button key={value} type="button" aria-pressed={type === value} onClick={() => setType(value)}>{label}</button>)}</div>
       <div className="filters" aria-label="Filtros de movimientos">
-        <select value={type} onChange={(event) => setType(event.target.value)} aria-label="Filtrar por tipo"><option value="all">Todos los tipos</option><option value="expense">Gastos</option><option value="income">Ingresos</option><option value="transfer">Transferencias</option><option value="card_payment">Pagos de deuda</option>{!isDemo && <option value="review">Por revisar</option>}</select>
         <select value={account} onChange={(event) => setAccount(event.target.value)} aria-label="Filtrar por cuenta"><option value="all">Todas las cuentas</option>{accounts.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select>
       </div>
-      {showingReview ? <ShortcutReviewList items={review} accounts={accounts} categories={categories} transactions={transactions} onResolve={shortcut.resolve} notify={notify} /> : items.length ? <TransactionList items={items} grouped /> : <StateMessage illustration="empty" title="No encontramos movimientos" body="Prueba otros filtros o registra un nuevo movimiento." />}
+      {showingReview ? <ShortcutReviewList items={review} accounts={accounts} categories={categories} transactions={transactions} onResolve={shortcut.resolve} notify={notify} /> : items.length ? <TransactionList items={items} grouped /> : <StateMessage illustration="empty" title="No encontramos movimientos" body="Prueba otros filtros o registra un nuevo movimiento." actionLabel="Agregar movimiento" action={() => setSheet('new')} />}
     </div>
   )
 }

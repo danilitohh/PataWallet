@@ -1,0 +1,42 @@
+/* Acceso y bienvenida comparten una escena real, sin texto incrustado en la ilustración. */
+.welcome { position: relative; min-height: 100svh; padding-block: 30px; gap: 22px; }
+.welcome__intro h1 { font-family: Georgia, 'Times New Roman', serif; font-size: clamp(2.7rem, 10vw, 4.7rem); font-weight: 500; letter-spacing: -.055em; max-width: 12ch; }
+.welcome__intro .eyebrow { color: var(--warm); font-size: .7rem; letter-spacing: .14em; }
+.welcome__art { transform: none; background: transparent; border-radius: 24px; }
+.welcome__art .night-scene { height: 100%; }
+.welcome__art .night-scene img { object-position: right center; }
+.welcome__art > .pet-scene { display: none; }
+:root[data-theme="light"] .welcome__art > .pet-scene { display: block; }
+:root[data-theme="light"] .welcome__art > .night-scene { display: none; }
+.auth-layout { background: transparent; }
+.auth-card { position: relative; padding: 26px 22px; border-radius: 20px; background: var(--panel-fill); }
+.auth-card .eyebrow { color: var(--warm); }
+.auth-panel { align-content: center; gap: 16px; padding-top: 100px; }
+.auth-mobile-scene { width: min(100%, 430px); height: 185px; border-radius: 20px; mask-image: linear-gradient(transparent, #000 15%, #000 90%, transparent); }
+.auth-mobile-scene img { object-position: right 67%; }
+.auth-art { position: relative; background: var(--bg); isolation: isolate; }
+.auth-art > .night-scene { position: absolute; inset: 0; z-index: -1; height: 100%; }
+.auth-art > .night-scene img { object-position: 74% center; }
+.auth-art > .night-scene::after { content: ''; position: absolute; inset: 0; background: linear-gradient(#0b142540, #0b1425b0 30%, transparent 70%); }
+.auth-art > .pet-scene { display: none; }
+.auth-art h1 { font-family: Georgia, serif; font-weight: 500; }
+.auth-art > div:nth-child(2) { align-self: start; }
+.onboarding-card { border-radius: 20px; }
+.onboarding-art .pet-scene { border: 1px solid var(--border); }
+@media (max-width: 699px) {
+  .auth-panel { padding: 84px 20px 20px; gap: 8px; }
+  .auth-card { padding: 20px 17px; gap: 8px; }
+  .auth-card h2 { font-size: 1.65rem; }
+  .auth-card > p { font-size: .8rem; }
+  .auth-form { gap: 12px; }
+  .auth-mobile-scene { height: 150px; }
+  .welcome { display: flex; flex-direction: column; justify-content: space-between; padding: max(25px, env(safe-area-inset-top)) 25px max(25px, env(safe-area-inset-bottom)); overflow: hidden; }
+  .welcome__intro { margin-top: 8px; }
+  .welcome__intro h1 { font-size: 3.05rem; max-width: 10ch; }
+  .welcome__intro > p:last-child { max-width: 29ch; font-size: .87rem; }
+  .welcome__art { height: 255px; width: calc(100% + 50px); margin: -15px -25px -25px; flex-shrink: 0; border-radius: 0; mask-image: linear-gradient(transparent, #000 17%, #000 82%, transparent); box-shadow: none; }
+  .welcome__actions { position: relative; margin-top: 7px; }
+  .welcome__actions .demo-note { font-size: .7rem; text-align: center; }
+}
+@media (min-width: 700px) { .welcome__art { height: min(80dvh, 720px); } }
+@media (min-width: 900px) { .auth-mobile-scene { display: none; } .auth-art { padding: 45px; grid-template-rows: auto 1fr; gap: 90px; } .auth-panel { padding-top: 48px; } }

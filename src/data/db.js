@@ -51,7 +51,7 @@ export async function seedDemo() {
       { key: 'seeded', value: true },
       { key: 'entered', value: false },
       { key: 'financialOnboardingComplete', value: false },
-      { key: 'theme', value: 'system' },
+      { key: 'theme', value: 'dark' },
       { key: 'hiddenAmounts', value: false },
       { key: 'motion', value: 'system' },
       { key: 'incomeSources', value: [] },

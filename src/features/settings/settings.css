@@ -1,0 +1,28 @@
+/* Preferencias e integraciones: filas agrupadas, controles cómodos, estados honestos. */
+.settings-group { gap: 0; overflow: hidden; border: 1px solid var(--border); border-radius: 18px; background: var(--panel-fill); }
+.settings-group > h2 { padding: 16px 15px 12px; margin: 0; font-size: .78rem; color: var(--text-2); letter-spacing: .03em; }
+.setting-row { min-height: 77px; padding: 12px; border: 0; border-radius: 0; background: transparent; gap: 10px; }
+.setting-row + .setting-row, .setting-link + .setting-link { border-top: 1px solid var(--border); }
+.setting-row h3 { font-size: .86rem; }
+.setting-row p { font-size: .7rem; }
+.setting-row select { min-height: 44px; }
+.settings-group > .button { margin: 12px; }
+.settings-group > .data-transfer, .settings-group > .data-warning { margin: 12px; }
+.switch { position: relative; width: 50px; height: 44px; padding: 10px 3px; border: 0; background: transparent; isolation: isolate; }
+.switch::before { content: ''; position: absolute; inset: 7px 0; border: 1px solid var(--border); border-radius: 999px; background: var(--surface-muted); z-index: -1; }
+.switch.is-on { background: transparent; }
+.switch.is-on::before { background: var(--accent); }
+.switch span { background: var(--text); }
+:root[data-theme="light"] .switch span { background: white; }
+.settings-group.income-section, .settings-group.fixed-expenses-section { background: transparent; border: 0; overflow: visible; gap: 10px; }
+.assistant-notice { background: var(--panel-fill); border-radius: 16px; }
+.assistant-empty, .assistant-unavailable { min-height: 250px; border-radius: 20px; background: radial-gradient(ellipse at top, var(--accent-soft), var(--surface)); }
+.assistant-message--user { border-bottom-right-radius: 5px; }
+.assistant-message--assistant { border-bottom-left-radius: 5px; }
+.assistant-form textarea { min-height: 110px; }
+.integration-card, .shortcut-section, .notification-preferences { max-width: 800px; }
+.integration-icon { color: var(--warm); }
+.shortcut-section .empty-inline { background: var(--bg); }
+.back-link { min-height: 44px; align-items: center; }
+.back-link svg.lucide-arrow-left { transform: none; }
+.couple-card { padding: 20px; }
