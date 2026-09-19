@@ -8,7 +8,7 @@
 El usuario rechazó los colores de una primera propuesta y después le gustaron los animales. No interpretar esa aprobación como elección explícita de todo el verde, todos los textos o todas las funciones de las imágenes. Implementar una propuesta coherente y mostrarla para aprobación.
 
 ## Propuesta de estilo
-Tema claro: blanco cálido, texto azul tinta, botones azul profundo, toques de melocotón y turquesa apagado. Tema noche: azul oscuro, texto claro, lavanda y acentos suaves. Las ilustraciones conservan sus colores originales; no aplicarles `invert()` ni tintes que alteren el pelaje. En noche, usar un marco/superficie ilustrada cálida cuando sea necesario para que el fondo opaco no parezca un recorte mal hecho.
+Tema oscuro único: azul noche, texto claro, lavanda y acentos suaves de cielo, menta, durazno y rosa. Las ilustraciones conservan sus colores originales; no aplicarles `invert()` ni tintes que alteren el pelaje. Usar un marco/superficie ilustrada cálida cuando sea necesario para que el fondo opaco no parezca un recorte mal hecho.
 
 Valores iniciales en `design/tokens.json`. Tokens semánticos y variables CSS, no colores dispersos por componentes. Acentos propuestos, sujetos a revisión. Comprobar contraste en combinaciones reales, no asumirlo por el nombre del color.
 

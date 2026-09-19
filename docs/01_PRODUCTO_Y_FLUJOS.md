@@ -50,7 +50,7 @@ Meta: nombre, monto objetivo y fecha opcional; aportes/reservas ligados a una cu
 Crear cuenta con nombre/alias, tipo y saldo o deuda inicial. En una deuda se puede registrar opcionalmente un plan informativo con total de cuotas, cuotas pagadas, valor de cuota y frecuencia. Modificar nombre y archivar; no borrar movimientos en cascada sin confirmación. Correcciones de saldo se registran como ajustes explícitos no presupuestables. Mostrar activos separados de tarjetas/deuda. El alias de tarjeta utilizado por Atajos se relaciona con una cuenta; no almacenar números completos, CVV ni acceso bancario.
 
 ## Ajustes
-Tema Claro/Noche/Sistema, montos ocultos, movimiento Sistema/Suave/Desactivado, moneda/configuración, exportación, notificaciones, automatización, seguridad y salida. No llamar “Face ID” a un botón ornamental. Los controles deben funcionar o explicar de forma visible por qué están pendientes.
+Tema oscuro único, montos ocultos, movimiento Sistema/Suave/Desactivado, moneda/configuración, exportación, notificaciones, automatización, seguridad y salida. No llamar “Face ID” a un botón ornamental. Los controles deben funcionar o explicar de forma visible por qué están pendientes.
 
 ## Estados imprescindibles
 Vacío con acción útil; cargando sin saltos de layout; error recuperable; sin conexión; guardado local; sincronización pendiente; sincronizado según confirmación del servidor; conflicto; integración sin configurar. Un borrador no debe perderse al aparecer una actualización de la PWA.

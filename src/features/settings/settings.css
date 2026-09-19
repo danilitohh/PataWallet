@@ -13,7 +13,6 @@
 .switch.is-on { background: transparent; }
 .switch.is-on::before { background: var(--accent); }
 .switch span { background: var(--text); }
-:root[data-theme="light"] .switch span { background: white; }
 .settings-group.income-section, .settings-group.fixed-expenses-section { background: transparent; border: 0; overflow: visible; gap: 10px; }
 .assistant-notice { background: var(--panel-fill); border-radius: 16px; }
 .assistant-empty, .assistant-unavailable { min-height: 250px; border-radius: 20px; background: radial-gradient(ellipse at top, var(--accent-soft), var(--surface)); }

@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from 'react'
 import { ArrowLeft, ArrowRight, Check, Plus, Trash2, WalletCards } from 'lucide-react'
 import { useApp } from '../../app/AppContext.jsx'
+import { NightIcon } from '../../shared/components/NightIcon.jsx'
 import { calculateAvailableMoney } from '../../domain/finance.js'
 import { fixedExpensesToInput, parseFixedExpenses } from '../../domain/financialSetup.js'
 import { formatInputAmount, formatMinor, parseLocalizedAmount, toInputAmount } from '../../domain/money.js'
@@ -96,9 +97,9 @@ export function FinancialOnboarding() {
 
   return <main className="onboarding-page">
     <section className="onboarding-card" aria-labelledby="onboarding-title">
-      <div className="onboarding-card__top"><div><p className="eyebrow">Tu punto de partida</p><h1 id="onboarding-title">Hagamos cuentas con calma.</h1></div><div className="onboarding-card__mark" aria-hidden="true"><WalletCards /></div></div>
+      <div className="onboarding-card__top"><div><p className="eyebrow">Tu punto de partida</p><h1 id="onboarding-title">Hagamos cuentas con calma.</h1></div><NightIcon icon={WalletCards} className="onboarding-card__mark" tone="violet" aria-hidden="true" /></div>
       <p className="onboarding-intro">Con estos datos estimaremos cuánto dinero puedes usar cada mes. Nada crea movimientos automáticos: tú decides qué registrar.</p>
-      <div className="onboarding-progress" aria-label={`Paso ${step + 1} de ${STEP_LABELS.length}`}><div className="onboarding-progress__bar"><span style={{ width: `${((step + 1) / STEP_LABELS.length) * 100}%` }} /></div><div>{STEP_LABELS.map((label, index) => <span className={index <= step ? 'is-active' : ''} key={label}>{index < step ? <Check aria-hidden="true" /> : index + 1} {label}</span>)}</div></div>
+      <div className="onboarding-progress" aria-label={`Paso ${step + 1} de ${STEP_LABELS.length}`}><div className="onboarding-progress__bar"><span style={{ '--progress-scale': (step + 1) / STEP_LABELS.length }} /></div><div>{STEP_LABELS.map((label, index) => <span className={index <= step ? 'is-active' : ''} key={label}>{index < step ? <Check aria-hidden="true" /> : index + 1} {label}</span>)}</div></div>
       {step === 0 && <IncomeStep salary={salary} frequency={frequency} nextPayDate={nextPayDate} salaryAccountId={salaryAccountId} salaryAccountName={salaryAccountName} accounts={accounts} setSalary={setSalary} setFrequency={setFrequency} setNextPayDate={setNextPayDate} setSalaryAccountId={setSalaryAccountId} setSalaryAccountName={setSalaryAccountName} error={error} />}
       {step === 1 && <DebtStep debts={debts} setDebts={setDebts} error={error} />}
       {step === 2 && <FixedExpensesStep fixedExpenses={fixedExpenses} setFixedExpenses={setFixedExpenses} preview={preview} error={error} />}

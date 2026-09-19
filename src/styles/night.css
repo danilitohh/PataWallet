@@ -1,10 +1,5 @@
 /* Controles compartidos: tacto suave, foco visible y luz lavanda sin animaciones permanentes. */
-:root { --button-fill: var(--primary); --panel-fill: var(--surface); --warm: #a05231; }
-:root:not([data-theme="light"]) {
-  --button-fill: linear-gradient(115deg, #efc0f0, #b9a0f7 58%, #a5b7fa);
-  --panel-fill: linear-gradient(140deg, #172438, #101c2e);
-  --warm: #f6d29f;
-}
+:root { --button-fill: linear-gradient(115deg, #efc0f0, #b9a0f7 58%, #a5b7fa); --panel-fill: linear-gradient(140deg, #172438, #101c2e); --warm: #f6d29f; }
 h1 { font-size: clamp(1.6rem, 3vw, 2rem); line-height: 1.2; }
 h2 { font-size: 1.05rem; }
 h3 { font-size: .95rem; }

@@ -1,7 +1,7 @@
 # 05 · Criterios de aceptación y pruebas
 
 ## Puertas de entrega
-**Fase 1 — revisión de producto local**: pantallas navegables, cuatro imágenes reales integradas, tema claro/noche, altas/ediciones/borrados coherentes, presupuesto, reservas, filtros y persistencia local. Demo identificada. Integraciones sin configurar no muestran éxitos. Aprobación visual antes de servicios externos.
+**Fase 1 — revisión de producto local**: pantallas navegables, cuatro imágenes reales integradas, tema oscuro con identidad Noche con Mascotas, altas/ediciones/borrados coherentes, presupuesto, reservas, filtros y persistencia local. Demo identificada. Integraciones sin configurar no muestran éxitos. Aprobación visual antes de servicios externos.
 
 **Fase 2 — datos reales**: Auth, recuperación, permisos por usuario, esquema/migraciones, RLS, datos persistentes, cola local idempotente, conflictos, exportación y prueba de restauración. No usar la app como único registro personal hasta validar esta etapa.
 

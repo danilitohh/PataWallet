@@ -46,18 +46,18 @@ test('aplica profundidad 3D accesible a botones e iconos', async ({ page }) => {
   expect(reducedDuration).toBeLessThan(0.001)
 })
 
-// Una preferencia existente se conserva y la reducción del sistema prevalece sobre «Suave».
-test('conserva tema claro y reduce efectos por sistema o preferencia propia', async ({ page }) => {
+// El tema oscuro es único y la reducción del sistema prevalece sobre «Suave».
+test('mantiene tema oscuro y reduce efectos por sistema o preferencia propia', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: 'Probar con datos de ejemplo' }).click()
   await expect(page.getByRole('heading', { name: 'Hola, Danilo' })).toBeVisible()
   await page.goto('/ajustes')
-  await page.getByRole('combobox', { name: 'Tema', exact: true }).selectOption('light')
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
+  await expect(page.getByText('Modo nocturno')).toBeVisible()
+  await expect(page.getByRole('combobox', { name: 'Tema', exact: true })).toHaveCount(0)
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
   await page.reload()
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
-  await page.getByRole('combobox', { name: 'Tema', exact: true }).selectOption('system')
-  await page.emulateMedia({ colorScheme: 'dark', reducedMotion: 'reduce' })
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+  await page.emulateMedia({ colorScheme: 'light', reducedMotion: 'reduce' })
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
   await page.getByRole('combobox', { name: 'Movimiento', exact: true }).selectOption('soft')
   await expect(page.locator('.night-ambience span').first()).toHaveCSS('animation-name', 'none')

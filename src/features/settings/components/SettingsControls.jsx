@@ -1,8 +1,9 @@
 import { ChevronRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { NightIcon } from '../../../shared/components/NightIcon.jsx'
 
 export function SettingRow({ icon: Icon, title, detail, children }) {
-  return <div className="setting-row"><span className="setting-row__icon"><Icon /></span><div><h3>{title}</h3><p>{detail}</p></div><div className="setting-row__control">{children}</div></div>
+  return <div className="setting-row"><NightIcon icon={Icon} className="setting-row__icon" tone="violet" /><div><h3>{title}</h3><p>{detail}</p></div><div className="setting-row__control">{children}</div></div>
 }
 
 export function SettingLink({ icon, title, detail, to }) {

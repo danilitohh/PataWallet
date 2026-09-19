@@ -1,4 +1,4 @@
-import { AlertTriangle, Bell, Bot, CircleDollarSign, Eye, EyeOff, Handshake, LogOut, Menu, Moon, RefreshCw, Smartphone, Sun, UserRound } from 'lucide-react'
+import { AlertTriangle, Bell, Bot, CircleDollarSign, Eye, EyeOff, Handshake, LogOut, Menu, Moon, RefreshCw, Smartphone, UserRound } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../../app/AppContext.jsx'
 import { PageHeader } from '../../shared/components/PageHeader.jsx'
@@ -17,7 +17,7 @@ export function SettingsPage() {
       {!isDemo && <section className="settings-group"><h2>Cuenta</h2><SettingRow icon={UserRound} title={user?.user_metadata?.display_name || user?.user_metadata?.full_name || 'Tu cuenta'} detail={user?.email || 'Sesión autenticada'}><span /></SettingRow><button className="button button--secondary" onClick={signOut}><LogOut /> Cerrar sesión</button></section>}
       <section className="settings-group">
         <h2>Apariencia</h2>
-        <SettingRow icon={settings.theme === 'light' ? Sun : Moon} title="Tema" detail="Claro, noche o sistema"><select aria-label="Tema" value={settings.theme || 'dark'} onChange={(event) => setSetting('theme', event.target.value)}><option value="system">Sistema</option><option value="light">Claro</option><option value="dark">Noche</option></select></SettingRow>
+        <SettingRow icon={Moon} title="Modo nocturno" detail="Tema oscuro permanente de PataWallet"><span className="setting-static-value">Siempre activo</span></SettingRow>
         <SettingRow icon={settings.hiddenAmounts ? EyeOff : Eye} title="Ocultar montos" detail="Privacidad visual, no autenticación"><Switch checked={Boolean(settings.hiddenAmounts)} label="Ocultar montos" onChange={(value) => setSetting('hiddenAmounts', value)} /></SettingRow>
         <SettingRow icon={Menu} title="Movimiento" detail="Respeta Reducir movimiento"><select aria-label="Movimiento" value={settings.motion || 'system'} onChange={(event) => setSetting('motion', event.target.value)}><option value="system">Sistema</option><option value="soft">Suave</option><option value="off">Desactivado</option></select></SettingRow>
       </section>

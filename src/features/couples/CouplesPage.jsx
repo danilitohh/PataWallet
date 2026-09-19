@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Check, Copy, Handshake, Link2, LockKeyhole, Send, ShieldCheck, UserRound, X } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useApp } from '../../app/AppContext.jsx'
+import { NightIcon } from '../../shared/components/NightIcon.jsx'
 import { formatInputAmount, formatMinor, parseLocalizedAmount } from '../../domain/money.js'
 import { getCoupleOverview, performCoupleAction } from '../../services/couples/couplesClient.js'
 import { PageHeader } from '../../shared/components/PageHeader.jsx'
@@ -53,7 +54,7 @@ export function CouplesPage() {
 }
 
 function InvitePanel({ email, setEmail, pending, inviteUrl, busy, onInvite }) {
-  return <section className="feature-panel couple-card"><div className="couple-card__icon"><Handshake /></div><h2>Invita a tu pareja</h2><p>La otra persona tendrá que aceptar. Después, cada uno elegirá qué cuentas o deudas compartir.</p><form onSubmit={(event) => { event.preventDefault(); onInvite() }} className="couple-form"><label>Correo de tu pareja<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="pareja@ejemplo.com" required /></label><button className="button button--primary" disabled={busy}><Send /> {busy ? 'Creando…' : 'Crear invitación'}</button></form>{pending && <p className="couple-muted">Ya hay una invitación pendiente. Cuando la acepten, aparecerá aquí el espacio compartido.</p>}{inviteUrl && <CopyInviteLink inviteUrl={inviteUrl} />}</section>
+  return <section className="feature-panel couple-card"><NightIcon icon={Handshake} className="couple-card__icon" tone="rose" /><h2>Invita a tu pareja</h2><p>La otra persona tendrá que aceptar. Después, cada uno elegirá qué cuentas o deudas compartir.</p><form onSubmit={(event) => { event.preventDefault(); onInvite() }} className="couple-form"><label>Correo de tu pareja<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="pareja@ejemplo.com" required /></label><button className="button button--primary" disabled={busy}><Send /> {busy ? 'Creando…' : 'Crear invitación'}</button></form>{pending && <p className="couple-muted">Ya hay una invitación pendiente. Cuando la acepten, aparecerá aquí el espacio compartido.</p>}{inviteUrl && <CopyInviteLink inviteUrl={inviteUrl} />}</section>
 }
 
 function CopyInviteLink({ inviteUrl }) {

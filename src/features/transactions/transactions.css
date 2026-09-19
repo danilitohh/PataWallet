@@ -12,12 +12,12 @@
 .transaction__amount strong { font-size: .8rem; }
 .transaction__amount small { font-size: .65rem; }
 .transaction__amount.negative strong { color: var(--text); }
-:root:not([data-theme="light"]) .tone-market { background: #784552; color: #ffd2d5; }
-:root:not([data-theme="light"]) .tone-transport { background: #294f96; color: #d9e9ff; }
-:root:not([data-theme="light"]) .tone-food { background: #795241; color: #ffe0bd; }
-:root:not([data-theme="light"]) .tone-pets { background: #6e536e; color: #ffe0db; }
-:root:not([data-theme="light"]) .tone-salary { background: #265c4b; color: #c3f6de; }
-:root:not([data-theme="light"]) .tone-card_payment { background: #493a75; color: #e9d4ff; }
+.tone-market { background: #784552; color: #ffd2d5; }
+.tone-transport { background: #294f96; color: #d9e9ff; }
+.tone-food { background: #795241; color: #ffe0bd; }
+.tone-pets { background: #6e536e; color: #ffe0db; }
+.tone-salary { background: #265c4b; color: #c3f6de; }
+.tone-card_payment { background: #493a75; color: #e9d4ff; }
 .sheet__actions { padding-top: 14px; border-top: 1px solid var(--border); }
 .sheet__actions { position: sticky; bottom: calc(-22px - env(safe-area-inset-bottom)); z-index: 2; background: var(--surface); padding-block: 12px calc(12px + env(safe-area-inset-bottom)); }
 @media (min-width: 1000px) { .sheet__actions { bottom: -32px; } }

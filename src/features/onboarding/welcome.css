@@ -6,8 +6,6 @@
 .welcome__art .night-scene { height: 100%; }
 .welcome__art .night-scene img { object-position: right center; }
 .welcome__art > .pet-scene { display: none; }
-:root[data-theme="light"] .welcome__art > .pet-scene { display: block; }
-:root[data-theme="light"] .welcome__art > .night-scene { display: none; }
 .auth-layout { background: transparent; }
 .auth-card { position: relative; padding: 26px 22px; border-radius: 20px; background: var(--panel-fill); }
 .auth-card .eyebrow { color: var(--warm); }

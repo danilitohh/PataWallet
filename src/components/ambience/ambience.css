@@ -4,6 +4,5 @@
 .night-ambience span + span { top: 25vh; left: 70%; background: radial-gradient(ellipse, #cd967b10, transparent 65%); animation-delay: -11s; }
 @keyframes night-drift { to { transform: translate3d(12vw, 12vh, 0) rotate(15deg); } }
 :root[data-page-visible="false"] .night-ambience span { animation-play-state: paused; }
-:root[data-theme="light"] .night-ambience { opacity: .4; }
 @media (prefers-reduced-motion: reduce) { .night-ambience span { animation: none; } }
 :root[data-motion="off"] .night-ambience span { animation: none; }

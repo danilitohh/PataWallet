@@ -3,6 +3,7 @@ import { IntegrationsHeader } from './components/IntegrationsHeader.jsx'
 import { useApp } from '../../app/AppContext.jsx'
 import { Switch } from '../settings/components/SettingsControls.jsx'
 import { usePushNotifications } from './hooks/usePushNotifications.js'
+import { NightIcon } from '../../shared/components/NightIcon.jsx'
 
 export function NotificationsPage() {
   const { user, isDemo } = useApp()
@@ -12,7 +13,7 @@ export function NotificationsPage() {
     <div className="route-stack">
       <IntegrationsHeader title="Notificaciones" subtitle="Avisos de PataWallet, no lectura de Wallet ni de bancos." />
       <section className="integration-card">
-        <span className="integration-icon"><Bell /></span>
+        <NightIcon icon={Bell} className="integration-icon" tone="sky" />
         <p className={`status-label status-label--${push.state.kind}`}>{push.state.label}</p>
         <h2>Avisos privados de PataWallet</h2>
         <p>{push.state.detail}</p>
@@ -33,5 +34,5 @@ function Preference({ title, detail, checked, onChange, disabled }) {
 }
 
 function InstallGuide({ capabilities }) {
-  return <section className="integration-card install-guide"><span className="integration-icon"><Smartphone /></span><p className="status-label">Instalación en iPhone</p><h2>Ábrela como app desde Inicio</h2><ol className="steps"><li><span>1</span><div><strong>Abre PataWallet en Safari</strong><p>Usa el origen HTTPS definitivo; no una pestaña privada para conservar la instalación.</p></div></li><li><span>2</span><div><strong>Toca Compartir <Share2 aria-hidden="true" /></strong><p>Elige “Añadir a pantalla de inicio” y confirma.</p></div></li><li><span>3</span><div><strong>Abre el icono de PataWallet</strong><p>Después vuelve aquí y activa los avisos. El sistema mostrará su solicitud.</p></div></li></ol><p className="info-note">Estado de apertura: {capabilities.standalone ? 'app independiente' : 'pestaña del navegador'}. La entrega final debe comprobarse en un iPhone real.</p><a className="back-link" href="https://support.apple.com/guide/iphone/bookmark-a-website-iph42ab2f3a7/ios" target="_blank" rel="noreferrer">Guía de Apple <ExternalLink /></a></section>
+  return <section className="integration-card install-guide"><NightIcon icon={Smartphone} className="integration-icon" tone="mint" /><p className="status-label">Instalación en iPhone</p><h2>Ábrela como app desde Inicio</h2><ol className="steps"><li><span>1</span><div><strong>Abre PataWallet en Safari</strong><p>Usa el origen HTTPS definitivo; no una pestaña privada para conservar la instalación.</p></div></li><li><span>2</span><div><strong>Toca Compartir <Share2 aria-hidden="true" /></strong><p>Elige “Añadir a pantalla de inicio” y confirma.</p></div></li><li><span>3</span><div><strong>Abre el icono de PataWallet</strong><p>Después vuelve aquí y activa los avisos. El sistema mostrará su solicitud.</p></div></li></ol><p className="info-note">Estado de apertura: {capabilities.standalone ? 'app independiente' : 'pestaña del navegador'}. La entrega final debe comprobarse en un iPhone real.</p><a className="back-link" href="https://support.apple.com/guide/iphone/bookmark-a-website-iph42ab2f3a7/ios" target="_blank" rel="noreferrer">Guía de Apple <ExternalLink /></a></section>
 }

@@ -3,30 +3,6 @@
   color: var(--text);
   background: var(--bg);
   font-synthesis: none;
-  --bg: #fbf8f3;
-  --surface: #ffffff;
-  --surface-muted: #f3f0ec;
-  --text: #142c3b;
-  --text-2: #536573;
-  --primary: #123c50;
-  --on-primary: #ffffff;
-  --accent: #157985;
-  --accent-soft: #e0f1f1;
-  --peach: #f9dfd0;
-  --coral: #e97867;
-  --sky: #dceef5;
-  --lavender: #e9e2f4;
-  --success: #17634e;
-  --success-soft: #e0f3e9;
-  --danger: #b4233c;
-  --border: #dde3e7;
-  --focus: #5558c9;
-  --shadow: 0 18px 45px rgba(36, 61, 73, 0.09);
-  color-scheme: light;
-}
-
-/* Identidad Noche con Mascotas. Claro permanece disponible como preferencia explícita. */
-:root:not([data-theme="light"]) {
   --bg: #0b1425;
   --surface: #121f32;
   --surface-muted: #1a2940;
@@ -400,7 +376,7 @@ html.standalone-app, html.standalone-app body { touch-action: pan-x pan-y; overs
 .onboarding-intro { max-width: 60ch; margin-top: 10px; color: var(--text-2); font-size: .88rem; line-height: 1.5; }
 .onboarding-progress { display: grid; gap: 8px; margin: 23px 0 27px; }
 .onboarding-progress__bar { height: 7px; overflow: hidden; border-radius: 999px; background: var(--surface-muted); }
-.onboarding-progress__bar span { display: block; height: 100%; border-radius: inherit; background: var(--accent); transition: width .3s ease; }
+.onboarding-progress__bar span { display: block; width: 100%; height: 100%; border-radius: inherit; background: var(--accent); transform: scaleX(var(--progress-scale, 1)); transform-origin: left center; transition: transform .3s ease; }
 .onboarding-progress > div:last-child { display: flex; justify-content: space-between; gap: 8px; color: var(--text-2); font-size: .7rem; }
 .onboarding-progress > div:last-child span { display: inline-flex; align-items: center; gap: 4px; }
 .onboarding-progress > div:last-child span.is-active { color: var(--text); font-weight: 760; }
@@ -445,6 +421,7 @@ html.standalone-app, html.standalone-app body { touch-action: pan-x pan-y; overs
 .setting-row p { margin-top: 2px; font-size: .75rem; }
 .setting-row__control { display: flex; align-items: center; justify-content: end; }
 .setting-row select { min-width: 112px; min-height: 40px; }
+.setting-static-value { color: var(--accent); font-size: .76rem; font-weight: 760; text-align: right; }
 .compact-action { min-height: 38px; padding: 0 10px; border-radius: 12px; background: var(--surface-muted); color: var(--accent); font-size: .77rem; font-weight: 750; }
 .data-warning { padding: 14px; display: grid; gap: 11px; border: 1px solid color-mix(in srgb, var(--danger) 30%, var(--border)); border-radius: 18px; background: color-mix(in srgb, var(--danger) 7%, var(--surface)); }
 .data-warning p { color: var(--text); font-size: .82rem; }

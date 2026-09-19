@@ -9,6 +9,7 @@ import { readFixedExpenses } from '../../domain/financialSetup.js'
 import { formatMinor } from '../../domain/money.js'
 import { PageHeader } from '../../shared/components/PageHeader.jsx'
 import { Progress } from '../../shared/components/Progress.jsx'
+import { NightIcon } from '../../shared/components/NightIcon.jsx'
 import { currentMonth } from '../../shared/lib/date.js'
 import { accountTypeLabel } from '../accounts/model/accountTypes.js'
 import { payFrequencyLabel } from '../settings/model/incomeSettings.js'
@@ -97,11 +98,11 @@ function DashboardPreviewGrid({ goals, goalCount, allocations, planned, plannedC
     </section>
     <section className="feature-panel dashboard-preview">
       <div className="section-heading"><div><h2>Próximas compras</h2><p>{plannedCount ? `${plannedCount} por evaluar` : 'Sin compras anotadas'}</p></div><Link to="/plan">Ver compras</Link></div>
-      {planned.length ? <div className="dashboard-preview__list">{planned.map((item) => <article className="dashboard-list-row" key={item.id}><span className="goal-icon"><CalendarClock /></span><div><strong>{item.name}</strong><small>{formatDashboardDate(item.target_date)}</small></div><strong>{formatMinor(item.amount_minor, 'COP', hidden)}</strong></article>)}</div> : <DashboardEmpty icon={CalendarClock} text="Anota una compra futura desde Plan." />}
+      {planned.length ? <div className="dashboard-preview__list">{planned.map((item) => <article className="dashboard-list-row" key={item.id}><NightIcon icon={CalendarClock} className="goal-icon" tone="peach" /><div><strong>{item.name}</strong><small>{formatDashboardDate(item.target_date)}</small></div><strong>{formatMinor(item.amount_minor, 'COP', hidden)}</strong></article>)}</div> : <DashboardEmpty icon={CalendarClock} text="Anota una compra futura desde Plan." />}
     </section>
     <section className="feature-panel dashboard-preview dashboard-preview--accounts">
       <div className="section-heading"><div><h2>Cuentas</h2><p>{accountCount ? `${accountCount} ${accountCount === 1 ? 'cuenta activa' : 'cuentas activas'}` : 'Aún no tienes cuentas'}</p></div><Link to="/cuentas">Ver cuentas</Link></div>
-      {accounts.length ? <div className="dashboard-preview__list dashboard-account-list">{accounts.map((account) => <article className="dashboard-list-row" key={account.id}><span className="account-row__icon">{account.kind === 'asset' ? <Landmark /> : <CreditCard />}</span><div><strong>{account.name}</strong><small>{accountTypeLabel(account)}</small></div><strong>{formatMinor(balances[account.id] || 0, 'COP', hidden)}</strong></article>)}</div> : <DashboardEmpty icon={Landmark} text="Agrega una cuenta para ver tu saldo aquí." />}
+      {accounts.length ? <div className="dashboard-preview__list dashboard-account-list">{accounts.map((account) => <article className="dashboard-list-row" key={account.id}><NightIcon icon={account.kind === 'asset' ? Landmark : CreditCard} className="account-row__icon" tone={account.kind === 'asset' ? 'sky' : 'violet'} /><div><strong>{account.name}</strong><small>{accountTypeLabel(account)}</small></div><strong>{formatMinor(balances[account.id] || 0, 'COP', hidden)}</strong></article>)}</div> : <DashboardEmpty icon={Landmark} text="Agrega una cuenta para ver tu saldo aquí." />}
     </section>
   </div>
 }
@@ -118,7 +119,7 @@ function formatOccasionalCount(count) {
 
 // Mantiene un estado vacío pequeño y accionable dentro de cada panel del dashboard.
 function DashboardEmpty({ icon: Icon, text }) {
-  return <div className="dashboard-empty"><Icon aria-hidden="true" /><p>{text}</p></div>
+  return <div className="dashboard-empty"><NightIcon icon={Icon} variant="minimal" tone="violet" /><p>{text}</p></div>
 }
 
 function DemoBanner() {
@@ -126,5 +127,6 @@ function DemoBanner() {
 }
 
 function Stat({ icon: Icon, label, value, tone = '' }) {
-  return <div className={`stat ${tone}`}><Icon /><span>{label}</span><strong>{value}</strong></div>
+  const iconTone = tone === 'positive' ? 'mint' : tone === 'negative' ? 'rose' : 'violet'
+  return <div className={`stat ${tone}`}><NightIcon icon={Icon} className="stat__icon" tone={iconTone} /><span>{label}</span><strong>{value}</strong></div>
 }

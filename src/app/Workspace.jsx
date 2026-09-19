@@ -9,10 +9,11 @@ import { MovementSheet } from '../features/transactions/components/MovementSheet
 import { LoadingScreen, Toast } from '../shared/components/Feedback.jsx'
 import { PwaUpdatePrompt } from '../features/pwa/PwaUpdatePrompt.jsx'
 
-// Comparte datos y preferencias de la cuenta, respetando tema y accesibilidad del sistema.
+// Comparte datos y preferencias de la cuenta, manteniendo Noche como identidad única y respetando accesibilidad.
 export function Workspace({ data, actions, syncState = null, isDemo, user, signOut }) {
   const { accounts, categories, transactions, budgets, goals, allocations, plannedPurchases = [], receipts = [], settingsRows } = data
-  const settingsMap = useMemo(() => Object.fromEntries(settingsRows.map((row) => [row.key, row.value])), [settingsRows])
+  const rawSettingsMap = useMemo(() => Object.fromEntries(settingsRows.map((row) => [row.key, row.value])), [settingsRows])
+  const settingsMap = useMemo(() => ({ ...rawSettingsMap, theme: 'dark' }), [rawSettingsMap])
   const [sheet, setSheet] = useState(null)
   const [toast, setToast] = useState(null)
   const toastTimer = useRef(null)
@@ -21,18 +22,15 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
 
   useEffect(() => {
     const root = document.documentElement
-    // Noche es la nueva dirección inicial; las preferencias ya guardadas se conservan.
-    const preference = matchMedia('(prefers-color-scheme: dark)')
-    const updateTheme = () => {
-      const theme = settingsMap.theme === 'system' ? (preference.matches ? 'dark' : 'light') : settingsMap.theme || 'dark'
-      root.dataset.theme = theme
-      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#0b1425' : '#faf8f6')
-    }
-    updateTheme()
-    preference.addEventListener('change', updateTheme)
+    // La interfaz es siempre oscura; las preferencias antiguas se normalizan para no reintroducir el tema claro.
+    root.dataset.theme = 'dark'
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#0b1425')
     root.dataset.motion = settingsMap.motion || 'system'
-    return () => preference.removeEventListener('change', updateTheme)
-  }, [settingsMap.theme, settingsMap.motion])
+    if (settingsRows.length && rawSettingsMap.theme !== 'dark') {
+      // La interfaz permanece oscura aunque la normalización de una preferencia antigua falle temporalmente.
+      void Promise.resolve(actions.setSetting('theme', 'dark')).catch(() => {})
+    }
+  }, [actions, rawSettingsMap.theme, settingsMap.motion, settingsRows.length])
 
   useEffect(() => () => window.clearTimeout(toastTimer.current), [])
 

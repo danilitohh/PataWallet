@@ -5,6 +5,7 @@ import { ShortcutManagement } from './components/ShortcutManagement.jsx'
 import { ShortcutReviewList } from './components/ShortcutReviewList.jsx'
 import { ShortcutSetup } from './components/ShortcutSetup.jsx'
 import { useShortcutIntegration } from './hooks/useShortcutIntegration.js'
+import { NightIcon } from '../../shared/components/NightIcon.jsx'
 
 export function AutomationPage() {
   const { isDemo, accounts, categories, transactions, notify } = useApp()
@@ -13,7 +14,7 @@ export function AutomationPage() {
   return <div className="route-stack">
     <IntegrationsHeader title="Automatización" subtitle="Compras compatibles mediante Atajos, con revisión y permisos separados de esta PWA." />
     <section className="integration-card shortcut-hero">
-      <span className="integration-icon"><Smartphone /></span>
+      <NightIcon icon={Smartphone} className="integration-icon" tone="violet" />
       <p className={`status-label ${integration.template.availability === 'available' ? 'status-label--active' : ''}`}>{integration.template.availability === 'available' ? 'Plantilla disponible' : 'Plantilla pendiente de publicar'}</p>
       <h2>{integration.template.shortcutName}</h2>
       <p>El atajo recibe únicamente el diccionario que prepara la automatización personal con monto, comercio y alias de tarjeta. No lee Wallet directamente ni importa historial.</p>

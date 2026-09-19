@@ -1,0 +1,142 @@
+/* Familia de iconos Noche: superficies pequeñas, coloreadas y luminosas que reemplazan el aspecto genérico. */
+.night-icon {
+  --icon-ink: #dfd2ff;
+  --icon-surface: #3a2d69;
+  --icon-deep: #17172e;
+  --icon-glow: #a990ff;
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+}
+
+/* La variante principal imita pequeñas piezas de vidrio pintado, sin borrar la legibilidad del glifo. */
+.night-icon--tile {
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid color-mix(in srgb, var(--icon-glow) 42%, var(--border));
+  border-radius: 14px;
+  color: var(--icon-ink);
+  background: linear-gradient(145deg, color-mix(in srgb, var(--icon-surface) 82%, #ffffff 8%), var(--icon-deep));
+  box-shadow: inset 0 1px 0 #ffffff3b, inset 0 -6px 12px color-mix(in srgb, var(--icon-deep) 60%, transparent), 0 7px 16px color-mix(in srgb, var(--icon-glow) 17%, transparent);
+}
+
+/* Halo y punto de luz: son capas geométricas discretas, no adornos que compitan con el símbolo. */
+.night-icon__halo {
+  position: absolute;
+  z-index: 0;
+  width: 75%;
+  aspect-ratio: 1;
+  top: -36%;
+  right: -24%;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--icon-glow) 55%, transparent), transparent 70%);
+  filter: blur(5px);
+  opacity: .8;
+  pointer-events: none;
+}
+
+.night-icon__spark {
+  position: absolute;
+  z-index: 2;
+  top: 7px;
+  right: 8px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--icon-ink);
+  box-shadow: 0 0 8px var(--icon-glow);
+  pointer-events: none;
+}
+
+.night-icon__glyph {
+  position: relative;
+  z-index: 1;
+  width: 55%;
+  height: 55%;
+  color: var(--icon-ink);
+  stroke: currentColor;
+  stroke-width: 2.25;
+  fill: color-mix(in srgb, var(--icon-ink) 13%, transparent);
+  filter: drop-shadow(0 2px 3px color-mix(in srgb, var(--icon-deep) 80%, transparent));
+}
+
+/* Variantes cromáticas inspiradas en la paleta de mascotas y luces de la referencia. */
+.night-icon--violet { --icon-ink: #e4d8ff; --icon-surface: #4b397d; --icon-deep: #1d1939; --icon-glow: #ad91ff; }
+.night-icon--sky { --icon-ink: #c7ecff; --icon-surface: #28577e; --icon-deep: #10273f; --icon-glow: #67c9ff; }
+.night-icon--mint { --icon-ink: #c3f7df; --icon-surface: #24604f; --icon-deep: #102c31; --icon-glow: #74dfbe; }
+.night-icon--peach { --icon-ink: #ffe2c9; --icon-surface: #764a49; --icon-deep: #352339; --icon-glow: #ffc18c; }
+.night-icon--rose { --icon-ink: #ffd5e6; --icon-surface: #75405f; --icon-deep: #321b39; --icon-glow: #ff9fc9; }
+.night-icon--gold { --icon-ink: #ffe8ad; --icon-surface: #73542c; --icon-deep: #322538; --icon-glow: #f7cf86; }
+.night-icon--market { --icon-ink: #ffd5c6; --icon-surface: #754457; --icon-deep: #351e38; --icon-glow: #ff9e9f; }
+.night-icon--transport { --icon-ink: #d5e7ff; --icon-surface: #2c5797; --icon-deep: #15264e; --icon-glow: #82b6ff; }
+.night-icon--pets { --icon-ink: #ffe0da; --icon-surface: #6e536e; --icon-deep: #32253e; --icon-glow: #e0a8a5; }
+.night-icon--food { --icon-ink: #ffe0bd; --icon-surface: #795241; --icon-deep: #382738; --icon-glow: #ffc27e; }
+.night-icon--salary { --icon-ink: #c3f6de; --icon-surface: #265c4b; --icon-deep: #132e35; --icon-glow: #76ddac; }
+.night-icon--transfer { --icon-ink: #d9d0ff; --icon-surface: #493a75; --icon-deep: #211d40; --icon-glow: #a998ff; }
+.night-icon--card_payment { --icon-ink: #e9d4ff; --icon-surface: #493a75; --icon-deep: #211d40; --icon-glow: #bfa2ff; }
+
+/* La navegación usa el mismo lenguaje cromático, pero sin encerrar cada acceso en una tarjeta. */
+.night-icon--nav {
+  width: 23px;
+  height: 23px;
+  color: currentColor;
+}
+
+.night-icon--nav .night-icon__halo,
+.night-icon--nav .night-icon__spark,
+.night-icon--minimal .night-icon__halo,
+.night-icon--minimal .night-icon__spark {
+  display: none;
+}
+
+.night-icon--nav .night-icon__glyph {
+  width: 100%;
+  height: 100%;
+  fill: color-mix(in srgb, currentColor 15%, transparent);
+  filter: drop-shadow(0 3px 5px color-mix(in srgb, currentColor 28%, transparent));
+}
+
+.night-icon--minimal .night-icon__glyph {
+  width: 22px;
+  height: 22px;
+  color: var(--accent);
+  fill: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+/* Ajustes ópticos para los roles que ya tienen tamaños propios en el sistema actual. */
+.night-icon.goal-icon .night-icon__glyph,
+.night-icon.account-row__icon .night-icon__glyph,
+.night-icon.setting-row__icon .night-icon__glyph,
+.night-icon.account-section-toggle__icon .night-icon__glyph { width: 22px; height: 22px; }
+.night-icon.transaction__icon .night-icon__glyph { width: 21px; height: 21px; }
+.night-icon.integration-icon .night-icon__glyph { width: 27px; height: 27px; }
+.night-icon.couple-card__icon .night-icon__glyph { width: 25px; height: 25px; }
+.night-icon.stat__icon { width: 29px; height: 29px; border-radius: 10px; }
+.night-icon.stat__icon .night-icon__glyph { width: 17px; height: 17px; }
+.night-icon.stat__icon .night-icon__spark { top: 5px; right: 6px; width: 3px; height: 3px; }
+
+/* Los tonos de transacciones vencen las superficies anteriores con una tarjeta visual completa. */
+.night-icon--tile.tone-market,
+.night-icon--tile.tone-transport,
+.night-icon--tile.tone-pets,
+.night-icon--tile.tone-food,
+.night-icon--tile.tone-salary,
+.night-icon--tile.tone-transfer,
+.night-icon--tile.tone-card_payment { color: var(--icon-ink); background: linear-gradient(145deg, color-mix(in srgb, var(--icon-surface) 88%, #ffffff 8%), var(--icon-deep)); }
+
+/* La navegación conserva movimiento reducido igual que el resto de los controles. */
+@media (hover: hover) {
+  .night-icon--nav { transition: transform 180ms cubic-bezier(.22, 1, .36, 1), filter 180ms ease; }
+  .side-nav nav a:hover .night-icon--nav,
+  .bottom-nav a:hover .night-icon--nav { transform: translateY(-1px) scale(1.08); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .night-icon,
+  .night-icon--nav { transition: none !important; transform: none !important; }
+}
+
+:root[data-motion="off"] .night-icon,
+:root[data-motion="off"] .night-icon--nav { transition: none !important; transform: none !important; }

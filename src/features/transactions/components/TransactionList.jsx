@@ -1,6 +1,7 @@
 import { BriefcaseBusiness, BusFront, ChevronRight, CircleDollarSign, PawPrint, ShoppingBasket, Utensils } from 'lucide-react'
 import { useApp } from '../../../app/AppContext.jsx'
 import { formatMinor } from '../../../domain/money.js'
+import { NightIcon } from '../../../shared/components/NightIcon.jsx'
 import { today } from '../../../shared/lib/date.js'
 import { iconForType, labelForType } from '../model/transactionTypes.js'
 
@@ -34,7 +35,7 @@ export function TransactionList({ items, compact = false, grouped = false }) {
     const hasExplicitTime = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/Bogota' }).format(clockDate) !== '12:00'
     return (
       <button className="transaction" key={item.id} onClick={() => setSheet(item)}>
-        <span className={`transaction__icon tone-${tone}`}><Icon /></span>
+        <NightIcon icon={Icon} className={`transaction__icon tone-${tone}`} tone={tone} />
         <span className="transaction__main"><strong>{item.merchant_name || labelForType[item.type]}{item.source === 'shortcut' && <span className="source-badge">Automático · Atajos</span>}</strong><small>{category?.name || labelForType[item.type]}{account ? ` · ${account.name}` : ''}</small></span>
         <span className={`transaction__amount ${income ? 'positive' : expense ? 'negative' : ''}`}><strong>{income ? '+' : expense ? '-' : ''}{formatMinor(item.amount_minor, item.currency, settings.hiddenAmounts)}</strong><small>{new Intl.DateTimeFormat('es-CO', { day: 'numeric', month: 'short', timeZone: 'America/Bogota' }).format(new Date(item.occurred_at))}{hasExplicitTime ? ` · ${clock}` : ''}</small></span>
         <ChevronRight className="transaction__chevron" />
