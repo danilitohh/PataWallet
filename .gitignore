@@ -3,6 +3,7 @@ dist/
 .playwright-cli/
 output/playwright/results/
 output/playwright/pwa-results/
+output/playwright/home-designs/
 playwright-report/
 graphify-out/
 .env.local
