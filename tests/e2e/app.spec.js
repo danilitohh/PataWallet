@@ -104,10 +104,10 @@ test('registra un plan opcional de deuda y configura los ingresos de referencia'
   await page.getByRole('button', { name: /probar con datos de ejemplo/i }).click()
   await expect(page.getByRole('heading', { name: /hola, danilo/i })).toBeVisible()
   await page.goto('/cuentas')
-  await page.getByRole('button', { name: 'Agregar', exact: true }).click()
+  await page.getByRole('button', { name: 'Agregar deuda', exact: true }).click()
   const accountDialog = page.getByRole('dialog', { name: 'Agregar cuenta' })
+  await expect(accountDialog.getByLabel('Naturaleza')).toHaveValue('liability')
   await accountDialog.getByLabel('Nombre').fill('Libre inversión')
-  await accountDialog.getByLabel('Naturaleza').selectOption('liability')
   await accountDialog.getByLabel('Tipo de deuda').selectOption('investment_loan')
   await accountDialog.getByLabel('Deuda inicial').fill('1.200.000')
   await accountDialog.getByLabel('Total de cuotas').fill('12')
@@ -178,7 +178,7 @@ test('mantiene cuentas legibles y reinicia el scroll al cambiar de ruta', async 
   await page.getByRole('link', { name: 'Plan', exact: true }).click()
   await page.evaluate(() => window.scrollTo(0, 500))
   await page.getByRole('link', { name: 'Cuentas', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Cuentas', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Tu dinero, de un vistazo', exact: true })).toBeVisible()
   expect(await page.evaluate(() => window.scrollY)).toBe(0)
 
   const layout = await page.locator('.account-row').first().evaluate((row) => {

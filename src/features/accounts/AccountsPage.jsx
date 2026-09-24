@@ -1,44 +1,103 @@
 import { useState } from 'react'
 import { AnimatePresence } from 'motion/react'
-import { CreditCard, Landmark, Pencil, Plus, Trash2 } from 'lucide-react'
+import { BadgeCheck, Clock3, Landmark, ListChecks, Plus } from 'lucide-react'
 import { useApp } from '../../app/AppContext.jsx'
 import { calculateSummary } from '../../domain/finance.js'
 import { formatMinor } from '../../domain/money.js'
-import { NightIcon } from '../../shared/components/NightIcon.jsx'
-import { debtScheduleLabel } from '../../domain/debtSchedule.js'
 import { PageHeader } from '../../shared/components/PageHeader.jsx'
 import { currentMonth } from '../../shared/lib/date.js'
 import { AccountDialog, AccountEditDialog } from './components/AccountDialogs.jsx'
+import { AccountLedgerPane } from './components/AccountLedgerPane.jsx'
 import { FixedExpensesSection } from './components/FixedExpensesSection.jsx'
 import { IncomeSection } from './components/IncomeSection.jsx'
-import { accountTypeLabel } from './model/accountTypes.js'
 
+// Presenta saldos, deudas, ingresos y compromisos como un registro financiero compacto.
 export function AccountsPage() {
-  const { accounts, transactions, settings, notify, actions } = useApp()
-  const [open, setOpen] = useState(false)
+  const { accounts, transactions, settings } = useApp()
+  const [accountKind, setAccountKind] = useState('asset')
   const [editingAccount, setEditingAccount] = useState(null)
+  const [open, setOpen] = useState(false)
   const summary = calculateSummary(accounts, transactions, currentMonth())
-  // Los dos grupos reflejan el modelo contable mínimo: patrimonio disponible frente a deuda.
-  const groups = [
-    { title: 'Dinero disponible', kind: 'asset', description: 'Efectivo, bancos y billeteras que son tuyos.' },
-    { title: 'Deudas', kind: 'liability', description: 'Tarjetas, préstamos y otras obligaciones pendientes.' },
-  ]
+  const visibleAccounts = accounts.filter((account) => !account.archived)
+  // Conserva el tipo del panel para que el formulario contextual se abra con la naturaleza correcta.
+  const openAccountDialog = (kind = 'asset') => {
+    setAccountKind(kind)
+    setOpen(true)
+  }
 
   return (
-    <div className="route-stack">
-      <PageHeader title="Cuentas" subtitle="Activos y deudas se muestran por separado." action={<button className="button button--quiet" onClick={() => setOpen(true)}><Plus /> Agregar</button>} />
-      <section className="account-summary"><div><span>Activos registrados</span><strong>{formatMinor(summary.assets, 'COP', settings.hiddenAmounts)}</strong></div><div><span>Deuda registrada</span><strong>{formatMinor(summary.debt, 'COP', settings.hiddenAmounts)}</strong></div><div><span>Posición neta</span><strong>{formatMinor(summary.net, 'COP', settings.hiddenAmounts)}</strong></div></section>
-      {groups.map(({ title, kind, description }) => <section key={kind}><div className="section-heading"><div><h2>{title}</h2><p>{description}</p></div></div><div className="account-list">{accounts.filter((item) => item.kind === kind && !item.archived).map((item) => <article className="account-row" key={item.id}><NightIcon icon={kind === 'asset' ? Landmark : CreditCard} className="account-row__icon" tone={kind === 'asset' ? 'sky' : 'violet'} /><div><h3>{item.name}</h3><p>{accountTypeLabel(item)}</p>{kind === 'liability' && <DebtScheduleSummary account={item} hidden={settings.hiddenAmounts} />}</div><strong>{formatMinor(summary.balances[item.id] || 0, 'COP', settings.hiddenAmounts)}</strong><button className="icon-button icon-button--small account-row__action--edit" aria-label={`Editar ${item.name}`} onClick={() => setEditingAccount(item)}><Pencil /></button><button className="icon-button icon-button--small account-row__action--archive" aria-label={`Archivar ${item.name}`} onClick={async () => { if (!confirm(`¿Archivar ${item.name}? Sus movimientos se conservarán.`)) return; await actions.updateAccount(item.id, { archived: true }); notify('Cuenta archivada') }}><Trash2 /></button></article>)}</div></section>)}
-      <IncomeSection />
-      <FixedExpensesSection />
-      <AnimatePresence>{open && <AccountDialog close={() => setOpen(false)} />}</AnimatePresence>
-      <AnimatePresence>{editingAccount && <AccountEditDialog account={editingAccount} close={() => setEditingAccount(null)} />}</AnimatePresence>
+    <div className="route-stack accounts-ledger">
+      <PageHeader
+        className="accounts-ledger__heading"
+        eyebrow="RESUMEN DE CUENTAS"
+        title="Tu dinero, de un vistazo"
+        subtitle="Saldos y próximos compromisos en un mismo registro."
+      />
+
+      <section className="accounts-ledger__summary" aria-label="Totales de cuentas">
+        <div className="accounts-ledger__balance">
+          <span><Landmark aria-hidden="true" /> Dinero en tus cuentas</span>
+          <strong>{formatMinor(summary.assets, 'COP', settings.hiddenAmounts)}</strong>
+          <small>Disponible en efectivo y cuentas propias</small>
+        </div>
+        <div className="accounts-ledger__metrics">
+          <Metric label="Deuda" amount={summary.debt} hidden={settings.hiddenAmounts} tone="debt" />
+          <Metric label="Neto" amount={summary.net} hidden={settings.hiddenAmounts} tone="net" />
+        </div>
+        <button className="button button--secondary accounts-ledger__add" type="button" onClick={() => openAccountDialog()}>
+          <Plus aria-hidden="true" /> Agregar
+        </button>
+      </section>
+
+      <div className="accounts-ledger__status" aria-label="Próximos pagos">
+        <span><Clock3 aria-hidden="true" /> Próximos pagos</span>
+        <strong>Checklist manual</strong>
+        <span className="accounts-ledger__separator" aria-hidden="true" />
+        <span><BadgeCheck aria-hidden="true" /> Marca los pagos al realizarlos</span>
+      </div>
+
+      <div className="accounts-ledger__columns">
+        <AccountLedgerPane
+          kind="asset"
+          accounts={visibleAccounts.filter((account) => account.kind === 'asset')}
+          amount={summary.assets}
+          balances={summary.balances}
+          hidden={settings.hiddenAmounts}
+          onAdd={() => openAccountDialog('asset')}
+          onEdit={setEditingAccount}
+        />
+        <AccountLedgerPane
+          kind="liability"
+          accounts={visibleAccounts.filter((account) => account.kind === 'liability')}
+          amount={summary.debt}
+          balances={summary.balances}
+          hidden={settings.hiddenAmounts}
+          onAdd={() => openAccountDialog('liability')}
+          onEdit={setEditingAccount}
+        />
+      </div>
+
+      <div className="accounts-ledger__commitments-heading">
+        <div><span className="accounts-ledger__eyebrow">FLUJO DEL MES</span><h2>Entradas y compromisos</h2></div>
+        <ListChecks aria-hidden="true" />
+      </div>
+      <div className="accounts-ledger__commitments">
+        <IncomeSection />
+        <FixedExpensesSection />
+      </div>
+
+      <AnimatePresence>
+        {open && <AccountDialog initialKind={accountKind} close={() => setOpen(false)} />}
+        {editingAccount && <AccountEditDialog account={editingAccount} close={() => setEditingAccount(null)} />}
+      </AnimatePresence>
     </div>
   )
 }
 
-// Muestra el avance de cuotas solo cuando la deuda tiene un plan completo y válido.
-function DebtScheduleSummary({ account, hidden }) {
-  const label = debtScheduleLabel(account, (value) => formatMinor(value, 'COP', hidden))
-  return label ? <small className="account-row__schedule">{label}</small> : null
+// Da jerarquía visual a una cifra sin duplicar las reglas de privacidad ni formato monetario.
+function Metric({ label, amount, hidden, tone }) {
+  return <div className={`accounts-ledger__metric accounts-ledger__metric--${tone}`}>
+    <span>{label}</span>
+    <strong>{formatMinor(amount, 'COP', hidden)}</strong>
+  </div>
 }

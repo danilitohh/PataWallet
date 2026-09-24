@@ -44,11 +44,11 @@ export function AccountEditDialog({ account, close }) {
   )
 }
 
-export function AccountDialog({ close }) {
+export function AccountDialog({ close, initialKind = 'asset' }) {
   const { accounts, settings, notify, actions } = useApp()
   const [name, setName] = useState('')
-  const [kind, setKind] = useState('asset')
-  const [subtype, setSubtype] = useState(defaultAccountSubtype('asset'))
+  const [kind, setKind] = useState(initialKind)
+  const [subtype, setSubtype] = useState(() => defaultAccountSubtype(initialKind))
   const [amount, setAmount] = useState('')
   const [incomeType, setIncomeType] = useState('')
   const [incomeName, setIncomeName] = useState('')

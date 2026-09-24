@@ -2,6 +2,13 @@
 
 Actualizado: 2026-09-24. Fase actual: **Metas primero aplicado a Plan; aplicar migración remota pendiente y validar en iPhone real sigue pendiente**.
 
+## Cuentas · Registro tranquilo · 24 de septiembre
+
+- Cuentas ahora usa un registro compacto con el dinero disponible como cifra principal, deuda y neto como métricas secundarias y paneles independientes para activos y obligaciones.
+- Se conservan saldos calculados desde movimientos, privacidad de importes, edición/archivo, planes informativos de deuda, administración de ingresos y gastos fijos, y la checklist manual de vencimientos.
+- Los botones contextuales permiten abrir el formulario directamente como cuenta disponible o deuda. Al promover este diseño se retiró únicamente el comparador temporal de Cuentas; la exploración de Inicio se conserva.
+- Verificación local: `npm run lint`, `npm test` (**107/107**), `npm run build` y `git diff --check` aprobados; E2E de deuda/legibilidad (**6/6**) y recorrido visual noche en los tres tamaños (**3/3**) aprobados. Revisados 390×844, 375×812 y 1440×900, sin overflow horizontal ni overlays de error. El acceso al asistente se separó de las acciones de Cuentas para evitar solapamientos en pantallas estrechas.
+
 ## Plan · Metas primero · 24 de septiembre
 
 - Plan abre con la meta principal y su progreso real; las demás metas quedan en una lista secundaria. El presupuesto actual, el dinero libre estimado y las próximas compras siguen disponibles debajo, con jerarquía adaptada a móvil y escritorio.
