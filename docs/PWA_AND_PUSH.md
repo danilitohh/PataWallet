@@ -44,6 +44,12 @@ Usar datos ficticios y un origen HTTPS estable autorizado.
 7. Desactivar desde la app; después revocar también desde los ajustes del sistema y volver a abrir para reconciliar.
 8. Cerrar sesión e iniciar con otra cuenta. La suscripción anterior debe quedar anulada y nunca reasignarse silenciosamente.
 
+## Botón para instalar desde Ajustes
+
+En Ajustes → Aplicación, el botón de instalación usa `beforeinstallprompt` cuando el navegador lo ofrece y solo abre el aviso nativo después de que la persona lo pulsa. Si el aviso no está disponible, muestra los pasos manuales del dispositivo; en iPhone/iPad explica Compartir → Añadir a pantalla de inicio → Abrir como app web → Añadir. El evento `appinstalled` y el modo independiente actualizan el estado visible.
+
+La web no puede omitir la confirmación del sistema ni pulsar por el usuario los controles de Safari. El navegador puede no ofrecer `beforeinstallprompt` si no se cumplen sus criterios o si ya está instalada; por eso siempre se conserva una guía manual. La comprobación automatizada simula el evento para verificar el flujo, pero no sustituye una instalación real en Android o iPhone.
+
 Si la revocación al servidor falla sin conexión, la suscripción del navegador se elimina localmente y la interfaz lo advierte. Eso no retira una notificación que ya llegó.
 
 ## Actualizaciones y modo offline

@@ -1,0 +1,15 @@
+/* Instalación desde Ajustes: instrucciones compactas y legibles junto a los controles del dispositivo. */
+.pwa-install__row { border-top: 1px solid var(--border); }
+.pwa-install__action { min-width: 84px; white-space: nowrap; }
+.pwa-install__badge { display: inline-flex; align-items: center; gap: 5px; color: var(--success); font-size: .73rem; font-weight: 760; white-space: nowrap; }
+.pwa-install__message { margin: 0 14px 12px 62px; color: var(--text-2); font-size: .76rem; }
+.pwa-install__guide { margin: 0 12px 12px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 15px; background: color-mix(in srgb, var(--surface) 76%, transparent); }
+.pwa-install__guide > p { font-size: .78rem; }
+.pwa-install__guide ol { display: grid; gap: 8px; margin: 11px 0 0; padding-left: 20px; color: var(--text-2); font-size: .78rem; line-height: 1.45; }
+.pwa-install__guide strong { color: var(--text); }
+
+@media (max-width: 520px) {
+  .pwa-install__row { grid-template-columns: 38px minmax(0, 1fr) auto; gap: 9px; }
+  .pwa-install__action { min-width: 74px; padding-inline: 9px; }
+  .pwa-install__message { margin-left: 14px; }
+}

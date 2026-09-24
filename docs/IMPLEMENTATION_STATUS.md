@@ -2,6 +2,12 @@
 
 Actualizado: 2026-09-24. Fase actual: **Metas primero aplicado a Plan; aplicar migración remota pendiente y validar en iPhone real sigue pendiente**.
 
+## Instalación PWA guiada · 24 de septiembre
+
+- Ajustes → Aplicación ofrece un control común: abre el aviso nativo del navegador cuando `beforeinstallprompt` está disponible y, si no, muestra pasos manuales para Safari o el menú del navegador.
+- El evento se captura desde la carga inicial de la SPA para que no se pierda antes de llegar a Ajustes. El estado reconoce el modo independiente y el evento `appinstalled`; no intenta saltarse la confirmación del usuario.
+- Verificación: `npm run lint`, `npm test` (**111/111**), `npm run build` y E2E dirigido (**4 pasaron, 2 omitidos intencionalmente**) aprobados. Capturas revisadas a 390×844, 375×812 y 1440×900; consola sin errores. La simulación del evento no equivale a una instalación física; probar el flujo nativo en iPhone y Android sigue pendiente.
+
 ## Cuentas · Registro tranquilo · 24 de septiembre
 
 - Cuentas ahora usa un registro compacto con el dinero disponible como cifra principal, deuda y neto como métricas secundarias y paneles independientes para activos y obligaciones.
