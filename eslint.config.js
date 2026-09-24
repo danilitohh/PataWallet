@@ -4,7 +4,7 @@ import react from 'eslint-plugin-react'
 import reactHooks from 'eslint-plugin-react-hooks'
 
 export default [
-  { ignores: ['dist', 'output', 'graphify-out'] },
+  { ignores: ['**/dist/**', 'output', 'graphify-out'] },
   js.configs.recommended,
   {
     files: ['**/*.{js,jsx}'],
