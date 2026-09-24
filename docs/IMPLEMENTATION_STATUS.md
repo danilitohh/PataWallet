@@ -10,6 +10,14 @@ Actualizado: 2026-09-23. Fase actual: **Selector de vistas de Inicio implementad
 - Migración local `20260924010315_dashboard_home_view_preference.sql` agrega la clave y valida sus tres valores. **No aplicada a Supabase remoto**; se evita insertar esta clave durante el arranque remoto hasta que la migración esté desplegada.
 - Verificación local: `npm run lint`, `npm test` (**104/104**) y `npm run build` aprobados; E2E dirigido de vistas, guardado, reload, checklist y ausencia de overflow (**6/6**) en 390×844, 375×812 y 1440×900; consola sin errores en capturas de revisión. No es una prueba de iPhone físico.
 
+## Actividad · Cronología · 23 de septiembre
+
+- La ruta `/actividad` adopta la composición Cronología: selector mensual, resumen, búsqueda, filtro por cuenta y tipos, y movimientos agrupados del más nuevo al más antiguo. El recorrido previo de movimientos y la bandeja real «Por revisar» se conservan.
+- El total visible es **gasto neto del mes** (compras menos reembolsos) y los ingresos se muestran aparte. Aperturas y ajustes no aparecen en la cronología; transferencias y pagos de deuda siguen visibles pero no se suman como gastos. No se lleva a producción el presupuesto ficticio que tenía el prototipo.
+- Los totales y movimientos respetan «Ocultar montos». «Datos de ejemplo» aparece solo en la demo. La navegación mensual usa la zona America/Bogota y no permite avanzar más allá del mes actual.
+- La exploración independiente de Actividad se retiró al promover la selección; las tres propuestas previas de Inicio permanecen disponibles en su vista previa.
+- Verificación local: `npm run lint`, `npm test` (**107/107**) y `npm run build` aprobados; `npx playwright test tests/e2e/activity-timeline.spec.js --workers=1` aprobó **3/3** en 390×844, 375×812 y 1440×900, con comprobación de consola y capturas revisadas en `output/playwright/results/`. No es una prueba con autenticación remota ni con iPhone físico.
+
 ## Rediseño Noche con Mascotas · 18 de septiembre
 
 - Nueva dirección visual pedida explícitamente: azul noche, lavanda/rosa, luz cálida, navegación flotante y nueva escena nocturna complementaria. Las cuatro ilustraciones originales se conservan sin alterar.

@@ -18,7 +18,8 @@ function categoryPresentation(category, type) {
 function transactionDateLabel(value) {
   const date = new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'America/Bogota' }).format(new Date(value))
   if (date === today()) return 'Hoy'
-  return new Intl.DateTimeFormat('es-CO', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'America/Bogota' }).format(new Date(`${date}T12:00:00-05:00`))
+  const label = new Intl.DateTimeFormat('es-CO', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'America/Bogota' }).format(new Date(`${date}T12:00:00-05:00`))
+  return label.charAt(0).toLocaleUpperCase('es-CO') + label.slice(1)
 }
 
 export function TransactionList({ items, compact = false, grouped = false }) {
