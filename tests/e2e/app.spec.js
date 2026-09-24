@@ -11,7 +11,7 @@ test('entra a la demo y navega por las áreas principales', async ({ page }) => 
   await expect(page.getByRole('heading', { name: 'Actividad' })).toBeVisible()
   await page.getByRole('link', { name: 'Plan', exact: true }).click()
   await expect(page).toHaveURL(/\/plan$/)
-  await expect(page.getByRole('heading', { name: 'Tu plan' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Metas y plan' })).toBeVisible()
 })
 
 test('abre el asistente desde la burbuja flotante', async ({ page }) => {
@@ -267,16 +267,16 @@ test('cierra y guarda las ventanas de metas', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: /probar con datos de ejemplo/i }).click()
   await page.getByRole('link', { name: 'Plan', exact: true }).click()
-  await page.getByRole('button', { name: /nueva meta/i }).click()
+  await page.getByRole('button', { name: 'Otra meta' }).click()
   await expect(page.getByRole('dialog', { name: 'Nueva meta' })).toBeVisible()
   await page.getByRole('dialog', { name: 'Nueva meta' }).getByRole('button', { name: 'Cerrar' }).click()
   await expect(page.getByRole('dialog', { name: 'Nueva meta' })).toBeHidden()
-  await page.getByRole('button', { name: /nueva meta/i }).click()
+  await page.getByRole('button', { name: 'Otra meta' }).click()
   await page.getByRole('dialog', { name: 'Nueva meta' }).getByLabel('Nombre').fill('Viaje familiar')
   await page.getByRole('dialog', { name: 'Nueva meta' }).getByLabel('Monto objetivo').fill('500.000')
   // Simula un doble toque rápido: la meta debe persistirse una sola vez.
   await page.getByRole('button', { name: 'Crear meta' }).click({ clickCount: 2 })
-  await expect(page.getByRole('heading', { name: 'Viaje familiar' })).toHaveCount(1)
+  await expect(page.locator('.plan-goal-list').getByText('Viaje familiar')).toHaveCount(1)
 })
 
 test('crea categoría, hora y comprobante opcionales', async ({ page }) => {
@@ -306,8 +306,15 @@ test('agrega y evalúa una próxima compra sin crear gasto', async ({ page }) =>
   await dialog.getByLabel('Monto estimado').fill('120.000')
   // Simula un doble toque rápido: la próxima compra debe persistirse una sola vez.
   await dialog.getByRole('button', { name: 'Guardar próxima compra' }).click({ clickCount: 2 })
-  await expect(page.getByRole('heading', { name: 'Audífonos' })).toHaveCount(1)
-  await expect(page.getByText(/presupuesto|fondos registrados/i).last()).toBeVisible()
+  const purchaseCard = page.locator('.plan-purchase-card')
+  await expect(purchaseCard.getByRole('heading', { name: 'Audífonos' })).toHaveCount(1)
+  await expect(page.locator('.toast')).toHaveCount(0)
+  const evaluateButton = purchaseCard.getByRole('button', { name: 'Evaluar compra' })
+  await evaluateButton.evaluate((element) => element.scrollIntoView({ block: 'center', behavior: 'instant' }))
+  await evaluateButton.click()
+  const assessment = purchaseCard.getByRole('status')
+  await expect(assessment).toBeVisible()
+  await expect(assessment).toContainText(/Puedes hacerla|No es recomendable|Falta información/)
 })
 
 test('crea una categoría desde una próxima compra', async ({ page }) => {

@@ -1,6 +1,14 @@
 # Estado de implementación
 
-Actualizado: 2026-09-23. Fase actual: **Selector de vistas de Inicio implementado y probado localmente; aplicar migración remota y validar en iPhone real sigue pendiente**.
+Actualizado: 2026-09-24. Fase actual: **Metas primero aplicado a Plan; aplicar migración remota pendiente y validar en iPhone real sigue pendiente**.
+
+## Plan · Metas primero · 24 de septiembre
+
+- Plan abre con la meta principal y su progreso real; las demás metas quedan en una lista secundaria. El presupuesto actual, el dinero libre estimado y las próximas compras siguen disponibles debajo, con jerarquía adaptada a móvil y escritorio.
+- Se conserva el modelo financiero: reservar no mueve dinero; el dinero libre usa ingresos de referencia menos gastos fijos, pagos de deuda y gastos netos registrados; si falta configurar el punto de partida, se indica en vez de inventar una cifra. El presupuesto visible corresponde al mes actual.
+- Crear/eliminar metas, reservar, editar el presupuesto y crear/editar/eliminar/evaluar compras previstas mantienen sus acciones y diálogos productivos. Las compras futuras no crean gastos automáticamente.
+- Al promover Metas primero, se retiró la vista previa temporal de Plan y se mantuvo intacta la exploración de Inicio.
+- Verificación local: `npm run lint`, `npm test` (**107/107**), `npm run build` y `git diff --check` aprobados; E2E enfocado (**7/7**) para el diseño/diálogos en 390×844, 375×812 y 1440×900, más evaluación de compra en 390×844; capturas de los tres tamaños inspeccionadas y consola sin errores en el recorrido visual. No es una prueba con autenticación remota ni con iPhone físico.
 
 ## Vistas de Inicio · 23 de septiembre
 
