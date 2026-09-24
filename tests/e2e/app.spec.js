@@ -63,6 +63,42 @@ test('muestra el resumen rápido de metas, compras y cuentas en Inicio', async (
   await expect(page.getByText('Cuenta principal', { exact: true })).toBeVisible()
 })
 
+test('cambia y recuerda las tres vistas de Inicio', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: /probar con datos de ejemplo/i }).click()
+  const views = page.getByRole('group', { name: 'Vistas de Inicio' })
+  await expect(views.getByRole('button', { name: 'Saldo claro' })).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.getByText('Dinero libre este mes').first()).toBeVisible()
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true)
+
+  await page.getByRole('link', { name: 'Cuentas', exact: true }).click()
+  const fixedExpenses = page.locator('.fixed-expenses-section')
+  await fixedExpenses.getByRole('button', { name: 'Gastos fijos', exact: true }).click()
+  await fixedExpenses.getByLabel('Nombre').fill('Internet de prueba')
+  await fixedExpenses.getByLabel('Monto mensual').fill('80.000')
+  await fixedExpenses.getByRole('button', { name: 'Guardar gastos fijos' }).click()
+  await expect(page.getByText('Gastos fijos guardados')).toBeVisible()
+  await page.getByRole('link', { name: 'Inicio', exact: true }).click()
+
+  await views.getByRole('button', { name: 'Quincena' }).click()
+  await expect(page.getByRole('heading', { name: 'Tu fecha de pago' })).toBeVisible()
+  await expect(views.getByRole('button', { name: 'Quincena' })).toHaveAttribute('aria-pressed', 'true')
+  const payment = page.getByRole('checkbox', { name: /Marcar Internet de prueba del .* como pagado/ }).first()
+  await expect(payment).toBeVisible()
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true)
+  await page.reload()
+  await expect(views.getByRole('button', { name: 'Quincena' })).toHaveAttribute('aria-pressed', 'true')
+  const recurringPayment = page.getByRole('checkbox', { name: /Marcar Internet de prueba del .* como pagado/ }).first()
+  await expect(recurringPayment).not.toBeChecked()
+  await recurringPayment.click()
+  await expect(recurringPayment).toBeChecked()
+
+  await views.getByRole('button', { name: 'Actividad' }).click()
+  await expect(page.getByRole('heading', { name: 'Gastos por categoría' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Actividad' })).toHaveAttribute('aria-pressed', 'true')
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true)
+})
+
 test('registra un plan opcional de deuda y configura los ingresos de referencia', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: /probar con datos de ejemplo/i }).click()
