@@ -92,12 +92,6 @@ html.standalone-app, html.standalone-app body { touch-action: pan-x pan-y; overs
 .form-error, .form-notice { padding: 11px 13px; border-radius: 13px; font-size: .86rem; }
 .form-error { color: var(--danger); background: color-mix(in srgb, var(--danger) 10%, transparent); }
 .form-notice { color: var(--success); background: color-mix(in srgb, var(--success) 10%, transparent); }
-.bottom-nav { position: fixed; z-index: 30; left: 12px; right: 12px; bottom: calc(10px + env(safe-area-inset-bottom)); height: 72px; display: grid; grid-template-columns: repeat(5, 1fr); align-items: center; padding: 6px 8px; border: 1px solid color-mix(in srgb, var(--border) 80%, transparent); border-radius: 24px; background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: blur(18px); box-shadow: var(--shadow); }
-.bottom-nav--couple { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-.bottom-nav a { height: 56px; min-width: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: var(--text-2); font-size: .68rem; font-weight: 650; border-radius: 16px; }
-.bottom-nav a.active { color: var(--primary); background: var(--surface-muted); }
-.bottom-nav > button { width: 54px; height: 54px; border-radius: 18px; place-self: center; display: grid; place-items: center; background: var(--primary); color: var(--on-primary); box-shadow: 0 8px 20px color-mix(in srgb, var(--primary) 23%, transparent); }
-.bottom-nav > button svg { width: 25px; height: 25px; }
 .assistant-fab { position: fixed; z-index: 25; right: 18px; bottom: calc(91px + env(safe-area-inset-bottom)); min-height: 46px; display: inline-flex; align-items: center; gap: 7px; padding: 0 14px; border: 1px solid color-mix(in srgb, var(--accent) 38%, var(--border)); border-radius: 999px; background: var(--surface); color: var(--accent); box-shadow: 0 10px 25px color-mix(in srgb, var(--primary) 18%, transparent); font-size: .78rem; font-weight: 760; }
 .assistant-fab svg { width: 19px; height: 19px; }
 .local-status { position: fixed; z-index: 15; left: 20px; right: 20px; bottom: calc(89px + env(safe-area-inset-bottom)); display: flex; justify-content: space-between; pointer-events: none; font-size: .7rem; color: var(--text-2); }
@@ -582,7 +576,7 @@ html.standalone-app, html.standalone-app body { touch-action: pan-x pan-y; overs
   .side-nav > a { margin-top: auto; }
   .side-nav__demo { padding-left: 13px; font-size: .72rem; }
   .side-nav > .sync-status { width: 100%; }
-  .mobile-top, .bottom-nav, .local-status, .mobile-sync { display: none; }
+  .mobile-top, .mobile-dock, .local-status, .mobile-sync { display: none; }
   .assistant-fab { right: 30px; bottom: 30px; }
   .page { min-height: 100dvh; padding: 52px 46px 80px; }
   .route-stack { gap: 28px; }
@@ -636,13 +630,11 @@ html.standalone-app, html.standalone-app body { touch-action: pan-x pan-y; overs
   .sheet-backdrop { align-items: stretch; }
   .sheet, .dialog { max-height: 100dvh; border-radius: 0; padding-bottom: calc(18px + env(safe-area-inset-bottom)); }
   .page { padding-top: calc(76px + env(safe-area-inset-top)); }
-  .bottom-nav { height: 62px; bottom: calc(6px + env(safe-area-inset-bottom)); }
-  .bottom-nav a { height: 50px; }
 }
 
 @media (hover: hover) {
   .button:hover:not(:disabled), .icon-button:hover:not(:disabled), .compact-action:hover:not(:disabled) { filter: brightness(.97); }
-  .side-nav a:hover, .bottom-nav a:hover { color: var(--text); }
+  .side-nav a:hover { color: var(--text); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -657,7 +649,6 @@ html.standalone-app, html.standalone-app body { touch-action: pan-x pan-y; overs
 }
 
 @media (prefers-reduced-transparency: reduce) {
-  .mobile-top, .bottom-nav, .sheet-backdrop { backdrop-filter: none; }
+  .mobile-top, .mobile-dock, .sheet-backdrop { backdrop-filter: none; }
   .mobile-top { background: var(--bg); }
-  .bottom-nav { background: var(--surface); }
 }

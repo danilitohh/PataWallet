@@ -1,6 +1,6 @@
 # Estado de implementación
 
-Actualizado: 2026-09-18. Fase actual: **Rediseño Noche con Mascotas revisado localmente; validación en iPhone real pendiente**.
+Actualizado: 2026-09-23. Fase actual: **Rediseño Noche con Mascotas revisado localmente; validación en iPhone real pendiente**.
 
 ## Rediseño Noche con Mascotas · 18 de septiembre
 
@@ -10,9 +10,11 @@ Actualizado: 2026-09-18. Fase actual: **Rediseño Noche con Mascotas revisado lo
 - Controles compartidos con profundidad 3D sutil: luz superior, sombra desplazada, elevación al pasar el cursor y hundimiento al pulsar para botones, navegación, iconos de actividad, cuentas, metas y ajustes. El movimiento se desactiva con la preferencia del sistema o “Sin movimiento”.
 - Tema oscuro único: la opción Claro/Sistema ya no se muestra y las preferencias antiguas se normalizan a Noche al abrir el espacio; el cambio del sistema operativo no altera la identidad visual.
 - Iconografía Noche: se incorporó una capa `NightIcon` reutilizable con insignias SVG de tonos lavanda, cielo, menta, durazno, rosa y dorado, halo suave y variantes ópticas para navegación, estadísticas, cuentas, movimientos, metas, ajustes e integraciones. Los iconos ya no dependen de trazos genéricos aislados y mantienen estados accesibles de foco, pulsación y movimiento reducido.
+- Dock móvil: se integró un componente magnético basado en React Bits/Motion con ampliación por proximidad, etiquetas flotantes, enlaces semánticos para las rutas y botón central de Nuevo movimiento. La navegación conserva el estado activo, funciona con teclado y vuelve al tamaño base con movimiento reducido; el menú lateral de escritorio permanece intacto.
 - Verificación: `npm run lint` aprobado; `npm run test` **100/100**; suite previa `npm run test:e2e` **58 aprobadas, 2 omitidas** (la captura adicional de Atajos en noche/movimiento reducido solo se ejecuta en mobile-390); nueva suite `night-design.spec.js` **9/9**; `npm run build` aprobado; `npm run test:pwa` **1/1**.
 - Profundidad 3D: `night-design.spec.js` pasó **12/12** en mobile-390, mobile-375 y escritorio; la corrida completa posterior pasó **67/72**, con 2 omitidas y 3 fallos preexistentes en capturas de Integraciones que pierden el estado demo al hacer `page.goto()` después de pulsar “Probar con datos de ejemplo”, por lo que regresan a Bienvenida antes de buscar sus encabezados.
 - Última verificación de esta iteración: `npm run lint`, `npm run test` (**100/100**), `npm run build`, `npm run test:pwa` (**1/1**), `night-design.spec.js` (**12/12**) y `app.spec.js` (**51/51**) aprobados. El detector visual solo encontró una transición de ancho en el progreso del onboarding; se reemplazó por `transform: scaleX()` para evitar trabajo de layout.
+- Verificación del dock: revisión manual a 390×844 y escritorio con tooltip, magnificación, navegación y consola sin errores; `app.spec.js` **51/51**, `night-design.spec.js` **11/12** en la primera corrida por un arranque puntual de WebKit y el caso aislado repetido **1/1**, `npm run test:pwa` **1/1**. El detector visual final no encontró antipatrones (`[]`).
 - La primera pasada de E2E detectó enlaces accesibles ambiguos y una navegación de prueba que adelantó el guardado de la demo; la segunda pasada estable aprobó los casos. No se debilitaron las aserciones para ocultar fallos.
 - Capturas inspeccionadas a 390×844, 375×812 y 1440×900. Revisión de errores de formulario, vacío, offline, montos ocultos y reducción de movimiento; comprobación de consola y de desbordes en las rutas principales. No equivale a auditoría exhaustiva de contraste ni a prueba de iPhone físico.
 - Acceso/registro/recuperación revisados sin enviar datos ni solicitudes reales. No se probó OAuth, IA real, colaboración entre usuarios, Web Push ni Wallet durante esta tarea; conservan sus pendientes anteriores.

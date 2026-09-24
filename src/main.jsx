@@ -14,6 +14,7 @@ import './features/accounts/accounts.css'
 import './features/settings/settings.css'
 import './styles/three-dee.css'
 import './styles/night-icons.css'
+import './shared/components/dock.css'
 
 // Ajusta el viewport antes de montar la interfaz para evitar zoom accidental en la PWA.
 configureStandaloneViewport()

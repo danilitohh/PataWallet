@@ -130,7 +130,7 @@
 @media (hover: hover) {
   .night-icon--nav { transition: transform 180ms cubic-bezier(.22, 1, .36, 1), filter 180ms ease; }
   .side-nav nav a:hover .night-icon--nav,
-  .bottom-nav a:hover .night-icon--nav { transform: translateY(-1px) scale(1.08); }
+  .dock-item:hover .night-icon--nav { transform: translateY(-1px) scale(1.08); }
 }
 
 @media (prefers-reduced-motion: reduce) {

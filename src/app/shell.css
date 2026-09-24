@@ -8,11 +8,6 @@ main.page:focus-visible { outline: none; }
 .mobile-top__actions { display: flex; gap: 6px; }
 .mobile-top > .wordmark { display: flex; width: auto; }
 .mobile-top__actions a { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
-.bottom-nav { left: 16px; right: 16px; height: 70px; padding-inline: 6px; border-radius: 21px; box-shadow: 0 -4px 30px #03071230, inset 0 1px 0 #ffffff09; }
-.bottom-nav a { min-width: 0; font-size: .65rem; border-radius: 12px; }
-.bottom-nav a.active { color: var(--accent); background: transparent; }
-.bottom-nav a.active svg { filter: drop-shadow(0 0 5px #b6a1ff65); }
-.bottom-nav > button { width: 55px; height: 55px; margin-top: -16px; border-radius: 50%; background: var(--button-fill); border: 3px solid var(--bg); outline: 1px solid var(--border); box-shadow: 0 0 18px #b899ff35; }
 .assistant-fab { width: 44px; height: 44px; min-height: 44px; padding: 0; justify-content: center; right: 20px; border-radius: 15px; }
 .assistant-fab .assistant-fab__label { display: none; }
 .local-status { z-index: 40; width: fit-content; max-width: calc(100% - 88px); padding: 8px 11px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); color: var(--text); }

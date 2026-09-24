@@ -16,7 +16,7 @@
 .activity-type-chips button,
 .segmented button.active,
 .side-nav__add,
-.bottom-nav > button {
+.dock-item--primary {
   transform-style: preserve-3d;
   transition: transform 180ms cubic-bezier(.22, 1, .36, 1), box-shadow 220ms ease, border-color 180ms ease, background-color 180ms ease;
 }
@@ -24,7 +24,7 @@
 /* Los botones principales tienen una capa de brillo integrada y una sombra con profundidad real. */
 .button--primary,
 .side-nav__add,
-.bottom-nav > button {
+.dock-item--primary {
   background-image: linear-gradient(180deg, #ffffff38 0%, transparent 43%), var(--button-fill);
   box-shadow: inset 0 1px 0 var(--depth-highlight), inset 0 -2px 0 color-mix(in srgb, var(--depth-primary) 54%, transparent), 0 7px 18px var(--depth-shadow);
 }
@@ -55,8 +55,8 @@
   box-shadow: inset 0 1px 0 var(--depth-highlight), 0 5px 14px var(--depth-shadow-soft);
 }
 
-/* La navegación inferior conserva su elevación especial, ahora con una lectura más física. */
-.bottom-nav > button {
+/* El acceso principal del dock conserva una elevación especial y una lectura más física. */
+.dock-item--primary {
   box-shadow: inset 0 2px 0 #ffffff68, inset 0 -3px 0 color-mix(in srgb, var(--depth-primary) 58%, transparent), 0 9px 22px var(--depth-shadow);
 }
 
@@ -75,7 +75,7 @@
 
   .button--primary:not(:disabled):hover,
   .side-nav__add:hover,
-  .bottom-nav > button:hover {
+  .dock-item--primary:hover {
     box-shadow: inset 0 2px 0 #ffffff78, inset 0 -2px 0 color-mix(in srgb, var(--depth-primary) 54%, transparent), 0 12px 28px var(--depth-shadow);
   }
 
@@ -94,11 +94,11 @@
     box-shadow: inset 0 1px 0 var(--depth-highlight), 0 9px 19px var(--depth-shadow);
   }
 
-  .bottom-nav > button:hover {
+  .dock-item--primary:hover {
     transform: perspective(460px) translateY(-18px) rotateX(5deg) rotateY(-4deg);
   }
 
-  .bottom-nav a:hover:not(.active) svg {
+  .dock-item:hover:not(.dock-item--active) svg {
     transform: translateY(-1px) scale(1.06);
     filter: drop-shadow(0 5px 8px var(--depth-shadow-soft));
   }
@@ -116,7 +116,7 @@
   box-shadow: inset 0 2px 5px color-mix(in srgb, var(--depth-primary) 32%, transparent), 0 3px 8px var(--depth-shadow-soft);
 }
 
-.bottom-nav > button:active:not(:disabled) {
+.dock-item--primary:active:not(:disabled) {
   transform: translateY(-13px) scale(.96);
   box-shadow: inset 0 3px 6px color-mix(in srgb, var(--depth-primary) 34%, transparent), 0 5px 13px var(--depth-shadow);
 }
@@ -139,7 +139,7 @@
   .activity-type-chips button,
   .segmented button.active,
   .side-nav__add,
-  .bottom-nav > button,
+  .dock-item--primary,
   .goal-icon,
   .account-row__icon,
   .setting-row__icon,
@@ -160,7 +160,7 @@
 :root[data-motion="off"] .activity-type-chips button,
 :root[data-motion="off"] .segmented button.active,
 :root[data-motion="off"] .side-nav__add,
-:root[data-motion="off"] .bottom-nav > button,
+:root[data-motion="off"] .dock-item--primary,
 :root[data-motion="off"] .goal-icon,
 :root[data-motion="off"] .account-row__icon,
 :root[data-motion="off"] .setting-row__icon,

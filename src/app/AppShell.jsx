@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { AlertTriangle, Bell, Bot, Check, CloudUpload, HardDrive, Home, LoaderCircle, ListOrdered, PawPrint, PiggyBank, Plus, Settings, UsersRound, WalletCards } from 'lucide-react'
-import { Link, NavLink, useLocation } from 'react-router-dom'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useApp } from './AppContext.jsx'
+import Dock from '../shared/components/Dock.jsx'
 import { NightIcon } from '../shared/components/NightIcon.jsx'
 
 const navigation = [
@@ -21,10 +22,16 @@ function NavigationIcon({ icon: Icon, to }) {
 export function AppShell({ children }) {
   const { setSheet, isDemo, user, syncState, actions } = useApp()
   const location = useLocation()
+  const navigate = useNavigate()
   const mainRef = useRef(null)
 
   // Parejas debe ser accesible antes de aceptar una invitación para poder crearla.
   const items = !isDemo ? [...navigation, ['/parejas', UsersRound, 'Parejas']] : navigation
+  const dockItems = [
+    ...items.slice(0, 2).map(([to, Icon, label]) => ({ key: to, href: to, icon: <NavigationIcon icon={Icon} to={to} />, label, active: isRouteActive(to, location.pathname), onClick: () => navigate(to) })),
+    { key: 'new', icon: <NightIcon icon={Plus} variant="nav" tone="violet" />, label: 'Nuevo movimiento', className: 'dock-item--primary', onClick: () => setSheet('new') },
+    ...items.slice(2).map(([to, Icon, label]) => ({ key: to, href: to, icon: <NavigationIcon icon={Icon} to={to} />, label, active: isRouteActive(to, location.pathname), onClick: () => navigate(to) })),
+  ]
 
   useEffect(() => {
     // Cada ruta empieza arriba para que la barra móvil no cubra su encabezado.
@@ -49,14 +56,15 @@ export function AppShell({ children }) {
         {children}
       </main>
       {location.pathname !== '/asistente' && <AssistantBubble isDemo={isDemo} />}
-      <nav className={`bottom-nav ${!isDemo ? 'bottom-nav--couple' : ''}`} aria-label="Navegación principal">
-        {items.slice(0, 2).map(([to, Icon, label]) => <NavLink key={to} to={to} end={to === '/'}><NavigationIcon icon={Icon} to={to} /><span>{label}</span></NavLink>)}
-        <button aria-label="Nuevo movimiento" onClick={(event) => { event.currentTarget.focus(); setSheet('new') }}><Plus /></button>
-        {items.slice(2).map(([to, Icon, label]) => <NavLink key={to} to={to}><NavigationIcon icon={Icon} to={to} /><span>{label}</span></NavLink>)}
-      </nav>
+      <div className="mobile-dock"><Dock items={dockItems} className={!isDemo ? 'dock-panel--couple' : ''} /></div>
       <OnlineStatus />
     </div>
   )
+}
+
+// Considera activas las rutas hijas para que el dock conserve el contexto al entrar a un submódulo.
+function isRouteActive(to, pathname) {
+  return to === '/' ? pathname === '/' : pathname === to || pathname.startsWith(`${to}/`)
 }
 
 // Mantiene el asistente a un toque desde Inicio sin convertirlo en una acción financiera automática.
