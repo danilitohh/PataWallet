@@ -14,21 +14,30 @@ alter table public.user_settings
     or (key = 'homeView' and value in ('"available"'::jsonb, '"payday"'::jsonb, '"activity"'::jsonb))
     or (
       key = 'monthlySalaryMinor'
-      and case
-        when value = 'null'::jsonb then true
-        when jsonb_typeof(value) <> 'number' then false
-        when (value #>> '{}') !~ '^[0-9]+$' then false
-        else (value #>> '{}')::numeric between 1 and 999999999999
-      end
+      and (
+        value is null
+        or case
+          when value = 'null'::jsonb then true
+          when jsonb_typeof(value) <> 'number' then false
+          when (value #>> '{}') !~ '^[0-9]+$' then false
+          else (value #>> '{}')::numeric between 1 and 999999999999
+        end
+      )
     )
-    or (key = 'payFrequency' and (value = 'null'::jsonb or value in ('"weekly"'::jsonb, '"biweekly"'::jsonb, '"semimonthly"'::jsonb, '"monthly"'::jsonb)))
+    or (
+      key = 'payFrequency'
+      and (value is null or value = 'null'::jsonb or value in ('"weekly"'::jsonb, '"biweekly"'::jsonb, '"semimonthly"'::jsonb, '"monthly"'::jsonb))
+    )
     or (
       key = 'fixedExpenses'
       and case when jsonb_typeof(value) = 'array' then jsonb_array_length(value) <= 50 else false end
     )
     or (
       key = 'nextPayDate'
-      and case when value = 'null'::jsonb then true when jsonb_typeof(value) = 'string' then (value #>> '{}') ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$' else false end
+      and (
+        value is null
+        or case when value = 'null'::jsonb then true when jsonb_typeof(value) = 'string' then (value #>> '{}') ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$' else false end
+      )
     )
     or (
       key = 'incomeSources'

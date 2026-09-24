@@ -35,8 +35,8 @@ Actualizado: 2026-09-24. Fase actual: **Metas primero aplicado a Plan; aplicar m
 - Inicio presenta arriba un selector accesible entre **Saldo claro**, **Quincena** y **Actividad**. La preferencia se conserva en la demo local y en cuentas remotas después de aplicar la migración.
 - Saldo claro prioriza el dinero libre después de compromisos y gastos registrados; Quincena calcula el próximo pago desde la frecuencia y fecha configuradas y reutiliza la checklist de pagos recurrentes; Actividad resume los gastos por categoría y los movimientos del mes seleccionado.
 - Las vistas comparten los mismos datos financieros, privacidad de montos y movimientos; no crean pagos ni cifras ficticias. Si falta la fecha de pago o el punto de partida, se muestra una acción para completarlo.
-- Migración local `20260924010315_dashboard_home_view_preference.sql` agrega la clave y valida sus tres valores. **No aplicada a Supabase remoto**; se evita insertar esta clave durante el arranque remoto hasta que la migración esté desplegada.
-- Verificación local: `npm run lint`, `npm test` (**104/104**) y `npm run build` aprobados; E2E dirigido de vistas, guardado, reload, checklist y ausencia de overflow (**6/6**) en 390×844, 375×812 y 1440×900; consola sin errores en capturas de revisión. No es una prueba de iPhone físico.
+- Migración `20260924010315_dashboard_home_view_preference.sql` agrega la clave y valida sus tres valores; conserva explícitamente los valores SQL `NULL` opcionales ya admitidos por el esquema. Aplicada al proyecto Supabase de producción el 24 de septiembre de 2026 y verificadas ambas restricciones. La preferencia pendiente se sincronizó; se probaron los cambios entre Quincena y Actividad y Ajustes reportó **Sincronizado**, sin alerta roja.
+- Verificación local: `npm run lint`, `npm test` (**111/111**) y `npm run build` aprobados; E2E dirigido de vistas, guardado, reload, checklist y ausencia de overflow (**6/6**) en 390×844, 375×812 y 1440×900; consola sin errores en capturas de revisión. No es una prueba de iPhone físico.
 
 ## Actividad · Cronología · 23 de septiembre
 
