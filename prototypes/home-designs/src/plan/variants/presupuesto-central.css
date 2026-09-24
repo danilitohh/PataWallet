@@ -1,0 +1,65 @@
+/* Hace de Presupuesto al centro un tablero de control escaneable por categorías. */
+#plan-prototype .plan-presupuesto__month { display: flex; justify-content: flex-end; margin-top: -5px; }
+#plan-prototype .plan-presupuesto__overview { padding: clamp(18px, 3vw, 26px); border-color: #3d4b6d; background: radial-gradient(ellipse at 100% 0%, #6652a329, transparent 38%), linear-gradient(145deg, #17263d, #121d30); }
+#plan-prototype .plan-presupuesto__overview-head { display: flex; align-items: center; gap: 12px; }
+#plan-prototype .plan-presupuesto__overview-icon { width: 43px; height: 43px; display: grid; flex: 0 0 auto; place-items: center; border: 1px solid #5a4f83; border-radius: 14px; background: linear-gradient(145deg, #332e56, #242842); color: var(--plan-lilac); box-shadow: inset 0 1px 0 #ffffff28, 0 8px 15px #080b1b45; }
+#plan-prototype .plan-presupuesto__overview-icon svg { width: 21px; height: 21px; }
+#plan-prototype .plan-presupuesto__overview-head > div { display: grid; gap: 4px; }
+#plan-prototype .plan-presupuesto__overview-head > div > span { color: #d7ccf2; font-size: .63rem; font-weight: 770; letter-spacing: .08em; }
+#plan-prototype .plan-presupuesto__overview-head small { color: var(--plan-muted); font-size: .68rem; text-transform: capitalize; }
+#plan-prototype .plan-presupuesto__overview-head .plan-icon-action { margin-left: auto; }
+#plan-prototype .plan-presupuesto__numbers { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; margin: 21px 0 14px; }
+#plan-prototype .plan-presupuesto__numbers > strong { color: #fff; font-size: clamp(2.25rem, 6vw, 3.5rem); line-height: 1; letter-spacing: -.055em; }
+#plan-prototype .plan-presupuesto__numbers > span { color: #b6c2d9; font-size: .82rem; }
+#plan-prototype .plan-presupuesto__overview .plan-budget-progress { max-width: 800px; }
+#plan-prototype .plan-presupuesto__overview .plan-meter { height: 12px; }
+#plan-prototype .plan-presupuesto__left { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 18px; padding-top: 14px; border-top: 1px solid #ffffff13; color: #bdc7dc; font-size: .74rem; }
+#plan-prototype .plan-presupuesto__left strong { color: var(--plan-mint); font-size: .91rem; }
+#plan-prototype .plan-presupuesto__categories { display: grid; gap: 13px; }
+#plan-prototype .plan-presupuesto__categories > .plan-section-heading { margin: 0; }
+#plan-prototype .plan-presupuesto__category-count { padding: 6px 9px; border: 1px solid #3a4762; border-radius: 999px; background: #151f33; color: #aebbd2; font-size: .63rem; }
+#plan-prototype .plan-presupuesto__category-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+#plan-prototype .plan-category-card { min-width: 0; min-height: 90px; display: grid; grid-template-columns: 39px minmax(0, 1fr) auto; align-items: center; gap: 11px; padding: 13px; border: 1px solid #2f3e58; border-radius: 17px; background: linear-gradient(145deg, #18263b, #121e31); box-shadow: inset 0 1px 0 #ffffff08; }
+#plan-prototype .plan-category-card__icon { width: 38px; height: 38px; display: grid; place-items: center; border: 1px solid color-mix(in srgb, var(--category-tone) 38%, #33405a); border-radius: 12px; background: color-mix(in srgb, var(--category-tone) 15%, #19253a); color: var(--category-tone); }
+#plan-prototype .plan-category-card__icon svg { width: 17px; height: 17px; }
+#plan-prototype .plan-category-card__icon--peach { --category-tone: #ffc18c; }
+#plan-prototype .plan-category-card__icon--sky { --category-tone: #8dcfff; }
+#plan-prototype .plan-category-card__icon--violet { --category-tone: #c4b0ff; }
+#plan-prototype .plan-category-card__icon--mint { --category-tone: #92e0c4; }
+#plan-prototype .plan-category-card__icon--rose { --category-tone: #ff9fc9; }
+#plan-prototype .plan-category-card__body { min-width: 0; display: grid; gap: 8px; }
+#plan-prototype .plan-category-card__top, #plan-prototype .plan-category-card__amounts { display: flex; align-items: center; justify-content: space-between; gap: 9px; }
+#plan-prototype .plan-category-card__top strong { overflow: hidden; color: #efedf6; font-size: .76rem; text-overflow: ellipsis; white-space: nowrap; }
+#plan-prototype .plan-category-card__top > span { color: #cdbaff; font-size: .68rem; font-weight: 750; }
+#plan-prototype .plan-category-track { height: 7px; overflow: hidden; border-radius: 99px; background: #27354d; }
+#plan-prototype .plan-category-track > span { display: block; width: 100%; height: 100%; transform-origin: left; border-radius: inherit; background: linear-gradient(90deg, var(--category-tone), color-mix(in srgb, var(--category-tone) 52%, #bda7ff)); transition: transform 250ms cubic-bezier(.16, 1, .3, 1); }
+#plan-prototype .plan-category-card__amounts { color: #aebbd2; font-size: .62rem; }
+#plan-prototype .plan-category-card__amounts strong { color: #edeaf5; font-size: .69rem; }
+#plan-prototype .plan-category-card__amounts > span { white-space: nowrap; }
+#plan-prototype .plan-category-card__signal { align-self: start; color: var(--plan-peach); }
+#plan-prototype .plan-category-card__signal svg { width: 15px; height: 15px; }
+#plan-prototype .plan-presupuesto__hint { color: #9eabc4; font-size: .66rem; line-height: 1.45; }
+#plan-prototype .plan-presupuesto__bottom-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(250px, .85fr); gap: 13px; }
+#plan-prototype .plan-presupuesto__purchase-name,
+#plan-prototype .plan-presupuesto__goal-name { display: block; color: #f3f0fa; font-size: .88rem; }
+#plan-prototype .plan-presupuesto__purchase > p { margin-top: 5px; color: var(--plan-muted); font-size: .68rem; }
+#plan-prototype .plan-primary-action--compact { width: 100%; min-height: 43px; justify-content: space-between; margin-top: 13px; }
+#plan-prototype .plan-presupuesto__purchase > .plan-purchase-assessment { margin-top: 11px; }
+#plan-prototype .plan-presupuesto__purchase-glyph { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 11px; background: #2b2947; color: var(--plan-lilac); }
+#plan-prototype .plan-presupuesto__purchase-glyph svg { width: 17px; height: 17px; }
+#plan-prototype .plan-presupuesto__goal > .plan-goal-progress { margin-top: 14px; }
+#plan-prototype .plan-presupuesto__goal > .plan-text-action { width: 100%; margin-top: 7px; }
+#plan-prototype .plan-presupuesto > .plan-gentle-note { margin-top: -3px; }
+
+@media (max-width: 700px) {
+  #plan-prototype .plan-presupuesto__category-list { grid-template-columns: 1fr; gap: 8px; }
+  #plan-prototype .plan-category-card { min-height: 82px; padding: 11px; }
+  #plan-prototype .plan-presupuesto__bottom-grid { grid-template-columns: 1fr; }
+  #plan-prototype .plan-presupuesto__numbers { margin-top: 17px; }
+}
+
+@media (max-width: 375px) {
+  #plan-prototype .plan-category-card { grid-template-columns: 34px minmax(0, 1fr) auto; gap: 8px; }
+  #plan-prototype .plan-category-card__icon { width: 33px; height: 33px; }
+  #plan-prototype .plan-presupuesto__numbers > strong { font-size: 2.05rem; }
+}
