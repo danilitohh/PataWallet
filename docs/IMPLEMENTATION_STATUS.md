@@ -2,6 +2,13 @@
 
 Actualizado: 2026-09-24. Fase actual: **Metas primero aplicado a Plan; aplicar migración remota pendiente y validar en iPhone real sigue pendiente**.
 
+## Exploración visual de Ajustes · 24 de septiembre
+
+- Se prepararon tres propuestas locales: lista serena, panel organizado por tareas y secciones guiadas plegables. Las tres conservan apariencia oscura, iconos Noche y los controles representativos de Ajustes.
+- El selector admite clic, teclas `1`–`3` y flechas; sus controles son demostrativos y no escriben preferencias, exportan datos ni instalan la PWA.
+- Aislado en `prototypes/settings-designs/`, con servidor y build propios. **La pantalla de producción no se modificó; queda pendiente que Danilo elija una dirección antes de aplicarla.**
+- Verificación local: `npm run lint`, `npm run test` (**111/111**), `npm run build` y build independiente del prototipo aprobados. Revisión visual e interactiva en 390×844, 375×812 y 1440×900; sin overflow horizontal en móvil. El detector visual conserva una advertencia de transición de ancho únicamente para el indicador del selector, cuya animación exacta es requisito del harness de comparación.
+
 ## Instalación PWA guiada · 24 de septiembre
 
 - Ajustes → Aplicación ofrece un control común: abre el aviso nativo del navegador cuando `beforeinstallprompt` está disponible y, si no, muestra pasos manuales para Safari o el menú del navegador.
