@@ -43,7 +43,7 @@ export function PwaInstallControl() {
     <section className="settings-group pwa-install" aria-labelledby="pwa-install-title">
       <h2 id="pwa-install-title">Aplicación</h2>
       <div className="setting-row pwa-install__row">
-        <NightIcon icon={installState.installed ? Check : Download} className="setting-row__icon" tone="violet" />
+        <NightIcon icon={installState.installed ? Check : Download} className="setting-row__icon" tone="peach" />
         <div>
           <h3>{installState.installed ? 'PataWallet está instalada' : 'Instalar PataWallet'}</h3>
           <p>{installState.installed ? 'Puedes abrirla desde el inicio de tu dispositivo.' : 'Agrégala a tu dispositivo para abrirla como una app.'}</p>

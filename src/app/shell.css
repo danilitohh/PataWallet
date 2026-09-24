@@ -10,6 +10,8 @@ main.page:focus-visible { outline: none; }
 .mobile-top__actions a { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
 .assistant-fab { width: 44px; height: 44px; min-height: 44px; padding: 0; justify-content: center; right: 20px; border-radius: 15px; }
 .assistant-fab .assistant-fab__label { display: none; }
+/* Ajustes ya ofrece el acceso al asistente en su lista; se evita tapar sus filas con el botón flotante. */
+.app-shell:has(.settings-page--serene) .assistant-fab { display: none; }
 /* En Cuentas, aparta el acceso al asistente del dock y de las acciones de cada saldo. */
 @media (max-width: 999px) {
   .app-shell:has(.accounts-ledger) .assistant-fab { top: calc(10px + env(safe-area-inset-top)); right: 124px; bottom: auto; }
