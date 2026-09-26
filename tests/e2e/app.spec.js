@@ -294,6 +294,7 @@ test('abre notificaciones sin solicitar permiso automáticamente', async ({ page
   })
   await page.goto('/')
   await page.getByRole('button', { name: 'Probar con datos de ejemplo' }).click()
+  await expect(page.getByRole('heading', { name: /hola, danilo/i })).toBeVisible()
   await page.goto('/ajustes/notificaciones')
   await expect(page.getByRole('heading', { name: 'Avisos privados de PataWallet' })).toBeVisible()
   await expect(page.getByText('Solo para cuentas reales')).toBeVisible()
@@ -385,14 +386,12 @@ test('crea una categoría desde una próxima compra', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: /probar con datos de ejemplo/i }).click()
   await page.getByRole('link', { name: 'Plan', exact: true }).click()
-  // El CTA del plan comparte la animación de entrada del panel en móvil.
-  await page.getByRole('button', { name: 'Agregar' }).click({ force: true })
+  // Espera a que el CTA termine su animación antes de interactuar en móvil.
+  await page.getByRole('button', { name: 'Agregar' }).click()
   const dialog = page.getByRole('dialog', { name: 'Agregar próxima compra' })
-  // En el viewport móvil el botón puede quedar dentro de un contenedor animado; fuerza el clic
-  // solo después de resolver el botón para validar el evento real sin depender de la estabilidad del transform.
-  await dialog.getByRole('button', { name: 'Crear categoría' }).click({ force: true })
+  await dialog.getByRole('button', { name: 'Crear categoría' }).click()
   const categoryDialog = page.getByRole('dialog', { name: 'Nueva categoría' })
   await categoryDialog.getByLabel('Nombre').fill('Hogar')
-  await categoryDialog.getByRole('button', { name: 'Crear categoría' }).click({ force: true })
+  await categoryDialog.getByRole('button', { name: 'Crear categoría' }).click()
   await expect(dialog.locator('.field').filter({ hasText: /^Categoría/ }).locator('select')).toHaveValue(/.+/)
 })

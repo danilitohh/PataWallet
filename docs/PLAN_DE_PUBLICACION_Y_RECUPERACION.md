@@ -1,6 +1,6 @@
 # Plan de publicación y recuperación
 
-Estado: procedimiento preparado; **publicación no autorizada ni ejecutada**.
+Estado: publicación autorizada el 26 de septiembre de 2026, pero **aún no ejecutada**. El proyecto Supabase está en Free sin respaldos automáticos y falta una copia PostgreSQL restaurada y verificada antes de aplicar la migración pendiente.
 
 ## Configuración sin secretos
 
