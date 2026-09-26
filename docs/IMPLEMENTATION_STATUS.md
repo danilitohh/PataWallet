@@ -5,9 +5,11 @@ Actualizado: 2026-09-26. Fase actual: **Metas primero aplicado a Plan; aplicar m
 ## Cuenta de origen en movimientos · 26 de septiembre
 
 - Al pasar de Gasto con una deuda seleccionada a Transferencia, el origen se ajusta a una cuenta de dinero activa y la deuda queda como destino. Cambiar el origen evita seleccionar la misma cuenta en ambos campos.
-- Si faltan cuentas disponibles, el formulario muestra la causa y deshabilita el guardado. «Agregar cuenta de origen» abre el alta de efectivo/banco/billetera, selecciona la cuenta guardada y conserva monto, nota y destino. Ingresos permite también agregar la cuenta receptora.
+- Si faltan cuentas disponibles, el formulario muestra la causa y deshabilita el guardado. «Agregar banco, billetera o efectivo» abre el alta, selecciona la cuenta guardada y conserva monto, nota y destino. Ingresos permite también agregar la cuenta receptora.
+- En Gasto, las cuentas de dinero propio aparecen antes que las deudas; las tarjetas se distinguen como crédito. Si solo hay deudas, el formulario explica que el sueldo mensual es una estimación y guía a crear la cuenta donde se recibió. El alta aclara cómo evitar duplicar el saldo inicial y un ingreso posterior.
 - Se validan las cuentas antes de guardar y se bloquean envíos simultáneos. Los diálogos anidados conservan el borrador y solo el superior responde a Escape.
 - Verificado: 114 pruebas unitarias, lint, build y 6/6 regresiones E2E en 390×844, 375×812 y 1440×900. Se comprobaron cancelación, movimiento reducido, persistencia tras recargar y saldos de origen/deuda después del abono; capturas revisadas y sin errores de consola. Prueba física de iPhone y comprobación con usuario remoto pendientes. Los movimientos reales previos no fueron modificados.
+- Compra desde sueldo recibido: pasaron 3/3 recorridos E2E adicionales en 390×844, 375×812 y escritorio. Con solo deudas visibles, se agregó una cuenta bancaria desde Gasto, se conservó el monto y la compra redujo su saldo de 200.000 a 150.000. La primera ejecución se detuvo por un selector ambiguo de la prueba; corregido y repetido con éxito.
 
 ## Actualización de PWA al volver a la app · 26 de septiembre
 

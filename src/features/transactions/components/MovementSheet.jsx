@@ -35,7 +35,7 @@ export function MovementSheet({ transaction, onClose }) {
   const assets = accounts.filter((item) => item.kind === 'asset' && !item.archived)
   const activeAccounts = accounts.filter((item) => !item.archived)
   const [amount, setAmount] = useState(transaction ? toInputAmount(transaction.amount_minor) : '')
-  const [account, setAccount] = useState(transaction?.from_account_id || (type === 'income' ? '' : activeAccounts[0]?.id) || '')
+  const [account, setAccount] = useState(transaction?.from_account_id || (type === 'income' ? '' : assets[0]?.id || activeAccounts[0]?.id) || '')
   const [destination, setDestination] = useState(transaction?.to_account_id || assets[0]?.id || '')
   const [category, setCategory] = useState(transaction?.category_id || '')
   const [date, setDate] = useState(transaction?.occurred_at?.slice(0, 10) || today())
@@ -54,7 +54,8 @@ export function MovementSheet({ transaction, onClose }) {
   useModalBehavior(dialogRef, close)
   const visibleCategories = categories.filter((item) => item.type === type)
   const typeHelp = MOVEMENT_TYPE_HELP[type]
-  const sourceOptions = type === 'transfer' ? assets : activeAccounts
+  // Las compras con dinero propio se encuentran primero; el crédito sigue disponible para compras con tarjeta.
+  const sourceOptions = type === 'transfer' ? assets : [...assets, ...activeAccounts.filter((item) => item.kind === 'liability')]
   const destinationOptions = type === 'income' ? assets : activeAccounts.filter((item) => item.id !== account)
 
   // Mantiene origen y destino válidos al pasar de una compra con crédito a un abono.
@@ -71,7 +72,7 @@ export function MovementSheet({ transaction, onClose }) {
       setAccount(source)
       setDestination(previousDebt?.id || (targets.some((item) => item.id === destination) ? destination : targets[0]?.id || ''))
     } else if (!activeAccounts.some((item) => item.id === account)) {
-      setAccount(activeAccounts[0]?.id || '')
+      setAccount(assets[0]?.id || activeAccounts[0]?.id || '')
     }
   }
 
@@ -155,9 +156,9 @@ export function MovementSheet({ transaction, onClose }) {
           <div className="info-note movement-type-help" role="note" aria-live="polite"><strong>{typeHelp.title}</strong><span>{typeHelp.body}</span></div>
           <Field label="Monto" error={error}><div className="amount-input"><span>$</span><input autoFocus inputMode="decimal" value={amount} onChange={(event) => setAmount(formatInputAmount(event.target.value))} placeholder="0" aria-describedby={error ? 'movement-error' : undefined} /><small>COP</small></div></Field>
           {type !== 'income' && <>
-            <Field label={type === 'transfer' ? 'Desde' : 'Cuenta'}><select aria-label={type === 'transfer' ? 'Desde' : 'Cuenta'} disabled={!sourceOptions.length || saving} value={sourceOptions.some((item) => item.id === account) ? account : ''} onChange={(event) => changeSource(event.target.value)}>{!sourceOptions.some((item) => item.id === account) && <option value="">{sourceOptions.length ? 'Selecciona una cuenta' : 'No hay cuentas disponibles'}</option>}{sourceOptions.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></Field>
-            {!sourceOptions.length && <p className="helper" role="status">Agrega efectivo, una cuenta bancaria o una billetera para indicar de dónde sale el pago.</p>}
-            <button className="button button--quiet" type="button" disabled={saving} onClick={() => setAccountDialog('source')}><Plus aria-hidden="true" /> Agregar cuenta de origen</button>
+            <Field label={type === 'transfer' ? 'Desde' : 'Pagaste con'}><select aria-label={type === 'transfer' ? 'Desde' : 'Pagaste con'} disabled={!sourceOptions.length || saving} value={sourceOptions.some((item) => item.id === account) ? account : ''} onChange={(event) => changeSource(event.target.value)}>{!sourceOptions.some((item) => item.id === account) && <option value="">{sourceOptions.length ? 'Selecciona una cuenta' : 'No hay cuentas disponibles'}</option>}{sourceOptions.map((item) => <option key={item.id} value={item.id}>{item.name}{type === 'expense' && item.kind === 'liability' ? ' (crédito)' : ''}</option>)}</select></Field>
+            {!assets.length && <p className="helper" role="status">¿Pagaste con tu sueldo? Agrega el banco, billetera o efectivo donde está ese dinero. El sueldo configurado es una estimación, no una cuenta con saldo.</p>}
+            <button className="button button--quiet" type="button" disabled={saving} onClick={() => setAccountDialog('source')}><Plus aria-hidden="true" /> Agregar banco, billetera o efectivo</button>
           </>}
           {type !== 'expense' && <>
             <Field label={type === 'income' ? 'Recibir en' : 'Hacia'}><select aria-label={type === 'income' ? 'Recibir en' : 'Hacia'} disabled={!destinationOptions.length || saving} value={destinationOptions.some((item) => item.id === destination) ? destination : ''} onChange={(event) => setDestination(event.target.value)}>{!destinationOptions.some((item) => item.id === destination) && <option value="">{destinationOptions.length ? 'Selecciona una cuenta' : 'No hay cuentas disponibles'}</option>}{destinationOptions.map((item) => <option key={item.id} value={item.id}>{item.name}{item.kind === 'liability' ? ' (pago de deuda)' : ''}</option>)}</select></Field>

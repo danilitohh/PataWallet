@@ -11,6 +11,7 @@
 - Crea una cuenta con nombre, correo y contraseña. Si Supabase exige confirmación, abre el enlace recibido. **Olvidé mi contraseña** usa la recuperación del proveedor.
 - Google aparece solo si el proveedor está configurado; PataWallet no almacena contraseñas por su cuenta.
 - Pulsa **+** para gasto, ingreso o transferencia. Un pago hacia una tarjeta se guarda como pago de tarjeta y no repite el gasto.
+- Para una compra común, elige **Gasto** y en **Pagaste con** selecciona el banco, billetera o efectivo de donde salió el dinero. Si no aparece, usa **Agregar banco, billetera o efectivo** en ese mismo formulario. El sueldo configurado calcula una previsión mensual; el dinero recibido se registra como **Ingreso** en la cuenta real. Si ya estaba depositado antes de comenzar a usar la app, puedes indicar el saldo actual al crear la cuenta. No sumes ese mismo depósito después como ingreso.
 - En **Actividad**, abre un movimiento para corregirlo o eliminarlo. **Deshacer** restaura la eliminación mientras el aviso está visible.
 - En **Cuentas** administra activos/tarjetas. En **Plan** configura presupuesto, metas y reservas; reservar no crea ni mueve dinero.
 
@@ -36,4 +37,3 @@ En **Ajustes → Automatización**, **Añadir atajo** seguirá bloqueado hasta u
 - Para restaurar, entra con la misma cuenta, elige **Restaurar JSON**, revisa el resumen y espera **Sincronizado**. Un conflicto detiene la escritura.
 
 Si la app falla, no borres datos del navegador. Conserva el JSON y sigue `docs/PLAN_DE_PUBLICACION_Y_RECUPERACION.md`.
-
