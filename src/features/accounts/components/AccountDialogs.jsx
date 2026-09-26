@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useApp } from '../../../app/AppContext.jsx'
 import { makeId } from '../../../shared/lib/id.js'
 import { formatInputAmount, parseLocalizedAmount, toInputAmount } from '../../../domain/money.js'
@@ -44,7 +44,8 @@ export function AccountEditDialog({ account, close }) {
   )
 }
 
-export function AccountDialog({ close, initialKind = 'asset' }) {
+// Reutiliza el alta desde movimientos; assetOnly restringe el origen a dinero disponible.
+export function AccountDialog({ close, initialKind = 'asset', assetOnly = false, onCreated }) {
   const { accounts, settings, notify, actions } = useApp()
   const [name, setName] = useState('')
   const [kind, setKind] = useState(initialKind)
@@ -55,12 +56,18 @@ export function AccountDialog({ close, initialKind = 'asset' }) {
   const [incomeAmount, setIncomeAmount] = useState('')
   const [incomeFrequency, setIncomeFrequency] = useState('')
   const [incomeNextPayDate, setIncomeNextPayDate] = useState('')
+  const [saving, setSaving] = useState(false)
+  const savingRef = useRef(false)
   const [schedule, setSchedule] = useState(emptySchedule())
   const [error, setError] = useState('')
   const [scheduleError, setScheduleError] = useState('')
 
   const submit = async (event) => {
     event.preventDefault()
+    // Evita cuentas duplicadas si se toca Crear varias veces mientras se guarda.
+    if (savingRef.current) return
+    savingRef.current = true
+    setSaving(true)
     setError('')
     setScheduleError('')
     try {
@@ -83,25 +90,29 @@ export function AccountDialog({ close, initialKind = 'asset' }) {
       await actions.createAccount(accountRecord, openingRecord)
       if (incomeSource) await appendIncomeSource({ actions, settings, accounts, incomeSource })
       notify('Cuenta creada')
+      onCreated?.(accountRecord)
       close()
     } catch (issue) {
       setError(issue.message)
+    } finally {
+      savingRef.current = false
+      setSaving(false)
     }
   }
 
   return (
-    <SimpleDialog title="Agregar cuenta" close={close}>
+    <SimpleDialog title="Agregar cuenta" close={() => { if (!savingRef.current) close() }}>
       <form onSubmit={submit}>
         <Field label="Nombre"><input value={name} onChange={(event) => setName(event.target.value)} placeholder="Cuenta de ahorro" /></Field>
-        <Field label="Naturaleza"><select value={kind} onChange={(event) => { const nextKind = event.target.value; setKind(nextKind); setSubtype(defaultAccountSubtype(nextKind)); setSchedule(emptySchedule()); setScheduleError(''); if (nextKind === 'liability') { setIncomeType(''); setIncomeName(''); setIncomeAmount(''); setIncomeFrequency(''); setIncomeNextPayDate('') } }}><option value="asset">Dinero disponible</option><option value="liability">Deuda</option></select></Field>
+        {!assetOnly && <Field label="Naturaleza"><select value={kind} onChange={(event) => { const nextKind = event.target.value; setKind(nextKind); setSubtype(defaultAccountSubtype(nextKind)); setSchedule(emptySchedule()); setScheduleError(''); if (nextKind === 'liability') { setIncomeType(''); setIncomeName(''); setIncomeAmount(''); setIncomeFrequency(''); setIncomeNextPayDate('') } }}><option value="asset">Dinero disponible</option><option value="liability">Deuda</option></select></Field>}
         <Field label={kind === 'asset' ? 'Tipo de cuenta' : 'Tipo de deuda'}><select value={subtype} onChange={(event) => setSubtype(event.target.value)}>{ACCOUNT_TYPE_OPTIONS[kind].map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}</select></Field>
         {/* Explica el efecto del tipo antes de pedir el saldo o la deuda inicial. */}
         <div className="account-type-guide" role="note"><strong>{kind === 'asset' ? 'Dinero que tienes' : 'Dinero que debes'}</strong><p>{kind === 'asset' ? 'Usa este tipo para efectivo, una cuenta bancaria o una billetera como Nequi. Una tarjeta débito pertenece a su cuenta bancaria.' : subtype === 'credit_card' ? 'Cada compra aumenta la deuda; pagarla reduce la deuda y el dinero de tu banco, sin duplicar el gasto.' : 'Registra aquí el capital que aún debes. Los pagos reducirán la deuda y el dinero de la cuenta desde la que pagues.'}</p></div>
         <Field label={kind === 'asset' ? 'Saldo inicial' : 'Deuda inicial'} error={error}><input inputMode="decimal" value={amount} onChange={(event) => setAmount(formatInputAmount(event.target.value))} placeholder="0" /></Field>
         <p className="helper">El saldo inicial no cuenta como ingreso ni gasto.</p>
-        {kind === 'asset' && <IncomeSourceFields values={{ type: incomeType, name: incomeName, amount: incomeAmount, frequency: incomeFrequency, nextPayDate: incomeNextPayDate }} onChange={({ type, name, amount: nextAmount, frequency, nextPayDate }) => { setIncomeType(type); setIncomeName(name); setIncomeAmount(nextAmount); setIncomeFrequency(frequency); setIncomeNextPayDate(nextPayDate) }} />}
+        {!assetOnly && kind === 'asset' && <IncomeSourceFields values={{ type: incomeType, name: incomeName, amount: incomeAmount, frequency: incomeFrequency, nextPayDate: incomeNextPayDate }} onChange={({ type, name, amount: nextAmount, frequency, nextPayDate }) => { setIncomeType(type); setIncomeName(name); setIncomeAmount(nextAmount); setIncomeFrequency(frequency); setIncomeNextPayDate(nextPayDate) }} />}
         {kind === 'liability' && <DebtScheduleFields values={schedule} onChange={setSchedule} error={scheduleError} />}
-        <button className="button button--primary" type="submit">Crear cuenta</button>
+        <button className="button button--primary" type="submit" disabled={saving}>{saving ? 'Creando…' : 'Crear cuenta'}</button>
       </form>
     </SimpleDialog>
   )

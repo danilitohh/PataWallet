@@ -2,6 +2,13 @@
 
 Actualizado: 2026-09-26. Fase actual: **Metas primero aplicado a Plan; aplicar migración remota pendiente y validar en iPhone real sigue pendiente**.
 
+## Cuenta de origen en movimientos · 26 de septiembre
+
+- Al pasar de Gasto con una deuda seleccionada a Transferencia, el origen se ajusta a una cuenta de dinero activa y la deuda queda como destino. Cambiar el origen evita seleccionar la misma cuenta en ambos campos.
+- Si faltan cuentas disponibles, el formulario muestra la causa y deshabilita el guardado. «Agregar cuenta de origen» abre el alta de efectivo/banco/billetera, selecciona la cuenta guardada y conserva monto, nota y destino. Ingresos permite también agregar la cuenta receptora.
+- Se validan las cuentas antes de guardar y se bloquean envíos simultáneos. Los diálogos anidados conservan el borrador y solo el superior responde a Escape.
+- Verificado: 114 pruebas unitarias, lint, build y 6/6 regresiones E2E en 390×844, 375×812 y 1440×900. Se comprobaron cancelación, movimiento reducido, persistencia tras recargar y saldos de origen/deuda después del abono; capturas revisadas y sin errores de consola. Prueba física de iPhone y comprobación con usuario remoto pendientes. Los movimientos reales previos no fueron modificados.
+
 ## Actualización de PWA al volver a la app · 26 de septiembre
 
 - El registro del service worker vuelve a comprobar si hay una versión nueva al registrarse, al regresar a primer plano, al recuperar conexión y cada hora mientras la app está visible y en línea. El aviso continúa siendo manual; no se salta el worker ni se recarga automáticamente.

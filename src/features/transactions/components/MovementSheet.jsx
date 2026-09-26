@@ -10,6 +10,7 @@ import { useModalBehavior } from '../../../shared/hooks/useModalBehavior.js'
 import { today } from '../../../shared/lib/date.js'
 import { labelForType } from '../model/transactionTypes.js'
 import { CategoryDialog } from '../../../shared/components/CategoryDialog.jsx'
+import { AccountDialog } from '../../accounts/components/AccountDialogs.jsx'
 
 // Explica el efecto contable de cada opción justo donde la persona elige el tipo.
 const MOVEMENT_TYPE_HELP = {
@@ -44,11 +45,48 @@ export function MovementSheet({ transaction, onClose }) {
   const existingReceipt = useApp().receipts?.find((item) => item.transaction_id === transaction?.id)
   const [receipt, setReceipt] = useState(existingReceipt?.data_url || '')
   const [categoryDialog, setCategoryDialog] = useState(false)
+  const [accountDialog, setAccountDialog] = useState(null)
   const [error, setError] = useState('')
+  const [saving, setSaving] = useState(false)
+  const savingRef = useRef(false)
   const dialogRef = useRef(null)
-  useModalBehavior(dialogRef, onClose)
+  const close = () => { if (!savingRef.current) onClose() }
+  useModalBehavior(dialogRef, close)
   const visibleCategories = categories.filter((item) => item.type === type)
   const typeHelp = MOVEMENT_TYPE_HELP[type]
+  const sourceOptions = type === 'transfer' ? assets : activeAccounts
+  const destinationOptions = type === 'income' ? assets : activeAccounts.filter((item) => item.id !== account)
+
+  // Mantiene origen y destino válidos al pasar de una compra con crédito a un abono.
+  const changeType = (nextType) => {
+    setType(nextType)
+    setCategory('')
+    setError('')
+    if (nextType === 'income') {
+      setDestination(assets.some((item) => item.id === destination) ? destination : assets[0]?.id || '')
+    } else if (nextType === 'transfer') {
+      const source = assets.some((item) => item.id === account) ? account : assets[0]?.id || ''
+      const previousDebt = type === 'expense' && activeAccounts.find((item) => item.id === account && item.kind === 'liability')
+      const targets = activeAccounts.filter((item) => item.id !== source)
+      setAccount(source)
+      setDestination(previousDebt?.id || (targets.some((item) => item.id === destination) ? destination : targets[0]?.id || ''))
+    } else if (!activeAccounts.some((item) => item.id === account)) {
+      setAccount(activeAccounts[0]?.id || '')
+    }
+  }
+
+  // Un cambio de origen nunca deja la misma cuenta seleccionada como destino.
+  const changeSource = (id) => {
+    setAccount(id)
+    if (type === 'transfer' && destination === id) setDestination(activeAccounts.find((item) => item.id !== id)?.id || '')
+  }
+
+  // La cuenta se selecciona únicamente después de que el formulario confirme su guardado.
+  const accountCreated = (created) => {
+    if (accountDialog === 'destination') setDestination(created.id)
+    else changeSource(created.id)
+    setError('')
+  }
 
   const deleteTransaction = async () => {
     if (!confirm('¿Eliminar este movimiento? Podrás deshacerlo durante unos segundos.')) return
@@ -63,8 +101,14 @@ export function MovementSheet({ transaction, onClose }) {
 
   const submit = async (event) => {
     event.preventDefault()
+    if (savingRef.current) return
+    savingRef.current = true
+    setSaving(true)
     setError('')
     try {
+      // Valida las selecciones reales, incluida la demo, antes de modificar saldos.
+      if (type !== 'income' && !sourceOptions.some((item) => item.id === account)) throw new Error('Elige una cuenta de origen disponible o agrega una.')
+      if (type !== 'expense' && !destinationOptions.some((item) => item.id === destination)) throw new Error('Elige una cuenta de destino disponible.')
       movementSchema.parse({ amount, account: type === 'income' ? destination : account, destination, category, date })
       const minor = parseLocalizedAmount(amount)
       if (type === 'transfer' && account === destination) throw new Error('Elige cuentas diferentes para la transferencia.')
@@ -96,28 +140,39 @@ export function MovementSheet({ transaction, onClose }) {
       onClose()
     } catch (issue) {
       setError(issue instanceof z.ZodError ? 'Completa los campos obligatorios.' : issue.message)
+    } finally {
+      savingRef.current = false
+      setSaving(false)
     }
   }
 
   return (
-    <motion.div className="sheet-backdrop" role="presentation" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}>
-      <motion.section ref={dialogRef} tabIndex="-1" role="dialog" aria-modal="true" aria-labelledby="movement-title" className="sheet" initial={{ y: 80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 60, opacity: 0 }} transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}>
-        <header><div><p className="eyebrow">{editing ? 'Editar' : 'Registrar'}</p><h2 id="movement-title">{editing ? 'Detalle del movimiento' : 'Nuevo movimiento'}</h2></div><button className="icon-button" aria-label="Cerrar" onClick={onClose}><X /></button></header>
+    <motion.div className="sheet-backdrop" role="presentation" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onMouseDown={(event) => { if (event.target === event.currentTarget) close() }}>
+      <motion.section ref={dialogRef} inert={Boolean(accountDialog || categoryDialog)} tabIndex="-1" role="dialog" aria-modal="true" aria-labelledby="movement-title" className="sheet" initial={{ y: 80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 60, opacity: 0 }} transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}>
+        <header><div><p className="eyebrow">{editing ? 'Editar' : 'Registrar'}</p><h2 id="movement-title">{editing ? 'Detalle del movimiento' : 'Nuevo movimiento'}</h2></div><button className="icon-button" aria-label="Cerrar" disabled={saving} onClick={close}><X /></button></header>
         <form onSubmit={submit}>
-          <div className="segmented" aria-label="Tipo de movimiento">{['expense', 'income', 'transfer'].map((item) => <button type="button" key={item} aria-pressed={type === item} className={type === item ? 'active' : ''} onClick={() => { setType(item); setCategory(''); if (item === 'income') setDestination(assets[0]?.id || '') }}>{labelForType[item]}</button>)}</div>
+          <div className="segmented" aria-label="Tipo de movimiento">{['expense', 'income', 'transfer'].map((item) => <button type="button" key={item} disabled={saving} aria-pressed={type === item} className={type === item ? 'active' : ''} onClick={() => changeType(item)}>{labelForType[item]}</button>)}</div>
           <div className="info-note movement-type-help" role="note" aria-live="polite"><strong>{typeHelp.title}</strong><span>{typeHelp.body}</span></div>
           <Field label="Monto" error={error}><div className="amount-input"><span>$</span><input autoFocus inputMode="decimal" value={amount} onChange={(event) => setAmount(formatInputAmount(event.target.value))} placeholder="0" aria-describedby={error ? 'movement-error' : undefined} /><small>COP</small></div></Field>
-          {type !== 'income' && <Field label={type === 'transfer' ? 'Desde' : 'Cuenta'}><select value={account} onChange={(event) => setAccount(event.target.value)}>{(type === 'transfer' ? assets : activeAccounts).map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></Field>}
-          {type !== 'expense' && <Field label={type === 'income' ? 'Recibir en' : 'Hacia'}><select value={destination} onChange={(event) => setDestination(event.target.value)}>{(type === 'income' ? assets : activeAccounts.filter((item) => item.id !== account)).map((item) => <option key={item.id} value={item.id}>{item.name}{item.kind === 'liability' ? ' (pago de deuda)' : ''}</option>)}</select></Field>}
+          {type !== 'income' && <>
+            <Field label={type === 'transfer' ? 'Desde' : 'Cuenta'}><select aria-label={type === 'transfer' ? 'Desde' : 'Cuenta'} disabled={!sourceOptions.length || saving} value={sourceOptions.some((item) => item.id === account) ? account : ''} onChange={(event) => changeSource(event.target.value)}>{!sourceOptions.some((item) => item.id === account) && <option value="">{sourceOptions.length ? 'Selecciona una cuenta' : 'No hay cuentas disponibles'}</option>}{sourceOptions.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></Field>
+            {!sourceOptions.length && <p className="helper" role="status">Agrega efectivo, una cuenta bancaria o una billetera para indicar de dónde sale el pago.</p>}
+            <button className="button button--quiet" type="button" disabled={saving} onClick={() => setAccountDialog('source')}><Plus aria-hidden="true" /> Agregar cuenta de origen</button>
+          </>}
+          {type !== 'expense' && <>
+            <Field label={type === 'income' ? 'Recibir en' : 'Hacia'}><select aria-label={type === 'income' ? 'Recibir en' : 'Hacia'} disabled={!destinationOptions.length || saving} value={destinationOptions.some((item) => item.id === destination) ? destination : ''} onChange={(event) => setDestination(event.target.value)}>{!destinationOptions.some((item) => item.id === destination) && <option value="">{destinationOptions.length ? 'Selecciona una cuenta' : 'No hay cuentas disponibles'}</option>}{destinationOptions.map((item) => <option key={item.id} value={item.id}>{item.name}{item.kind === 'liability' ? ' (pago de deuda)' : ''}</option>)}</select></Field>
+            {type === 'income' && <button className="button button--quiet" type="button" disabled={saving} onClick={() => setAccountDialog('destination')}><Plus aria-hidden="true" /> Agregar cuenta para recibir</button>}
+          </>}
           {type !== 'transfer' && <div className="field"><span>Categoría</span><div className="input-with-action"><select aria-label="Categoría" value={category} onChange={(event) => setCategory(event.target.value)}><option value="">Selecciona una categoría</option>{visibleCategories.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select><button type="button" className="icon-button" aria-label="Crear categoría" onClick={() => setCategoryDialog(true)}><Plus /></button></div></div>}
           <div className="form-grid"><Field label="Fecha"><input type="date" value={date} onChange={(event) => setDate(event.target.value)} /></Field><Field label="Hora" optional><input type="time" value={time} onChange={(event) => setTime(event.target.value)} /></Field></div>
           <Field label="Comercio o nota" optional><input value={note} onChange={(event) => setNote(event.target.value)} maxLength="120" placeholder="Opcional" /></Field>
           <Field label="Foto del comprobante" optional><label className="receipt-picker"><ImagePlus /><span>{receipt ? 'Cambiar imagen' : 'Añadir screenshot o foto'}</span><input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => readReceipt(event.target.files?.[0], setReceipt, setError)} /></label>{receipt && <div className="receipt-preview"><img src={receipt} alt="Vista previa del comprobante" /><button type="button" className="button button--quiet" onClick={() => setReceipt('')}>Quitar</button><small>Se conserva de forma privada en este dispositivo.</small></div>}</Field>
           {type === 'transfer' && accounts.find((item) => item.id === destination)?.kind === 'liability' && <p className="info-note">Se guardará como pago de deuda. Reduce el activo y el pasivo, sin crear otro gasto.</p>}
-          <div className="sheet__actions">{editing && <button type="button" className="button button--danger" onClick={deleteTransaction}><Trash2 /> Eliminar</button>}<button className="button button--primary" type="submit">{editing ? 'Guardar cambios' : 'Guardar movimiento'}</button></div>
+          <div className="sheet__actions">{editing && <button type="button" className="button button--danger" disabled={saving} onClick={deleteTransaction}><Trash2 /> Eliminar</button>}<button className="button button--primary" type="submit" disabled={saving || (type !== 'income' && !sourceOptions.length) || (type !== 'expense' && !destinationOptions.length)}>{saving ? 'Guardando…' : editing ? 'Guardar cambios' : 'Guardar movimiento'}</button></div>
         </form>
       </motion.section>
       {categoryDialog && <CategoryDialog type={type} close={() => setCategoryDialog(false)} onCreated={setCategory} />}
+      {accountDialog && <AccountDialog assetOnly close={() => setAccountDialog(null)} onCreated={accountCreated} />}
     </motion.div>
   )
 }
