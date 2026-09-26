@@ -18,7 +18,7 @@ Rutas propuestas: `/`, `/actividad`, `/plan`, `/cuentas`, `/ajustes`, `/ajustes/
 ## Bienvenida y acceso
 Escena `welcome-family` con título y descripción fuera de la imagen. Una pantalla útil, sin carrusel obligatorio. Acciones: “Comenzar” y acceso existente. En Fase 1, “Probar con datos de ejemplo”; no pedir una contraseña para una autenticación ficticia. En fase real, correo y contraseña con confirmación y recuperación, o un método equivalente implementado y documentado. No mostrar Apple/Google si sus proveedores no están configurados.
 
-Primera configuración: moneda → primera cuenta y saldo inicial → Inicio. Presupuesto, metas, notificaciones y atajo son opcionales y se pueden completar después. La instalación PWA no debe impedir entrar.
+Primer acceso: Inicio sin encuesta obligatoria. La primera cuenta y su saldo actual se agregan desde Cuentas cuando el usuario lo necesite; deudas, gastos fijos, presupuesto, metas, notificaciones y atajo también se pueden completar después. La instalación PWA no debe impedir entrar.
 
 ## Inicio
 Cabecera, selector de mes y botón para ocultar montos. Mostrar:

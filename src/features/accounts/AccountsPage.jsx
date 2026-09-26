@@ -18,16 +18,17 @@ export function AccountsPage() {
   const { accounts, transactions, settings } = useApp()
   const location = useLocation()
   const navigate = useNavigate()
-  const confirmingPreviousBalance = new URLSearchParams(location.search).get('confirmar-saldo') === '1'
+  const params = new URLSearchParams(location.search)
+  const confirmingPreviousBalance = params.get('confirmar-saldo') === '1'
   const [accountKind, setAccountKind] = useState('asset')
   const [editingAccount, setEditingAccount] = useState(null)
-  const [open, setOpen] = useState(confirmingPreviousBalance)
+  const [open, setOpen] = useState(confirmingPreviousBalance || params.get('agregar-cuenta') === '1')
   const summary = calculateSummary(accounts, transactions, currentMonth())
   const visibleAccounts = accounts.filter((account) => !account.archived)
   const previousAmount = confirmingPreviousBalance && !visibleAccounts.some((account) => account.kind === 'asset') ? incomeReference(settings, accounts).salaryMinor : null
   const closeAccountDialog = () => {
     setOpen(false)
-    if (confirmingPreviousBalance) navigate('/cuentas', { replace: true })
+    if (location.search) navigate('/cuentas', { replace: true })
   }
   // Conserva el tipo del panel para que el formulario contextual se abra con la naturaleza correcta.
   const openAccountDialog = (kind = 'asset') => {

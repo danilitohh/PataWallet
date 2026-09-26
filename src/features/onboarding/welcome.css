@@ -19,8 +19,6 @@
 .auth-art > .pet-scene { display: none; }
 .auth-art h1 { font-family: Georgia, serif; font-weight: 500; }
 .auth-art > div:nth-child(2) { align-self: start; }
-.onboarding-card { border-radius: 20px; }
-.onboarding-art .pet-scene { border: 1px solid var(--border); }
 @media (max-width: 699px) {
   .auth-panel { padding: 84px 20px 20px; gap: 8px; }
   .auth-card { padding: 20px 17px; gap: 8px; }

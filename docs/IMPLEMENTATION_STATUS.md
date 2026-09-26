@@ -1,10 +1,17 @@
 # Estado de implementación
 
-Actualizado: 2026-09-26. Fase actual: **registro guiado implementado; validación en sesión remota e iPhone real pendiente**.
+Actualizado: 2026-09-26. Fase actual: **entrada sin encuesta obligatoria; validación en sesión remota e iPhone real pendiente**.
+
+## Entrada sin encuesta obligatoria · 26 de septiembre
+
+- Se retiró el formulario inicial de tres pasos. Una cuenta nueva llega a Inicio sin declarar sueldo, saldo, deudas ni gastos fijos. El botón de bienvenida de la demo también entra directamente.
+- Cuando falta una cuenta con dinero, Inicio ofrece abrir su alta desde Cuentas. Allí se registran el saldo real actual, las deudas y los gastos fijos por separado; no se crea dinero ni se descuenta nada al entrar.
+- La preferencia `financialOnboardingComplete` puede permanecer en datos y respaldos antiguos por compatibilidad, pero ya no controla el acceso.
+- Verificado localmente: lint, 125 pruebas unitarias, build y recorrido E2E en 390×844, 375×812 y 1440×900 (3/3). Pendiente: verificar con sesión remota y en iPhone físico.
 
 ## Saldo real como fuente de verdad · 26 de septiembre
 
-- El primer acceso pide la cuenta y el saldo actual, no un sueldo de referencia. Las deudas se abren como pasivos; los pagos fijos se muestran como pendientes y solo reducen la cuenta al confirmarlos.
+- Versión anterior: el primer acceso pedía cuenta y saldo actual. Ese requisito se retiró en «Entrada sin encuesta obligatoria». Las deudas siguen como pasivos; los pagos fijos se muestran como pendientes y solo reducen la cuenta al confirmarlos.
 - Inicio, Plan, evaluación de compras y asistente usan saldos y movimientos registrados. Inicio separa el saldo de cuentas del margen después de pagos pendientes y reservas; la próxima fecha de pago no genera dinero.
 - Cuentas → Ingresos muestra solo ingresos efectivamente registrados y permite abrir «Recibí dinero». La frecuencia y fecha futuras son recordatorios opcionales. Crear una cuenta ya no solicita una fuente de sueldo estimado.
 - Compras y confirmaciones de gastos fijos nuevos requieren una cuenta o tarjeta concreta. Los gastos antiguos sin origen se conservan sin alterar saldos; se avisa de ello en Inicio. No se migran ni se asocian automáticamente.

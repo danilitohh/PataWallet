@@ -3,7 +3,7 @@ import { PetScene } from '../../components/PetScene.jsx'
 import { NightScene } from '../../components/NightScene.jsx'
 import { useApp } from '../../app/AppContext.jsx'
 
-// Distingue la configuración personal de la exploración con datos ficticios.
+// Presenta la demo local sin confundir sus datos ficticios con una cuenta personal.
 export function WelcomePage() {
   const { actions } = useApp()
   return (
@@ -16,9 +16,8 @@ export function WelcomePage() {
       </section>
       <div className="welcome__art"><NightScene hero /><PetScene name="welcome" hero /></div>
       <section className="welcome__actions">
-        <button className="button button--primary button--wide" onClick={() => actions.setSetting('entered', true)}>Configurar mi espacio</button>
-        <button className="button button--secondary button--wide" onClick={() => actions.completeDemoSetup?.()}>Probar con datos de ejemplo</button>
-        <p className="demo-note">Puedes configurar tus datos ahora o explorar datos ficticios guardados solo en este navegador.</p>
+        <button className="button button--primary button--wide" onClick={() => actions.completeDemoSetup?.()}>Probar con datos de ejemplo</button>
+        <p className="demo-note">Esta demo usa datos ficticios guardados solo en este navegador. Con tu cuenta personal entrarás sin encuesta y agregarás tus datos desde Cuentas.</p>
       </section>
     </main>
   )

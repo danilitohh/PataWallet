@@ -4,7 +4,6 @@ import { AppContext } from './AppContext.jsx'
 import { AppRoutes } from './routes/AppRoutes.jsx'
 import { AppShell } from './AppShell.jsx'
 import { WelcomePage } from '../features/onboarding/WelcomePage.jsx'
-import { FinancialOnboarding } from '../features/onboarding/FinancialOnboarding.jsx'
 import { MovementSheet } from '../features/transactions/components/MovementSheet.jsx'
 import { LoadingScreen, Toast } from '../shared/components/Feedback.jsx'
 import { PwaUpdatePrompt } from '../features/pwa/PwaUpdatePrompt.jsx'
@@ -48,7 +47,6 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
 
   if (!settingsRows.length) return <LoadingScreen />
   if (isDemo && !settingsMap.entered) return <AppContext.Provider value={value}><WelcomePage /></AppContext.Provider>
-  if (!settingsMap.financialOnboardingComplete) return <AppContext.Provider value={value}><FinancialOnboarding /></AppContext.Provider>
 
   return (
     <AppContext.Provider value={value}>

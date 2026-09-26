@@ -4,7 +4,7 @@ import { recordRecurringExpensePayment } from '../domain/recurringExpenses.js'
 
 export const localActions = {
   setSetting: (key, value) => db.settings.put({ key, value }),
-  // Entra a la demo en una sola transacción para no mostrar el onboarding a mitad del cambio.
+  // Entra a la demo y conserva la marca antigua para respaldos previos.
   completeDemoSetup: () => db.transaction('rw', db.settings, async () => {
     await db.settings.bulkPut([
       { key: 'entered', value: true },
