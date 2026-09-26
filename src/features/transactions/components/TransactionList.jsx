@@ -37,7 +37,7 @@ export function TransactionList({ items, compact = false, grouped = false }) {
     return (
       <button className="transaction" key={item.id} onClick={() => setSheet(item)}>
         <NightIcon icon={Icon} className={`transaction__icon tone-${tone}`} tone={tone} />
-        <span className="transaction__main"><strong>{item.merchant_name || labelForType[item.type]}{item.source === 'shortcut' && <span className="source-badge">Automático · Atajos</span>}</strong><small>{category?.name || labelForType[item.type]}{account ? ` · ${account.name}` : ''}</small></span>
+        <span className="transaction__main"><strong>{item.merchant_name || labelForType[item.type]}{item.source === 'shortcut' && <span className="source-badge">Automático · Atajos</span>}</strong><small>{category?.name || labelForType[item.type]}{account ? ` · ${account.name}` : expense ? ' · Dinero libre' : ''}</small></span>
         <span className={`transaction__amount ${income ? 'positive' : expense ? 'negative' : ''}`}><strong>{income ? '+' : expense ? '-' : ''}{formatMinor(item.amount_minor, item.currency, settings.hiddenAmounts)}</strong><small>{new Intl.DateTimeFormat('es-CO', { day: 'numeric', month: 'short', timeZone: 'America/Bogota' }).format(new Date(item.occurred_at))}{hasExplicitTime ? ` · ${clock}` : ''}</small></span>
         <ChevronRight className="transaction__chevron" />
       </button>

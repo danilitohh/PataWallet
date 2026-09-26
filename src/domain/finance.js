@@ -15,7 +15,8 @@ export function transactionDeltas(transaction, accountsById) {
     case 'income':
       return [{ accountId: to.id, delta: amount }]
     case 'expense':
-      return [{ accountId: from.id, delta: from.kind === 'liability' ? amount : -amount }]
+      // Un gasto del dinero libre afecta el presupuesto sin inventar un saldo bancario.
+      return from ? [{ accountId: from.id, delta: from.kind === 'liability' ? amount : -amount }] : []
     case 'transfer':
       return [{ accountId: from.id, delta: -amount }, { accountId: to.id, delta: amount }]
     case 'card_payment':

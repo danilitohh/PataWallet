@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import fixtures from '../../examples/demo-fixtures.json'
-import { calculateSummary, goalProgress } from './finance.js'
+import { calculateAvailableMoney, calculateSummary, goalProgress } from './finance.js'
 import { parseLocalizedAmount } from './money.js'
 
 const accounts = fixtures.accounts
@@ -54,5 +54,15 @@ describe('reglas financieras de PataWallet', () => {
     const late = { id: 'late', type: 'expense', amount_minor: 100, currency: 'COP', occurred_at: '2026-10-01T02:00:00Z', from_account_id: accounts[0].id, to_account_id: null, status: 'recorded' }
     expect(calculateSummary(accounts, [late], '2026-09').expenses).toBe(100)
     expect(calculateSummary(accounts, [late], '2026-10').expenses).toBe(0)
+  })
+
+  it('descuenta un gasto sin cuenta del dinero libre sin alterar los saldos', () => {
+    const expense = { id: 'budget-expense', type: 'expense', amount_minor: 2500000, currency: 'COP', occurred_at: '2026-09-10T12:00:00-05:00', from_account_id: null, to_account_id: null, status: 'recorded' }
+    const before = calculateSummary(accounts, transactions, '2026-09')
+    const after = calculateSummary(accounts, [...transactions, expense], '2026-09')
+    expect(after.balances).toEqual(before.balances)
+    expect(after.expenses).toBe(before.expenses + expense.amount_minor)
+    const available = calculateAvailableMoney({ monthlySalaryMinor: 320000000, accounts, transactions: [...transactions, expense], month: '2026-09' })
+    expect(available.availableNowMinor).toBe(available.monthlyFreeMinor - after.expenses)
   })
 })
