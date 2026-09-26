@@ -1,6 +1,6 @@
 import { assertMinor, safeAdd } from './money.js'
 import { sumFixedExpenses } from './financialSetup.js'
-import { totalMonthlyDebtPayments } from './debtSchedule.js'
+import { monthlyDebtPaymentMinor, totalMonthlyDebtPayments } from './debtSchedule.js'
 import { readPaymentHistory, sumExpectedFixedExpenses } from './recurringExpenses.js'
 
 export const NON_BUDGET_TYPES = new Set(['opening', 'transfer', 'card_payment', 'adjustment'])
@@ -72,13 +72,22 @@ export function calculateAvailableMoney({ monthlySalaryMinor, fixedExpenses = []
   const committedMinor = safeAdd(fixedExpensesMinor, debtPaymentsMinor)
   const trackedExpensesMinor = month ? calculateSummary(accounts, transactions, month, timeZone).expenses : 0
   const monthlyFreeMinor = salary === null ? null : safeAdd(salary, -committedMinor)
+  // Los abonos reales reemplazan primero la cuota prevista de cada deuda; solo el excedente reduce otra vez el margen.
+  const paidByDebt = new Map()
+  if (month) for (const payment of transactions) {
+    if (payment.type !== 'card_payment' || payment.status === 'void' || monthInTimeZone(payment.occurred_at, timeZone) !== month) continue
+    paidByDebt.set(payment.to_account_id, safeAdd(paidByDebt.get(payment.to_account_id) || 0, assertMinor(payment.amount_minor)))
+  }
+  const trackedDebtPaymentsMinor = [...paidByDebt.values()].reduce((total, paid) => safeAdd(total, paid), 0)
+  const additionalDebtPaymentsMinor = accounts.filter((account) => account.kind === 'liability').reduce((total, account) =>
+    safeAdd(total, Math.max(0, (paidByDebt.get(account.id) || 0) - (account.archived ? 0 : monthlyDebtPaymentMinor(account)))), 0)
   // El movimiento real sustituye al compromiso previsto de ese vencimiento, sin descontarlo dos veces.
   const activeExpenses = new Set(transactions.filter((item) => item.type === 'expense' && item.status !== 'void').map((item) => item.id))
   const settledScheduledMinor = month ? fixedExpenses.reduce((total, expense) => readPaymentHistory(expense.payment_history).reduce((sum, payment) =>
     payment.due_date.startsWith(month) && payment.transaction_id && activeExpenses.has(payment.transaction_id)
       ? safeAdd(sum, Number(expense.amount_minor)) : sum, total), 0) : 0
-  const availableNowMinor = monthlyFreeMinor === null ? null : safeAdd(safeAdd(monthlyFreeMinor, settledScheduledMinor), -trackedExpensesMinor)
-  return { salaryMinor: salary, fixedExpensesMinor, debtPaymentsMinor, committedMinor, trackedExpensesMinor, monthlyFreeMinor, availableNowMinor }
+  const availableNowMinor = monthlyFreeMinor === null ? null : safeAdd(safeAdd(safeAdd(monthlyFreeMinor, settledScheduledMinor), -trackedExpensesMinor), -additionalDebtPaymentsMinor)
+  return { salaryMinor: salary, fixedExpensesMinor, debtPaymentsMinor, committedMinor, trackedExpensesMinor, trackedDebtPaymentsMinor, additionalDebtPaymentsMinor, monthlyFreeMinor, availableNowMinor }
 }
 
 export function goalProgress(goal, allocations) {

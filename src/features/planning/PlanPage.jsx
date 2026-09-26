@@ -195,7 +195,7 @@ function AvailablePlanSummary({ available, hidden }) {
     <p>Agrega ingresos y gastos fijos en <Link to="/cuentas" aria-label="Configurar ingresos y gastos en Cuentas">Cuentas</Link> para calcular cuánto margen tienes este mes.</p>
   </section>
 
-  const committedAndSpentMinor = safeAdd(safeAdd(available.fixedExpensesMinor, available.debtPaymentsMinor), available.trackedExpensesMinor)
+  const committedAndSpentMinor = safeAdd(available.salaryMinor, -available.availableNowMinor)
   const isNegative = available.availableNowMinor < 0
   return <section className={`plan-panel plan-free ${isNegative ? 'plan-free--warning' : ''}`} aria-labelledby="plan-free-title">
     <span className="plan-eyebrow" id="plan-free-title">Dinero libre estimado</span>

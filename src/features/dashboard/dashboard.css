@@ -34,6 +34,10 @@
 .dashboard-available-hero .dashboard-payday-chip { width: fit-content; display: inline-flex; align-items: center; gap: 6px; padding: 7px 10px; border: 1px solid #ffffff2d; border-radius: 999px; background: #0e162a75; color: #efeaff; font-size: .66rem; font-weight: 720; backdrop-filter: blur(6px); }
 .dashboard-available-hero .dashboard-payday-chip svg { width: 14px; height: 14px; color: var(--success); }
 .dashboard-available-hero .dashboard-view-link { pointer-events: auto; }
+/* Separa la proyección mensual del saldo real y ofrece una única acción cuando aún no hay cuenta de dinero. */
+.dashboard-balance-explanation { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 12px; line-height: 1.45; }
+.dashboard-balance-explanation a { display: inline-flex; align-items: center; gap: 4px; color: var(--accent); font-weight: 700; }
+.dashboard-balance-explanation a svg { width: 15px; height: 15px; }
 .dashboard .stat-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
 .dashboard .stat { grid-column: auto; grid-template-columns: 1fr; gap: 4px; padding: 11px 9px; border-radius: 13px; background: var(--panel-fill); box-shadow: none; }
 .dashboard .stat svg { width: 27px; height: 27px; padding: 5px; border-radius: 9px; color: var(--accent); background: var(--accent-soft); }

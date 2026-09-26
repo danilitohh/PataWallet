@@ -2,6 +2,13 @@
 
 Actualizado: 2026-09-26. Fase actual: **registro guiado implementado; validación en sesión remota e iPhone real pendiente**.
 
+## Proyección mensual frente a dinero real · 26 de septiembre
+
+- Inicio aclara que el sueldo declarado y los gastos fijos producen una **estimación mensual**, no el saldo de una cuenta ni pagos efectuados. Si no hay cuenta de dinero, ofrece el enlace a Cuentas; el registro de un abono explica la diferencia y permite crear la cuenta sin perder el formulario.
+- Al agregar esa cuenta, el usuario introduce su saldo real actual. No se copia automáticamente la proyección ni se crea un ingreso o gasto ficticio. Los pagos de deuda siguen exigiendo una cuenta real y reducen tanto su saldo como la deuda.
+- El dinero libre descuenta los abonos no previstos y solo el exceso sobre la cuota mensual ya reservada. Los pagos anulados no cuentan. Pendiente: validación con datos reales de usuario sin registrar movimientos de prueba.
+- Verificado localmente: 124 pruebas unitarias, lint y build. El recorrido de sueldo estimado → sin cuenta → crear cuenta con saldo real → pagar deuda pasó en 390×844, 375×812 y 1440×900, sin desbordamiento horizontal. No se alteraron datos de producción ni se probó en un iPhone físico.
+
 ## Registro guiado y pago recurrente en un paso · 26 de septiembre
 
 - «Nuevo movimiento» ofrece **Hice una compra**, **Recibí dinero**, **Pagué una deuda** y **Moví dinero** (en Más opciones). Fecha, hora, nota y comprobante se muestran solo al abrir «Añadir detalles»; los movimientos existentes los muestran al editar. El pago de deuda se guarda como `card_payment`, sin segundo gasto.

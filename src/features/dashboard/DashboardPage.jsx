@@ -33,6 +33,7 @@ export function DashboardPage() {
   const plannedCount = plannedPurchases.filter((item) => item.status === 'planned').length
   const activeAccounts = accounts.filter((item) => !item.archived).slice(0, 4)
   const accountCount = accounts.filter((item) => !item.archived).length
+  const hasMoneyAccount = accounts.some((item) => item.kind === 'asset' && !item.archived)
   const hidden = Boolean(settings.hiddenAmounts)
   const selectedView = normalizeHomeView(settings.homeView)
   const nextPayDate = nextIncomeDate({ frequency: income.primary?.frequency, nextPayDate: income.primary?.next_pay_date, today: calendarToday() })
@@ -40,7 +41,7 @@ export function DashboardPage() {
     summary, income, available, budget, remaining, used, recent, nextPayDate, hidden,
     monthTransactions, breakdown, fixedExpenses, actions, notify,
     goals: activeGoals, goalCount: goals.length, allocations, planned, plannedCount,
-    accounts: activeAccounts, accountCount, balances: summary.balances,
+    accounts: activeAccounts, accountCount, hasMoneyAccount, balances: summary.balances,
   }
 
   return <div className="route-stack dashboard">

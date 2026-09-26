@@ -12,8 +12,8 @@ import { TransactionList } from '../../transactions/components/TransactionList.j
 // Resume ingresos, gastos y deuda con los datos ya calculados para el mes activo.
 export function DashboardStats({ income, available, summary, hidden }) {
   return <section className="stat-grid dashboard-stats" aria-label="Resumen del mes">
-    <Stat icon={ArrowDownLeft} label="Ingresos" value={formatMinor(income.salaryMinor || summary.income, 'COP', hidden)} tone="positive" />
-    <Stat icon={ArrowUpRight} label="Gastos fijos" value={formatMinor(available.fixedExpensesMinor, 'COP', hidden)} tone="negative" />
+    <Stat icon={ArrowDownLeft} label={income.salaryMinor ? 'Ingreso previsto' : 'Ingreso registrado'} value={formatMinor(income.salaryMinor || summary.income, 'COP', hidden)} tone="positive" />
+    <Stat icon={ArrowUpRight} label="Gastos fijos previstos" value={formatMinor(available.fixedExpensesMinor, 'COP', hidden)} tone="negative" />
     <Stat icon={CreditCard} label="Deuda" value={formatMinor(summary.debt, 'COP', hidden)} />
   </section>
 }
@@ -61,9 +61,9 @@ function IncomeSummary({ income, hidden }) {
 
 // Explica el cálculo de dinero libre y separa compromisos y movimientos ya registrados.
 function AvailableMoneyCard({ available, hidden }) {
-  if (available.monthlyFreeMinor === null) return <section className="feature-panel available-money-card"><div className="section-heading"><div><h2>Dinero libre este mes</h2><p>El resultado aparece al completar tu punto de partida.</p></div><Link to="/cuentas#ingresos">Configurar</Link></div><p className="dashboard-empty__text">Necesitamos tu salario mensual, gastos fijos y pagos de deuda para decirte cuánto puedes usar con tranquilidad.</p></section>
+  if (available.monthlyFreeMinor === null) return <section className="feature-panel available-money-card"><div className="section-heading"><div><h2>Dinero libre estimado este mes</h2><p>El resultado aparece al completar tu punto de partida.</p></div><Link to="/cuentas#ingresos">Configurar</Link></div><p className="dashboard-empty__text">Necesitamos tu salario mensual, gastos fijos y pagos de deuda para decirte cuánto puedes usar con tranquilidad.</p></section>
   const negative = available.monthlyFreeMinor < 0
-  return <section className={`feature-panel available-money-card ${negative ? 'available-money-card--warning' : ''}`}><div className="section-heading"><div><h2>Dinero libre este mes</h2><p>{negative ? 'Tus compromisos superan el ingreso declarado.' : 'Después de compromisos mensuales.'}</p></div><Link to="/cuentas#gastos-fijos">Editar</Link></div><strong className="available-money-card__value">{formatMinor(available.monthlyFreeMinor, 'COP', hidden)}</strong><div className="available-money-card__breakdown"><span>Salario <b>{formatMinor(available.salaryMinor, 'COP', hidden)}</b></span><span>Gastos fijos <b>− {formatMinor(available.fixedExpensesMinor, 'COP', hidden)}</b></span><span>Pagos de deuda <b>− {formatMinor(available.debtPaymentsMinor, 'COP', hidden)}</b></span></div>{available.trackedExpensesMinor > 0 && <p className="available-money-card__after">Tras gastos registrados: <strong>{formatMinor(available.availableNowMinor, 'COP', hidden)}</strong></p>}</section>
+  return <section className={`feature-panel available-money-card ${negative ? 'available-money-card--warning' : ''}`}><div className="section-heading"><div><h2>Dinero libre estimado este mes</h2><p>{negative ? 'Tus compromisos superan el ingreso declarado.' : 'Proyección; no es saldo en una cuenta.'}</p></div><Link to="/cuentas#gastos-fijos">Editar</Link></div><strong className="available-money-card__value">{formatMinor(available.monthlyFreeMinor, 'COP', hidden)}</strong><div className="available-money-card__breakdown"><span>Salario <b>{formatMinor(available.salaryMinor, 'COP', hidden)}</b></span><span>Gastos fijos <b>− {formatMinor(available.fixedExpensesMinor, 'COP', hidden)}</b></span><span>Pagos de deuda previstos <b>− {formatMinor(available.debtPaymentsMinor, 'COP', hidden)}</b></span></div>{(available.trackedExpensesMinor !== 0 || available.additionalDebtPaymentsMinor > 0) && <p className="available-money-card__after">Tras movimientos registrados: <strong>{formatMinor(available.availableNowMinor, 'COP', hidden)}</strong></p>}</section>
 }
 
 // Presenta metas, compras y cuentas sin duplicar datos financieros entre las tres vistas.

@@ -62,8 +62,10 @@ describe('reglas financieras de PataWallet', () => {
     const after = calculateSummary(accounts, [...transactions, expense], '2026-09')
     expect(after.balances).toEqual(before.balances)
     expect(after.expenses).toBe(before.expenses + expense.amount_minor)
-    const available = calculateAvailableMoney({ monthlySalaryMinor: 320000000, accounts, transactions: [...transactions, expense], month: '2026-09' })
-    expect(available.availableNowMinor).toBe(available.monthlyFreeMinor - after.expenses)
+    const options = { monthlySalaryMinor: 320000000, accounts, month: '2026-09' }
+    const baseline = calculateAvailableMoney({ ...options, transactions })
+    const available = calculateAvailableMoney({ ...options, transactions: [...transactions, expense] })
+    expect(available.availableNowMinor).toBe(baseline.availableNowMinor - expense.amount_minor)
   })
 
   it('sustituye el compromiso fijo previsto por el pago real y no lo descuenta dos veces', () => {
@@ -73,5 +75,20 @@ describe('reglas financieras de PataWallet', () => {
     expect(calculateAvailableMoney(options).availableNowMinor).toBe(91000000)
     expect(calculateAvailableMoney({ ...options, transactions: [{ ...paid, amount_minor: 11000000 }] }).availableNowMinor).toBe(89000000)
     expect(calculateAvailableMoney({ ...options, transactions: [{ ...paid, status: 'void' }] }).availableNowMinor).toBe(90000000)
+  })
+
+  it('descuenta abonos sin cuota prevista y solo el exceso de una cuota ya reservada', () => {
+    const debt = { id: 'debt-a', kind: 'liability', archived: false, debt_monthly_payment_minor: 10000000 }
+    const otherDebt = { id: 'debt-b', kind: 'liability', archived: false }
+    const payment = (id, debtId, amount) => ({ id, type: 'card_payment', amount_minor: amount, from_account_id: 'bank', to_account_id: debtId, occurred_at: '2026-09-26T12:00:00-05:00', status: 'recorded' })
+    const asset = { id: 'bank', kind: 'asset', archived: false }
+    const options = { monthlySalaryMinor: 185980000, accounts: [asset, debt, otherDebt], month: '2026-09' }
+    const planned = calculateAvailableMoney({ ...options, transactions: [payment('first', debt.id, 7000000)] })
+    expect(planned.availableNowMinor).toBe(175980000)
+    const twoDebts = calculateAvailableMoney({ ...options, transactions: [payment('first', debt.id, 12000000), payment('second', otherDebt.id, 5000000)] })
+    expect(twoDebts.trackedDebtPaymentsMinor).toBe(17000000)
+    expect(twoDebts.additionalDebtPaymentsMinor).toBe(7000000)
+    expect(twoDebts.availableNowMinor).toBe(168980000)
+    expect(calculateAvailableMoney({ ...options, transactions: [payment('first', debt.id, 12000000), { ...payment('second', otherDebt.id, 5000000), status: 'void' }] }).availableNowMinor).toBe(173980000)
   })
 })
