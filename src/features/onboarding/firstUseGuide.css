@@ -1,0 +1,29 @@
+/* Recorrido breve de primera visita: informa sin tapar la aplicación de forma permanente. */
+.guide-backdrop { position: fixed; z-index: 110; inset: 0; display: grid; place-items: center; padding: max(18px, env(safe-area-inset-top)) 18px max(18px, env(safe-area-inset-bottom)); background: #040817b8; backdrop-filter: blur(9px); }
+.first-use-guide { width: min(440px, 100%); padding: 20px; border: 1px solid var(--border); border-radius: 26px; background: var(--panel-fill); box-shadow: var(--shadow); }
+.first-use-guide > header, .first-use-guide > footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.first-use-guide__count { color: var(--text-2); font-size: .74rem; font-weight: 760; }
+.first-use-guide__later { min-height: 44px; padding: 0 4px; border: 0; background: transparent; color: var(--text-2); font-size: .78rem; font-weight: 700; }
+.first-use-guide__later:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 8px; }
+.first-use-guide__progress { height: 6px; margin: 13px 0 21px; overflow: hidden; border-radius: 999px; background: var(--surface-muted); }
+.first-use-guide__progress span { display: block; width: var(--guide-progress); height: 100%; border-radius: inherit; background: var(--button-fill); transition: width .25s ease; }
+.first-use-guide__icon { width: 54px; height: 54px; display: grid; place-items: center; margin-bottom: 17px; border: 1px solid var(--border); border-radius: 17px; background: var(--surface); }
+.first-use-guide__icon .night-icon { width: 100%; height: 100%; }
+.first-use-guide .eyebrow { color: var(--accent); font-size: .7rem; letter-spacing: .11em; }
+.first-use-guide h2 { margin-top: 5px; font-size: clamp(1.45rem, 6vw, 1.85rem); letter-spacing: -.04em; }
+.first-use-guide__body { min-height: 5.1em; margin-top: 10px; color: var(--text-2); font-size: .9rem; line-height: 1.52; }
+.first-use-guide > footer { margin-top: 22px; }
+.first-use-guide > footer .button { min-width: 126px; }
+.first-use-guide__help { display: flex; align-items: center; gap: 6px; margin-top: 18px; color: var(--text-2); font-size: .7rem; line-height: 1.35; }
+.first-use-guide__help svg { width: 15px; height: 15px; color: var(--warm); }
+
+@media (max-width: 420px) {
+  .first-use-guide { padding: 18px; border-radius: 22px; }
+  .first-use-guide__body { min-height: 5.8em; }
+  .first-use-guide > footer .button { min-width: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .first-use-guide__progress span { transition: none; }
+}
+:root[data-motion="off"] .first-use-guide__progress span { transition: none; }

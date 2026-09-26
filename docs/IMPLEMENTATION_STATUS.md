@@ -2,6 +2,12 @@
 
 Actualizado: 2026-09-26. Fase actual: **entrada sin encuesta obligatoria; validación en sesión remota e iPhone real pendiente**.
 
+## Guía de primera visita · 26 de septiembre
+
+- Al entrar por primera vez, PataWallet muestra un recorrido visual de cuatro pasos: Inicio, Cuentas, registro de movimientos y la diferencia entre Actividad y Plan. No solicita ni crea datos financieros, puede cerrarse en cualquier momento y queda disponible en Ajustes → Guía de uso.
+- Se reutiliza la preferencia booleana histórica de onboarding para marcar que el usuario ya la vio; así no se requiere una migración ni se cambia la base de datos existente. La guía no se abre automáticamente en la demo, que ya identifica sus datos como ficticios, pero también puede verse desde Ajustes.
+- Pendiente: verificar con sesión remota y en iPhone físico.
+
 ## Entrada sin encuesta obligatoria · 26 de septiembre
 
 - Se retiró el formulario inicial de tres pasos. Una cuenta nueva llega a Inicio sin declarar sueldo, saldo, deudas ni gastos fijos. El botón de bienvenida de la demo también entra directamente.

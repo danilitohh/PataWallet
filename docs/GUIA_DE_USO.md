@@ -10,6 +10,7 @@
 
 - Crea una cuenta con nombre, correo y contraseña. Si Supabase exige confirmación, abre el enlace recibido. **Olvidé mi contraseña** usa la recuperación del proveedor.
 - Google aparece solo si el proveedor está configurado; PataWallet no almacena contraseñas por su cuenta.
+- En el primer acceso aparece una guía corta y omisible. Explica qué muestra Inicio, dónde agregar cuentas, cómo usar **+** y la diferencia entre Actividad y Plan. Puedes abrirla de nuevo desde **Ajustes → Guía de uso**.
 - Pulsa **+** y responde «¿Qué pasó?»: **Hice una compra**, **Recibí dinero** o **Pagué una deuda**. **Moví dinero** está en «Más opciones». Fecha, hora, nota y comprobante están en «Añadir detalles»; la fecha de hoy ya está seleccionada.
 - Puedes entrar sin completar una encuesta. Cuando quieras registrar dinero real, agrega en **Cuentas** una cuenta con el saldo que realmente tienes hoy; no cuenta como un ingreso nuevo. Las deudas y los gastos fijos también se agregan allí, cuando los necesites. Si antes escribiste tu sueldo como referencia, Inicio ofrece revisar ese mismo monto y confirmarlo como saldo actual sin teclearlo de nuevo; corrígelo si ha cambiado.
 - Para una compra común, escribe monto, categoría y la cuenta o tarjeta con que pagaste. El movimiento actualiza esa cuenta; ya no se crean compras nuevas sin origen.

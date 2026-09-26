@@ -1,4 +1,4 @@
-import { AlertTriangle, Bell, Bot, CircleDollarSign, Eye, EyeOff, Handshake, LogOut, Menu, Moon, RefreshCw, Smartphone, UserRound } from 'lucide-react'
+import { AlertTriangle, Bell, Bot, CircleDollarSign, CircleHelp, Eye, EyeOff, Handshake, LogOut, Menu, Moon, RefreshCw, Smartphone, UserRound } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../../app/AppContext.jsx'
 import { PageHeader } from '../../shared/components/PageHeader.jsx'
@@ -8,7 +8,7 @@ import { PwaInstallControl } from '../pwa/PwaInstallControl.jsx'
 
 // Presenta Ajustes como grupos abiertos, conservando las rutas y acciones de cada tipo de cuenta.
 export function SettingsPage() {
-  const { settings, syncState, notify, actions, isDemo, user, signOut, accounts, categories, transactions, budgets, goals, allocations, plannedPurchases } = useApp()
+  const { settings, syncState, notify, actions, isDemo, user, signOut, accounts, categories, transactions, budgets, goals, allocations, plannedPurchases, startGuide } = useApp()
   const navigate = useNavigate()
   const setSetting = (key, value) => actions.setSetting(key, value)
 
@@ -43,6 +43,7 @@ export function SettingsPage() {
       </SettingsSection>}
 
       <SettingsSection id="settings-help-heading" title="Asistencia" intro="Ayuda para entender tus movimientos y cuentas." className="settings-group--help">
+        <SettingRow icon={CircleHelp} tone="sky" title="Guía de uso" detail="Recorre Inicio, Cuentas y el registro de movimientos"><button className="compact-action" type="button" onClick={startGuide}>Ver guía</button></SettingRow>
         <SettingLink icon={Bot} tone="violet" title="Asistente PataWallet" detail="Preguntas y resúmenes de solo lectura" to="/asistente" />
       </SettingsSection>
 

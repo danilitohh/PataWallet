@@ -23,6 +23,23 @@ test('abre el asistente desde la burbuja flotante', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Asistente PataWallet' })).toBeVisible()
 })
 
+test('abre la guía de uso desde Ajustes y recorre sus pasos', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: /probar con datos de ejemplo/i }).click()
+  await page.goto('/ajustes')
+  await page.getByRole('button', { name: 'Ver guía' }).click()
+  const guide = page.getByRole('dialog')
+  await expect(guide).toBeVisible()
+  await expect(guide.getByText('1 de 4')).toBeVisible()
+  await guide.getByRole('button', { name: 'Siguiente' }).click()
+  await expect(page.getByRole('heading', { name: 'Empieza por lo que tienes hoy.' })).toBeVisible()
+  await guide.getByRole('button', { name: 'Siguiente' }).click()
+  await expect(page.getByRole('heading', { name: 'El botón + guarda lo que pasó.' })).toBeVisible()
+  await guide.getByRole('button', { name: 'Siguiente' }).click()
+  await guide.getByRole('button', { name: 'Empezar a usar PataWallet' }).click()
+  await expect(guide).toHaveCount(0)
+})
+
 test('entra sin encuesta y puede registrar su saldo desde Cuentas', async ({ page }) => {
   await page.goto('/')
   await expect(page.getByRole('button', { name: 'Configurar mi espacio' })).toHaveCount(0)
