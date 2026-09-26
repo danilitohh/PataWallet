@@ -66,20 +66,22 @@ export function recurringExpenseDates(expense, { from, to, payFrequency, nextPay
   return intervalDates(anchor, from, to, schedule.frequency === 'weekly' ? 7 : 15)
 }
 
-// Devuelve el rango visible, conserva atrasos pendientes desde su ancla y limita pagos hechos al periodo reciente.
+// Devuelve ocurrencias del rango visible, conserva atrasos pendientes y permite ocultar pagos completados.
 export function getRecurringExpenseOccurrences(expenses = [], options = {}) {
   const from = options.from || calendarToday()
   const to = options.to || addCalendarDays(from, 45)
   const today = options.today || calendarToday()
   const includeOverdue = options.includeOverdue === true
+  const includePaid = options.includePaid !== false
   return expenses.flatMap((expense) => {
     const schedule = normalizeExpenseSchedule(expense.frequency, expense.next_due_date)
     const anchor = schedule.nextDueDate || (schedule.frequency === 'payday' ? options.nextPayDate : today)
     const occurrenceFrom = includeOverdue && isCalendarDate(anchor) && anchor < from ? anchor : from
     const paymentByDate = new Map(readPaymentHistory(expense.payment_history).map((payment) => [payment.due_date, payment]))
-    return recurringExpenseDates(expense, { ...options, from: occurrenceFrom, to }).map((dueDate) => {
+    return recurringExpenseDates(expense, { ...options, from: occurrenceFrom, to }).flatMap((dueDate) => {
       const payment = paymentByDate.get(dueDate)
-      return {
+      if (payment && !includePaid) return []
+      return [{
         id: `${expense.id}:${dueDate}`,
         expenseId: expense.id,
         name: expense.name,
@@ -89,7 +91,7 @@ export function getRecurringExpenseOccurrences(expenses = [], options = {}) {
         paidAt: payment?.paid_at || null,
         paidAmountMinor: payment?.paid_amount_minor ?? null,
         frequency: schedule.frequency,
-      }
+      }]
     }).filter((occurrence) => !(includeOverdue && occurrence.status === 'paid' && occurrence.dueDate < from))
   }).sort((left, right) => left.dueDate.localeCompare(right.dueDate) || left.name.localeCompare(right.name))
 }

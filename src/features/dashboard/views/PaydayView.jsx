@@ -15,6 +15,7 @@ export function PaydayView({ summary, income, available, budget, remaining, used
     to: nextPayDate || addCalendarDays(today, 45),
     today,
     includeOverdue: true,
+    includePaid: false,
     payFrequency: income.primary?.frequency,
     nextPayDate: income.primary?.next_pay_date,
   })

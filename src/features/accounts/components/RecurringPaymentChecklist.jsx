@@ -13,6 +13,7 @@ export function RecurringPaymentChecklist({ expenses, settings, actions, notify 
     to: addCalendarDays(today, 45),
     today,
     includeOverdue: true,
+    includePaid: false,
     payFrequency: settings.payFrequency,
     nextPayDate: settings.nextPayDate,
   })
