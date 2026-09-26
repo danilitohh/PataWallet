@@ -1,10 +1,19 @@
 import { useRegisterSW } from 'virtual:pwa-register/react'
 import { Download, X } from 'lucide-react'
-import { useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { watchPwaUpdateChecks } from './updateChecks.js'
 
 export function PwaUpdatePrompt() {
-  const { needRefresh: [needRefresh, setNeedRefresh], updateServiceWorker } = useRegisterSW()
+  const stopUpdateChecks = useRef(null)
+  const onRegisteredSW = useCallback((_scriptUrl, registration) => {
+    stopUpdateChecks.current?.()
+    stopUpdateChecks.current = watchPwaUpdateChecks(registration)
+  }, [])
+  const { needRefresh: [needRefresh, setNeedRefresh], updateServiceWorker } = useRegisterSW({ onRegisteredSW })
   const [blocked, setBlocked] = useState(false)
+
+  useEffect(() => () => stopUpdateChecks.current?.(), [])
+
   if (!needRefresh) return null
 
   const update = () => {

@@ -56,6 +56,8 @@ Si la revocación al servidor falla sin conexión, la suscripción del navegador
 
 La app muestra “Nueva versión disponible” y ofrece Actualizar o Más tarde. Nunca aplica una actualización automáticamente. Si hay un formulario modal abierto, Actualizar enfoca el formulario y se aplaza; el caché antiguo puede limpiarse sin tocar IndexedDB ni su cola financiera.
 
+El registro del service worker comprueba versiones al activarse, cuando la app vuelve a primer plano, al recuperar conexión y cada hora mientras permanece visible y en línea. La detección de una versión nueva conserva el aviso manual; revisar el registro no activa el worker ni recarga la pantalla por sí solo.
+
 Para comprobar dos builds localmente, servir un primer `dist` por HTTPS, abrirlo e instalar su worker; generar después otro build con un cambio visible, reemplazar el contenido servido sin cambiar el origen, volver a la app y esperar la comprobación del worker. Verificar que el aviso aparece, que Más tarde no recarga y que Actualizar queda aplazado mientras un movimiento está abierto. Esta prueba todavía debe repetirse en el origen autorizado y en iPhone.
 
 La PWA puede abrir el shell ya cargado sin red. La sincronización sigue siendo explícita y ocurre con la app activa o al volver a abrirla; Web Push no se usa como sincronización silenciosa.

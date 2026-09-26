@@ -2,6 +2,11 @@
 
 Actualizado: 2026-09-26. Fase actual: **Metas primero aplicado a Plan; aplicar migración remota pendiente y validar en iPhone real sigue pendiente**.
 
+## Actualización de PWA al volver a la app · 26 de septiembre
+
+- El registro del service worker vuelve a comprobar si hay una versión nueva al registrarse, al regresar a primer plano, al recuperar conexión y cada hora mientras la app está visible y en línea. El aviso continúa siendo manual; no se salta el worker ni se recarga automáticamente.
+- Verificación automatizada local: prueba unitaria del ciclo de vida y la limpieza de listeners/temporizador, suite PWA y build. La actualización en iPhone instalado aún requiere prueba física.
+
 ## Checklist persistente de pagos · 26 de septiembre
 
 - Los vencimientos recurrentes pendientes anteriores al rango próximo siguen apareciendo como atrasados hasta marcarlos como pagados. Cuentas y Quincena separan los atrasos de los pagos de hoy y próximos.
