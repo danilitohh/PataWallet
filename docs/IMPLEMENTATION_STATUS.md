@@ -2,6 +2,15 @@
 
 Actualizado: 2026-09-26. Fase actual: **registro guiado implementado; validación en sesión remota e iPhone real pendiente**.
 
+## Saldo real como fuente de verdad · 26 de septiembre
+
+- El primer acceso pide la cuenta y el saldo actual, no un sueldo de referencia. Las deudas se abren como pasivos; los pagos fijos se muestran como pendientes y solo reducen la cuenta al confirmarlos.
+- Inicio, Plan, evaluación de compras y asistente usan saldos y movimientos registrados. Inicio separa el saldo de cuentas del margen después de pagos pendientes y reservas; la próxima fecha de pago no genera dinero.
+- Cuentas → Ingresos muestra solo ingresos efectivamente registrados y permite abrir «Recibí dinero». La frecuencia y fecha futuras son recordatorios opcionales. Crear una cuenta ya no solicita una fuente de sueldo estimado.
+- Compras y confirmaciones de gastos fijos nuevos requieren una cuenta o tarjeta concreta. Los gastos antiguos sin origen se conservan sin alterar saldos; se avisa de ello en Inicio. No se migran ni se asocian automáticamente.
+- El sueldo de referencia antiguo se conserva en los datos por compatibilidad, pero deja de alimentar los cálculos y se ofrece precargado **solo para que el usuario confirme o corrija su saldo actual**. No se modifica producción ni se inventan movimientos sin esta confirmación.
+- Verificado localmente: 125 pruebas unitarias, lint, build y 18 recorridos E2E dirigidos en 390×844, 375×812 y 1440×900. Una corrida paralela de la suite completa se interrumpió tras tiempos de espera de interacción y una expectativa antigua de Plan; la expectativa se actualizó y los flujos financieros dirigidos pasaron en ejecución secuencial. Falta validar con sesión remota e iPhone físico.
+
 ## Proyección mensual frente a dinero real · 26 de septiembre
 
 - Inicio aclara que el sueldo declarado y los gastos fijos producen una **estimación mensual**, no el saldo de una cuenta ni pagos efectuados. Si no hay cuenta de dinero, ofrece el enlace a Cuentas; el registro de un abono explica la diferencia y permite crear la cuenta sin perder el formulario.

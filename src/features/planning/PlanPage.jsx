@@ -3,7 +3,7 @@ import { AnimatePresence } from 'motion/react'
 import { ArrowDownRight, ArrowUpRight, CalendarDays, CalendarClock, Pencil, Plus, Sparkles } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useApp } from '../../app/AppContext.jsx'
-import { calculateAvailableMoney, calculateSummary, goalProgress } from '../../domain/finance.js'
+import { calculateRecordedMoney, calculateSummary, goalProgress } from '../../domain/finance.js'
 import { readFixedExpenses } from '../../domain/financialSetup.js'
 import { formatMinor, safeAdd } from '../../domain/money.js'
 import { assessPlannedPurchase } from '../../domain/plannedPurchases.js'
@@ -24,14 +24,13 @@ export function PlanPage() {
   const monthLabel = formatPlanMonth(month)
   const summary = calculateSummary(accounts, transactions, month)
   const income = incomeReference(settings, accounts)
-  const available = calculateAvailableMoney({
-    monthlySalaryMinor: income.salaryMinor,
+  const cash = calculateRecordedMoney({
     fixedExpenses: readFixedExpenses(settings.fixedExpenses),
     accounts,
     transactions,
-    month,
-    payFrequency: income.primary?.frequency,
-    nextPayDate: income.primary?.next_pay_date,
+    allocations,
+    payFrequency: settings.payFrequency || income.primary?.frequency,
+    nextPayDate: settings.nextPayDate || income.primary?.next_pay_date,
   })
   const budget = budgets.find((item) => item.month === month)
   const featuredGoal = goals[0] || null
@@ -40,11 +39,6 @@ export function PlanPage() {
   const activePurchases = plannedPurchases
     .filter((item) => item.status === 'planned')
     .sort((left, right) => left.target_date.localeCompare(right.target_date))
-  const assetAccounts = accounts.filter((account) => account.kind === 'asset' && !account.archived)
-  const liquidAssetsMinor = assetAccounts.length
-    ? assetAccounts.reduce((total, account) => safeAdd(total, Number(summary.balances[account.id] || 0)), 0)
-    : null
-  const reservedMinor = allocations.reduce((total, allocation) => safeAdd(total, Number(allocation.amount_minor)), 0)
   const budgetLimitMinor = budget?.limit_minor || null
   const budgetUsedPercent = budgetLimitMinor ? (summary.expenses / budgetLimitMinor) * 100 : 0
 
@@ -103,7 +97,7 @@ export function PlanPage() {
           hidden={settings.hiddenAmounts}
           onEdit={() => setBudgetOpen(true)}
         />
-        <AvailablePlanSummary available={available} hidden={settings.hiddenAmounts} />
+        <AvailablePlanSummary cash={cash} hidden={settings.hiddenAmounts} />
       </section>
 
       <section className="plan-purchases" aria-labelledby="plan-purchases-title">
@@ -117,10 +111,9 @@ export function PlanPage() {
               amountMinor: purchase.amount_minor,
               budgetLimitMinor,
               monthlyExpensesMinor: summary.expenses,
-              liquidAssetsMinor,
-              reservedMinor,
-              monthlyFreeMinor: available.monthlyFreeMinor,
-              nextPayDate: income.primary?.next_pay_date || null,
+              liquidAssetsMinor: cash.hasAccount ? cash.balanceMinor : null,
+              reservedMinor: safeAdd(safeAdd(cash.pendingFixedMinor, cash.pendingDebtMinor), cash.reservedMinor),
+              nextPayDate: settings.nextPayDate || income.primary?.next_pay_date || null,
             })
             return <PlanPurchaseCard
               key={purchase.id}
@@ -187,24 +180,23 @@ function BudgetOverview({ monthLabel, spentMinor, limitMinor, percent, hidden, o
   </section>
 }
 
-// Distingue el disponible estimado de los activos y explica qué compromisos ya descuenta.
-function AvailablePlanSummary({ available, hidden }) {
-  if (available.availableNowMinor === null) return <section className="plan-panel plan-free plan-free--setup">
-    <span className="plan-eyebrow">Dinero libre estimado</span>
-    <h2>Completa tu punto de partida</h2>
-    <p>Agrega ingresos y gastos fijos en <Link to="/cuentas" aria-label="Configurar ingresos y gastos en Cuentas">Cuentas</Link> para calcular cuánto margen tienes este mes.</p>
+// Distingue el saldo registrado del margen después de compromisos aún pendientes.
+function AvailablePlanSummary({ cash, hidden }) {
+  if (!cash.hasAccount) return <section className="plan-panel plan-free plan-free--setup">
+    <span className="plan-eyebrow">Dinero registrado</span>
+    <h2>Agrega tu saldo actual</h2>
+    <p>Registra en <Link to="/cuentas" aria-label="Agregar una cuenta con saldo actual">Cuentas</Link> el dinero que realmente tienes hoy.</p>
   </section>
 
-  const committedAndSpentMinor = safeAdd(available.salaryMinor, -available.availableNowMinor)
-  const isNegative = available.availableNowMinor < 0
+  const isNegative = cash.spendableMinor < 0
   return <section className={`plan-panel plan-free ${isNegative ? 'plan-free--warning' : ''}`} aria-labelledby="plan-free-title">
-    <span className="plan-eyebrow" id="plan-free-title">Dinero libre estimado</span>
-    <strong className="plan-free__amount">{formatMinor(available.availableNowMinor, 'COP', hidden)}</strong>
+    <span className="plan-eyebrow" id="plan-free-title">Margen tras pagos pendientes</span>
+    <strong className="plan-free__amount">{formatMinor(cash.spendableMinor, 'COP', hidden)}</strong>
     <div className="plan-free__breakdown">
-      <p><ArrowDownRight aria-hidden="true" /><span>Ingreso mensual previsto</span><strong>{formatMinor(available.salaryMinor, 'COP', hidden)}</strong></p>
-      <p><ArrowUpRight aria-hidden="true" /><span>Compromisos y gastos anotados</span><strong>{formatMinor(committedAndSpentMinor, 'COP', hidden)}</strong></p>
+      <p><ArrowDownRight aria-hidden="true" /><span>Dinero en cuentas</span><strong>{formatMinor(cash.balanceMinor, 'COP', hidden)}</strong></p>
+      <p><ArrowUpRight aria-hidden="true" /><span>Pagos y reservas pendientes</span><strong>{formatMinor(safeAdd(safeAdd(cash.pendingFixedMinor, cash.pendingDebtMinor), cash.reservedMinor), 'COP', hidden)}</strong></p>
     </div>
-    <small>Incluye gastos fijos, pagos de deuda y gastos netos registrados este mes; no es el saldo de tus cuentas.</small>
+    <small>El saldo en cuentas solo cambia al registrar un movimiento real. Los pagos pendientes se apartan para evaluar compras; aún no se han descontado.</small>
   </section>
 }
 

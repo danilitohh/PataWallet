@@ -41,8 +41,7 @@ function plannedPurchaseMessage(assessment, hidden) {
     const margin = assessment.remainingAfterPurchase ?? assessment.availableAfterReserves
     return margin === null ? 'Puedes hacerla según los datos configurados.' : `Puedes hacerla: conservarías ${formatMinor(margin, 'COP', hidden)} de margen.`
   }
-  if (assessment.reason === 'free_money') return assessment.remainingAfterPurchase <= 0 ? 'No es recomendable: te dejaría sin dinero libre este mes.' : `No es recomendable: te dejaría ${formatMinor(assessment.remainingAfterPurchase, 'COP', hidden)} para el resto del mes.`
   if (assessment.reason === 'before_payday') return `Espera o revisa el monto: faltan ${assessment.daysUntilPay} días para tu próximo pago y te quedarían ${formatMinor(assessment.remainingAfterPurchase, 'COP', hidden)}.`
-  if (assessment.reason === 'funds') return `No es recomendable: faltarían ${formatMinor(assessment.shortfall, 'COP', hidden)} en fondos registrados después de reservas.`
+  if (assessment.reason === 'funds') return assessment.shortfall === 0 ? 'No es recomendable: te dejaría sin margen para los pagos pendientes.' : `No es recomendable: faltarían ${formatMinor(assessment.shortfall, 'COP', hidden)} después de apartar pagos pendientes.`
   return `No es recomendable: supera el presupuesto restante por ${formatMinor(assessment.shortfall, 'COP', hidden)}.`
 }

@@ -3,7 +3,7 @@ import { formatMinor } from '../../../domain/money.js'
 import { DashboardBudget, DashboardEmpty, DashboardMoneyDetails, DashboardRecent } from '../components/DashboardSections.jsx'
 
 // Prioriza los gastos categorizados y movimientos del periodo que la persona consulta.
-export function ActivityView({ summary, breakdown, monthTransactions, budget, remaining, used, hidden, income, available, goals, goalCount, allocations, planned, plannedCount, accounts, accountCount, balances }) {
+export function ActivityView({ summary, breakdown, monthTransactions, budget, remaining, used, hidden, cash, goals, goalCount, allocations, planned, plannedCount, accounts, accountCount, balances }) {
   return <div className="dashboard-view dashboard-view--activity">
     <section className="dashboard-activity-summary" aria-label="Saldo y gastos del mes">
       <article className="dashboard-activity-balance"><span>Saldo en tus cuentas</span><strong>{formatMinor(summary.assets, 'COP', hidden)}</strong><small>Actualizado con tus movimientos registrados</small></article>
@@ -15,6 +15,6 @@ export function ActivityView({ summary, breakdown, monthTransactions, budget, re
     </section>
     <DashboardRecent items={monthTransactions.filter((item) => !['opening', 'adjustment'].includes(item.type)).slice(0, 5)} />
     <DashboardBudget summary={summary} budget={budget} remaining={remaining} used={used} hidden={hidden} />
-    <DashboardMoneyDetails income={income} available={available} goals={goals} goalCount={goalCount} allocations={allocations} planned={planned} plannedCount={plannedCount} accounts={accounts} accountCount={accountCount} balances={balances} hidden={hidden} />
+    <DashboardMoneyDetails summary={summary} cash={cash} goals={goals} goalCount={goalCount} allocations={allocations} planned={planned} plannedCount={plannedCount} accounts={accounts} accountCount={accountCount} balances={balances} hidden={hidden} />
   </div>
 }

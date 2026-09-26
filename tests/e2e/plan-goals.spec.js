@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 // Verifica la jerarquía Metas primero en el viewport móvil y de escritorio configurado por Playwright.
-test('prioriza la meta y mantiene visibles presupuesto, dinero libre y compras', async ({ page }) => {
+test('prioriza la meta y mantiene visibles presupuesto, margen y compras', async ({ page }) => {
   const browserErrors = []
   page.on('pageerror', (error) => browserErrors.push(error.message))
   page.on('console', (message) => { if (message.type() === 'error') browserErrors.push(message.text()) })
@@ -13,7 +13,7 @@ test('prioriza la meta y mantiene visibles presupuesto, dinero libre y compras',
   await expect(page.getByRole('heading', { name: 'Metas y plan' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Un viaje especial' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Tu presupuesto' })).toBeVisible()
-  await expect(page.locator('.plan-free')).toContainText('Completa tu punto de partida')
+  await expect(page.locator('.plan-free')).toContainText('Margen tras pagos pendientes')
   await expect(page.getByRole('heading', { name: 'Próximas compras' })).toBeVisible()
   await expect(page.getByText('Aún no has anotado compras futuras.')).toBeVisible()
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true)

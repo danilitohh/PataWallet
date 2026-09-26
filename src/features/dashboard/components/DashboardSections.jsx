@@ -6,14 +6,13 @@ import { BudgetRing } from '../../planning/components/BudgetRing.jsx'
 import { Progress } from '../../../shared/components/Progress.jsx'
 import { NightIcon } from '../../../shared/components/NightIcon.jsx'
 import { accountTypeLabel } from '../../accounts/model/accountTypes.js'
-import { payFrequencyLabel } from '../../settings/model/incomeSettings.js'
 import { TransactionList } from '../../transactions/components/TransactionList.jsx'
 
 // Resume ingresos, gastos y deuda con los datos ya calculados para el mes activo.
-export function DashboardStats({ income, available, summary, hidden }) {
+export function DashboardStats({ cash, summary, hidden }) {
   return <section className="stat-grid dashboard-stats" aria-label="Resumen del mes">
-    <Stat icon={ArrowDownLeft} label={income.salaryMinor ? 'Ingreso previsto' : 'Ingreso registrado'} value={formatMinor(income.salaryMinor || summary.income, 'COP', hidden)} tone="positive" />
-    <Stat icon={ArrowUpRight} label="Gastos fijos previstos" value={formatMinor(available.fixedExpensesMinor, 'COP', hidden)} tone="negative" />
+    <Stat icon={ArrowDownLeft} label="Ingresos recibidos" value={formatMinor(summary.income, 'COP', hidden)} tone="positive" />
+    <Stat icon={ArrowUpRight} label="Pagos programados" value={formatMinor(cash.pendingFixedMinor + cash.pendingDebtMinor, 'COP', hidden)} tone="negative" />
     <Stat icon={CreditCard} label="Deuda" value={formatMinor(summary.debt, 'COP', hidden)} />
   </section>
 }
@@ -35,35 +34,30 @@ export function DashboardRecent({ items }) {
   </section>
 }
 
-// Reúne la referencia de ingresos, dinero libre y vistas rápidas del plan y las cuentas.
-export function DashboardMoneyDetails({ income, available, goals, goalCount, allocations, planned, plannedCount, accounts, accountCount, balances, hidden }) {
+// Reúne ingresos recibidos, margen y vistas rápidas del plan y las cuentas.
+export function DashboardMoneyDetails({ summary, cash, goals, goalCount, allocations, planned, plannedCount, accounts, accountCount, balances, hidden }) {
   return <>
     <div className="dashboard-money-grid">
-      <IncomeSummary income={income} hidden={hidden} />
-      <AvailableMoneyCard available={available} hidden={hidden} />
+      <IncomeSummary incomeMinor={summary.income} hidden={hidden} />
+      <AvailableMoneyCard cash={cash} hidden={hidden} />
     </div>
     <DashboardPreviewGrid goals={goals} goalCount={goalCount} allocations={allocations} planned={planned} plannedCount={plannedCount} accounts={accounts} accountCount={accountCount} balances={balances} hidden={hidden} />
   </>
 }
 
-// Muestra ingresos de referencia sin crear movimientos y ofrece su edición en Cuentas.
-function IncomeSummary({ income, hidden }) {
-  const configured = income.sources.length > 0 || Number(income.salaryMinor) > 0
-  const fixed = income.primary && income.primary.type === 'fixed_salary' ? income.primary : null
-  const frequency = fixed?.frequency || income.primary?.frequency
-  const nextPayDate = fixed?.next_pay_date || income.primary?.next_pay_date
-  const extras = income.sources.filter((source) => source.type === 'occasional')
+// Resume únicamente ingresos que ya llegaron a una cuenta, no montos declarados como referencia.
+function IncomeSummary({ incomeMinor, hidden }) {
   return <section className="feature-panel income-summary">
-    <div className="section-heading"><div><h2>Mis ingresos</h2><p>{configured ? 'Referencia para organizar tu presupuesto.' : 'Completa esta información para tenerla a mano.'}</p></div><Link to="/cuentas#ingresos">{configured ? 'Editar' : 'Configurar'}</Link></div>
-    {configured ? <div className="income-summary__value">{income.salaryMinor !== null && <><strong>{formatMinor(income.salaryMinor, 'COP', hidden)}</strong><span>{payFrequencyLabel(frequency) || 'Sueldo fijo'}</span>{nextPayDate && <small>Próximo pago: {formatDashboardDate(nextPayDate)}</small>}</>}{income.salaryMinor === null && <span>Sin sueldo fijo declarado</span>}{extras.length > 0 && <small>{formatOccasionalCount(extras.length)}</small>}</div> : <p className="dashboard-empty__text">Agrega una fuente de ingreso y la cuenta donde la recibes desde Cuentas.</p>}
+    <div className="section-heading"><div><h2>Ingresos recibidos</h2><p>Solo movimientos registrados este mes.</p></div><Link to="/cuentas#ingresos">Ver</Link></div>
+    <div className="income-summary__value"><strong>{formatMinor(incomeMinor, 'COP', hidden)}</strong></div>
   </section>
 }
 
-// Explica el cálculo de dinero libre y separa compromisos y movimientos ya registrados.
-function AvailableMoneyCard({ available, hidden }) {
-  if (available.monthlyFreeMinor === null) return <section className="feature-panel available-money-card"><div className="section-heading"><div><h2>Dinero libre estimado este mes</h2><p>El resultado aparece al completar tu punto de partida.</p></div><Link to="/cuentas#ingresos">Configurar</Link></div><p className="dashboard-empty__text">Necesitamos tu salario mensual, gastos fijos y pagos de deuda para decirte cuánto puedes usar con tranquilidad.</p></section>
-  const negative = available.monthlyFreeMinor < 0
-  return <section className={`feature-panel available-money-card ${negative ? 'available-money-card--warning' : ''}`}><div className="section-heading"><div><h2>Dinero libre estimado este mes</h2><p>{negative ? 'Tus compromisos superan el ingreso declarado.' : 'Proyección; no es saldo en una cuenta.'}</p></div><Link to="/cuentas#gastos-fijos">Editar</Link></div><strong className="available-money-card__value">{formatMinor(available.monthlyFreeMinor, 'COP', hidden)}</strong><div className="available-money-card__breakdown"><span>Salario <b>{formatMinor(available.salaryMinor, 'COP', hidden)}</b></span><span>Gastos fijos <b>− {formatMinor(available.fixedExpensesMinor, 'COP', hidden)}</b></span><span>Pagos de deuda previstos <b>− {formatMinor(available.debtPaymentsMinor, 'COP', hidden)}</b></span></div>{(available.trackedExpensesMinor !== 0 || available.additionalDebtPaymentsMinor > 0) && <p className="available-money-card__after">Tras movimientos registrados: <strong>{formatMinor(available.availableNowMinor, 'COP', hidden)}</strong></p>}</section>
+// Muestra cuánto quedaría tras apartar pagos pendientes; nunca lo presenta como saldo bancario.
+function AvailableMoneyCard({ cash, hidden }) {
+  if (!cash.hasAccount) return <section className="feature-panel available-money-card"><div className="section-heading"><div><h2>Margen tras pendientes</h2><p>Necesitamos una cuenta con tu saldo actual.</p></div><Link to="/cuentas">Agregar</Link></div></section>
+  const negative = cash.spendableMinor < 0
+  return <section className={`feature-panel available-money-card ${negative ? 'available-money-card--warning' : ''}`}><div className="section-heading"><div><h2>Margen tras pendientes</h2><p>No es otro saldo: aparta pagos aún no hechos.</p></div><Link to="/cuentas#gastos-fijos">Ver pagos</Link></div><strong className="available-money-card__value">{formatMinor(cash.spendableMinor, 'COP', hidden)}</strong><div className="available-money-card__breakdown"><span>En cuentas <b>{formatMinor(cash.balanceMinor, 'COP', hidden)}</b></span><span>Gastos fijos pendientes <b>− {formatMinor(cash.pendingFixedMinor, 'COP', hidden)}</b></span><span>Deudas pendientes <b>− {formatMinor(cash.pendingDebtMinor, 'COP', hidden)}</b></span><span>Reservas para metas <b>− {formatMinor(cash.reservedMinor, 'COP', hidden)}</b></span></div></section>
 }
 
 // Presenta metas, compras y cuentas sin duplicar datos financieros entre las tres vistas.
@@ -90,11 +84,6 @@ function DashboardPreviewGrid({ goals, goalCount, allocations, planned, plannedC
 // Formatea fechas de calendario sin depender de la zona horaria del dispositivo.
 export function formatDashboardDate(value) {
   return new Intl.DateTimeFormat('es-CO', { dateStyle: 'medium', timeZone: 'UTC' }).format(new Date(`${value}T12:00:00Z`))
-}
-
-// Conserva singular y plural naturales para fuentes de ingreso esporádicas.
-function formatOccasionalCount(count) {
-  return count === 1 ? '1 ingreso extra esporádico' : `${count} ingresos extra esporádicos`
 }
 
 // Mantiene vacíos compactos y orientados a la siguiente acción.

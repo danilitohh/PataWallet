@@ -11,10 +11,12 @@
 - Crea una cuenta con nombre, correo y contraseña. Si Supabase exige confirmación, abre el enlace recibido. **Olvidé mi contraseña** usa la recuperación del proveedor.
 - Google aparece solo si el proveedor está configurado; PataWallet no almacena contraseñas por su cuenta.
 - Pulsa **+** y responde «¿Qué pasó?»: **Hice una compra**, **Recibí dinero** o **Pagué una deuda**. **Moví dinero** está en «Más opciones». Fecha, hora, nota y comprobante están en «Añadir detalles»; la fecha de hoy ya está seleccionada.
-- Para una compra común, escribe monto y categoría. **Dinero disponible** afecta solo el presupuesto y no cambia saldos; elige efectivo, banco o crédito en «¿Con qué pagaste?» si quieres actualizar la cuenta correspondiente.
+- Al empezar, agrega una cuenta con el saldo que realmente tienes hoy. Es un punto de partida, no un ingreso nuevo. Si antes escribiste tu sueldo como referencia, Inicio ofrece revisar ese mismo monto y confirmarlo como saldo actual sin teclearlo de nuevo; corrígelo si ha cambiado.
+- Para una compra común, escribe monto, categoría y la cuenta o tarjeta con que pagaste. El movimiento actualiza esa cuenta; ya no se crean compras nuevas sin origen.
 - Para pagar una deuda, elige la cuenta de donde salió el dinero y la deuda pagada. El saldo de ambas baja sin contar un segundo gasto. Para un ingreso, elige la cuenta donde llegó.
-- El **dinero libre estimado** de Inicio parte del sueldo declarado y resta compromisos previstos; no es el saldo de banco ni confirma que ya pagaste los gastos fijos. Si no tienes una cuenta con dinero registrada, toca **Agregar cuenta con dinero** dentro del abono e indica el saldo que realmente tienes hoy, no la cifra estimada. Después podrás registrar cada pago; los abonos sin cuota prevista reducen el dinero libre y una cuota ya prevista no se resta dos veces.
-- En **Cuentas → Gastos fijos**, marca un vencimiento y confirma monto, origen y categoría. Esto registra el pago en Actividad y lo quita de la checklist; si no eliges una cuenta, solo cambia el presupuesto. El pago real sustituye al compromiso previsto en «dinero libre», sin restarlo dos veces.
+- Inicio muestra el saldo calculado desde las cuentas y movimientos registrados. «Margen tras pendientes» resta aparte los pagos todavía no hechos y las reservas; no es otro saldo bancario. Compáralo con tu banco, pues la app no consulta cuentas bancarias automáticamente.
+- En **Cuentas → Ingresos**, registra cada dinero recibido cuando llegue a tu cuenta. La fecha del próximo pago es opcional y no añade dinero antes de recibirlo.
+- En **Cuentas → Gastos fijos**, marca un vencimiento y confirma monto, origen y categoría. Esto registra el pago en Actividad, reduce la cuenta y lo quita de la checklist. El compromiso pendiente deja de apartarse, sin doble descuento.
 - En **Actividad**, abre un movimiento para corregirlo o eliminarlo. **Deshacer** restaura la eliminación mientras el aviso está visible.
 - En **Cuentas** administra activos/tarjetas. En **Plan** configura presupuesto, metas y reservas; reservar no crea ni mueve dinero.
 

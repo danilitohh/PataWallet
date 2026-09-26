@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import fixtures from '../../examples/demo-fixtures.json'
-import { calculateAvailableMoney, calculateSummary, goalProgress } from './finance.js'
+import { calculateAvailableMoney, calculateRecordedMoney, calculateSummary, goalProgress } from './finance.js'
 import { parseLocalizedAmount } from './money.js'
 
 const accounts = fixtures.accounts
@@ -90,5 +90,19 @@ describe('reglas financieras de PataWallet', () => {
     expect(twoDebts.additionalDebtPaymentsMinor).toBe(7000000)
     expect(twoDebts.availableNowMinor).toBe(168980000)
     expect(calculateAvailableMoney({ ...options, transactions: [payment('first', debt.id, 12000000), { ...payment('second', otherDebt.id, 5000000), status: 'void' }] }).availableNowMinor).toBe(173980000)
+  })
+
+  it('usa saldos registrados y separa pagos pendientes sin inventar sueldo ni descontar dos veces', () => {
+    const bank = { id: 'bank', kind: 'asset', archived: false }
+    const debt = { id: 'debt', kind: 'liability', archived: false, debt_monthly_payment_minor: 20000000 }
+    const opening = { id: 'opening', type: 'opening', amount_minor: 185980000, to_account_id: bank.id, occurred_at: '2026-09-26T12:00:00-05:00', status: 'recorded' }
+    const fixed = { id: 'internet', name: 'Internet', amount_minor: 55000000, frequency: 'monthly', next_due_date: '2026-09-27', payment_history: [] }
+    const options = { accounts: [bank, debt], transactions: [opening], fixedExpenses: [fixed], referenceDate: '2026-09-26' }
+    expect(calculateRecordedMoney({ ...options, accounts: [debt], transactions: [] }).spendableMinor).toBeNull()
+    expect(calculateRecordedMoney(options)).toMatchObject({ balanceMinor: 185980000, pendingFixedMinor: 55000000, pendingDebtMinor: 20000000, spendableMinor: 110980000 })
+    const fixedPayment = { id: 'fixed-payment:internet:2026-09-27', type: 'expense', amount_minor: 55000000, from_account_id: bank.id, occurred_at: '2026-09-27T12:00:00-05:00', status: 'recorded' }
+    const debtPayment = { id: 'debt-payment', type: 'card_payment', amount_minor: 20000000, from_account_id: bank.id, to_account_id: debt.id, occurred_at: '2026-09-27T12:00:00-05:00', status: 'recorded' }
+    const paidFixed = { ...fixed, payment_history: [{ due_date: '2026-09-27', paid_at: '2026-09-27T12:00:00Z', transaction_id: fixedPayment.id }] }
+    expect(calculateRecordedMoney({ ...options, fixedExpenses: [paidFixed], transactions: [opening, fixedPayment, debtPayment] })).toMatchObject({ balanceMinor: 110980000, pendingFixedMinor: 0, pendingDebtMinor: 0, spendableMinor: 110980000 })
   })
 })

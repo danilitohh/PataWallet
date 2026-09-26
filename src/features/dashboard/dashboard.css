@@ -34,7 +34,7 @@
 .dashboard-available-hero .dashboard-payday-chip { width: fit-content; display: inline-flex; align-items: center; gap: 6px; padding: 7px 10px; border: 1px solid #ffffff2d; border-radius: 999px; background: #0e162a75; color: #efeaff; font-size: .66rem; font-weight: 720; backdrop-filter: blur(6px); }
 .dashboard-available-hero .dashboard-payday-chip svg { width: 14px; height: 14px; color: var(--success); }
 .dashboard-available-hero .dashboard-view-link { pointer-events: auto; }
-/* Separa la proyección mensual del saldo real y ofrece una única acción cuando aún no hay cuenta de dinero. */
+/* Advierte que un ingreso antiguo no se convierte en saldo sin confirmación. */
 .dashboard-balance-explanation { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 12px; line-height: 1.45; }
 .dashboard-balance-explanation a { display: inline-flex; align-items: center; gap: 4px; color: var(--accent); font-weight: 700; }
 .dashboard-balance-explanation a svg { width: 15px; height: 15px; }

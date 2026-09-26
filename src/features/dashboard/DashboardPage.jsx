@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { Eye, EyeOff, Plus } from 'lucide-react'
 import { useApp } from '../../app/AppContext.jsx'
-import { calculateAvailableMoney, calculateSummary, monthInTimeZone } from '../../domain/finance.js'
+import { calculateRecordedMoney, calculateSummary, monthInTimeZone } from '../../domain/finance.js'
 import { readFixedExpenses } from '../../domain/financialSetup.js'
 import { calendarToday } from '../../domain/recurringExpenses.js'
 import { PageHeader } from '../../shared/components/PageHeader.jsx'
@@ -21,7 +21,9 @@ export function DashboardPage() {
   const summary = useMemo(() => calculateSummary(accounts, transactions, month), [accounts, transactions, month])
   const income = useMemo(() => incomeReference(settings, accounts), [settings, accounts])
   const fixedExpenses = useMemo(() => readFixedExpenses(settings.fixedExpenses), [settings.fixedExpenses])
-  const available = useMemo(() => calculateAvailableMoney({ monthlySalaryMinor: income.salaryMinor, fixedExpenses, accounts, transactions, month, payFrequency: income.primary?.frequency, nextPayDate: income.primary?.next_pay_date }), [income, fixedExpenses, accounts, transactions, month])
+  const payFrequency = settings.payFrequency || income.primary?.frequency
+  const payDate = settings.nextPayDate || income.primary?.next_pay_date
+  const cash = useMemo(() => calculateRecordedMoney({ accounts, transactions, fixedExpenses, allocations, payFrequency, nextPayDate: payDate }), [accounts, transactions, fixedExpenses, allocations, payFrequency, payDate])
   const budget = budgets.find((item) => item.month === month) || budgets[0]
   const remaining = budget ? budget.limit_minor - summary.expenses : 0
   const used = budget?.limit_minor ? (summary.expenses / budget.limit_minor) * 100 : 0
@@ -33,15 +35,15 @@ export function DashboardPage() {
   const plannedCount = plannedPurchases.filter((item) => item.status === 'planned').length
   const activeAccounts = accounts.filter((item) => !item.archived).slice(0, 4)
   const accountCount = accounts.filter((item) => !item.archived).length
-  const hasMoneyAccount = accounts.some((item) => item.kind === 'asset' && !item.archived)
   const hidden = Boolean(settings.hiddenAmounts)
   const selectedView = normalizeHomeView(settings.homeView)
-  const nextPayDate = nextIncomeDate({ frequency: income.primary?.frequency, nextPayDate: income.primary?.next_pay_date, today: calendarToday() })
+  const nextPayDate = nextIncomeDate({ frequency: payFrequency, nextPayDate: payDate, today: calendarToday() })
   const viewProps = {
-    summary, income, available, budget, remaining, used, recent, nextPayDate, hidden,
+    summary, cash, budget, remaining, used, recent, nextPayDate, payFrequency, payDate, hidden,
+    legacyIncomeConfigured: income.salaryMinor !== null,
     monthTransactions, breakdown, fixedExpenses, actions, notify,
     goals: activeGoals, goalCount: goals.length, allocations, planned, plannedCount,
-    accounts: activeAccounts, accountCount, hasMoneyAccount, balances: summary.balances,
+    accounts: activeAccounts, accountCount, balances: summary.balances,
   }
 
   return <div className="route-stack dashboard">

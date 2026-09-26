@@ -48,6 +48,5 @@ export function AssistantPage() {
       <form className="assistant-form" onSubmit={submit}><label htmlFor="assistant-question" className="sr-only">Escribe tu pregunta</label><textarea id="assistant-question" value={question} onChange={(event) => setQuestion(event.target.value)} placeholder="Ejemplo: ¿en qué categoría gasté más este mes?" maxLength="1200" disabled={busy} /><button className="button button--primary" type="submit" disabled={!question.trim() || busy}><Send aria-hidden="true" /> {busy ? 'Consultando…' : 'Preguntar'}</button></form>
       <p className="helper">Se comparte un resumen acotado de este espacio; no se envían claves ni números completos de tarjetas.</p>
     </>}
-    {settings.monthlySalaryMinor && <p className="helper">Tu sueldo mensual se usa solo como referencia dentro de este espacio.</p>}
   </div>
 }

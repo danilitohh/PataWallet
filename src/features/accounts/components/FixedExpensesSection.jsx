@@ -51,9 +51,9 @@ export function FixedExpensesSection() {
   const sectionSummary = savedExpenses.length ? `${savedExpenses.length} ${savedExpenses.length === 1 ? 'gasto' : 'gastos'} · ${formatMinor(savedTotal, 'COP', settings.hiddenAmounts)} al mes` : 'Sin gastos configurados'
 
   return <section className="settings-group fixed-expenses-section" id="gastos-fijos">
-    <AccountSectionToggle sectionId="gastos-fijos" title="Gastos fijos" description="Compromisos mensuales que salen antes de considerar compras nuevas." summary={sectionSummary} expanded={expanded} onToggle={() => setExpanded((value) => !value)} />
+    <AccountSectionToggle sectionId="gastos-fijos" title="Gastos fijos" description="Compromisos recurrentes que conviene apartar antes de comprar." summary={sectionSummary} expanded={expanded} onToggle={() => setExpanded((value) => !value)} />
     {expanded && <div id="gastos-fijos-content" className="account-section-toggle__content">
-      <p className="settings-group__intro">Arriendo, internet, comida y otros compromisos. PataWallet calcula sus vencimientos y los resta del dinero libre como referencia; no crea cargos automáticos.</p>
+      <p className="settings-group__intro">Arriendo, internet, comida y otros compromisos. Sus próximos vencimientos se apartan del margen para compras, pero no reducen el saldo de tus cuentas hasta que confirmes el pago.</p>
       <form onSubmit={submit}>
         <div className="settings-repeatable">{rows.map((row, index) => <FixedExpenseRow key={row.id} row={row} index={index} update={update} remove={() => setRows((items) => items.filter((item) => item.id !== row.id))} />)}</div>
         {error && <p className="form-error" role="alert">{error}</p>}

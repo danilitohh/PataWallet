@@ -54,7 +54,7 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
     <AppContext.Provider value={value}>
       <MotionConfig reducedMotion={reduceMotion ? 'always' : 'user'}>
         <AppShell><AppRoutes /></AppShell>
-        <AnimatePresence>{sheet && <MovementSheet transaction={sheet === 'new' ? null : sheet} onClose={() => setSheet(null)} />}</AnimatePresence>
+        <AnimatePresence>{sheet && <MovementSheet transaction={typeof sheet === 'object' ? sheet : null} initialFlow={sheet === 'income' ? 'income' : 'expense'} onClose={() => setSheet(null)} />}</AnimatePresence>
         <AnimatePresence>{toast && <Toast toast={toast} close={dismissToast} />}</AnimatePresence>
         <PwaUpdatePrompt />
       </MotionConfig>

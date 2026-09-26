@@ -9,17 +9,16 @@ function daysUntilPayday(nextPayDate, referenceDate = new Date(), timeZone = 'Am
 }
 
 // Evalúa una compra contra presupuesto, fondos, dinero libre y el tiempo restante hasta el próximo pago.
-export function assessPlannedPurchase({ amountMinor, budgetLimitMinor, monthlyExpensesMinor = 0, liquidAssetsMinor = null, reservedMinor = 0, monthlyFreeMinor = null, nextPayDate = null, referenceDate = new Date(), timeZone = 'America/Bogota' }) {
+export function assessPlannedPurchase({ amountMinor, budgetLimitMinor, monthlyExpensesMinor = 0, liquidAssetsMinor = null, reservedMinor = 0, nextPayDate = null, referenceDate = new Date(), timeZone = 'America/Bogota' }) {
   const budgetRemaining = budgetLimitMinor ? budgetLimitMinor - monthlyExpensesMinor : null
   const availableAfterReserves = liquidAssetsMinor === null ? null : liquidAssetsMinor - reservedMinor
-  const freeBeforePurchase = monthlyFreeMinor === null ? null : monthlyFreeMinor - monthlyExpensesMinor
-  const remainingAfterPurchase = freeBeforePurchase === null ? null : freeBeforePurchase - amountMinor
+  const remainingAfterPurchase = availableAfterReserves === null ? null : availableAfterReserves - amountMinor
   const daysUntilPay = daysUntilPayday(nextPayDate, referenceDate, timeZone)
-  if (freeBeforePurchase !== null && amountMinor >= freeBeforePurchase) return { kind: 'warning', budgetRemaining, availableAfterReserves, freeBeforePurchase, remainingAfterPurchase, daysUntilPay, shortfall: Math.max(0, amountMinor - freeBeforePurchase), reason: 'free_money' }
-  if (availableAfterReserves !== null && amountMinor > availableAfterReserves) return { kind: 'warning', budgetRemaining, availableAfterReserves, freeBeforePurchase, remainingAfterPurchase, daysUntilPay, shortfall: amountMinor - availableAfterReserves, reason: 'funds' }
-  if (budgetRemaining !== null && amountMinor > budgetRemaining) return { kind: 'warning', budgetRemaining, availableAfterReserves, freeBeforePurchase, remainingAfterPurchase, daysUntilPay, shortfall: amountMinor - budgetRemaining, reason: 'budget' }
-  const reserveThreshold = monthlyFreeMinor === null ? null : Math.ceil(monthlyFreeMinor / 4)
-  if (daysUntilPay !== null && daysUntilPay > 14 && reserveThreshold !== null && remainingAfterPurchase < reserveThreshold) return { kind: 'warning', budgetRemaining, availableAfterReserves, freeBeforePurchase, remainingAfterPurchase, daysUntilPay, shortfall: reserveThreshold - remainingAfterPurchase, reason: 'before_payday' }
-  if (budgetRemaining === null && monthlyFreeMinor === null && availableAfterReserves === null) return { kind: 'unknown', budgetRemaining, availableAfterReserves, freeBeforePurchase, remainingAfterPurchase, daysUntilPay, message: 'Configura tus ingresos o un presupuesto para evaluarla.' }
-  return { kind: 'good', budgetRemaining, availableAfterReserves, freeBeforePurchase, remainingAfterPurchase, daysUntilPay, shortfall: 0 }
+  if (availableAfterReserves === null) return { kind: 'unknown', budgetRemaining, availableAfterReserves, remainingAfterPurchase, daysUntilPay, message: 'Agrega una cuenta con tu saldo actual para evaluar esta compra.' }
+  if (amountMinor >= availableAfterReserves) return { kind: 'warning', budgetRemaining, availableAfterReserves, remainingAfterPurchase, daysUntilPay, shortfall: Math.max(0, amountMinor - availableAfterReserves), reason: 'funds' }
+  if (budgetRemaining !== null && amountMinor > budgetRemaining) return { kind: 'warning', budgetRemaining, availableAfterReserves, remainingAfterPurchase, daysUntilPay, shortfall: amountMinor - budgetRemaining, reason: 'budget' }
+  // Mantiene un colchón conservador cuando falta mucho para el siguiente ingreso; no predice ingresos futuros.
+  const reserveThreshold = Math.ceil(availableAfterReserves / 4)
+  if (daysUntilPay !== null && daysUntilPay > 14 && remainingAfterPurchase < reserveThreshold) return { kind: 'warning', budgetRemaining, availableAfterReserves, remainingAfterPurchase, daysUntilPay, shortfall: reserveThreshold - remainingAfterPurchase, reason: 'before_payday' }
+  return { kind: 'good', budgetRemaining, availableAfterReserves, remainingAfterPurchase, daysUntilPay, shortfall: 0 }
 }

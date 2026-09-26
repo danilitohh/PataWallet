@@ -18,9 +18,9 @@ describe('contexto del asistente', () => {
     })
     expect(context.accounts).toEqual([{ name: 'Banco', kind: 'asset', subtype: 'bank', balance_minor: 0, balance_formatted: '$ 0', debt_schedule: null }])
     expect(context.budget).toEqual({ month: '2026-09', limit_minor: 10000000, limit_formatted: '$ 100.000' })
-    expect(context.income_reference).toEqual({ monthly_salary_minor: 320000000, monthly_salary_formatted: '$ 3.200.000', pay_frequency: 'monthly' })
+    expect(context.income_reference).toBeUndefined()
     expect(context.summary).toEqual({ assets_minor: 0, assets_formatted: '$ 0', debt_minor: 0, debt_formatted: '$ 0', net_minor: 0, net_formatted: '$ 0', income_minor: 0, income_formatted: '$ 0', expenses_minor: 0, expenses_formatted: '$ 0' })
-    expect(context.available_money).toMatchObject({ salary_formatted: '$ 3.200.000', fixed_expenses_formatted: '$ 0', debt_payments_formatted: '$ 0', monthly_free_formatted: '$ 3.200.000' })
+    expect(context.available_money).toMatchObject({ balance_minor: 0, pending_fixed_minor: 0, pending_debt_minor: 0, spendable_minor: 0 })
   })
 
   it('limita el texto libre de movimientos', () => {

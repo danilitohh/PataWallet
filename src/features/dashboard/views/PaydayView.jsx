@@ -9,7 +9,7 @@ import { DashboardBudget, DashboardMoneyDetails, DashboardRecent, DashboardStats
 import { calendarDaysBetween } from '../model/dashboardViews.js'
 
 // Organiza el Inicio por el tiempo al siguiente pago y los gastos fijos del periodo.
-export function PaydayView({ summary, income, available, budget, remaining, used, recent, fixedExpenses, nextPayDate, hidden, goals, goalCount, allocations, planned, plannedCount, accounts, accountCount, balances }) {
+export function PaydayView({ summary, cash, budget, remaining, used, recent, fixedExpenses, nextPayDate, payFrequency, payDate, hidden, goals, goalCount, allocations, planned, plannedCount, accounts, accountCount, balances }) {
   const { transactions } = useApp()
   const today = calendarToday()
   const daysUntilPay = nextPayDate ? calendarDaysBetween(today, nextPayDate) : null
@@ -21,8 +21,8 @@ export function PaydayView({ summary, income, available, budget, remaining, used
     includePaid: false,
     maxOccurrencesPerExpense: 2,
     transactions,
-    payFrequency: income.primary?.frequency,
-    nextPayDate: income.primary?.next_pay_date,
+    payFrequency,
+    nextPayDate: payDate,
   })
   return <div className="dashboard-view dashboard-view--payday">
     <section className="dashboard-payday-hero">
@@ -34,10 +34,10 @@ export function PaydayView({ summary, income, available, budget, remaining, used
       {!nextPayDate && <Link className="dashboard-view-link" to="/cuentas#ingresos">Configurar ingreso <span aria-hidden="true">↗</span></Link>}
     </section>
     <PaydayPayments payments={payments} fixedExpenses={fixedExpenses} nextPayDate={nextPayDate} hidden={hidden} />
-    <DashboardStats income={income} available={available} summary={summary} hidden={hidden} />
+    <DashboardStats cash={cash} summary={summary} hidden={hidden} />
     <DashboardRecent items={recent} />
     <DashboardBudget summary={summary} budget={budget} remaining={remaining} used={used} hidden={hidden} />
-    <DashboardMoneyDetails income={income} available={available} goals={goals} goalCount={goalCount} allocations={allocations} planned={planned} plannedCount={plannedCount} accounts={accounts} accountCount={accountCount} balances={balances} hidden={hidden} />
+    <DashboardMoneyDetails summary={summary} cash={cash} goals={goals} goalCount={goalCount} allocations={allocations} planned={planned} plannedCount={plannedCount} accounts={accounts} accountCount={accountCount} balances={balances} hidden={hidden} />
   </div>
 }
 
@@ -63,7 +63,7 @@ function PaydayPayments({ payments, fixedExpenses, nextPayDate, hidden }) {
       {upcoming.length > 0 && <section className="dashboard-payments__group" aria-label="Pagos actuales y próximos"><h3>{nextPayDate ? 'Antes del próximo pago' : 'Vencimiento actual y siguiente'}</h3><div className="dashboard-payments__list">{upcoming.map(renderPayment)}</div></section>}
     </div> : <p className="dashboard-empty__text"><CircleAlert aria-hidden="true" /> {emptyMessage}</p>}
     {payments.length > 0 && <div className="dashboard-payments__total"><span><ListChecks aria-hidden="true" /> Falta pagar</span><strong>{formatMinor(pendingMinor, 'COP', hidden)}</strong></div>}
-    <p className="helper">Al confirmar, el pago se registra en Actividad. El saldo cambia si eliges una cuenta.</p>
+    <p className="helper">Al confirmar, el pago se registra en Actividad y baja el saldo de la cuenta elegida.</p>
     </section>
   </>
 }

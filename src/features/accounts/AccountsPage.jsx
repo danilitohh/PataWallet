@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { AnimatePresence } from 'motion/react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { BadgeCheck, Clock3, Landmark, ListChecks, Plus } from 'lucide-react'
 import { useApp } from '../../app/AppContext.jsx'
 import { calculateSummary } from '../../domain/finance.js'
@@ -10,15 +11,24 @@ import { AccountDialog, AccountEditDialog } from './components/AccountDialogs.js
 import { AccountLedgerPane } from './components/AccountLedgerPane.jsx'
 import { FixedExpensesSection } from './components/FixedExpensesSection.jsx'
 import { IncomeSection } from './components/IncomeSection.jsx'
+import { incomeReference } from '../settings/model/incomeSources.js'
 
 // Presenta saldos, deudas, ingresos y compromisos como un registro financiero compacto.
 export function AccountsPage() {
   const { accounts, transactions, settings } = useApp()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const confirmingPreviousBalance = new URLSearchParams(location.search).get('confirmar-saldo') === '1'
   const [accountKind, setAccountKind] = useState('asset')
   const [editingAccount, setEditingAccount] = useState(null)
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(confirmingPreviousBalance)
   const summary = calculateSummary(accounts, transactions, currentMonth())
   const visibleAccounts = accounts.filter((account) => !account.archived)
+  const previousAmount = confirmingPreviousBalance && !visibleAccounts.some((account) => account.kind === 'asset') ? incomeReference(settings, accounts).salaryMinor : null
+  const closeAccountDialog = () => {
+    setOpen(false)
+    if (confirmingPreviousBalance) navigate('/cuentas', { replace: true })
+  }
   // Conserva el tipo del panel para que el formulario contextual se abra con la naturaleza correcta.
   const openAccountDialog = (kind = 'asset') => {
     setAccountKind(kind)
@@ -87,7 +97,7 @@ export function AccountsPage() {
       </div>
 
       <AnimatePresence>
-        {open && <AccountDialog initialKind={accountKind} close={() => setOpen(false)} />}
+        {open && <AccountDialog initialKind={accountKind} initialAmount={previousAmount} close={closeAccountDialog} />}
         {editingAccount && <AccountEditDialog account={editingAccount} close={() => setEditingAccount(null)} />}
       </AnimatePresence>
     </div>

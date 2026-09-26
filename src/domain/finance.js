@@ -1,7 +1,7 @@
 import { assertMinor, safeAdd } from './money.js'
 import { sumFixedExpenses } from './financialSetup.js'
 import { monthlyDebtPaymentMinor, totalMonthlyDebtPayments } from './debtSchedule.js'
-import { readPaymentHistory, sumExpectedFixedExpenses } from './recurringExpenses.js'
+import { addCalendarDays, calendarToday, getRecurringExpenseOccurrences, isCalendarDate, readPaymentHistory, sumExpectedFixedExpenses } from './recurringExpenses.js'
 
 export const NON_BUDGET_TYPES = new Set(['opening', 'transfer', 'card_payment', 'adjustment'])
 
@@ -88,6 +88,31 @@ export function calculateAvailableMoney({ monthlySalaryMinor, fixedExpenses = []
       ? safeAdd(sum, Number(expense.amount_minor)) : sum, total), 0) : 0
   const availableNowMinor = monthlyFreeMinor === null ? null : safeAdd(safeAdd(safeAdd(monthlyFreeMinor, settledScheduledMinor), -trackedExpensesMinor), -additionalDebtPaymentsMinor)
   return { salaryMinor: salary, fixedExpensesMinor, debtPaymentsMinor, committedMinor, trackedExpensesMinor, trackedDebtPaymentsMinor, additionalDebtPaymentsMinor, monthlyFreeMinor, availableNowMinor }
+}
+
+// Separa el saldo realmente registrado de los compromisos aún pendientes; nunca crea dinero desde el sueldo declarado.
+export function calculateRecordedMoney({ accounts = [], transactions = [], fixedExpenses = [], allocations = [], payFrequency, nextPayDate, referenceDate = calendarToday(), timeZone = 'America/Bogota' }) {
+  const activeAssets = accounts.filter((account) => account.kind === 'asset' && !account.archived)
+  const balances = calculateBalances(accounts, transactions)
+  const balanceMinor = activeAssets.reduce((total, account) => safeAdd(total, balances[account.id] || 0), 0)
+  const horizon = isCalendarDate(nextPayDate) && nextPayDate >= referenceDate && nextPayDate <= addCalendarDays(referenceDate, 45)
+    ? nextPayDate : addCalendarDays(referenceDate, 30)
+  const pendingFixedMinor = getRecurringExpenseOccurrences(fixedExpenses, {
+    from: referenceDate, to: horizon, today: referenceDate, includeOverdue: true, includePaid: false,
+    maxOccurrencesPerExpense: 2, transactions, payFrequency, nextPayDate,
+  }).reduce((total, payment) => safeAdd(total, assertMinor(payment.amount_minor)), 0)
+  const month = referenceDate.slice(0, 7)
+  const paidByDebt = new Map()
+  for (const payment of transactions) {
+    if (payment.type !== 'card_payment' || payment.status === 'void' || monthInTimeZone(payment.occurred_at, timeZone) !== month) continue
+    paidByDebt.set(payment.to_account_id, safeAdd(paidByDebt.get(payment.to_account_id) || 0, assertMinor(payment.amount_minor)))
+  }
+  const pendingDebtMinor = accounts.filter((account) => account.kind === 'liability' && !account.archived).reduce((total, account) =>
+    safeAdd(total, Math.max(0, monthlyDebtPaymentMinor(account) - (paidByDebt.get(account.id) || 0))), 0)
+  const reservedMinor = allocations.reduce((total, allocation) => safeAdd(total, assertMinor(allocation.amount_minor)), 0)
+  const unlinkedExpenseCount = transactions.filter((item) => item.type === 'expense' && item.status !== 'void' && !item.from_account_id).length
+  const spendableMinor = activeAssets.length ? safeAdd(safeAdd(safeAdd(balanceMinor, -pendingFixedMinor), -pendingDebtMinor), -reservedMinor) : null
+  return { balanceMinor, pendingFixedMinor, pendingDebtMinor, reservedMinor, spendableMinor, hasAccount: activeAssets.length > 0, unlinkedExpenseCount }
 }
 
 export function goalProgress(goal, allocations) {

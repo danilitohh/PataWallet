@@ -58,7 +58,7 @@
 .accounts-ledger__inline-add:active { transform: scale(.98); }
 .accounts-ledger__inline-add:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 42%, transparent); outline-offset: 2px; }
 
-/* Agrupa el ingreso estimado y los vencimientos sin convertirlos en cargos automáticos. */
+/* Agrupa los ingresos recibidos y los vencimientos sin convertirlos en cargos automáticos. */
 .accounts-ledger__commitments-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 3px; }
 .accounts-ledger__commitments-heading h2 { margin: 4px 0 0; font-size: .98rem; }
 .accounts-ledger__commitments-heading > svg { width: 19px; height: 19px; color: var(--accent); }
