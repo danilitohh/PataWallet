@@ -1,6 +1,6 @@
 # Estado de implementación
 
-Actualizado: 2026-09-26. Fase actual: **migración de gasto sin cuenta aplicada a Supabase; publicación web y validación en iPhone real pendientes**.
+Actualizado: 2026-09-26. Fase actual: **gasto desde dinero libre publicado; validación en iPhone real pendiente**.
 
 ## Gasto desde dinero libre · 26 de septiembre
 
@@ -8,7 +8,7 @@ Actualizado: 2026-09-26. Fase actual: **migración de gasto sin cuenta aplicada 
 - La migración `20260926123000_budget_only_expenses.sql` permite ese registro en PostgreSQL; conserva validación de categoría, propiedad, idempotencia y permisos. Se aplicó a Supabase el 26 de septiembre. Para revertirla se necesita primero asociar cada gasto sin cuenta a una cuenta real y luego una migración posterior que restablezca la restricción anterior.
 - Antes de migrar, `scripts/backup-patawallet.ps1` creó un respaldo privado de PostgreSQL 17 fuera del repositorio. La restauración aislada de `auth`, `public` y `private` terminó sin errores; coincidieron los conteos de producción (10 usuarios, 26 cuentas, 24 movimientos y 22 asientos). La migración pasó primero en esa copia; un gasto sin cuenta de prueba produjo 0 asientos dentro de una transacción revertida. En Supabase se verificaron la nueva restricción, ambas funciones y los conteos originales; no se crearon movimientos reales de prueba.
 - La migración `20260926143000_restrict_couple_review.sql` revocó a `anon` y `authenticated` el permiso de ejecutar la función privilegiada de revisión de pareja. Se probó en la copia y en Supabase (`false/false/true` para `anon`/`authenticated`/`service_role`). Security Advisor pasó de tres advertencias a una: protección contra contraseñas filtradas desactivada, pendiente de configuración aparte. Ambas migraciones se ejecutaron en SQL Editor; este proyecto remoto no tiene tabla `supabase_migrations.schema_migrations`.
-- Verificado localmente antes de publicar: 116 pruebas unitarias, lint, build, PWA 1/1 y suite E2E completa 60/60 en 390×844, 375×812 y escritorio. Una ejecución anterior tuvo un tiempo de espera móvil mientras Docker restauraba el respaldo; el caso aislado pasó y la repetición completa sin esa carga pasó 60/60. Publicación web e iPhone real pendientes.
+- Verificado: 116 pruebas unitarias, lint, build, PWA 1/1 y suite E2E completa 60/60 en 390×844, 375×812 y escritorio. Una ejecución anterior tuvo un tiempo de espera móvil mientras Docker restauraba el respaldo; el caso aislado pasó y la repetición completa sin esa carga pasó 60/60. El commit `881c50e` se publicó en `main` y Vercel lo marcó listo en producción; la URL pública devolvió HTTP 200 con los mismos assets del build local. Tras aceptar el aviso de actualización PWA, el formulario real mostró «Dinero libre del mes» como origen predeterminado. No se guardaron movimientos de prueba en la cuenta real. La prueba en iPhone físico sigue pendiente.
 
 ## Cuenta de origen en movimientos · 26 de septiembre
 

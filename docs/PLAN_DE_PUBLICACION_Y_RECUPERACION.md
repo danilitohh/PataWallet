@@ -1,6 +1,6 @@
 # Plan de publicación y recuperación
 
-Estado: publicación autorizada el 26 de septiembre de 2026. El respaldo fue restaurado y verificado, y las migraciones de gasto sin cuenta y permiso de revisión de pareja se aplicaron a Supabase. **La publicación web sigue pendiente**; el proyecto Free no ofrece respaldos automáticos.
+Estado: publicación realizada el 26 de septiembre de 2026. El respaldo fue restaurado y verificado, las migraciones de gasto sin cuenta y permiso de revisión de pareja se aplicaron a Supabase, y el commit `881c50e` quedó listo en Vercel Production. Se verificó la URL pública y el formulario tras actualizar la PWA. **La prueba en iPhone físico sigue pendiente**; el proyecto Free no ofrece respaldos automáticos.
 
 ## Configuración sin secretos
 
