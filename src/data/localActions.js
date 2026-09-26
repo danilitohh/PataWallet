@@ -1,4 +1,6 @@
 import { db, resetDemo } from './db.js'
+import { readFixedExpenses } from '../domain/financialSetup.js'
+import { recordRecurringExpensePayment } from '../domain/recurringExpenses.js'
 
 export const localActions = {
   setSetting: (key, value) => db.settings.put({ key, value }),
@@ -10,6 +12,15 @@ export const localActions = {
     ])
   }),
   saveTransaction: (record) => db.transactions.put(record),
+  // Guarda movimiento y checklist juntos para que un fallo local nunca deje solo una de las dos acciones.
+  recordRecurringPayment: (occurrence, record) => db.transaction('rw', db.transactions, db.settings, async () => {
+    const existing = await db.transactions.get(record.id)
+    if (existing && existing.status !== 'void') throw new Error('Este pago ya tiene un movimiento registrado.')
+    const setting = await db.settings.get('fixedExpenses')
+    const expenses = recordRecurringExpensePayment(readFixedExpenses(setting?.value), occurrence, record)
+    await db.transactions.put(record)
+    await db.settings.put({ key: 'fixedExpenses', value: expenses })
+  }),
   saveReceipt: (receipt) => db.receipts.put(receipt),
   deleteReceipt: (transactionId) => db.receipts.delete(transactionId),
   deleteTransaction: (id) => db.transactions.delete(id),

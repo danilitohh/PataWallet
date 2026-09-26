@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getRecurringExpenseOccurrences, setRecurringExpensePaid, sumExpectedFixedExpenses } from './recurringExpenses.js'
+import { getRecurringExpenseOccurrences, recordRecurringExpensePayment, setRecurringExpensePaid, sumExpectedFixedExpenses } from './recurringExpenses.js'
 
 const expenses = [
   { id: 'internet', name: 'Internet', amount_minor: 8000000, frequency: 'monthly', next_due_date: '2026-09-15', payment_history: [] },
@@ -76,5 +76,19 @@ describe('pagos recurrentes', () => {
     expect(getRecurringExpenseOccurrences(paidExpenses, { from: '2026-09-15', to: '2026-09-15', today: '2026-09-15' }).find((item) => item.name === 'Internet').status).toBe('paid')
     const pendingExpenses = setRecurringExpensePaid(paidExpenses, occurrence, false)
     expect(pendingExpenses.find((item) => item.id === 'internet').payment_history).toEqual([])
+  })
+
+  it('vincula el pago a un movimiento único y vuelve a mostrarlo si ese movimiento se anuló', () => {
+    const options = { from: '2026-09-15', to: '2026-09-15', today: '2026-09-15', includePaid: false }
+    const occurrence = getRecurringExpenseOccurrences(expenses, options)[0]
+    const transaction = { id: 'fixed-payment:internet:2026-09-15', type: 'expense', amount_minor: 9000000, category_id: 'internet-category', status: 'recorded' }
+    const paid = recordRecurringExpensePayment(expenses, occurrence, transaction)
+    expect(paid[0].category_id).toBe('internet-category')
+    expect(paid[0].payment_history[0].transaction_id).toBe(transaction.id)
+    expect(getRecurringExpenseOccurrences(paid, { ...options, transactions: [transaction] })).toHaveLength(1)
+    expect(getRecurringExpenseOccurrences([paid[0]], { ...options, transactions: [transaction] })).toHaveLength(0)
+    expect(getRecurringExpenseOccurrences([paid[0]], { ...options, transactions: [{ ...transaction, status: 'void' }] })).toHaveLength(1)
+    expect(() => recordRecurringExpensePayment(paid, occurrence, { ...transaction, id: 'otro-pago' })).toThrow(/ya fue marcado/)
+    expect(recordRecurringExpensePayment(paid, occurrence, transaction)[0].payment_history).toHaveLength(1)
   })
 })

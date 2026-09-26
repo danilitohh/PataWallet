@@ -66,6 +66,19 @@
 .tone-salary { background: #265c4b; color: #c3f6de; }
 .tone-card_payment { background: #493a75; color: #e9d4ff; }
 .sheet__actions { position: sticky; bottom: calc(-22px - env(safe-area-inset-bottom)); z-index: 2; background: var(--surface); padding-block: 12px calc(12px + env(safe-area-inset-bottom)); }
+/* Da prioridad a las tres acciones habituales y deja los ajustes menos usados plegados. */
+.movement-choices { display: grid; gap: 9px; min-width: 0; margin: 0; padding: 0; border: 0; }
+.movement-choices legend { margin-bottom: 9px; color: var(--text-2); font-size: .8rem; font-weight: 700; }
+.movement-choices__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+.movement-choices__grid--expanded { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.movement-choices__grid button { min-height: 52px; padding: 8px 5px; border: 1px solid var(--border); border-radius: 13px; background: var(--surface); color: var(--text-2); font: inherit; font-size: .78rem; font-weight: 700; cursor: pointer; }
+.movement-choices__grid button.active { border-color: transparent; background: var(--button-fill); color: var(--on-primary); }
+.movement-choices__grid button:focus-visible, .movement-choices__more:focus-visible, .movement-details-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.movement-choices__more, .movement-details-toggle { width: fit-content; min-height: 44px; border: 0; background: none; color: var(--accent); font: inherit; font-size: .82rem; font-weight: 700; cursor: pointer; }
+.movement-details-toggle { display: inline-flex; align-items: center; gap: 8px; }
+.movement-details-toggle span { font-size: 1.25rem; }
+.movement-details { display: grid; gap: 15px; }
+@media (max-width: 390px) { .movement-choices__grid button { font-size: .71rem; } }
 @media (min-width: 1000px) { .sheet__actions { bottom: -32px; } }
 @media (min-width: 900px) {
   .activity-page { grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr); grid-template-areas: "heading heading" "toolbar toolbar" "summary filters" "list list" "note note"; align-items: start; gap: 17px 20px; }

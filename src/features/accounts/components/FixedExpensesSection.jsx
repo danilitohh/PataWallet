@@ -33,6 +33,7 @@ export function FixedExpensesSection() {
         ...expense,
         // Conserva pagos marcados desde la checklist aunque el formulario conserve una versión anterior de la fila.
         payment_history: currentById.get(expense.id)?.payment_history || expense.payment_history,
+        category_id: currentById.get(expense.id)?.category_id || expense.category_id,
       }))
       await actions.setSetting('fixedExpenses', parsed)
       notify('Gastos fijos guardados')
@@ -59,7 +60,7 @@ export function FixedExpensesSection() {
         <div className="settings-repeatable__actions"><button type="button" className="button button--secondary" onClick={() => setRows((items) => [...items, blankRow(today)])}><Plus /> Agregar gasto fijo</button><span>Total mensual estimado: <strong>{formatMinor(total, 'COP')}</strong></span></div>
         <button className="button button--primary" type="submit" disabled={saving}>{saving ? 'Guardando…' : 'Guardar gastos fijos'}</button>
       </form>
-      <RecurringPaymentChecklist expenses={savedExpenses} settings={settings} actions={actions} notify={notify} />
+      <RecurringPaymentChecklist expenses={savedExpenses} settings={settings} />
     </div>}
   </section>
 }

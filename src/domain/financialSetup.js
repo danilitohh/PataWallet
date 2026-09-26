@@ -19,6 +19,7 @@ export function readFixedExpenses(value) {
           name: name.slice(0, 80),
           amount_minor: amount,
           currency: 'COP',
+          category_id: item?.category_id ? String(item.category_id) : null,
           frequency: schedule.frequency,
           next_due_date: schedule.nextDueDate,
           payment_history: readPaymentHistory(item?.payment_history),
@@ -51,6 +52,7 @@ export function parseFixedExpenses(rows) {
       name,
       amount_minor: parseLocalizedAmount(amountInput),
       currency: 'COP',
+      category_id: row?.categoryId ? String(row.categoryId) : null,
       frequency,
       next_due_date: nextDueDate || null,
       payment_history: readPaymentHistory(row?.paymentHistory),
@@ -71,6 +73,7 @@ export function fixedExpensesToInput(value, { defaultDueDate = '' } = {}) {
     name: item.name,
     amount: toInputAmount(item.amount_minor),
     frequency: item.frequency,
+    categoryId: item.category_id || '',
     nextDueDate: item.next_due_date || defaultDueDate,
     paymentHistory: item.payment_history,
   }))

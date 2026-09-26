@@ -8,16 +8,16 @@ import { formatInputAmount, parseLocalizedAmount, toInputAmount } from '../../..
 import { Field } from '../../../shared/components/Modal.jsx'
 import { useModalBehavior } from '../../../shared/hooks/useModalBehavior.js'
 import { today } from '../../../shared/lib/date.js'
-import { labelForType } from '../model/transactionTypes.js'
 import { CategoryDialog } from '../../../shared/components/CategoryDialog.jsx'
 import { AccountDialog } from '../../accounts/components/AccountDialogs.jsx'
 
-// Explica el efecto contable de cada opción justo donde la persona elige el tipo.
-const MOVEMENT_TYPE_HELP = {
-  expense: { title: 'Gasto', body: 'Cuenta como gasto del mes. Elige una cuenta solo si quieres actualizar también su saldo.' },
-  income: { title: 'Ingreso', body: 'Llega a una cuenta y suma a tus ingresos del mes.' },
-  transfer: { title: 'Transferencia', body: 'Mueve dinero entre tus cuentas. No cuenta como ingreso ni gasto; si eliges una deuda como destino, se registra como pago de deuda.' },
-}
+// Nombra las acciones como las vive el usuario; el tipo contable se decide al guardar.
+const MOVEMENT_CHOICES = [
+  { id: 'expense', label: 'Hice una compra' },
+  { id: 'income', label: 'Recibí dinero' },
+  { id: 'debt', label: 'Pagué una deuda' },
+  { id: 'transfer', label: 'Moví dinero' },
+]
 
 const movementSchema = z.object({
   amount: z.string().min(1),
@@ -30,8 +30,9 @@ const movementSchema = z.object({
 export function MovementSheet({ transaction, onClose }) {
   const { accounts, categories, notify, actions } = useApp()
   const editing = Boolean(transaction)
-  const initialType = transaction?.type === 'card_payment' ? 'transfer' : transaction?.type || 'expense'
-  const [type, setType] = useState(initialType)
+  const initialFlow = transaction?.type === 'card_payment' ? 'debt' : transaction?.type || 'expense'
+  const [flow, setFlow] = useState(initialFlow)
+  const type = flow === 'debt' ? 'transfer' : flow
   const assets = accounts.filter((item) => item.kind === 'asset' && !item.archived)
   const activeAccounts = accounts.filter((item) => !item.archived)
   const [amount, setAmount] = useState(transaction ? toInputAmount(transaction.amount_minor) : '')
@@ -42,6 +43,8 @@ export function MovementSheet({ transaction, onClose }) {
   const existingClock = transaction?.occurred_at ? new Date(transaction.occurred_at).toLocaleTimeString('en-GB', { timeZone: 'America/Bogota', hour: '2-digit', minute: '2-digit' }) : ''
   const [time, setTime] = useState(existingClock === '12:00' ? '' : existingClock)
   const [note, setNote] = useState(transaction?.note || transaction?.merchant_name || '')
+  const [showDetails, setShowDetails] = useState(editing)
+  const [showTransfer, setShowTransfer] = useState(initialFlow === 'transfer')
   const existingReceipt = useApp().receipts?.find((item) => item.transaction_id === transaction?.id)
   const [receipt, setReceipt] = useState(existingReceipt?.data_url || '')
   const [categoryDialog, setCategoryDialog] = useState(false)
@@ -53,24 +56,25 @@ export function MovementSheet({ transaction, onClose }) {
   const close = () => { if (!savingRef.current) onClose() }
   useModalBehavior(dialogRef, close)
   const visibleCategories = categories.filter((item) => item.type === type)
-  const typeHelp = MOVEMENT_TYPE_HELP[type]
   // Las compras con dinero propio se encuentran primero; el crédito sigue disponible para compras con tarjeta.
-  const sourceOptions = type === 'transfer' ? assets : [...assets, ...activeAccounts.filter((item) => item.kind === 'liability')]
-  const destinationOptions = type === 'income' ? assets : activeAccounts.filter((item) => item.id !== account)
+  const sourceOptions = flow === 'expense' ? [...assets, ...activeAccounts.filter((item) => item.kind === 'liability')] : assets
+  const destinationOptions = flow === 'debt'
+    ? activeAccounts.filter((item) => item.kind === 'liability')
+    : flow === 'income' ? assets : assets.filter((item) => item.id !== account)
 
   // Mantiene origen y destino válidos al pasar de una compra con crédito a un abono.
-  const changeType = (nextType) => {
-    setType(nextType)
+  const changeFlow = (nextFlow) => {
+    setFlow(nextFlow)
     setCategory('')
     setError('')
-    if (nextType === 'income') {
+    if (nextFlow === 'income') {
       setDestination(assets.some((item) => item.id === destination) ? destination : assets[0]?.id || '')
-    } else if (nextType === 'transfer') {
+    } else if (nextFlow === 'debt' || nextFlow === 'transfer') {
       const source = assets.some((item) => item.id === account) ? account : assets[0]?.id || ''
-      const previousDebt = type === 'expense' && activeAccounts.find((item) => item.id === account && item.kind === 'liability')
-      const targets = activeAccounts.filter((item) => item.id !== source)
+      const previousDebt = flow === 'expense' && activeAccounts.find((item) => item.id === account && item.kind === 'liability')
+      const targets = nextFlow === 'debt' ? activeAccounts.filter((item) => item.kind === 'liability') : assets.filter((item) => item.id !== source)
       setAccount(source)
-      setDestination(previousDebt?.id || (targets.some((item) => item.id === destination) ? destination : targets[0]?.id || ''))
+      setDestination((nextFlow === 'debt' ? previousDebt?.id : null) || (targets.some((item) => item.id === destination) ? destination : targets[0]?.id || ''))
     } else if (!activeAccounts.some((item) => item.id === account)) {
       setAccount('')
     }
@@ -79,7 +83,7 @@ export function MovementSheet({ transaction, onClose }) {
   // Un cambio de origen nunca deja la misma cuenta seleccionada como destino.
   const changeSource = (id) => {
     setAccount(id)
-    if (type === 'transfer' && destination === id) setDestination(activeAccounts.find((item) => item.id !== id)?.id || '')
+    if (flow === 'transfer' && destination === id) setDestination(assets.find((item) => item.id !== id)?.id || '')
   }
 
   // La cuenta se selecciona únicamente después de que el formulario confirme su guardado.
@@ -108,22 +112,21 @@ export function MovementSheet({ transaction, onClose }) {
     setError('')
     try {
       // Valida las selecciones reales, incluida la demo, antes de modificar saldos.
-      if ((type === 'transfer' || (type === 'expense' && account)) && !sourceOptions.some((item) => item.id === account)) throw new Error('Elige una cuenta disponible.')
-      if (type !== 'expense' && !destinationOptions.some((item) => item.id === destination)) throw new Error('Elige una cuenta de destino disponible.')
+      if ((flow === 'debt' || flow === 'transfer' || (flow === 'expense' && account)) && !sourceOptions.some((item) => item.id === account)) throw new Error('Elige de dónde salió el dinero.')
+      if (flow !== 'expense' && !destinationOptions.some((item) => item.id === destination)) throw new Error('Elige una cuenta de destino disponible.')
       movementSchema.parse({ amount, account, destination, category, date })
       const minor = parseLocalizedAmount(amount)
-      if (type === 'transfer' && account === destination) throw new Error('Elige cuentas diferentes para la transferencia.')
+      if (flow === 'transfer' && account === destination) throw new Error('Elige cuentas diferentes para mover el dinero.')
       if ((type === 'expense' || type === 'income') && !category) throw new Error('Elige una categoría.')
-      const destinationAccount = accounts.find((item) => item.id === destination)
-      const storedType = type === 'transfer' && destinationAccount?.kind === 'liability' ? 'card_payment' : type
+      const storedType = flow === 'debt' ? 'card_payment' : type
       const record = {
         id: transaction?.id || makeId('transaction'),
         type: storedType,
         amount_minor: minor,
         currency: 'COP',
         occurred_at: `${date}T${time || '12:00'}:00-05:00`,
-        from_account_id: type === 'income' || (type === 'expense' && !account) ? null : account,
-        to_account_id: type === 'expense' ? null : destination,
+        from_account_id: flow === 'income' || (flow === 'expense' && !account) ? null : account,
+        to_account_id: flow === 'expense' ? null : destination,
         category_id: ['expense', 'income'].includes(type) ? category : null,
         merchant_name: note.trim() || null,
         note: note.trim(),
@@ -152,25 +155,24 @@ export function MovementSheet({ transaction, onClose }) {
       <motion.section ref={dialogRef} inert={Boolean(accountDialog || categoryDialog)} tabIndex="-1" role="dialog" aria-modal="true" aria-labelledby="movement-title" className="sheet" initial={{ y: 80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 60, opacity: 0 }} transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}>
         <header><div><p className="eyebrow">{editing ? 'Editar' : 'Registrar'}</p><h2 id="movement-title">{editing ? 'Detalle del movimiento' : 'Nuevo movimiento'}</h2></div><button className="icon-button" aria-label="Cerrar" disabled={saving} onClick={close}><X /></button></header>
         <form onSubmit={submit}>
-          <div className="segmented" aria-label="Tipo de movimiento">{['expense', 'income', 'transfer'].map((item) => <button type="button" key={item} disabled={saving} aria-pressed={type === item} className={type === item ? 'active' : ''} onClick={() => changeType(item)}>{labelForType[item]}</button>)}</div>
-          <div className="info-note movement-type-help" role="note" aria-live="polite"><strong>{typeHelp.title}</strong><span>{typeHelp.body}</span></div>
+          <fieldset className="movement-choices"><legend>¿Qué pasó?</legend><div className={`movement-choices__grid${showTransfer ? ' movement-choices__grid--expanded' : ''}`}>{MOVEMENT_CHOICES.filter((item) => item.id !== 'transfer' || showTransfer).map((item) => <button type="button" key={item.id} disabled={saving} aria-pressed={flow === item.id} className={flow === item.id ? 'active' : ''} onClick={() => changeFlow(item.id)}>{item.label}</button>)}</div>{!showTransfer && <button type="button" className="movement-choices__more" onClick={() => setShowTransfer(true)}>Más opciones: moví dinero</button>}</fieldset>
           <Field label="Monto" error={error}><div className="amount-input"><span>$</span><input autoFocus inputMode="decimal" value={amount} onChange={(event) => setAmount(formatInputAmount(event.target.value))} placeholder="0" aria-describedby={error ? 'movement-error' : undefined} /><small>COP</small></div></Field>
-          {type !== 'income' && <>
-            <Field label={type === 'transfer' ? 'Desde' : 'Descontar de'}><select aria-label={type === 'transfer' ? 'Desde' : 'Descontar de'} disabled={(type === 'transfer' && !sourceOptions.length) || saving} value={sourceOptions.some((item) => item.id === account) ? account : ''} onChange={(event) => changeSource(event.target.value)}>{type === 'expense' ? <option value="">Dinero libre del mes</option> : !sourceOptions.some((item) => item.id === account) && <option value="">{sourceOptions.length ? 'Selecciona una cuenta' : 'No hay cuentas disponibles'}</option>}{sourceOptions.map((item) => <option key={item.id} value={item.id}>{item.name}{type === 'expense' && item.kind === 'liability' ? ' (crédito)' : ''}</option>)}</select></Field>
-            {type === 'expense' && !account && <p className="helper">Se descontará de tu dinero libre si configuraste ingresos. No cambiará el saldo de ninguna cuenta.</p>}
-            {type === 'transfer' && !assets.length && <p className="helper" role="status">Agrega una cuenta con dinero para indicar de dónde sale el pago.</p>}
+          {flow !== 'income' && <>
+            <Field label={flow === 'expense' ? '¿Con qué pagaste?' : '¿De dónde salió el dinero?'}><select aria-label={flow === 'expense' ? '¿Con qué pagaste?' : '¿De dónde salió el dinero?'} disabled={(flow !== 'expense' && !sourceOptions.length) || saving} value={sourceOptions.some((item) => item.id === account) ? account : ''} onChange={(event) => changeSource(event.target.value)}>{flow === 'expense' ? <option value="">Dinero disponible</option> : !sourceOptions.some((item) => item.id === account) && <option value="">{sourceOptions.length ? 'Selecciona una cuenta' : 'No hay cuentas disponibles'}</option>}{sourceOptions.map((item) => <option key={item.id} value={item.id}>{item.name}{flow === 'expense' && item.kind === 'liability' ? ' (crédito)' : ''}</option>)}</select></Field>
+            {flow === 'expense' && !account && <p className="helper">Cuenta en tu presupuesto; no cambia el saldo de ninguna cuenta.</p>}
+            {flow !== 'expense' && !assets.length && <p className="helper" role="status">Agrega una cuenta con dinero para indicar de dónde salió.</p>}
             <button className="button button--quiet" type="button" disabled={saving} onClick={() => setAccountDialog('source')}><Plus aria-hidden="true" /> Agregar cuenta</button>
           </>}
-          {type !== 'expense' && <>
-            <Field label={type === 'income' ? 'Recibir en' : 'Hacia'}><select aria-label={type === 'income' ? 'Recibir en' : 'Hacia'} disabled={!destinationOptions.length || saving} value={destinationOptions.some((item) => item.id === destination) ? destination : ''} onChange={(event) => setDestination(event.target.value)}>{!destinationOptions.some((item) => item.id === destination) && <option value="">{destinationOptions.length ? 'Selecciona una cuenta' : 'No hay cuentas disponibles'}</option>}{destinationOptions.map((item) => <option key={item.id} value={item.id}>{item.name}{item.kind === 'liability' ? ' (pago de deuda)' : ''}</option>)}</select></Field>
-            {type === 'income' && <button className="button button--quiet" type="button" disabled={saving} onClick={() => setAccountDialog('destination')}><Plus aria-hidden="true" /> Agregar cuenta para recibir</button>}
+          {flow !== 'expense' && <>
+            <Field label={flow === 'income' ? '¿Dónde lo recibiste?' : flow === 'debt' ? '¿Qué deuda pagaste?' : '¿A qué cuenta lo moviste?'}><select aria-label={flow === 'income' ? '¿Dónde lo recibiste?' : flow === 'debt' ? '¿Qué deuda pagaste?' : '¿A qué cuenta lo moviste?'} disabled={!destinationOptions.length || saving} value={destinationOptions.some((item) => item.id === destination) ? destination : ''} onChange={(event) => setDestination(event.target.value)}>{!destinationOptions.some((item) => item.id === destination) && <option value="">{destinationOptions.length ? 'Selecciona una cuenta' : 'No hay cuentas disponibles'}</option>}{destinationOptions.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></Field>
+            {flow === 'income' && <button className="button button--quiet" type="button" disabled={saving} onClick={() => setAccountDialog('destination')}><Plus aria-hidden="true" /> Agregar cuenta para recibir</button>}
+            {flow === 'debt' && !destinationOptions.length && <p className="helper" role="status">Agrega primero tu deuda desde Cuentas.</p>}
           </>}
           {type !== 'transfer' && <div className="field"><span>Categoría</span><div className="input-with-action"><select aria-label="Categoría" value={category} onChange={(event) => setCategory(event.target.value)}><option value="">Selecciona una categoría</option>{visibleCategories.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select><button type="button" className="icon-button" aria-label="Crear categoría" onClick={() => setCategoryDialog(true)}><Plus /></button></div></div>}
-          <div className="form-grid"><Field label="Fecha"><input type="date" value={date} onChange={(event) => setDate(event.target.value)} /></Field><Field label="Hora" optional><input type="time" value={time} onChange={(event) => setTime(event.target.value)} /></Field></div>
-          <Field label="Comercio o nota" optional><input value={note} onChange={(event) => setNote(event.target.value)} maxLength="120" placeholder="Opcional" /></Field>
-          <Field label="Foto del comprobante" optional><label className="receipt-picker"><ImagePlus /><span>{receipt ? 'Cambiar imagen' : 'Añadir screenshot o foto'}</span><input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => readReceipt(event.target.files?.[0], setReceipt, setError)} /></label>{receipt && <div className="receipt-preview"><img src={receipt} alt="Vista previa del comprobante" /><button type="button" className="button button--quiet" onClick={() => setReceipt('')}>Quitar</button><small>Se conserva de forma privada en este dispositivo.</small></div>}</Field>
-          {type === 'transfer' && accounts.find((item) => item.id === destination)?.kind === 'liability' && <p className="info-note">Se guardará como pago de deuda. Reduce el activo y el pasivo, sin crear otro gasto.</p>}
-          <div className="sheet__actions">{editing && <button type="button" className="button button--danger" disabled={saving} onClick={deleteTransaction}><Trash2 /> Eliminar</button>}<button className="button button--primary" type="submit" disabled={saving || (type === 'transfer' && !sourceOptions.length) || (type !== 'expense' && !destinationOptions.length)}>{saving ? 'Guardando…' : editing ? 'Guardar cambios' : 'Guardar movimiento'}</button></div>
+          <button className="movement-details-toggle" type="button" aria-expanded={showDetails} aria-controls="movement-details" onClick={() => setShowDetails((value) => !value)}>{showDetails ? 'Ocultar detalles' : 'Añadir detalles'} <span aria-hidden="true">{showDetails ? '−' : '+'}</span></button>
+          {showDetails && <div id="movement-details" className="movement-details"><div className="form-grid"><Field label="Fecha"><input type="date" value={date} onChange={(event) => setDate(event.target.value)} /></Field><Field label="Hora" optional><input type="time" value={time} onChange={(event) => setTime(event.target.value)} /></Field></div><Field label="Comercio o nota" optional><input value={note} onChange={(event) => setNote(event.target.value)} maxLength="120" placeholder="Opcional" /></Field><Field label="Foto del comprobante" optional><label className="receipt-picker"><ImagePlus /><span>{receipt ? 'Cambiar imagen' : 'Añadir screenshot o foto'}</span><input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => readReceipt(event.target.files?.[0], setReceipt, setError)} /></label>{receipt && <div className="receipt-preview"><img src={receipt} alt="Vista previa del comprobante" /><button type="button" className="button button--quiet" onClick={() => setReceipt('')}>Quitar</button><small>Se conserva de forma privada en este dispositivo.</small></div>}</Field></div>}
+          {flow === 'debt' && <p className="info-note">Baja tu deuda y el saldo de la cuenta elegida. No suma otro gasto.</p>}
+          <div className="sheet__actions">{editing && <button type="button" className="button button--danger" disabled={saving} onClick={deleteTransaction}><Trash2 /> Eliminar</button>}<button className="button button--primary" type="submit" disabled={saving || (flow !== 'expense' && !sourceOptions.length && flow !== 'income') || (flow !== 'expense' && !destinationOptions.length)}>{saving ? 'Guardando…' : editing ? 'Guardar cambios' : 'Guardar movimiento'}</button></div>
         </form>
       </motion.section>
       {categoryDialog && <CategoryDialog type={type} close={() => setCategoryDialog(false)} onCreated={setCategory} />}

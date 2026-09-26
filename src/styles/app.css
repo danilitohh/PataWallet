@@ -480,7 +480,7 @@ html.standalone-app, html.standalone-app body { touch-action: pan-x pan-y; overs
 .push-result--accepted { background: color-mix(in srgb, var(--success) 12%, var(--surface)); color: var(--success); }
 .push-result--failed { background: color-mix(in srgb, var(--danger) 10%, var(--surface)); color: var(--danger); }
 .install-guide .back-link { min-height: 44px; align-items: center; }
-.pwa-update { position: fixed; z-index: 140; left: 14px; right: 14px; bottom: calc(96px + env(safe-area-inset-bottom)); padding: 12px; display: grid; grid-template-columns: 28px minmax(0, 1fr) auto auto; align-items: center; gap: 10px; border: 1px solid var(--border); border-radius: 18px; background: var(--surface); box-shadow: var(--shadow); }
+.pwa-update { position: fixed; z-index: 95; left: 14px; right: 14px; bottom: calc(96px + env(safe-area-inset-bottom)); padding: 12px; display: grid; grid-template-columns: 28px minmax(0, 1fr) auto auto; align-items: center; gap: 10px; border: 1px solid var(--border); border-radius: 18px; background: var(--surface); box-shadow: var(--shadow); }
 .pwa-update > svg { color: var(--accent); }
 .pwa-update p { margin-top: 2px; font-size: .75rem; }
 .pwa-update .button { min-height: 40px; }
@@ -524,7 +524,7 @@ html.standalone-app, html.standalone-app body { touch-action: pan-x pan-y; overs
 .celebration .pet-scene { height: 220px; }
 .celebration .pet-scene img { object-fit: cover; object-position: center 48%; }
 .celebration .button { width: 100%; }
-.toast { position: fixed; z-index: 130; left: 14px; right: 14px; bottom: calc(96px + env(safe-area-inset-bottom)); min-height: 58px; padding: 9px 11px 9px 16px; display: flex; align-items: center; gap: 12px; border-radius: 18px; background: var(--text); color: var(--bg); box-shadow: var(--shadow); }
+.toast { position: fixed; z-index: 90; left: 14px; right: 14px; bottom: calc(96px + env(safe-area-inset-bottom)); min-height: 58px; padding: 9px 11px 9px 16px; display: flex; align-items: center; gap: 12px; border-radius: 18px; background: var(--text); color: var(--bg); box-shadow: var(--shadow); }
 .toast > span { display: flex; align-items: center; gap: 8px; flex: 1; font-size: .85rem; font-weight: 700; }
 .toast > button:not(.icon-button) { min-height: 40px; padding: 0 8px; display: flex; align-items: center; gap: 5px; color: var(--bg); background: transparent; font-weight: 700; }
 .toast .icon-button { background: transparent; color: var(--bg); border-color: color-mix(in srgb, var(--bg) 25%, transparent); }

@@ -1,7 +1,7 @@
 import { assertMinor, safeAdd } from './money.js'
 import { sumFixedExpenses } from './financialSetup.js'
 import { totalMonthlyDebtPayments } from './debtSchedule.js'
-import { sumExpectedFixedExpenses } from './recurringExpenses.js'
+import { readPaymentHistory, sumExpectedFixedExpenses } from './recurringExpenses.js'
 
 export const NON_BUDGET_TYPES = new Set(['opening', 'transfer', 'card_payment', 'adjustment'])
 
@@ -72,7 +72,12 @@ export function calculateAvailableMoney({ monthlySalaryMinor, fixedExpenses = []
   const committedMinor = safeAdd(fixedExpensesMinor, debtPaymentsMinor)
   const trackedExpensesMinor = month ? calculateSummary(accounts, transactions, month, timeZone).expenses : 0
   const monthlyFreeMinor = salary === null ? null : safeAdd(salary, -committedMinor)
-  const availableNowMinor = monthlyFreeMinor === null ? null : safeAdd(monthlyFreeMinor, -trackedExpensesMinor)
+  // El movimiento real sustituye al compromiso previsto de ese vencimiento, sin descontarlo dos veces.
+  const activeExpenses = new Set(transactions.filter((item) => item.type === 'expense' && item.status !== 'void').map((item) => item.id))
+  const settledScheduledMinor = month ? fixedExpenses.reduce((total, expense) => readPaymentHistory(expense.payment_history).reduce((sum, payment) =>
+    payment.due_date.startsWith(month) && payment.transaction_id && activeExpenses.has(payment.transaction_id)
+      ? safeAdd(sum, Number(expense.amount_minor)) : sum, total), 0) : 0
+  const availableNowMinor = monthlyFreeMinor === null ? null : safeAdd(safeAdd(monthlyFreeMinor, settledScheduledMinor), -trackedExpensesMinor)
   return { salaryMinor: salary, fixedExpensesMinor, debtPaymentsMinor, committedMinor, trackedExpensesMinor, monthlyFreeMinor, availableNowMinor }
 }
 

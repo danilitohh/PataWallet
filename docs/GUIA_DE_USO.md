@@ -10,8 +10,10 @@
 
 - Crea una cuenta con nombre, correo y contraseña. Si Supabase exige confirmación, abre el enlace recibido. **Olvidé mi contraseña** usa la recuperación del proveedor.
 - Google aparece solo si el proveedor está configurado; PataWallet no almacena contraseñas por su cuenta.
-- Pulsa **+** para gasto, ingreso o transferencia. Un pago hacia una tarjeta se guarda como pago de tarjeta y no repite el gasto.
-- Para una compra común, elige **Gasto**, escribe el monto y la categoría, y guarda. **Dinero libre del mes** ya está seleccionado: el gasto se resta de tu presupuesto sin pedirte una cuenta. Si quieres actualizar el saldo de un banco, efectivo o tarjeta de crédito, elígelo en **Descontar de**.
+- Pulsa **+** y responde «¿Qué pasó?»: **Hice una compra**, **Recibí dinero** o **Pagué una deuda**. **Moví dinero** está en «Más opciones». Fecha, hora, nota y comprobante están en «Añadir detalles»; la fecha de hoy ya está seleccionada.
+- Para una compra común, escribe monto y categoría. **Dinero disponible** afecta solo el presupuesto y no cambia saldos; elige efectivo, banco o crédito en «¿Con qué pagaste?» si quieres actualizar la cuenta correspondiente.
+- Para pagar una deuda, elige la cuenta de donde salió el dinero y la deuda pagada. El saldo de ambas baja sin contar un segundo gasto. Para un ingreso, elige la cuenta donde llegó.
+- En **Cuentas → Gastos fijos**, marca un vencimiento y confirma monto, origen y categoría. Esto registra el pago en Actividad y lo quita de la checklist; si no eliges una cuenta, solo cambia el presupuesto. El pago real sustituye al compromiso previsto en «dinero libre», sin restarlo dos veces.
 - En **Actividad**, abre un movimiento para corregirlo o eliminarlo. **Deshacer** restaura la eliminación mientras el aviso está visible.
 - En **Cuentas** administra activos/tarjetas. En **Plan** configura presupuesto, metas y reservas; reservar no crea ni mueve dinero.
 

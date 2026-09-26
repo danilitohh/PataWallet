@@ -65,4 +65,13 @@ describe('reglas financieras de PataWallet', () => {
     const available = calculateAvailableMoney({ monthlySalaryMinor: 320000000, accounts, transactions: [...transactions, expense], month: '2026-09' })
     expect(available.availableNowMinor).toBe(available.monthlyFreeMinor - after.expenses)
   })
+
+  it('sustituye el compromiso fijo previsto por el pago real y no lo descuenta dos veces', () => {
+    const paid = { id: 'fixed-payment:internet:2026-09-15', type: 'expense', amount_minor: 9000000, currency: 'COP', occurred_at: '2026-09-15T12:00:00-05:00', from_account_id: null, to_account_id: null, status: 'recorded' }
+    const fixedExpenses = [{ id: 'internet', name: 'Internet', amount_minor: 10000000, frequency: 'monthly', next_due_date: '2026-09-15', payment_history: [{ due_date: '2026-09-15', status: 'paid', paid_at: '2026-09-15T12:00:00Z', transaction_id: paid.id }] }]
+    const options = { monthlySalaryMinor: 100000000, fixedExpenses, accounts: [], transactions: [paid], month: '2026-09' }
+    expect(calculateAvailableMoney(options).availableNowMinor).toBe(91000000)
+    expect(calculateAvailableMoney({ ...options, transactions: [{ ...paid, amount_minor: 11000000 }] }).availableNowMinor).toBe(89000000)
+    expect(calculateAvailableMoney({ ...options, transactions: [{ ...paid, status: 'void' }] }).availableNowMinor).toBe(90000000)
+  })
 })

@@ -1,6 +1,13 @@
 # Estado de implementación
 
-Actualizado: 2026-09-26. Fase actual: **gasto desde dinero libre publicado; validación en iPhone real pendiente**.
+Actualizado: 2026-09-26. Fase actual: **registro guiado implementado; validación en sesión remota e iPhone real pendiente**.
+
+## Registro guiado y pago recurrente en un paso · 26 de septiembre
+
+- «Nuevo movimiento» ofrece **Hice una compra**, **Recibí dinero**, **Pagué una deuda** y **Moví dinero** (en Más opciones). Fecha, hora, nota y comprobante se muestran solo al abrir «Añadir detalles»; los movimientos existentes los muestran al editar. El pago de deuda se guarda como `card_payment`, sin segundo gasto.
+- Confirmar un vencimiento en Cuentas o Quincena pide monto real, origen y categoría. El movimiento y la marca se guardan en una sola transacción IndexedDB; en una cuenta real se encolan juntos y se sincronizan como dos operaciones remotas. El identificador del movimiento es estable por vencimiento para evitar duplicados. Los pagos anteriores sin movimiento vinculado conservan su historial.
+- «Dinero libre» resta el gasto real y elimina de la estimación el importe previsto del vencimiento vinculado. Si se anula el movimiento, el vencimiento vuelve a aparecer. La categoría elegida se recuerda para los próximos pagos del mismo gasto fijo.
+- Verificado localmente: 123 pruebas unitarias, lint y build. E2E dirigido 15/15: nueve recorridos de registro y checklist en 390×844, 375×812 y escritorio, cuatro regresiones de cuentas en 390×844 y dos pruebas de detalles opcionales en 390×844. Se revisó la confirmación en móvil y escritorio; el aviso temporal ya no tapa el diálogo. Falta probar el flujo con sesión remota y en iPhone físico; no se ejecutaron pagos ni se alteraron datos reales.
 
 ## Acceso con Google · 26 de septiembre
 
@@ -30,10 +37,10 @@ Actualizado: 2026-09-26. Fase actual: **gasto desde dinero libre publicado; vali
 - El registro del service worker vuelve a comprobar si hay una versión nueva al registrarse, al regresar a primer plano, al recuperar conexión y cada hora mientras la app está visible y en línea. El aviso continúa siendo manual; no se salta el worker ni se recarga automáticamente.
 - Verificación automatizada local: prueba unitaria del ciclo de vida y la limpieza de listeners/temporizador, suite PWA y build. La actualización en iPhone instalado aún requiere prueba física.
 
-## Checklist persistente de pagos · 26 de septiembre
+## Checklist persistente de pagos · versión inicial del 26 de septiembre
 
 - Cuentas y Quincena muestran hasta dos vencimientos pendientes por cada gasto fijo; los ya pagados no cuentan para ese límite y los atrasos pendientes se conservan.
-- Al marcar un pago se pide confirmación accesible. Cancelar no guarda cambios; confirmar lo registra en el historial y quita esa fecha de ambas listas. No crea un movimiento ni cambia el saldo.
+- En la versión inicial, marcar un pago pedía confirmación y guardaba solo la marca en la checklist; el registro guiado descrito arriba sustituyó ese comportamiento por un movimiento real vinculado.
 - Regresiones en `src/domain/recurringExpenses.test.js` y `tests/e2e/app.spec.js` cubren el límite, la cancelación, la confirmación y su persistencia tras guardar y recargar. Verificado: `npm test` (28 archivos, 114 pruebas), `npm run lint`, `npm run build` y E2E dirigido 9/9 en 390×844, 375×812 y 1440×900. Diálogo revisado visualmente en los tres tamaños.
 
 ## Ajustes · Serena aplicada · 24 de septiembre

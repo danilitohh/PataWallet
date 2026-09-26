@@ -27,6 +27,28 @@ afterEach(async () => {
 })
 
 describe('cola por usuario', () => {
+  it('guarda el pago recurrente y su marca juntos aunque la red falle, sin duplicarlo', async () => {
+    const fixed = { id: 'internet', name: 'Internet', amount_minor: 10000, frequency: 'monthly', next_due_date: '2026-09-15', payment_history: [] }
+    const remote = { ...structuredClone(base), settingsRows: [...base.settingsRows, { key: 'fixedExpenses', value: [fixed], version: 1 }] }
+    const gateway = {
+      ensureRemoteWorkspace: async () => {},
+      loadRemoteWorkspace: async () => structuredClone(remote),
+      executeRemoteOperation: async () => { throw new Error('sin conexión') },
+    }
+    const controller = new SyncController(id(), gateway)
+    await controller.initialize()
+    const occurrence = { id: 'internet:2026-09-15', expenseId: 'internet', dueDate: '2026-09-15', amount_minor: 10000 }
+    const record = { ...transaction(), id: `fixed-payment:${occurrence.id}` }
+    await controller.recordRecurringPayment(occurrence, record)
+    const snapshot = await controller.snapshot()
+    expect(snapshot.transactions.map((item) => item.id)).toEqual([record.id])
+    expect(snapshot.settingsRows.find((item) => item.key === 'fixedExpenses').value[0].payment_history[0].transaction_id).toBe(record.id)
+    expect(await controller.pendingCount()).toBe(2)
+    await expect(controller.recordRecurringPayment(occurrence, record)).rejects.toThrow(/ya tiene un movimiento/)
+    expect(await controller.pendingCount()).toBe(2)
+    controller.dispose()
+  })
+
   it('conserva el identificador en un reintento y no duplica', async () => {
     let fail = true
     const received = []

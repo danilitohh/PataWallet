@@ -38,7 +38,7 @@ export function readPaymentHistory(value) {
     if (paidAmount !== null) {
       try { assertMinor(paidAmount) } catch { return null }
     }
-    return { due_date: dueDate, status: 'paid', paid_at: paidAt || null, paid_amount_minor: paidAmount }
+    return { due_date: dueDate, status: 'paid', paid_at: paidAt || null, paid_amount_minor: paidAmount, transaction_id: payment?.transaction_id ? String(payment.transaction_id) : null }
   }).filter(Boolean).slice(-MAX_PAYMENT_HISTORY)
 }
 
@@ -80,7 +80,10 @@ export function getRecurringExpenseOccurrences(expenses = [], options = {}) {
     const schedule = normalizeExpenseSchedule(expense.frequency, expense.next_due_date)
     const anchor = schedule.nextDueDate || (schedule.frequency === 'payday' ? options.nextPayDate : today)
     const occurrenceFrom = includeOverdue && isCalendarDate(anchor) && anchor < from ? anchor : from
-    const paymentByDate = new Map(readPaymentHistory(expense.payment_history).map((payment) => [payment.due_date, payment]))
+    const activeTransactions = options.transactions && new Set(options.transactions.filter((item) => item.type === 'expense' && item.status !== 'void').map((item) => item.id))
+    const paymentByDate = new Map(readPaymentHistory(expense.payment_history)
+      .filter((payment) => !payment.transaction_id || !activeTransactions || activeTransactions.has(payment.transaction_id))
+      .map((payment) => [payment.due_date, payment]))
     return recurringExpenseDates(expense, { ...options, from: occurrenceFrom, to }).flatMap((dueDate) => {
       const payment = paymentByDate.get(dueDate)
       if (payment && !includePaid) return []
@@ -88,6 +91,7 @@ export function getRecurringExpenseOccurrences(expenses = [], options = {}) {
         id: `${expense.id}:${dueDate}`,
         expenseId: expense.id,
         name: expense.name,
+        categoryId: expense.category_id || null,
         amount_minor: Number(expense.amount_minor),
         dueDate,
         status: payment ? 'paid' : dueDate < today ? 'overdue' : 'pending',
@@ -102,12 +106,24 @@ export function getRecurringExpenseOccurrences(expenses = [], options = {}) {
 }
 
 // Marca o desmarca un vencimiento sin crear un movimiento financiero automático.
-export function setRecurringExpensePaid(expenses = [], occurrence, paid, paidAt = new Date().toISOString()) {
+export function setRecurringExpensePaid(expenses = [], occurrence, paid, paidAt = new Date().toISOString(), details = {}) {
   return expenses.map((expense) => {
     if (String(expense.id) !== String(occurrence.expenseId)) return expense
     const history = readPaymentHistory(expense.payment_history).filter((item) => item.due_date !== occurrence.dueDate)
-    if (paid) history.push({ due_date: occurrence.dueDate, status: 'paid', paid_at: paidAt, paid_amount_minor: occurrence.amount_minor })
-    return { ...expense, payment_history: history.slice(-MAX_PAYMENT_HISTORY) }
+    if (paid) history.push({ due_date: occurrence.dueDate, status: 'paid', paid_at: paidAt, paid_amount_minor: details.amountMinor ?? occurrence.amount_minor, transaction_id: details.transactionId || null })
+    return { ...expense, category_id: details.categoryId || expense.category_id || null, payment_history: history.slice(-MAX_PAYMENT_HISTORY) }
+  })
+}
+
+// Vincula un único movimiento real al vencimiento y conserva la categoría para los próximos pagos.
+export function recordRecurringExpensePayment(expenses, occurrence, transaction) {
+  const expense = expenses.find((item) => String(item.id) === String(occurrence.expenseId))
+  if (!expense) throw new Error('Este gasto fijo ya no existe. Actualiza la checklist.')
+  if (readPaymentHistory(expense.payment_history).some((item) => item.due_date === occurrence.dueDate && item.transaction_id !== transaction.id)) throw new Error('Este vencimiento ya fue marcado como pagado.')
+  if (transaction.type !== 'expense' || !transaction.category_id || !transaction.id) throw new Error('El pago necesita monto y categoría válidos.')
+  if (assertMinor(transaction.amount_minor) === 0) throw new Error('El monto pagado debe ser mayor que cero.')
+  return setRecurringExpensePaid(expenses, occurrence, true, new Date().toISOString(), {
+    transactionId: transaction.id, categoryId: transaction.category_id, amountMinor: transaction.amount_minor,
   })
 }
 
