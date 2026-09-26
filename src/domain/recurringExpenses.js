@@ -73,6 +73,9 @@ export function getRecurringExpenseOccurrences(expenses = [], options = {}) {
   const today = options.today || calendarToday()
   const includeOverdue = options.includeOverdue === true
   const includePaid = options.includePaid !== false
+  const occurrenceLimit = Number.isInteger(options.maxOccurrencesPerExpense) && options.maxOccurrencesPerExpense > 0
+    ? options.maxOccurrencesPerExpense
+    : Number.POSITIVE_INFINITY
   return expenses.flatMap((expense) => {
     const schedule = normalizeExpenseSchedule(expense.frequency, expense.next_due_date)
     const anchor = schedule.nextDueDate || (schedule.frequency === 'payday' ? options.nextPayDate : today)
@@ -93,6 +96,8 @@ export function getRecurringExpenseOccurrences(expenses = [], options = {}) {
         frequency: schedule.frequency,
       }]
     }).filter((occurrence) => !(includeOverdue && occurrence.status === 'paid' && occurrence.dueDate < from))
+      // Filtra los pagos hechos antes de limitar para que el siguiente vencimiento ocupe su lugar.
+      .slice(0, occurrenceLimit)
   }).sort((left, right) => left.dueDate.localeCompare(right.dueDate) || left.name.localeCompare(right.name))
 }
 

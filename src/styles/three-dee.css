@@ -98,6 +98,11 @@
     transform: perspective(460px) translateY(-18px) rotateX(5deg) rotateY(-4deg);
   }
 
+  /* Mantiene quietas las acciones del diálogo para que el cursor no alterne su estado hover. */
+  .recurring-payment-confirmation .button:not(:disabled):hover {
+    transform: none;
+  }
+
   .dock-item:hover:not(.dock-item--active) svg {
     transform: translateY(-1px) scale(1.06);
     filter: drop-shadow(0 5px 8px var(--depth-shadow-soft));

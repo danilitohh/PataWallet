@@ -47,6 +47,29 @@ describe('pagos recurrentes', () => {
     ])
   })
 
+  it('muestra como máximo el vencimiento actual y el siguiente por gasto', () => {
+    const options = {
+      from: '2026-09-12', to: '2026-11-10', today: '2026-09-26',
+      includeOverdue: true, includePaid: false, maxOccurrencesPerExpense: 2,
+    }
+    const occurrences = getRecurringExpenseOccurrences(expenses, options)
+
+    expect(occurrences.map(({ name, dueDate }) => `${name}:${dueDate}`)).toEqual([
+      'Internet:2026-09-15',
+      'Mercado:2026-09-15',
+      'Mercado:2026-09-30',
+      'Internet:2026-10-15',
+    ])
+
+    const paidExpenses = setRecurringExpensePaid(expenses, occurrences[1], true, '2026-09-26T12:00:00.000Z')
+    expect(getRecurringExpenseOccurrences(paidExpenses, options).map(({ name, dueDate }) => `${name}:${dueDate}`)).toEqual([
+      'Internet:2026-09-15',
+      'Mercado:2026-09-30',
+      'Internet:2026-10-15',
+      'Mercado:2026-10-15',
+    ])
+  })
+
   it('marca y desmarca un vencimiento sin crear un movimiento', () => {
     const occurrence = getRecurringExpenseOccurrences(expenses, { from: '2026-09-15', to: '2026-09-15', today: '2026-09-15' }).find((item) => item.name === 'Internet')
     const paidExpenses = setRecurringExpensePaid(expenses, occurrence, true, '2026-09-15T12:00:00.000Z')

@@ -9,9 +9,9 @@ Actualizado: 2026-09-26. Fase actual: **Metas primero aplicado a Plan; aplicar m
 
 ## Checklist persistente de pagos · 26 de septiembre
 
-- Los vencimientos recurrentes pendientes anteriores al rango próximo siguen apareciendo como atrasados hasta marcarlos como pagados. Cuentas y Quincena separan los atrasos de los pagos de hoy y próximos.
-- Un pago marcado queda guardado en el historial y desaparece de inmediato de ambas checklists; el siguiente vencimiento sin pagar permanece visible. Marcarlo no borra su historial ni genera un movimiento financiero.
-- Verificación: `npm test` (27 archivos, 112 pruebas), `npm run lint` y `npm run build` pasaron. La regresión en `src/domain/recurringExpenses.test.js` cubre un atraso pendiente, un pago completado y el siguiente ciclo.
+- Cuentas y Quincena muestran hasta dos vencimientos pendientes por cada gasto fijo; los ya pagados no cuentan para ese límite y los atrasos pendientes se conservan.
+- Al marcar un pago se pide confirmación accesible. Cancelar no guarda cambios; confirmar lo registra en el historial y quita esa fecha de ambas listas. No crea un movimiento ni cambia el saldo.
+- Regresiones en `src/domain/recurringExpenses.test.js` y `tests/e2e/app.spec.js` cubren el límite, la cancelación, la confirmación y su persistencia tras guardar y recargar. Verificado: `npm test` (28 archivos, 114 pruebas), `npm run lint`, `npm run build` y E2E dirigido 9/9 en 390×844, 375×812 y 1440×900. Diálogo revisado visualmente en los tres tamaños.
 
 ## Ajustes · Serena aplicada · 24 de septiembre
 
