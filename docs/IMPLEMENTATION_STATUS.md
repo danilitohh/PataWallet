@@ -1,14 +1,14 @@
 # Estado de implementación
 
-Actualizado: 2026-09-26. Fase actual: **Metas primero aplicado a Plan; aplicar migración remota pendiente y validar en iPhone real sigue pendiente**.
+Actualizado: 2026-09-26. Fase actual: **migración de gasto sin cuenta aplicada a Supabase; publicación web y validación en iPhone real pendientes**.
 
 ## Gasto desde dinero libre · 26 de septiembre
 
 - Gasto inicia en «Dinero libre del mes» y permite guardar sin una cuenta. Se suma a los gastos del mes y reduce la estimación disponible, sin crear asientos ni cambiar saldos bancarios o deudas. El usuario puede elegir una cuenta real si quiere actualizar su saldo.
-- La migración `20260926123000_budget_only_expenses.sql` permite ese registro en PostgreSQL; conserva validación de categoría, propiedad, idempotencia y permisos. Debe aplicarse antes de publicar el nuevo formulario. Para revertirla se necesita primero asociar cada gasto sin cuenta a una cuenta real y luego una migración posterior que restablezca la restricción anterior.
-- Verificado: 115 pruebas unitarias, lint, build y 12/12 recorridos E2E en 390×844, 375×812 y escritorio. En PostgreSQL 16 aislado, la migración aceptó un gasto sin cuenta con 0 asientos y un gasto bancario con el débito esperado. La migración no se aplicó a Supabase remoto ni se cambió ningún movimiento personal existente.
-- Publicación autorizada, todavía pendiente: producción conserva `ee0904d` y la rama `codex/settings-designs` tiene una vista previa de `a5cdce1`. En Supabase se confirmó la restricción antigua y que existen las dos funciones que reemplaza la migración. El plan Free indica que no hay respaldos automáticos y la conexión directa requiere una contraseña no disponible en este entorno; falta una copia PostgreSQL restaurada y verificada antes de migrar.
-- La suite E2E completa pasó 58/60; dos casos móviles fallaron por sincronización de la prueba con la entrada a la demo y por forzar un clic durante una animación. Se ajustaron los dos casos y la repetición dirigida pasó 6/6 en los tres tamaños. Aún falta repetir la suite completa sobre el commit candidato.
+- La migración `20260926123000_budget_only_expenses.sql` permite ese registro en PostgreSQL; conserva validación de categoría, propiedad, idempotencia y permisos. Se aplicó a Supabase el 26 de septiembre. Para revertirla se necesita primero asociar cada gasto sin cuenta a una cuenta real y luego una migración posterior que restablezca la restricción anterior.
+- Antes de migrar, `scripts/backup-patawallet.ps1` creó un respaldo privado de PostgreSQL 17 fuera del repositorio. La restauración aislada de `auth`, `public` y `private` terminó sin errores; coincidieron los conteos de producción (10 usuarios, 26 cuentas, 24 movimientos y 22 asientos). La migración pasó primero en esa copia; un gasto sin cuenta de prueba produjo 0 asientos dentro de una transacción revertida. En Supabase se verificaron la nueva restricción, ambas funciones y los conteos originales; no se crearon movimientos reales de prueba.
+- La migración `20260926143000_restrict_couple_review.sql` revocó a `anon` y `authenticated` el permiso de ejecutar la función privilegiada de revisión de pareja. Se probó en la copia y en Supabase (`false/false/true` para `anon`/`authenticated`/`service_role`). Security Advisor pasó de tres advertencias a una: protección contra contraseñas filtradas desactivada, pendiente de configuración aparte. Ambas migraciones se ejecutaron en SQL Editor; este proyecto remoto no tiene tabla `supabase_migrations.schema_migrations`.
+- Verificado localmente antes de publicar: 116 pruebas unitarias, lint, build, PWA 1/1 y suite E2E completa 60/60 en 390×844, 375×812 y escritorio. Una ejecución anterior tuvo un tiempo de espera móvil mientras Docker restauraba el respaldo; el caso aislado pasó y la repetición completa sin esa carga pasó 60/60. Publicación web e iPhone real pendientes.
 
 ## Cuenta de origen en movimientos · 26 de septiembre
 

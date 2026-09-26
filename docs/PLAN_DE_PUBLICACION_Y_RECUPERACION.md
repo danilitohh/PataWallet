@@ -1,6 +1,6 @@
 # Plan de publicación y recuperación
 
-Estado: publicación autorizada el 26 de septiembre de 2026, pero **aún no ejecutada**. El proyecto Supabase está en Free sin respaldos automáticos y falta una copia PostgreSQL restaurada y verificada antes de aplicar la migración pendiente.
+Estado: publicación autorizada el 26 de septiembre de 2026. El respaldo fue restaurado y verificado, y las migraciones de gasto sin cuenta y permiso de revisión de pareja se aplicaron a Supabase. **La publicación web sigue pendiente**; el proyecto Free no ofrece respaldos automáticos.
 
 ## Configuración sin secretos
 
@@ -21,6 +21,8 @@ Configura en Supabase los orígenes/redirecciones HTTPS exactos para registro, G
 ## Respaldo y reversión
 
 Antes de migrar, exporta una copia PostgreSQL compatible y un JSON ficticio. Registra esquema, commit, fecha, responsable y ubicación privada. Comprueba la copia restaurándola en un destino aislado.
+
+Respaldo del 26 de septiembre: `%LOCALAPPDATA%\PataWallet\backups\patawallet-20260926-132239.dump` (PostgreSQL 17, 460189 bytes, SHA-256 `394C6B468C2ED877CC51A4C0CD2988A93ED47885A32CE1C52AD1922D2A0DF210`). Se restauraron `auth`, `public` y `private` en PostgreSQL local aislado; los conteos coincidieron antes de probar y aplicar la migración. Es una copia de la base de datos, no de los archivos de Supabase Storage. Contiene datos privados: no subirla al repositorio ni compartirla.
 
 Si falla una promoción:
 

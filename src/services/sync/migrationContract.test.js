@@ -9,6 +9,7 @@ const debtMonthlyPayment = fs.readFileSync(new URL('../../../supabase/migrations
 const optionalNullSettings = fs.readFileSync(new URL('../../../supabase/migrations/20260913170000_allow_optional_null_user_settings.sql', import.meta.url), 'utf8')
 const incomeSources = fs.readFileSync(new URL('../../../supabase/migrations/20260913190000_income_sources.sql', import.meta.url), 'utf8')
 const optionalNullShape = fs.readFileSync(new URL('../../../supabase/migrations/20260914120000_fix_optional_user_settings_shape.sql', import.meta.url), 'utf8')
+const coupleReviewPermissions = fs.readFileSync(new URL('../../../supabase/migrations/20260926143000_restrict_couple_review.sql', import.meta.url), 'utf8')
 
 describe('contrato de seguridad PostgreSQL', () => {
   it('activa RLS y limita cada tabla expuesta al propietario autenticado', () => {
@@ -34,6 +35,12 @@ describe('contrato de seguridad PostgreSQL', () => {
     expect(phase2).toContain('revoke insert, update, delete on public.transactions from authenticated')
     expect(phase2).toContain('Los movimientos de demostración no se sincronizan con cuentas reales.')
     expect(phase2).toContain('grant execute on function public.mutate_transaction')
+  })
+
+  it('reserva la revisión de cambios compartidos al endpoint autenticado', () => {
+    // Evita que una futura migración vuelva a exponer la función privilegiada.
+    expect(coupleReviewPermissions).toMatch(/revoke execute on function public\.review_couple_change_request\(uuid, uuid, text\)\s+from public, anon, authenticated;/)
+    expect(coupleReviewPermissions).toMatch(/grant execute on function public\.review_couple_change_request\(uuid, uuid, text\)\s+to service_role;/)
   })
 
   it('conserva el plan opcional de deuda y las referencias de ingresos', () => {
