@@ -1,6 +1,12 @@
 # Estado de implementación
 
-Actualizado: 2026-09-24. Fase actual: **Metas primero aplicado a Plan; aplicar migración remota pendiente y validar en iPhone real sigue pendiente**.
+Actualizado: 2026-09-26. Fase actual: **Metas primero aplicado a Plan; aplicar migración remota pendiente y validar en iPhone real sigue pendiente**.
+
+## Checklist persistente de pagos · 26 de septiembre
+
+- Los vencimientos recurrentes pendientes anteriores al rango próximo siguen apareciendo como atrasados hasta marcarlos como pagados. Cuentas y Quincena separan los atrasos de los pagos de hoy y próximos.
+- Un pago marcado queda guardado en el historial; los pagos antiguos se retiran de la checklist activa después de 14 días para que no crezca indefinidamente, sin borrar el historial persistido.
+- Verificación: `npm test` (27 archivos, 112 pruebas), `npm run lint` y `npm run build` pasaron. `Cuentas` se revisó en el navegador local demo; el escenario poblado se cubre con la prueba de regresión `src/domain/recurringExpenses.test.js` (vencimiento atrasado de agosto, uno pagado de septiembre y el siguiente de octubre). No se ingresaron datos en la demo.
 
 ## Ajustes · Serena aplicada · 24 de septiembre
 

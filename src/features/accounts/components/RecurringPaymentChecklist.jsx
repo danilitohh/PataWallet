@@ -12,10 +12,13 @@ export function RecurringPaymentChecklist({ expenses, settings, actions, notify 
     from: addCalendarDays(today, -14),
     to: addCalendarDays(today, 45),
     today,
+    includeOverdue: true,
     payFrequency: settings.payFrequency,
     nextPayDate: settings.nextPayDate,
   })
   const pendingCount = occurrences.filter((occurrence) => occurrence.status !== 'paid').length
+  const overdueOccurrences = occurrences.filter((occurrence) => occurrence.status === 'overdue')
+  const upcomingOccurrences = occurrences.filter((occurrence) => occurrence.status !== 'overdue')
 
   const togglePayment = async (occurrence, paid) => {
     if (savingId) return
@@ -33,14 +36,26 @@ export function RecurringPaymentChecklist({ expenses, settings, actions, notify 
 
   return <section className="recurring-payments" aria-labelledby="recurring-payments-title">
     <div className="recurring-payments__heading">
-      <div><h3 id="recurring-payments-title"><ListChecks aria-hidden="true" /> Checklist de pagos</h3><p>Revisa los vencimientos de los próximos 45 días y marca cada uno cuando ya lo hayas pagado.</p></div>
+      <div><h3 id="recurring-payments-title"><ListChecks aria-hidden="true" /> Checklist de pagos</h3><p>Los pagos atrasados permanecen aquí hasta marcarlos. También ves los próximos 45 días.</p></div>
       <strong>{pendingCount ? `${pendingCount} pendiente${pendingCount === 1 ? '' : 's'}` : 'Todo al día'}</strong>
     </div>
     {error && <p className="form-error" role="alert">{error}</p>}
     {!occurrences.length
       ? <p className="empty-inline"><CircleAlert aria-hidden="true" />{expenses.some((expense) => expense.frequency === 'payday') && !settings.nextPayDate ? 'Configura tu próximo pago en Ingresos para generar los vencimientos ligados a cada pago.' : 'Guarda al menos un gasto recurrente para generar aquí sus próximos vencimientos.'}</p>
-      : <div className="recurring-payments__list">{occurrences.map((occurrence) => <PaymentChecklistRow key={occurrence.id} occurrence={occurrence} hidden={settings.hiddenAmounts} saving={savingId === occurrence.id} onToggle={togglePayment} />)}</div>}
+      : <div className="recurring-payments__groups">
+        <OccurrenceGroup title="Atrasados" occurrences={overdueOccurrences} hidden={settings.hiddenAmounts} savingId={savingId} onToggle={togglePayment} />
+        <OccurrenceGroup title="Hoy y próximos 45 días" occurrences={upcomingOccurrences} hidden={settings.hiddenAmounts} savingId={savingId} onToggle={togglePayment} />
+      </div>}
     <p className="helper">Marcar un pago solo actualiza esta checklist. Para que también afecte el historial y el saldo de una cuenta, registra el movimiento real desde Actividad.</p>
+  </section>
+}
+
+// Distingue pagos atrasados de fechas actuales o futuras sin duplicar la presentación de cada fila.
+function OccurrenceGroup({ title, occurrences, hidden, savingId, onToggle }) {
+  if (!occurrences.length) return null
+  return <section className="recurring-payments__group" aria-label={title}>
+    <h4>{title}</h4>
+    <div className="recurring-payments__list">{occurrences.map((occurrence) => <PaymentChecklistRow key={occurrence.id} occurrence={occurrence} hidden={hidden} saving={savingId === occurrence.id} onToggle={onToggle} />)}</div>
   </section>
 }
 

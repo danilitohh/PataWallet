@@ -337,6 +337,8 @@ html.standalone-app, html.standalone-app body { touch-action: pan-x pan-y; overs
 .recurring-payments__heading h3 svg { width: 19px; height: 19px; color: var(--accent); }
 .recurring-payments__heading p { max-width: 52ch; margin-top: 4px; color: var(--text-2); font-size: .79rem; line-height: 1.4; }
 .recurring-payments__heading > strong { flex: 0 0 auto; color: var(--accent); font-size: .78rem; text-align: right; }
+.recurring-payments__groups, .recurring-payments__group { display: grid; gap: 8px; }
+.recurring-payments__group > h4 { margin: 2px 2px 0; color: var(--text-2); font-size: .72rem; letter-spacing: .025em; }
 .recurring-payments__list { display: grid; gap: 8px; }
 .recurring-payment { min-width: 0; display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px; border: 1px solid var(--border); border-radius: 15px; background: var(--surface); }
 .recurring-payment--overdue { border-color: color-mix(in srgb, var(--danger) 35%, var(--border)); background: color-mix(in srgb, var(--danger) 6%, var(--surface)); }

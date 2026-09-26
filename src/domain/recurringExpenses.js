@@ -66,25 +66,32 @@ export function recurringExpenseDates(expense, { from, to, payFrequency, nextPay
   return intervalDates(anchor, from, to, schedule.frequency === 'weekly' ? 7 : 15)
 }
 
-// Devuelve los vencimientos con su estado actual para alimentar la checklist y los resúmenes.
+// Devuelve el rango visible, conserva atrasos pendientes desde su ancla y limita pagos hechos al periodo reciente.
 export function getRecurringExpenseOccurrences(expenses = [], options = {}) {
   const from = options.from || calendarToday()
   const to = options.to || addCalendarDays(from, 45)
   const today = options.today || calendarToday()
-  return expenses.flatMap((expense) => recurringExpenseDates(expense, { ...options, from, to }).map((dueDate) => {
-    const payment = readPaymentHistory(expense.payment_history).find((item) => item.due_date === dueDate)
-    return {
-      id: `${expense.id}:${dueDate}`,
-      expenseId: expense.id,
-      name: expense.name,
-      amount_minor: Number(expense.amount_minor),
-      dueDate,
-      status: payment ? 'paid' : dueDate < today ? 'overdue' : 'pending',
-      paidAt: payment?.paid_at || null,
-      paidAmountMinor: payment?.paid_amount_minor ?? null,
-      frequency: normalizeExpenseSchedule(expense.frequency, expense.next_due_date).frequency,
-    }
-  })).sort((left, right) => left.dueDate.localeCompare(right.dueDate) || left.name.localeCompare(right.name))
+  const includeOverdue = options.includeOverdue === true
+  return expenses.flatMap((expense) => {
+    const schedule = normalizeExpenseSchedule(expense.frequency, expense.next_due_date)
+    const anchor = schedule.nextDueDate || (schedule.frequency === 'payday' ? options.nextPayDate : today)
+    const occurrenceFrom = includeOverdue && isCalendarDate(anchor) && anchor < from ? anchor : from
+    const paymentByDate = new Map(readPaymentHistory(expense.payment_history).map((payment) => [payment.due_date, payment]))
+    return recurringExpenseDates(expense, { ...options, from: occurrenceFrom, to }).map((dueDate) => {
+      const payment = paymentByDate.get(dueDate)
+      return {
+        id: `${expense.id}:${dueDate}`,
+        expenseId: expense.id,
+        name: expense.name,
+        amount_minor: Number(expense.amount_minor),
+        dueDate,
+        status: payment ? 'paid' : dueDate < today ? 'overdue' : 'pending',
+        paidAt: payment?.paid_at || null,
+        paidAmountMinor: payment?.paid_amount_minor ?? null,
+        frequency: schedule.frequency,
+      }
+    }).filter((occurrence) => !(includeOverdue && occurrence.status === 'paid' && occurrence.dueDate < from))
+  }).sort((left, right) => left.dueDate.localeCompare(right.dueDate) || left.name.localeCompare(right.name))
 }
 
 // Marca o desmarca un vencimiento sin crear un movimiento financiero automático.

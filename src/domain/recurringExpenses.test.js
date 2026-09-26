@@ -24,6 +24,31 @@ describe('pagos recurrentes', () => {
     expect(occurrences.map((item) => item.dueDate)).toEqual(['2026-09-15', '2026-09-30'])
   })
 
+  it('mantiene atrasos antiguos hasta pagarlos y separa los vencimientos futuros', () => {
+    const internet = {
+      ...expenses[0],
+      next_due_date: '2026-07-25',
+      payment_history: [
+        { due_date: '2026-07-25', status: 'paid', paid_at: '2026-07-25T12:00:00.000Z' },
+        { due_date: '2026-09-25', status: 'paid', paid_at: '2026-09-25T12:00:00.000Z' },
+      ],
+    }
+    const options = { from: '2026-09-12', to: '2026-11-10', today: '2026-09-26', includeOverdue: true }
+    const occurrences = getRecurringExpenseOccurrences([internet], options)
+
+    expect(occurrences.map(({ dueDate, status }) => [dueDate, status])).toEqual([
+      ['2026-08-25', 'overdue'],
+      ['2026-09-25', 'paid'],
+      ['2026-10-25', 'pending'],
+    ])
+
+    const paidExpenses = setRecurringExpensePaid([internet], occurrences[0], true, '2026-09-26T12:00:00.000Z')
+    expect(getRecurringExpenseOccurrences(paidExpenses, options).map((item) => item.dueDate)).toEqual([
+      '2026-09-25',
+      '2026-10-25',
+    ])
+  })
+
   it('marca y desmarca un vencimiento sin crear un movimiento', () => {
     const occurrence = getRecurringExpenseOccurrences(expenses, { from: '2026-09-15', to: '2026-09-15', today: '2026-09-15' }).find((item) => item.name === 'Internet')
     const paidExpenses = setRecurringExpensePaid(expenses, occurrence, true, '2026-09-15T12:00:00.000Z')
