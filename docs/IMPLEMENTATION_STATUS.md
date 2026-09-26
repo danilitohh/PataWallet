@@ -2,6 +2,12 @@
 
 Actualizado: 2026-09-26. Fase actual: **gasto desde dinero libre publicado; validación en iPhone real pendiente**.
 
+## Acceso con Google · 26 de septiembre
+
+- Supabase registró inicios de sesión de Google y respuestas `/user` HTTP 200 sin rechazos 4xx ni errores Auth en la hora revisada. El navegador de escritorio mantuvo la sesión en una pestaña nueva; el rebote reportado ocurrió en Safari y la app instalada del iPhone.
+- `observeAuth` impide que una consulta inicial de usuario, resuelta tarde o con error, reemplace un evento posterior `SIGNED_IN` o `SIGNED_OUT`. El evento `INITIAL_SESSION` no adelanta el resultado de la validación inicial. La limpieza cancela actualizaciones tras desmontar el proveedor.
+- Pruebas unitarias cubren el retorno de Google, un error tardío, cierre de sesión y carga inicial. Lint, build y PWA pasaron. No se usaron credenciales de producción para probar un inicio real ni se pudo reproducir en iPhone físico; esa comprobación sigue pendiente.
+
 ## Gasto desde dinero libre · 26 de septiembre
 
 - Gasto inicia en «Dinero libre del mes» y permite guardar sin una cuenta. Se suma a los gastos del mes y reduce la estimación disponible, sin crear asientos ni cambiar saldos bancarios o deudas. El usuario puede elegir una cuenta real si quiere actualizar su saldo.

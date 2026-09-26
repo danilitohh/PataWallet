@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 
 const page = fs.readFileSync(new URL('./AuthPage.jsx', import.meta.url), 'utf8')
 const provider = fs.readFileSync(new URL('./AuthProvider.jsx', import.meta.url), 'utf8')
+const observer = fs.readFileSync(new URL('./observeAuth.js', import.meta.url), 'utf8')
 const client = fs.readFileSync(new URL('../../lib/supabase/client.js', import.meta.url), 'utf8')
 
 describe('contrato de autenticación Supabase', () => {
@@ -19,6 +20,7 @@ describe('contrato de autenticación Supabase', () => {
     expect(client).toContain('persistSession: true')
     expect(client).toContain('autoRefreshToken: true')
     expect(client).toContain('detectSessionInUrl: true')
-    expect(provider).toContain('supabase.auth.onAuthStateChange')
+    expect(provider).toContain('observeAuth(supabase.auth')
+    expect(observer).toContain('auth.onAuthStateChange')
   })
 })
