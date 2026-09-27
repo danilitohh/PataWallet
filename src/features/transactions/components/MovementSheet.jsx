@@ -27,7 +27,7 @@ const movementSchema = z.object({
   date: z.string().min(10),
 })
 
-export function MovementSheet({ transaction, initialFlow = 'expense', onClose }) {
+export function MovementSheet({ transaction, initialFlow = 'expense', onClose, preview = false }) {
   const { accounts, categories, notify, actions } = useApp()
   const editing = Boolean(transaction)
   const startingFlow = transaction?.type === 'card_payment' ? 'debt' : transaction?.type || initialFlow
@@ -54,7 +54,7 @@ export function MovementSheet({ transaction, initialFlow = 'expense', onClose })
   const savingRef = useRef(false)
   const dialogRef = useRef(null)
   const close = () => { if (!savingRef.current) onClose() }
-  useModalBehavior(dialogRef, close)
+  useModalBehavior(dialogRef, close, !preview)
   const visibleCategories = categories.filter((item) => item.type === type)
   // Las compras con dinero propio se encuentran primero; el crédito sigue disponible para compras con tarjeta.
   const sourceOptions = flow === 'expense' ? [...assets, ...activeAccounts.filter((item) => item.kind === 'liability')] : assets
@@ -106,6 +106,8 @@ export function MovementSheet({ transaction, initialFlow = 'expense', onClose })
 
   const submit = async (event) => {
     event.preventDefault()
+    // La guía reutiliza el formulario, pero nunca puede escribir un movimiento.
+    if (preview) return
     if (savingRef.current) return
     savingRef.current = true
     setSaving(true)
@@ -152,12 +154,12 @@ export function MovementSheet({ transaction, initialFlow = 'expense', onClose })
   }
 
   return (
-    <motion.div className="sheet-backdrop" role="presentation" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onMouseDown={(event) => { if (event.target === event.currentTarget) close() }}>
-      <motion.section ref={dialogRef} inert={Boolean(accountDialog || categoryDialog)} tabIndex="-1" role="dialog" aria-modal="true" aria-labelledby="movement-title" className="sheet" initial={{ y: 80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 60, opacity: 0 }} transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}>
+    <motion.div className={`sheet-backdrop${preview ? ' sheet-backdrop--guide' : ''}`} role="presentation" aria-hidden={preview || undefined} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onMouseDown={(event) => { if (event.target === event.currentTarget) close() }}>
+      <motion.section ref={dialogRef} inert={preview || Boolean(accountDialog || categoryDialog)} tabIndex="-1" role="dialog" aria-modal="true" aria-labelledby="movement-title" className="sheet" initial={{ y: 80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 60, opacity: 0 }} transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}>
         <header><div><p className="eyebrow">{editing ? 'Editar' : 'Registrar'}</p><h2 id="movement-title">{editing ? 'Detalle del movimiento' : 'Nuevo movimiento'}</h2></div><button className="icon-button" aria-label="Cerrar" disabled={saving} onClick={close}><X /></button></header>
         <form onSubmit={submit}>
-          <fieldset className="movement-choices"><legend>¿Qué pasó?</legend><div className={`movement-choices__grid${showTransfer ? ' movement-choices__grid--expanded' : ''}`}>{MOVEMENT_CHOICES.filter((item) => item.id !== 'transfer' || showTransfer).map((item) => <button type="button" key={item.id} disabled={saving} aria-pressed={flow === item.id} className={flow === item.id ? 'active' : ''} onClick={() => changeFlow(item.id)}>{item.label}</button>)}</div>{!showTransfer && <button type="button" className="movement-choices__more" onClick={() => setShowTransfer(true)}>Más opciones: moví dinero</button>}</fieldset>
-          <Field label="Monto" error={error}><div className="amount-input"><span>$</span><input autoFocus inputMode="decimal" value={amount} onChange={(event) => setAmount(formatInputAmount(event.target.value))} placeholder="0" aria-describedby={error ? 'movement-error' : undefined} /><small>COP</small></div></Field>
+          <fieldset className="movement-choices"><legend>¿Qué pasó?</legend><div className={`movement-choices__grid${showTransfer ? ' movement-choices__grid--expanded' : ''}`}>{MOVEMENT_CHOICES.filter((item) => item.id !== 'transfer' || showTransfer).map((item) => <button type="button" key={item.id} data-guide={`movement-${item.id}`} disabled={saving} aria-pressed={flow === item.id} className={flow === item.id ? 'active' : ''} onClick={() => changeFlow(item.id)}>{item.label}</button>)}</div>{!showTransfer && <button type="button" className="movement-choices__more" onClick={() => setShowTransfer(true)}>Más opciones: moví dinero</button>}</fieldset>
+          <Field label="Monto" error={error}><div className="amount-input"><span>$</span><input autoFocus={!preview} inputMode="decimal" value={amount} onChange={(event) => setAmount(formatInputAmount(event.target.value))} placeholder="0" aria-describedby={error ? 'movement-error' : undefined} /><small>COP</small></div></Field>
           {flow !== 'income' && <>
             <Field label={flow === 'expense' ? '¿Con qué pagaste?' : '¿De dónde salió el dinero?'}><select aria-label={flow === 'expense' ? '¿Con qué pagaste?' : '¿De dónde salió el dinero?'} disabled={!sourceOptions.length || saving} value={sourceOptions.some((item) => item.id === account) ? account : ''} onChange={(event) => changeSource(event.target.value)}>{!sourceOptions.some((item) => item.id === account) && <option value="">{sourceOptions.length ? 'Selecciona una cuenta' : 'No hay cuentas disponibles'}</option>}{sourceOptions.map((item) => <option key={item.id} value={item.id}>{item.name}{flow === 'expense' && item.kind === 'liability' ? ' (crédito)' : ''}</option>)}</select></Field>
             {!sourceOptions.length && <p className="helper" role="status">Agrega una cuenta con el saldo que tienes hoy para registrar de dónde salió el dinero.</p>}

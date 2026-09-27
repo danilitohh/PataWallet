@@ -36,8 +36,11 @@ export function AppShell({ children }) {
   useEffect(() => {
     // Cada ruta empieza arriba para que la barra móvil no cubra su encabezado.
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
-    mainRef.current?.focus({ preventScroll: true })
-  }, [location.pathname])
+    // La ruta de regreso ya montó el botón original; evita competir con el foco del recorrido.
+    const guideOpener = location.state?.guideFocus && [...document.querySelectorAll('[data-guide-start]')].find((element) => element.dataset.guideStart === location.state.guideFocus)
+    if (guideOpener) guideOpener.focus()
+    else mainRef.current?.focus({ preventScroll: true })
+  }, [location.pathname, location.state?.guideFocus])
 
   return (
     <div className="app-shell">

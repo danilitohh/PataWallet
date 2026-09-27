@@ -11,9 +11,11 @@ import { RecurringPaymentChecklist } from './RecurringPaymentChecklist.jsx'
 
 // Permite revisar y actualizar los compromisos mensuales desde el área de Cuentas.
 export function FixedExpensesSection() {
-  const { settings, actions, notify } = useApp()
+  const { settings, actions, notify, guideOpen } = useApp()
   const today = calendarToday()
-  const [expanded, setExpanded] = useAccountSectionExpansion('gastos-fijos')
+  const [userExpanded, setExpanded] = useAccountSectionExpansion('gastos-fijos')
+  // El recorrido despliega la checklist sin guardar preferencias ni gastos.
+  const expanded = userExpanded || Boolean(guideOpen)
   const [rows, setRows] = useState(() => {
     const saved = fixedExpensesToInput(settings.fixedExpenses, { defaultDueDate: today })
     return saved.length ? saved : [blankRow(today)]

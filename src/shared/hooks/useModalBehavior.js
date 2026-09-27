@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react'
 // Solo el diálogo superior recibe teclado; los inferiores conservan su borrador y bloqueo.
 const modalStack = []
 
-export function useModalBehavior(ref, close) {
+export function useModalBehavior(ref, close, enabled = true) {
   const opener = useRef(document.activeElement)
   const closeRef = useRef(close)
 
@@ -12,6 +12,7 @@ export function useModalBehavior(ref, close) {
   }, [close])
 
   useEffect(() => {
+    if (!enabled) return
     const shell = document.querySelector('.app-shell')
     const previousOverflow = document.body.style.overflow
     const previousOpener = opener.current
@@ -55,5 +56,5 @@ export function useModalBehavior(ref, close) {
       document.body.style.overflow = previousOverflow
       previousOpener?.focus?.()
     }
-  }, [ref])
+  }, [ref, enabled])
 }

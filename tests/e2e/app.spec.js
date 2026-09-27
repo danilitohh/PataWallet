@@ -23,21 +23,81 @@ test('abre el asistente desde la burbuja flotante', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Asistente PataWallet' })).toBeVisible()
 })
 
-test('abre la guía de uso desde Ajustes y recorre sus pasos', async ({ page }) => {
+test('abre la guía de uso desde Ajustes y recorre controles reales sin cambiar dinero', async ({ page }) => {
+  test.setTimeout(90000)
+  const errors = []
+  page.on('pageerror', (error) => errors.push(error.message))
   await page.goto('/')
   await page.getByRole('button', { name: /probar con datos de ejemplo/i }).click()
+  await expect(page.getByRole('heading', { name: /Hola, Danilo/i })).toBeVisible()
+  const before = await financialSnapshot(page)
   await page.goto('/ajustes')
-  await page.getByRole('button', { name: 'Ver guía' }).click()
-  const guide = page.getByRole('dialog')
-  await expect(guide).toBeVisible()
-  await expect(guide.getByText('1 de 4')).toBeVisible()
-  await guide.getByRole('button', { name: 'Siguiente' }).click()
-  await expect(page.getByRole('heading', { name: 'Empieza por lo que tienes hoy.' })).toBeVisible()
-  await guide.getByRole('button', { name: 'Siguiente' }).click()
-  await expect(page.getByRole('heading', { name: 'El botón + guarda lo que pasó.' })).toBeVisible()
-  await guide.getByRole('button', { name: 'Siguiente' }).click()
-  await guide.getByRole('button', { name: 'Empezar a usar PataWallet' }).click()
+  await page.getByRole('button', { name: 'Ver guía', exact: true }).click()
+  const guide = page.locator('.first-use-guide')
+  const steps = ['home', 'account', 'add', 'income', 'expense', 'debt', 'fixed', 'checklist', 'activity', 'plan', 'install', 'automation', 'shortcut']
+  for (const [index, step] of steps.entries()) {
+    await expect(guide).toHaveAttribute('data-step', step)
+    await expect(guide).toHaveAttribute('data-anchored-step', step)
+    await expect(guide).toHaveAttribute('data-target-found', 'true')
+    await expect(guide.getByText(`${index + 1} de ${steps.length}`, { exact: true })).toBeVisible()
+    await expect(page.locator('.app-shell')).toHaveAttribute('inert', '')
+    // El recuadro y los botones deben caber y no tapar el control resaltado.
+    const panel = await guide.boundingBox()
+    const highlight = await page.locator('.guide-spotlight').boundingBox()
+    const viewport = page.viewportSize()
+    expect(panel.x).toBeGreaterThanOrEqual(0)
+    expect(panel.x + panel.width).toBeLessThanOrEqual(viewport.width)
+    expect(panel.y).toBeGreaterThanOrEqual(0)
+    expect(panel.y + panel.height).toBeLessThanOrEqual(viewport.height)
+    expect(panel.y >= highlight.y + highlight.height || panel.y + panel.height <= highlight.y).toBeTruthy()
+    if (['income', 'expense', 'debt'].includes(step)) {
+      await expect(page.locator('.sheet-backdrop--guide .sheet')).toHaveAttribute('inert', '')
+      await expect(page.locator(`[data-guide="movement-${step}"]`)).toHaveAttribute('aria-pressed', 'true')
+    }
+    if (step === 'install' || step === 'income') await page.screenshot({ path: `output/playwright/guide-${step}-${test.info().project.name}.png` })
+    await guide.getByRole('button', { name: index === steps.length - 1 ? 'Terminar' : 'Siguiente', exact: true }).click()
+  }
   await expect(guide).toHaveCount(0)
+  await expect(page).toHaveURL(/\/ajustes$/)
+  await expect(page.getByRole('button', { name: 'Ver guía', exact: true })).toBeFocused()
+  expect(await financialSnapshot(page)).toEqual(before)
+  expect(errors).toEqual([])
+})
+
+// Compara registros, no solo totales: el recorrido no debe crear ni modificar dinero.
+async function financialSnapshot(page) {
+  return page.evaluate(async () => {
+    const { db } = await import('/src/data/db.js')
+    const tables = ['accounts', 'transactions', 'budgets', 'goals', 'allocations', 'planned_purchases']
+    return Object.fromEntries(await Promise.all(tables.map(async (table) => [table, await db.table(table).toArray()])))
+  })
+}
+
+test('recorridos por tema permiten volver, saltar y salir con teclado', async ({ page }) => {
+  test.setTimeout(90000)
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/')
+  await page.getByRole('button', { name: /probar con datos de ejemplo/i }).click()
+  await expect(page.getByRole('heading', { name: /Hola, Danilo/i })).toBeVisible()
+  await page.goto('/ajustes')
+  for (const topic of ['Cuentas y pagos fijos', 'Registrar movimientos', 'Metas y presupuesto', 'Instalación y Atajos']) {
+    const opener = page.getByRole('button', { name: topic, exact: true })
+    await opener.click()
+    const guide = page.locator('.first-use-guide')
+    await expect(guide).toHaveAttribute('data-target-found', 'true')
+    await guide.getByRole('button', { name: 'Siguiente' }).click()
+    await expect(guide).toHaveAttribute('data-target-found', 'true')
+    await guide.getByRole('button', { name: 'Atrás' }).click()
+    await expect(guide).toHaveAttribute('data-target-found', 'true')
+    await guide.getByRole('button', { name: 'Saltar recorrido' }).press('Shift+Tab')
+    await expect(guide.getByRole('button', { name: 'Siguiente' })).toBeFocused()
+    await page.keyboard.press('Tab')
+    await expect(guide.getByRole('button', { name: 'Saltar recorrido' })).toBeFocused()
+    await page.keyboard.press('Escape')
+    await expect(guide).toHaveCount(0)
+    await expect(page).toHaveURL(/\/ajustes$/)
+    await expect(page.locator('.app-shell')).not.toHaveAttribute('inert', '')
+  }
 })
 
 test('entra sin encuesta y puede registrar su saldo desde Cuentas', async ({ page }) => {

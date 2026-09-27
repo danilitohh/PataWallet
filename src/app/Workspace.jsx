@@ -16,7 +16,7 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
   const settingsMap = useMemo(() => ({ ...rawSettingsMap, theme: 'dark' }), [rawSettingsMap])
   const [sheet, setSheet] = useState(null)
   // La demo ya tiene una bienvenida propia; las cuentas reales reciben la guía al entrar por primera vez.
-  const [guideOpen, setGuideOpen] = useState(() => !isDemo && !settingsMap.financialOnboardingComplete)
+  const [guideOpen, setGuideOpen] = useState(() => !isDemo && !settingsMap.financialOnboardingComplete ? 'general' : null)
   const [toast, setToast] = useState(null)
   const toastTimer = useRef(null)
   const systemReduce = useReducedMotion()
@@ -47,16 +47,17 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
     toastTimer.current = window.setTimeout(() => setToast(null), 5000)
   }
   const finishGuide = async () => {
+    // Salir nunca depende de la red; solo se persiste la preferencia, no datos financieros.
+    setGuideOpen(null)
     try {
       await actions.setSetting('financialOnboardingComplete', true)
-      setGuideOpen(false)
       return true
     } catch {
-      notify('No pudimos guardar la guía. Inténtalo de nuevo.')
+      notify('Cerramos la guía, pero no pudimos guardar que ya la viste.')
       return false
     }
   }
-  const value = { accounts, categories, transactions, budgets, goals, allocations, plannedPurchases, receipts, settings: settingsMap, syncState, reduceMotion, setSheet, startGuide: () => setGuideOpen(true), notify, actions, isDemo, user, signOut }
+  const value = { accounts, categories, transactions, budgets, goals, allocations, plannedPurchases, receipts, settings: settingsMap, syncState, reduceMotion, setSheet, guideOpen, startGuide: (tour = 'general') => setGuideOpen(typeof tour === 'string' ? tour : 'general'), notify, actions, isDemo, user, signOut }
 
   if (!settingsRows.length) return <LoadingScreen />
   if (isDemo && !settingsMap.entered) return <AppContext.Provider value={value}><WelcomePage /></AppContext.Provider>
@@ -68,7 +69,7 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
         <AnimatePresence>{sheet && <MovementSheet transaction={typeof sheet === 'object' ? sheet : null} initialFlow={sheet === 'income' ? 'income' : 'expense'} onClose={() => setSheet(null)} />}</AnimatePresence>
         <AnimatePresence>{toast && <Toast toast={toast} close={dismissToast} />}</AnimatePresence>
         <PwaUpdatePrompt />
-        <AnimatePresence>{guideOpen && <FirstUseGuide onFinish={finishGuide} />}</AnimatePresence>
+        {guideOpen && <FirstUseGuide tour={guideOpen} onFinish={finishGuide} />}
       </MotionConfig>
     </AppContext.Provider>
   )

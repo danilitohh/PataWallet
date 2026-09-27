@@ -5,6 +5,7 @@ import { PageHeader } from '../../shared/components/PageHeader.jsx'
 import { SettingLink, SettingRow, Switch } from './components/SettingsControls.jsx'
 import { DataTransfer } from './components/DataTransfer.jsx'
 import { PwaInstallControl } from '../pwa/PwaInstallControl.jsx'
+import { GUIDE_TOURS } from '../onboarding/guideSteps.js'
 
 // Presenta Ajustes como grupos abiertos, conservando las rutas y acciones de cada tipo de cuenta.
 export function SettingsPage() {
@@ -43,7 +44,8 @@ export function SettingsPage() {
       </SettingsSection>}
 
       <SettingsSection id="settings-help-heading" title="Asistencia" intro="Ayuda para entender tus movimientos y cuentas." className="settings-group--help">
-        <SettingRow icon={CircleHelp} tone="sky" title="Guía de uso" detail="Recorre Inicio, Cuentas y el registro de movimientos"><button className="compact-action" type="button" onClick={startGuide}>Ver guía</button></SettingRow>
+        <SettingRow icon={CircleHelp} tone="sky" title="Guía de uso" detail="Recorre Inicio, Cuentas y el registro de movimientos"><button className="compact-action" type="button" data-guide-start="general" onClick={() => startGuide()}>Ver guía</button></SettingRow>
+        <div className="guide-topics" aria-label="Recorridos por tema">{Object.entries(GUIDE_TOURS).filter(([key]) => key !== 'general').map(([key, tour]) => <button className="button button--quiet" type="button" key={key} data-guide-start={key} onClick={() => startGuide(key)}>{tour.label}</button>)}</div>
         <SettingLink icon={Bot} tone="violet" title="Asistente PataWallet" detail="Preguntas y resúmenes de solo lectura" to="/asistente" />
       </SettingsSection>
 

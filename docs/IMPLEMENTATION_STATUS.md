@@ -1,12 +1,15 @@
 # Estado de implementación
 
-Actualizado: 2026-09-26. Fase actual: **entrada sin encuesta obligatoria; validación en sesión remota e iPhone real pendiente**.
+Actualizado: 2026-09-26. Fase actual: **recorrido guiado sobre controles reales; validación en sesión remota nueva e iPhone real pendiente**.
 
 ## Guía de primera visita · 26 de septiembre
 
-- Al entrar por primera vez, PataWallet muestra un recorrido visual de cuatro pasos: Inicio, Cuentas, registro de movimientos y la diferencia entre Actividad y Plan. No solicita ni crea datos financieros, puede cerrarse en cualquier momento y queda disponible en Ajustes → Guía de uso.
+- La introducción de cuatro tarjetas se reemplazó por un recorrido anclado a controles reales. Navega por Inicio, Cuentas, compras/ingresos/pagos de deuda, gastos fijos y checklist, Actividad, Plan, instalación PWA y Automatización/Atajos. Puede retroceder, saltarse o cerrarse con Escape y vuelve a la ruta de origen.
+- Ajustes ofrece el recorrido general y cuatro repasos por tema. El formulario de movimientos se reutiliza en vista previa inerte, sin autofocus ni envíos. No se instalan servicios ni se crean vínculos de Atajos durante el recorrido.
+- El fondo queda inerte, el foco se mantiene en la explicación y se restaura al cerrar. El resaltado sigue el control al cambiar tamaño o desplazar la vista; si falta el destino, permite seguir sin bloquear. No añade dependencias.
 - Se reutiliza la preferencia booleana histórica de onboarding para marcar que el usuario ya la vio; así no se requiere una migración ni se cambia la base de datos existente. La guía no se abre automáticamente en la demo, que ya identifica sus datos como ficticios, pero también puede verse desde Ajustes.
-- Pendiente: verificar con sesión remota y en iPhone físico.
+- Verificado en esta iteración: lint, 125 pruebas unitarias, build y 10 E2E dirigidos: 6 recorridos completos/por tema en 390×844, 375×812 y 1440×900; 3 regresiones de pago fijo, movimientos y foco del formulario; 1 recorrido con demo vacía, montos ocultos, cambio de tamaño, salida offline y control ausente. Se revisaron capturas de instalación y registro; la prueba compara registros financieros antes/después y comprueba que el panel no tape el objetivo. Evidencia en `output/playwright/guide-*.png`.
+- La habilidad frontend-a11y orientó el fondo inerte, los nombres accesibles, el anuncio de pasos y la restauración de foco. Pendiente: sesión remota nueva, VoiceOver e iPhone físico; la guía no certifica compatibilidad de Wallet ni entrega de eventos reales.
 
 ## Entrada sin encuesta obligatoria · 26 de septiembre
 
