@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { AnimatePresence } from 'motion/react'
-import { ArrowDownRight, ArrowUpRight, CalendarClock, Eye, EyeOff, Pencil, Plus } from 'lucide-react'
+import { ArrowDownRight, ArrowUpRight, CalendarClock, ChartNoAxesColumn, Eye, EyeOff, Pencil, Plus } from 'lucide-react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useApp } from '../../app/AppContext.jsx'
 import { calculateRecordedMoney, calculateSummary, goalProgress } from '../../domain/finance.js'
@@ -16,10 +16,13 @@ import { PlanGoalRow } from './components/PlanGoalFeatures.jsx'
 import { PlanPurchaseCard } from './components/PlanPurchaseCard.jsx'
 import { PlannedPurchaseDialog } from './components/PlannedPurchaseDialog.jsx'
 import { incomeReference } from '../settings/model/incomeSources.js'
+import { GlassHero, OrbAction } from '../../shared/components/GlassHero.jsx'
+import { NightIcon } from '../../shared/components/NightIcon.jsx'
+import { expenseBreakdown } from '../dashboard/model/dashboardViews.js'
 
 // Pone la meta al frente y conserva los cálculos, formularios y acciones financieras de Plan.
 export function PlanPage() {
-  const { accounts, transactions, budgets, goals, allocations, plannedPurchases, settings, notify, actions, isDemo, guideOpen } = useApp()
+  const { accounts, categories, transactions, budgets, goals, allocations, plannedPurchases, settings, notify, actions, isDemo, guideOpen } = useApp()
   const location = useLocation()
   const showingBudget = location.pathname === '/plan/presupuesto'
   const month = currentMonth()
@@ -72,8 +75,8 @@ export function PlanPage() {
       <PageHeader title="Plan" subtitle="Tus metas, paso a paso." action={isDemo && <span className="calm-demo">Datos de ejemplo</span>} />
       <nav className="calm-tabs" aria-label="Secciones de Plan"><NavLink to="/plan" end>Metas</NavLink><NavLink to="/plan/presupuesto">Presupuesto</NavLink></nav>
       <section className="calm-goals" hidden={showingBudget && !guideOpen}>
-        <div className="calm-goal-balance"><div className="calm-balance-label"><span>Reservado para tus metas</span><button className="icon-button" aria-label={settings.hiddenAmounts ? 'Mostrar montos' : 'Ocultar montos'} onClick={() => actions.setSetting('hiddenAmounts', !settings.hiddenAmounts)}>{settings.hiddenAmounts ? <EyeOff /> : <Eye />}</button></div><strong className="calm-balance">{formatMinor(cash.reservedMinor, 'COP', settings.hiddenAmounts)}</strong><p>Parte de tu saldo, no dinero adicional.</p></div>
-        <button className="button button--primary calm-primary plan-featured-goal__action" onClick={() => setGoalOpen(true)}><Plus aria-hidden="true" /> Crear meta</button>
+        <GlassHero className="calm-goal-balance"><div className="calm-balance-label"><span>Reservado para tus metas</span><button className="icon-button" aria-label={settings.hiddenAmounts ? 'Mostrar montos' : 'Ocultar montos'} onClick={() => actions.setSetting('hiddenAmounts', !settings.hiddenAmounts)}>{settings.hiddenAmounts ? <EyeOff /> : <Eye />}</button></div><strong className="calm-balance">{formatMinor(cash.reservedMinor, 'COP', settings.hiddenAmounts)}</strong><p>{goals.length} {goals.length === 1 ? 'meta' : 'metas'} · Parte de tu saldo, no dinero adicional.</p></GlassHero>
+        <div className="glass-actions"><OrbAction className="plan-featured-goal__action" icon={Plus} aria-label="Crear meta" onClick={() => setGoalOpen(true)}>Nueva meta</OrbAction></div>
         <div className="section-heading"><h2>Metas activas</h2><span className="helper">{goals.length} {goals.length === 1 ? 'meta' : 'metas'}</span></div>
         <div className="plan-goal-list">{goals.map((goal) => <PlanGoalRow key={goal.id} goal={goal} progress={goalProgress(goal, allocations)} hidden={settings.hiddenAmounts} onReserve={() => setAllocationGoal(goal)} onDelete={deleteGoal} />)}</div>
         {!goals.length && <p className="helper">Aún no tienes metas. Crea la primera cuando quieras.</p>}
@@ -87,8 +90,10 @@ export function PlanPage() {
           percent={budgetUsedPercent}
           hidden={settings.hiddenAmounts}
           onEdit={() => setBudgetOpen(true)}
+          featured={showingBudget}
         />
       </section>
+      {showingBudget && <section className="glass-budget-categories"><h2>Gastos por categoría</h2><p className="helper">Distribución de compras del mes, antes de reembolsos. No son límites por categoría.</p>{expenseBreakdown(transactions, categories, month).map((item) => <article key={item.name}><NightIcon icon={ChartNoAxesColumn} /><div><h3>{item.name}</h3><strong>{formatMinor(item.amount, 'COP', settings.hiddenAmounts)}</strong>{!settings.hiddenAmounts && <Progress value={item.percent} label={`${item.percent}% de las compras del mes`} />}</div></article>)}</section>}
 
       <details className="calm-details calm-planning-details" open={guideOpen || showingBudget}><summary>Compras previstas y margen disponible</summary>
       <AvailablePlanSummary cash={cash} hidden={settings.hiddenAmounts} />
@@ -134,9 +139,12 @@ export function PlanPage() {
 }
 
 // Muestra avance presupuestal neto y mantiene visible el límite que el usuario puede editar.
-function BudgetOverview({ monthLabel, spentMinor, limitMinor, percent, hidden, onEdit }) {
+function BudgetOverview({ monthLabel, spentMinor, limitMinor, percent, hidden, onEdit, featured }) {
   const hasLimit = Number.isSafeInteger(Number(limitMinor)) && Number(limitMinor) > 0
   const remainingMinor = hasLimit ? limitMinor - spentMinor : null
+
+  // El círculo representa el presupuesto global existente, nunca límites ficticios por categoría.
+  if (featured) return <div className="glass-budget-overview"><GlassHero><div className="glass-budget-top"><div className="glass-budget-ring" style={{ '--used': `${hidden ? 0 : Math.max(0, Math.min(100, percent))}%` }} aria-label={hidden ? 'Avance oculto' : `${Math.round(percent)}% del presupuesto`}><strong>{hidden ? '•••' : `${Math.round(percent)}%`}</strong></div><div><span>Gastado este mes</span><strong className="glass-amount">{formatMinor(spentMinor, 'COP', hidden)}</strong><p>{hasLimit ? `de ${formatMinor(limitMinor, 'COP', hidden)}` : 'Sin límite definido'}</p></div></div><p>{hasLimit ? remainingMinor < 0 ? `Superaste el límite por ${formatMinor(Math.abs(remainingMinor), 'COP', hidden)}` : `Quedan ${formatMinor(remainingMinor, 'COP', hidden)}` : 'Define tu presupuesto cuando quieras.'}</p></GlassHero><div className="glass-actions glass-actions--end"><OrbAction icon={Pencil} aria-label={hasLimit ? 'Editar presupuesto' : 'Definir presupuesto'} onClick={onEdit}>Editar</OrbAction></div></div>
 
   return <section className="plan-panel plan-budget" aria-labelledby="plan-budget-title">
     <div className="plan-panel__heading">

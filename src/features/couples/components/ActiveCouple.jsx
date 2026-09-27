@@ -1,11 +1,12 @@
 import { useRef, useState } from 'react'
-import { Bell, Check, ChevronRight, Plus, ShieldCheck, SlidersHorizontal, UserRound, X } from 'lucide-react'
+import { Bell, Check, ChevronRight, Plus, ShieldCheck, Wallet, UserRound, X } from 'lucide-react'
 import { SimpleDialog } from '../../../shared/components/Modal.jsx'
 import { NightIcon } from '../../../shared/components/NightIcon.jsx'
 import { formatInputAmount, formatMinor, parseLocalizedAmount, safeAdd } from '../../../domain/money.js'
 import { performCoupleAction } from '../../../services/couples/couplesClient.js'
 import { SharedAccountCard } from './SharedAccountCard.jsx'
 import './couplesSerena.css'
+import { GlassHero, OrbAction } from '../../../shared/components/GlassHero.jsx'
 
 // Incluye al propietario porque los identificadores locales pueden repetirse entre usuarios.
 const accountKey = (item) => `${item.owner_user_id}::${item.account_id}`
@@ -104,13 +105,14 @@ export function ActiveCouple({ couple, accounts, settings, user, busy, setBusy, 
       <div className="couples-serena__members" aria-label="Integrantes del espacio compartido">
         <span><NightIcon icon={UserRound} />Tú</span><span><NightIcon icon={UserRound} tone="mint" />Tu pareja</span>
       </div>
-      <button className="button button--secondary" onClick={(event) => openPanel('sharing', event)} disabled={busy}><SlidersHorizontal aria-hidden="true" /> Qué compartimos</button>
     </header>
+
+    <GlassHero className="couples-glass-balance"><span>Dinero compartido</span><strong className="glass-amount">{formatMinor(money.reduce((total, item) => safeAdd(total, Number(item.account.balance_minor)), 0), settings.currency || 'COP', settings.hiddenAmounts)}</strong><p>Solo las cuentas que decidieron compartir.</p></GlassHero>
+    <div className="glass-actions"><OrbAction icon={Wallet} aria-label="Qué compartimos" onClick={(event) => openPanel('sharing', event)} disabled={busy}>Compartir cuenta</OrbAction>{couple.shared_accounts.length > 0 && <OrbAction icon={Plus} aria-label="Proponer un cambio" disabled={busy} onClick={(event) => openPanel('proposal', event)}>Proponer</OrbAction>}</div>
 
     <div className="couples-serena__groups">
       {[{ title: 'Dinero compartido', rows: money, empty: 'Aún no comparten cuentas de dinero.' }, { title: 'Deudas compartidas', rows: debts, empty: 'Aún no comparten deudas.' }].map(({ title, rows, empty }) => <section className="couples-serena__group" aria-label={title} key={title}>
         <div className="couples-serena__heading"><h2>{title}</h2><span>{rows.length}</span></div>
-        {rows === money && rows.length > 0 && <strong className="calm-balance couples-money-total">{formatMinor(rows.reduce((total, item) => safeAdd(total, Number(item.account.balance_minor)), 0), settings.currency || 'COP', settings.hiddenAmounts)}</strong>}
         <div className="shared-account-list">{rows.length ? rows.map((item) => <SharedAccountCard key={accountKey(item)} item={item} hiddenAmounts={settings.hiddenAmounts} />) : <p className="couples-serena__empty">{empty} Elige qué mostrar en «Qué compartimos».</p>}</div>
       </section>)}
     </div>
@@ -118,7 +120,6 @@ export function ActiveCouple({ couple, accounts, settings, user, busy, setBusy, 
     <button className="couples-serena__requests" onClick={(event) => openPanel('requests', event)}>
       <NightIcon icon={Bell} /><span><strong>{pending.length ? `${pending.length} ${pending.length === 1 ? 'solicitud pendiente' : 'solicitudes pendientes'}` : 'Sin solicitudes pendientes'}</strong><small>{pending.length ? 'Revisen los cambios propuestos.' : 'Ver solicitudes e historial.'}</small></span><ChevronRight aria-hidden="true" />
     </button>
-    {couple.shared_accounts.length > 0 && <button className="button button--primary calm-primary couples-serena__propose" disabled={busy} onClick={(event) => openPanel('proposal', event)}><Plus aria-hidden="true" /> Proponer un cambio</button>}
     <p className="couples-serena__privacy"><ShieldCheck aria-hidden="true" /> Se aplica cuando la otra persona lo aprueba. Solo se muestra lo que cada uno decide compartir.</p>
     {debts.length > 0 && <details className="couples-serena__help"><summary>Cómo se calcula el avance</summary><p>Compara los abonos registrados con abonos más deuda pendiente. Nuevas compras pueden reducir el porcentaje; ajustes y devoluciones no cuentan como pagos. No incluye pagos anteriores que no hayas registrado.</p></details>}
 

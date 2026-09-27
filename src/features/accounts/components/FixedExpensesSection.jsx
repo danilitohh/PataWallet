@@ -1,5 +1,7 @@
 import { useRef, useState } from 'react'
-import { Pencil, Plus } from 'lucide-react'
+import { CalendarDays, Pencil, Plus } from 'lucide-react'
+import { GlassHero, OrbAction } from '../../../shared/components/GlassHero.jsx'
+import { NightIcon } from '../../../shared/components/NightIcon.jsx'
 import { useApp } from '../../../app/AppContext.jsx'
 import { readFixedExpenses } from '../../../domain/financialSetup.js'
 import { formatMinor } from '../../../domain/money.js'
@@ -41,14 +43,15 @@ export function FixedExpensesSection({ standalone = false, showChecklist = true 
   const visible = filtered.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE)
 
   return <section className="settings-group fixed-expenses-section" id="gastos-fijos">
-    {standalone ? <header className="account-section-toggle"><h2>Gastos fijos</h2><p className="helper">{sectionSummary}</p></header> : <AccountSectionToggle sectionId="gastos-fijos" title="Gastos fijos" description="Compromisos recurrentes que conviene apartar antes de comprar." summary={sectionSummary} expanded={expanded} onToggle={() => setExpanded((value) => !value)} />}
+    {standalone ? <GlassHero className="fixed-expenses-hero"><h2>Gastos fijos</h2><strong className="glass-amount">{savedExpenses.length} compromisos</strong><p>{sectionSummary}</p></GlassHero> : <AccountSectionToggle sectionId="gastos-fijos" title="Gastos fijos" description="Compromisos recurrentes que conviene apartar antes de comprar." summary={sectionSummary} expanded={expanded} onToggle={() => setExpanded((value) => !value)} />}
     {expanded && <div id="gastos-fijos-content" className="account-section-toggle__content">
       <p className="settings-group__intro">Programa tus compromisos y confirma {showChecklist ? 'abajo' : 'en la pestaña Pagos'} los pagos que ya hiciste. Agregar un gasto fijo no descuenta dinero.</p>
-      <button ref={addButton} type="button" className="button button--secondary" onClick={(event) => openEditor(event, {})}><Plus aria-hidden="true" /> Agregar gasto fijo</button>
+      <div className="glass-actions"><OrbAction ref={addButton} icon={Plus} aria-label="Agregar gasto fijo" onClick={(event) => openEditor(event, {})}>Agregar gasto fijo</OrbAction></div>
       {savedExpenses.length > 0 && <Field label="Buscar gasto fijo"><input type="search" value={search} onChange={(event) => { setSearch(event.target.value); setPage(0) }} placeholder="Internet, mercado…" /></Field>}
       <ul className="fixed-expense-list" aria-label="Gastos fijos guardados">
         {visible.map((expense) => <li key={expense.id}>
           <button className="fixed-expense-summary" type="button" aria-label={`Editar ${expense.name}`} onClick={(event) => openEditor(event, expense)}>
+            <NightIcon icon={CalendarDays} />
             <span className="fixed-expense-summary__details"><strong>{expense.name}</strong><small>{expenseFrequencyLabel(expense.frequency)}</small></span>
             <strong className="fixed-expense-summary__amount">{formatMinor(expense.amount_minor, 'COP', settings.hiddenAmounts)}</strong>
             <Pencil aria-hidden="true" />

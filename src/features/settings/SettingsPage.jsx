@@ -6,6 +6,7 @@ import { SettingLink, SettingRow, Switch } from './components/SettingsControls.j
 import { DataTransfer } from './components/DataTransfer.jsx'
 import { PwaInstallControl } from '../pwa/PwaInstallControl.jsx'
 import { GUIDE_TOURS } from '../onboarding/guideSteps.js'
+import { GlassHero } from '../../shared/components/GlassHero.jsx'
 
 // Presenta Ajustes como grupos abiertos, conservando las rutas y acciones de cada tipo de cuenta.
 export function SettingsPage() {
@@ -26,9 +27,11 @@ export function SettingsPage() {
       <PageHeader title="Ajustes" subtitle="Tu app, a tu manera." action={isDemo && <span className="calm-demo">Datos de ejemplo</span>} />
 
       <SettingsSection id="settings-account-heading" title="Cuenta" intro={isDemo ? 'Esta información de ejemplo se guarda en este dispositivo.' : 'Tu perfil y acceso a PataWallet.'} className="settings-group--account">
+        <GlassHero className="settings-profile-hero">
         <SettingRow icon={UserRound} tone="violet" title={isDemo ? 'Espacio de demostración' : user?.user_metadata?.display_name || user?.user_metadata?.full_name || 'Tu cuenta'} detail={isDemo ? 'Tus datos reales permanecen separados.' : user?.email || 'Sesión autenticada'}>
           <span className="setting-static-value">{isDemo ? 'Local' : 'Activa'}</span>
         </SettingRow>
+        </GlassHero>
       </SettingsSection>
 
       <SettingsSection id="settings-application-heading" title="Aplicación" className="settings-group--application">

@@ -5,6 +5,7 @@ import { addCalendarDays, calendarToday, expenseFrequencyLabel, getRecurringExpe
 import { formatMinor } from '../../../domain/money.js'
 import { RecurringPaymentConfirmation } from '../../../shared/components/RecurringPaymentConfirmation.jsx'
 import { ExpensePagination } from './ExpensePagination.jsx'
+import { GlassHero } from '../../../shared/components/GlassHero.jsx'
 
 const PAGE_SIZE = 6
 
@@ -37,8 +38,8 @@ export function RecurringPaymentChecklist({ expenses, settings }) {
     <section className="recurring-payments" aria-labelledby="recurring-payments-title">
     <div className="recurring-payments__heading">
       <div><h3 id="recurring-payments-title"><ListChecks aria-hidden="true" /> Checklist de pagos</h3><p>Revisa cada gasto fijo: verás el vencimiento actual y el siguiente.</p></div>
-      <strong>{pendingCount ? `${pendingCount} pendiente${pendingCount === 1 ? '' : 's'}` : 'Todo al día'}</strong>
     </div>
+    <GlassHero className="payments-hero"><strong className="glass-amount">{pendingCount ? `${pendingCount} pendiente${pendingCount === 1 ? '' : 's'}` : 'Todo al día'}</strong><p>Vencimientos actuales y siguientes</p></GlassHero>
     {!occurrences.length
       ? <p className="empty-inline"><CircleAlert aria-hidden="true" />{expenses.some((expense) => expense.frequency === 'payday') && !settings.nextPayDate ? 'Configura tu próximo pago en Ingresos para generar los vencimientos ligados a cada pago.' : 'Guarda al menos un gasto recurrente para generar aquí sus próximos vencimientos.'}</p>
       : <div className="recurring-payments__groups">

@@ -1,6 +1,18 @@
 # Estado de implementación
 
-Actualizado: 2026-09-26. Fase actual: **rediseño Calma + editorial de las seis secciones; validación en iPhone real pendiente**.
+Actualizado: 2026-09-27. Fase actual: **rediseño cristal lavanda; validación en iPhone real pendiente**.
+
+## Cristal lavanda · pantallas y módulos · 27 de septiembre
+
+- Aplicado el lenguaje de las 14 vistas aprobadas: fondo azul noche, superficies orgánicas lavanda, acciones circulares con profundidad, iconos Lucide y paneles de cristal. `GlassHero` comparte únicamente la superficie SVG decorativa; los importes, formularios y navegación siguen siendo HTML accesible. CSS por módulo, sin nuevas dependencias ni imágenes de interfaz incrustadas.
+- Incluye Inicio, Actividad, Metas, Presupuesto, Dinero, Deudas, Gastos fijos, Pagos, Parejas, Ajustes, registro de movimientos, Atajos, Notificaciones y Asistente. Móvil conserva cinco destinos y escritorio su barra lateral. Las acciones Compra/Ingreso/Pago de deuda abren el formulario existente; Registrar pago preselecciona la deuda elegida sin guardar nada.
+- No se modificaron backend, API, SQL, autenticación, sincronización, persistencia, service worker ni funciones de dominio. Los nuevos resúmenes son de lectura: avance de deuda reutiliza la fórmula de Parejas con abonos existentes; el presupuesto muestra el límite global real y distribución de compras por categoría, no límites inexistentes. Se mantienen confirmación de pagos, permisos de compartir, validación, borradores, errores, calendario, paginación y montos ocultos.
+- Las maquetas no sustituyen estados reales: demo, vacío, configuración pendiente y restricciones de IA/Push/Atajos continúan visibles. La confirmación de pago conserva cuenta/categoría requeridas. La checklist conserva sus dos vencimientos y sus controles existentes, sin cambiar las reglas financieras para imitar datos ilustrativos.
+- Verificado: lint, build, 31 archivos / 129 pruebas unitarias y API; prueba PWA offline 1/1. La ronda final de navegador pasó 33/33 en 390×844, 375×812 y 1440×900: todas las rutas, accesos directos, pagos, compras, ingresos, modales, pareja simulada, guía, privacidad, borradores y errores. Actividad e integraciones en escritorio: 3 correctas y 1 variante no aplicable omitida. Las pruebas de navegación comparan registros financieros antes/después. No se afirma una ejecución de toda la suite histórica.
+- La primera ejecución de navegador detectó un selector antiguo de cabecera de gastos fijos, actualizado a la nueva superficie, y tiempos agotados en secuencias de diálogos WebKit. Los mismos flujos pasaron con menor concurrencia y 60 s de presupuesto por escenario, sin forzar clics ni eliminar comprobaciones.
+- Evidencia: `output/playwright/calm-*.png`, `couples-serena-*.png` y `fixed-expenses-*.png`, solo con datos de ejemplo o servicios simulados. Referencias aprobadas externas al código: imágenes `exec-7d3c5cc0`, `exec-abedbd02`, `exec-eb3cc163`, `exec-13aa4ea7`, `exec-da5a2603` y `exec-fc270d0c` generadas en este chat.
+- Pendiente: iPhone físico/VoiceOver y comprobación remota tras publicación. Este trabajo no certifica servicios externos ni modifica los bloqueos históricos documentados abajo.
+- Comprobación adicional de cierre con animaciones activas: 3/3 en Chromium y WebKit emulado; se conserva como `glass-actions.spec.js`. En el navegador integrado la interacción automatizada no confirmó el cierre, discrepancia pendiente de comprobación manual. Dos recapturas adicionales encontraron bloqueo de archivo `UNKNOWN` al sobrescribir capturas de Actividad en Windows; no son fallos de aserciones funcionales. La repetición móvil pasó y la ronda original de 33 pruebas había pasado completa.
 
 ## Calma + editorial · presentación de las seis secciones · 26 de septiembre
 

@@ -1,0 +1,21 @@
+/* Metas y presupuesto usan reservas reales y un único límite mensual. */
+.calm-app .calm-goal-balance { display: block; }
+.calm-app .calm-goal-balance .glass-hero__content { padding-bottom: 58px; }
+.calm-app .plan-featured-goal__action { width: auto; margin: 0; }
+.calm-app .plan-goal-list { gap: 12px; }
+.calm-app .plan-goal-row { padding: 18px 12px; border: var(--glass-edge); border-radius: 22px; background: var(--glass-panel); box-shadow: var(--glass-shadow); gap: 10px; grid-template-columns: 40px minmax(0,1fr) 66px; }
+.calm-app .plan-goal-row__actions { border-left: 0; }
+.calm-app .plan-goal-row__actions .button { border: 1px solid #9e95ce90; border-radius: 13px; font-size: .73rem; min-height: 44px; }
+.calm-app .plan-goal-row__actions .button svg { display: none; }
+.calm-app .plan-budget { background: var(--glass-panel); border: var(--glass-edge); border-radius: 24px; box-shadow: var(--glass-shadow); }
+.glass-budget-overview { display: grid; gap: 18px; }
+.glass-budget-top { display: grid; grid-template-columns: 90px minmax(0,1fr); align-items: center; gap: 16px; }
+.glass-budget-top .glass-amount { font-size: clamp(1.65rem,6vw,2.4rem); margin-block: 8px; }
+.glass-budget-overview .glass-hero__content { padding: 44px 22px 60px; }
+.glass-budget-ring { width: 90px; height: 90px; border-radius: 50%; background: conic-gradient(#5142b1 var(--used),#e7dfff var(--used)); display: grid; place-items: center; position: relative; isolation: isolate; }
+.glass-budget-ring::before { content: ''; position: absolute; inset: 9px; border-radius: inherit; background: #aca1fb; z-index: -1; }
+.glass-budget-ring strong { font-size: 1.4rem; }
+.glass-budget-categories { display: grid; gap: 14px; }
+.glass-budget-categories > article { display: grid; grid-template-columns: 44px minmax(0,1fr); gap: 14px; padding: 16px; background: var(--glass-panel); border: var(--glass-edge); border-radius: 22px; }
+.glass-budget-categories > article > div { display: grid; gap: 10px; }
+.glass-budget-categories .progress-meta { display: flex; font-size: .75rem; }

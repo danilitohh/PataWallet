@@ -1,6 +1,7 @@
 import { Goal, Plus, Sparkles, Trash2 } from 'lucide-react'
 import { formatMinor } from '../../../domain/money.js'
 import { Progress } from '../../../shared/components/Progress.jsx'
+import { NightIcon } from '../../../shared/components/NightIcon.jsx'
 
 const companionSources = '/assets/illustrations/night-companions'
 
@@ -52,7 +53,7 @@ export function PlanGoalFeature({ goal, progress, hidden, onReserve, onCreate, o
 // Resume una meta secundaria y mantiene accesibles sus acciones de reserva y eliminación.
 export function PlanGoalRow({ goal, progress, hidden, onReserve, onDelete }) {
   return <article className="plan-goal-row">
-    <span className="plan-goal-row__icon"><Goal aria-hidden="true" /></span>
+    <NightIcon className="plan-goal-row__icon" icon={Goal} />
     <div className="plan-goal-row__content">
       <strong>{goal.name}</strong>
       <span>{formatMinor(progress.reserved, 'COP', hidden)} de {formatMinor(goal.target_minor, 'COP', hidden)}</span>

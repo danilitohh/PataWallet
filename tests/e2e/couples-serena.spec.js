@@ -24,7 +24,7 @@ test('Serena separa saldos, abre acciones a demanda y conserva permisos, errores
   })
   await page.route('**/__couples-serena-test', (route) => route.fulfill({ contentType: 'text/html; charset=utf-8', body: `
     <html lang="es" data-theme="dark" data-motion="off"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/src/styles/app.css"><link rel="stylesheet" href="/src/styles/night.css"><link rel="stylesheet" href="/src/app/shell.css"><link rel="stylesheet" href="/src/styles/night-icons.css"><link rel="stylesheet" href="/src/styles/calm.css"></head>
+    <link rel="stylesheet" href="/src/styles/app.css"><link rel="stylesheet" href="/src/styles/night.css"><link rel="stylesheet" href="/src/app/shell.css"><link rel="stylesheet" href="/src/styles/night-icons.css"><link rel="stylesheet" href="/src/styles/calm.css"><link rel="stylesheet" href="/src/styles/glass.css"></head>
     <body><div class="app-shell calm-app"><aside class="side-nav"><strong>PataWallet</strong><span>Parejas · Prueba local</span></aside><main class="page" style="padding-top:24px"><p style="margin-bottom:24px">Datos de ejemplo · Prueba local</p><div id="team" class="couples-page"></div></main></div><script type="module">
     import React from '${reactUrl}';
     import ReactDOM from '${reactDomUrl}';

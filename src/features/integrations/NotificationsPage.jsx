@@ -4,18 +4,21 @@ import { useApp } from '../../app/AppContext.jsx'
 import { Switch } from '../settings/components/SettingsControls.jsx'
 import { usePushNotifications } from './hooks/usePushNotifications.js'
 import { NightIcon } from '../../shared/components/NightIcon.jsx'
+import { GlassHero } from '../../shared/components/GlassHero.jsx'
 
 export function NotificationsPage() {
   const { user, isDemo } = useApp()
   const push = usePushNotifications(user, isDemo)
   const canActivate = ['prompt', 'granted'].includes(push.state.kind)
   return (
-    <div className="route-stack">
+    <div className="route-stack notifications-page">
       <IntegrationsHeader title="Notificaciones" subtitle="Avisos de PataWallet, no lectura de Wallet ni de bancos." />
       <section className="integration-card">
+        <GlassHero className="integration-glass-hero">
         <NightIcon icon={Bell} className="integration-icon" tone="sky" />
         <p className={`status-label status-label--${push.state.kind}`}>{push.state.label}</p>
         <h2>Avisos privados de PataWallet</h2>
+        </GlassHero>
         <p>{push.state.detail}</p>
         <div className="honest-list"><p><LockKeyhole /> Sin monto, comercio ni cuenta por defecto</p><p><Check /> El permiso solo se solicita desde el botón</p><p><Bell /> Cada push recibido muestra un aviso visible</p></div>
         {canActivate && <button className="button button--primary" onClick={push.activate} disabled={push.busy}>{push.busy ? 'Preparando…' : 'Activar notificaciones'}</button>}

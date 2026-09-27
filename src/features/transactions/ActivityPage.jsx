@@ -12,6 +12,7 @@ import { ActivityTypeFilters } from './components/ActivityTypeFilters.jsx'
 import { TransactionList } from './components/TransactionList.jsx'
 import { currentMonth } from '../../shared/lib/date.js'
 import { initialActivityMonth } from './model/activityTimeline.js'
+import { OrbAction } from '../../shared/components/GlassHero.jsx'
 
 // Aperturas y ajustes cambian saldos, pero no son movimientos cotidianos del historial.
 const NON_ACTIVITY_TYPES = new Set(['opening', 'adjustment'])
@@ -76,7 +77,7 @@ export function ActivityPage() {
         currency={settings.currency || 'COP'}
         hidden={settings.hiddenAmounts}
       />
-      <button className="button button--primary calm-primary" onClick={(event) => { event.currentTarget.focus(); setSheet('new') }}><Plus aria-hidden="true" /> Registrar movimiento</button>
+      <div className="glass-actions glass-actions--end"><OrbAction icon={Plus} aria-label="Registrar movimiento" onClick={() => setSheet('new')}>Registrar</OrbAction></div>
       <section className="activity-filter-panel" aria-label="Buscar y filtrar movimientos">
         <div className="search-box activity-search-box">
           <Search aria-hidden="true" />

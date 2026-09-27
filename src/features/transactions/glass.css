@@ -1,0 +1,39 @@
+/* Actividad mantiene la cronología, con el resumen sobre cristal y filtros legibles. */
+.calm-app .activity-month-summary { display: block; background: none; padding: 0; border: 0; box-shadow: none; overflow: visible; }
+.calm-app .activity-month-summary > .glass-hero__content { padding-bottom: 58px; color: #0c1730; gap: 12px; }
+.calm-app .activity-month-summary .glass-amount { font-size: clamp(2rem,9vw,3rem); }
+.calm-app .activity-month-summary p > strong { font-size: inherit; }
+.calm-app .activity-month-picker { border: var(--glass-edge); background: var(--glass-panel); border-radius: 16px; padding: 3px; }
+.calm-app .activity-month-picker__calendar { display: block; }
+.calm-app .activity-month-picker time { font-size: .9rem; }
+.calm-app .activity-filter-panel { gap: 12px; }
+.calm-app .activity-search-box { background: var(--glass-panel); border: var(--glass-edge); border-radius: 16px; }
+.calm-app .activity-search-box input { background: transparent; }
+.calm-app .activity-type-chips button { background: var(--glass-panel); border: var(--glass-edge); border-radius: 15px; }
+.calm-app .activity-type-chips button[aria-pressed=true] { box-shadow: inset 0 1px 2px #fff9; }
+.calm-app .transaction { grid-template-columns: 40px minmax(0,1fr) auto; padding: 13px 9px; gap: 10px; background: var(--glass-panel); border: 1px solid #66719945; border-radius: 17px; }
+.calm-app .transaction__main strong { font-size: .86rem; }
+.calm-app .transaction__main small { font-size: .7rem; }
+.calm-app .transaction__amount strong { font-size: .83rem; }
+.calm-app .transaction__amount.positive { color: var(--text); }
+.calm-app .transaction-list, .calm-app .activity-page .transaction-group .transaction-list { display: grid; gap: 8px; padding: 0; border: 0; background: none; overflow: visible; }
+.calm-app .activity-groups { gap: 22px; padding-left: 14px; border-left: 1px solid #a998f15c; }
+.calm-app .transaction-group > h2 { position: relative; font-size: .92rem; text-transform: none; letter-spacing: 0; margin: 0 0 12px; color: var(--text); }
+.calm-app .transaction-group > h2::before { content: ''; width: 8px; height: 8px; position: absolute; left: -19px; top: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px #b8a0ff77; }
+.calm-app .activity-footnote { text-align: left; }
+
+/* El mismo formulario validado, con selectores circulares y entrada decimal nativa. */
+.sheet-backdrop .movement-choices__grid button { padding: 4px; background: none; border: 0; font-size: .8rem; font-weight: 650; color: var(--text-2); }
+.sheet-backdrop .movement-choices__grid button.active { background: none; color: var(--text); }
+.sheet-backdrop .movement-choices__grid button.active .night-icon { outline: 2px solid #d3baff; outline-offset: 3px; }
+.sheet-backdrop .movement-choices__grid .night-icon { width: 64px; height: 64px; }
+.sheet-backdrop .movement-amount-hero .glass-hero__content { padding: 28px 20px 20px; }
+.sheet-backdrop .movement-amount-hero .field > span { color: #142042; font-weight: 500; }
+.sheet-backdrop .movement-amount-hero .amount-input { margin: 0; }
+.sheet-backdrop .movement-amount-hero .amount-input :is(input,span,small) { color: #0c1730; background: none; }
+.sheet-backdrop .movement-amount-hero .amount-input input { font-size: clamp(2rem,8vw,3rem); letter-spacing: -.035em; }
+.sheet-backdrop .movement-amount-hero .amount-input { min-height: 58px; }
+.sheet-backdrop .movement-amount-hero input::placeholder { color: #34415c; }
+.sheet-backdrop .movement-details-toggle { width: 100%; padding: 12px; border: var(--glass-edge); border-radius: 16px; background: var(--glass-panel); }
+.sheet-backdrop .movement-choices__more { margin-top: 6px; font-size: .75rem; }
+.sheet-backdrop .sheet form > .button--quiet { justify-self: start; min-height: 44px; font-size: .78rem; padding: 0 8px; }

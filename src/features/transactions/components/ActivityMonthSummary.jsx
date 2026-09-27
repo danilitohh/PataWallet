@@ -1,11 +1,13 @@
 import { formatMinor } from '../../../domain/money.js'
+import { ArrowUpRight } from 'lucide-react'
+import { GlassHero } from '../../../shared/components/GlassHero.jsx'
 
 // Resume el mes seleccionado con totales reales y respeta la preferencia de ocultar montos.
 export function ActivityMonthSummary({ expenses, income, count, currency, hidden }) {
   return (
-    <section className="activity-month-summary" aria-label={`Resumen del mes · ${count} movimientos`}>
-      <div><span>Ingresos</span><strong>{formatMinor(income, currency, hidden)}</strong></div>
-      <div><span>Gastos</span><strong>{formatMinor(expenses, currency, hidden)}</strong></div>
-    </section>
+    <GlassHero className="activity-month-summary" aria-label={`Resumen del mes · ${count} movimientos`}>
+      <span>Gastos del mes</span><strong className="glass-amount">{formatMinor(expenses, currency, hidden)}</strong>
+      <p><ArrowUpRight aria-hidden="true" /> Ingresos <strong>{formatMinor(income, currency, hidden)}</strong></p>
+    </GlassHero>
   )
 }

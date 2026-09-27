@@ -122,7 +122,7 @@ test('editor conserva borrador en error, respeta montos ocultos y guarda offline
     await db.settings.put({ key: 'hiddenAmounts', value: true })
   })
   await expect(section.locator('.fixed-expense-summary__amount')).toHaveText('••••••')
-  await expect(section.locator('header')).toContainText('••••••')
+  await expect(section.locator('.fixed-expenses-hero')).toContainText('••••••')
   await page.goto('/cuentas/pagos')
   await expect(page.locator('.recurring-payment__amount').first()).toHaveText('••••••')
 })

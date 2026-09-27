@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
-import { AlertTriangle, Bell, Check, CloudUpload, HardDrive, Home, LoaderCircle, SquareMenu, PawPrint, Target, Plus, Settings, UsersRound, Wallet } from 'lucide-react'
+import { AlertTriangle, Bell, ChartNoAxesColumn, Check, CloudUpload, HardDrive, Home, LoaderCircle, PawPrint, Target, Plus, Settings, UsersRound, Wallet } from 'lucide-react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useApp } from './AppContext.jsx'
 import { NightIcon } from '../shared/components/NightIcon.jsx'
 
 const navigation = [
   ['/', Home, 'Inicio'],
-  ['/actividad', SquareMenu, 'Actividad'],
+  ['/actividad', ChartNoAxesColumn, 'Actividad'],
   ['/plan', Target, 'Plan'],
   ['/cuentas', Wallet, 'Cuentas'],
   ['/parejas', UsersRound, 'Parejas'],

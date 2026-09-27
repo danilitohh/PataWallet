@@ -1,0 +1,19 @@
+/* Integraciones muestran el estado real, aunque difiera del estado ilustrativo aprobado. */
+.calm-app .integration-card, .calm-app .shortcut-section, .calm-app .assistant-notice, .calm-app .assistant-unavailable, .calm-app .assistant-message { border: var(--glass-edge); border-radius: 24px; background: var(--glass-panel); box-shadow: var(--glass-shadow); }
+.calm-app .integration-glass-hero { margin: -8px -8px 18px; }
+.calm-app .integration-glass-hero .glass-hero__content { grid-template-columns: minmax(0,1fr) 70px; align-items: center; padding: 36px 22px 24px; }
+.calm-app .integration-glass-hero .integration-icon { grid-column: 2; grid-row: 1/3; width: 66px; height: 66px; }
+.calm-app .integration-glass-hero .integration-icon svg { width: 36px; height: 36px; }
+.calm-app .integration-glass-hero h2 { grid-column: 1; font-size: 1.2rem; }
+.calm-app .integration-glass-hero .status-label { grid-column: 1; width: fit-content; color: #111b37; background: #ece0ff55; font-size: .72rem; }
+.calm-app .integration-card > p, .calm-app .honest-list { font-size: .85rem; }
+.calm-app .steps li { border: var(--glass-edge); border-radius: 18px; background: var(--glass-panel); padding: 14px; }
+.calm-app .assistant-empty { border: 0; background: none; padding: 0; }
+.calm-app .assistant-suggestions { display: grid; gap: 12px; }
+.calm-app .assistant-suggestions .compact-action { min-height: 60px; padding: 15px; border: var(--glass-edge); border-radius: 18px; background: var(--glass-panel); text-align: left; color: var(--text); }
+.calm-app .assistant-form { padding: 16px; border: var(--glass-edge); border-radius: 24px; background: var(--glass-panel); }
+.calm-app .assistant-form textarea { width: 100%; }
+.calm-app .assistant-form .button { width: 100%; }
+.calm-app .assistant-glass-hero .glass-hero__content { grid-template-columns: minmax(0,1fr) 72px; align-items: center; }
+.calm-app .assistant-glass-hero .night-icon { width: 72px; height: 72px; border-radius: 24px; }
+.calm-app .assistant-glass-hero .night-icon .night-icon__glyph { width: 42px; height: 42px; }

@@ -2,6 +2,7 @@ node_modules/
 dist/
 .playwright-cli/
 output/playwright/results/
+output/playwright/serial-check/
 output/playwright/pwa-results/
 output/playwright/home-designs/
 output/playwright/plan-designs/

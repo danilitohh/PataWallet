@@ -1,0 +1,13 @@
+/* Parejas conserva el consentimiento por cuenta y la aprobación de solicitudes. */
+.calm-app .couples-serena__intro { grid-template-columns: minmax(0,1fr); }
+.calm-app .couples-serena__members { gap: 22px; }
+.calm-app .couples-glass-balance .glass-hero__content { padding-bottom: 58px; }
+.calm-app .couples-serena__group { padding: 16px; border: var(--glass-edge); border-radius: 26px; background: var(--glass-panel); box-shadow: var(--glass-shadow); }
+.calm-app .couples-serena__groups { gap: 18px; }
+.calm-app .couples-serena .shared-account-card { border: 1px solid #66719940; padding: 16px 12px; border-radius: 18px; background: #26334b55; }
+.calm-app .shared-account-list { gap: 10px; }
+.calm-app .shared-account-card__heading { gap: 10px; }
+.calm-app .shared-account-card__heading > strong { font-size: .88rem; }
+.calm-app .shared-debt-progress progress { height: 8px; }
+.calm-app .couples-serena__requests { padding: 16px; border: var(--glass-edge); border-radius: 22px; background: var(--glass-panel); }
+.calm-app .couples-serena__privacy { font-size: .8rem; }

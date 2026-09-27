@@ -1,0 +1,19 @@
+/* Ajustes: perfil lavanda y grupos oscuros; se conservan todos los controles. */
+.calm-app .settings-page--serene .settings-group { padding: 16px; border: var(--glass-edge); border-radius: 25px; background: var(--glass-panel); box-shadow: var(--glass-shadow); }
+.calm-app .settings-page--serene .settings-group > h2 { font-size: 1rem; text-transform: none; letter-spacing: 0; color: var(--text); margin-bottom: 10px; }
+.calm-app .settings-page--serene .settings-group--account { padding: 0; border: 0; background: none; box-shadow: none; }
+.calm-app .settings-page--serene .settings-group--account .setting-row { padding: 0; border: 0; }
+.calm-app .settings-page--serene .settings-group--account .setting-row h3 { font-size: 1.2rem; }
+.calm-app .settings-profile-hero .glass-hero__content { padding: 40px 22px 28px; }
+.calm-app .settings-profile-hero .setting-row { grid-template-columns: 48px minmax(0,1fr) auto; }
+.calm-app .settings-profile-hero .setting-row__icon { width: 48px; height: 48px; }
+.calm-app .settings-profile-hero .setting-static-value { color: #263352; }
+.calm-app .settings-profile-hero .setting-row p { color: #263352; }
+.calm-app .settings-page--serene .settings-group .settings-group { padding: 0; border: 0; background: none; box-shadow: none; }
+.calm-app .settings-page--serene .setting-row { grid-template-columns: 40px minmax(0,1fr) auto; padding: 14px 0; gap: 10px; }
+.calm-app .settings-page--serene .setting-row__icon { width: 40px; height: 40px; }
+.calm-app .settings-page--serene .setting-row:last-child { border-bottom: 0; }
+.calm-app .settings-page--serene .setting-row h3 { font-size: .86rem; }
+.calm-app .settings-page--serene .setting-row p { font-size: .73rem; }
+.calm-app .settings-page--serene .settings-group--account > h2 { display: none; }
+.calm-app .settings-page__logout { background: none; border: 1px solid #b26e8c66; }

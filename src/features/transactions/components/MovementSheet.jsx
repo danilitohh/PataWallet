@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { ImagePlus, Plus, Trash2, X } from 'lucide-react'
+import { ArrowLeftRight, ImagePlus, Plus, ReceiptText, ShoppingCart, Trash2, X } from 'lucide-react'
 import { motion } from 'motion/react'
 import { z } from 'zod'
 import { useApp } from '../../../app/AppContext.jsx'
@@ -10,13 +10,15 @@ import { useModalBehavior } from '../../../shared/hooks/useModalBehavior.js'
 import { today } from '../../../shared/lib/date.js'
 import { CategoryDialog } from '../../../shared/components/CategoryDialog.jsx'
 import { AccountDialog } from '../../accounts/components/AccountDialogs.jsx'
+import { GlassHero } from '../../../shared/components/GlassHero.jsx'
+import { NightIcon } from '../../../shared/components/NightIcon.jsx'
 
 // Nombra las acciones como las vive el usuario; el tipo contable se decide al guardar.
 const MOVEMENT_CHOICES = [
-  { id: 'expense', label: 'Hice una compra' },
-  { id: 'income', label: 'Recibí dinero' },
-  { id: 'debt', label: 'Pagué una deuda' },
-  { id: 'transfer', label: 'Moví dinero' },
+  { id: 'expense', label: 'Hice una compra', short: 'Compra', icon: ShoppingCart },
+  { id: 'income', label: 'Recibí dinero', short: 'Ingreso', icon: Plus },
+  { id: 'debt', label: 'Pagué una deuda', short: 'Pago de deuda', icon: ReceiptText },
+  { id: 'transfer', label: 'Moví dinero', short: 'Mover dinero', icon: ArrowLeftRight },
 ]
 
 const movementSchema = z.object({
@@ -27,7 +29,7 @@ const movementSchema = z.object({
   date: z.string().min(10),
 })
 
-export function MovementSheet({ transaction, initialFlow = 'expense', onClose, preview = false }) {
+export function MovementSheet({ transaction, initialFlow = 'expense', initialDebtId, onClose, preview = false }) {
   const { accounts, categories, notify, actions } = useApp()
   const editing = Boolean(transaction)
   const startingFlow = transaction?.type === 'card_payment' ? 'debt' : transaction?.type || initialFlow
@@ -37,7 +39,8 @@ export function MovementSheet({ transaction, initialFlow = 'expense', onClose, p
   const activeAccounts = accounts.filter((item) => !item.archived)
   const [amount, setAmount] = useState(transaction ? toInputAmount(transaction.amount_minor) : '')
   const [account, setAccount] = useState(transaction?.from_account_id || assets[0]?.id || '')
-  const [destination, setDestination] = useState(transaction?.to_account_id || assets[0]?.id || '')
+  // Los accesos directos solo preseleccionan el formulario; no registran pagos automáticamente.
+  const [destination, setDestination] = useState(transaction?.to_account_id || (initialFlow === 'debt' ? activeAccounts.find((item) => item.kind === 'liability' && (!initialDebtId || item.id === initialDebtId))?.id : assets[0]?.id) || '')
   const [category, setCategory] = useState(transaction?.category_id || '')
   const [date, setDate] = useState(transaction?.occurred_at?.slice(0, 10) || today())
   const existingClock = transaction?.occurred_at ? new Date(transaction.occurred_at).toLocaleTimeString('en-GB', { timeZone: 'America/Bogota', hour: '2-digit', minute: '2-digit' }) : ''
@@ -158,8 +161,9 @@ export function MovementSheet({ transaction, initialFlow = 'expense', onClose, p
       <motion.section ref={dialogRef} inert={preview || Boolean(accountDialog || categoryDialog)} tabIndex="-1" role="dialog" aria-modal="true" aria-labelledby="movement-title" className="sheet" initial={{ y: 80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 60, opacity: 0 }} transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}>
         <header><div><p className="eyebrow">{editing ? 'Editar' : 'Registrar'}</p><h2 id="movement-title">{editing ? 'Detalle del movimiento' : 'Nuevo movimiento'}</h2></div><button className="icon-button" aria-label="Cerrar" disabled={saving} onClick={close}><X /></button></header>
         <form onSubmit={submit}>
-          <fieldset className="movement-choices"><legend>¿Qué pasó?</legend><div className={`movement-choices__grid${showTransfer ? ' movement-choices__grid--expanded' : ''}`}>{MOVEMENT_CHOICES.filter((item) => item.id !== 'transfer' || showTransfer).map((item) => <button type="button" key={item.id} data-guide={`movement-${item.id}`} disabled={saving} aria-pressed={flow === item.id} className={flow === item.id ? 'active' : ''} onClick={() => changeFlow(item.id)}>{item.label}</button>)}</div>{!showTransfer && <button type="button" className="movement-choices__more" onClick={() => setShowTransfer(true)}>Más opciones: moví dinero</button>}</fieldset>
-          <Field label="Monto" error={error}><div className="amount-input"><span>$</span><input autoFocus={!preview} inputMode="decimal" value={amount} onChange={(event) => setAmount(formatInputAmount(event.target.value))} placeholder="0" aria-describedby={error ? 'movement-error' : undefined} /><small>COP</small></div></Field>
+          <fieldset className="movement-choices"><legend>¿Qué pasó?</legend><div className={`movement-choices__grid${showTransfer ? ' movement-choices__grid--expanded' : ''}`}>{MOVEMENT_CHOICES.filter((item) => item.id !== 'transfer' || showTransfer).map((item) => <button type="button" key={item.id} data-guide={`movement-${item.id}`} disabled={saving} aria-label={item.label} aria-pressed={flow === item.id} className={`glass-action ${flow === item.id ? 'active' : ''}`} onClick={() => changeFlow(item.id)}><NightIcon icon={item.icon} variant="orb" /><span>{item.short}</span></button>)}</div>{!showTransfer && <button type="button" className="movement-choices__more" onClick={() => setShowTransfer(true)}>Más opciones: moví dinero</button>}</fieldset>
+          <GlassHero className="movement-amount-hero"><Field label="Monto"><div className="amount-input"><span>$</span><input autoFocus={!preview} inputMode="decimal" value={amount} onChange={(event) => setAmount(formatInputAmount(event.target.value))} placeholder="0" aria-describedby={error ? 'movement-error' : undefined} /><small>COP</small></div></Field></GlassHero>
+          {error && <p className="form-error" id="movement-error" role="alert">{error}</p>}
           {flow !== 'income' && <>
             <Field label={flow === 'expense' ? '¿Con qué pagaste?' : '¿De dónde salió el dinero?'}><select aria-label={flow === 'expense' ? '¿Con qué pagaste?' : '¿De dónde salió el dinero?'} disabled={!sourceOptions.length || saving} value={sourceOptions.some((item) => item.id === account) ? account : ''} onChange={(event) => changeSource(event.target.value)}>{!sourceOptions.some((item) => item.id === account) && <option value="">{sourceOptions.length ? 'Selecciona una cuenta' : 'No hay cuentas disponibles'}</option>}{sourceOptions.map((item) => <option key={item.id} value={item.id}>{item.name}{flow === 'expense' && item.kind === 'liability' ? ' (crédito)' : ''}</option>)}</select></Field>
             {!sourceOptions.length && <p className="helper" role="status">Agrega una cuenta con el saldo que tienes hoy para registrar de dónde salió el dinero.</p>}
@@ -171,8 +175,10 @@ export function MovementSheet({ transaction, initialFlow = 'expense', onClose, p
             {flow === 'debt' && !destinationOptions.length && <p className="helper" role="status">Agrega primero tu deuda desde Cuentas.</p>}
           </>}
           {type !== 'transfer' && <div className="field"><span>Categoría</span><div className="input-with-action"><select aria-label="Categoría" value={category} onChange={(event) => setCategory(event.target.value)}><option value="">Selecciona una categoría</option>{visibleCategories.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select><button type="button" className="icon-button" aria-label="Crear categoría" onClick={() => setCategoryDialog(true)}><Plus /></button></div></div>}
+          <Field label="Comercio o nota" optional><input value={note} onChange={(event) => setNote(event.target.value)} maxLength="120" placeholder="¿En qué lo usaste?" /></Field>
+          <Field label="Fecha"><input type="date" value={date} onChange={(event) => setDate(event.target.value)} /></Field>
           <button className="movement-details-toggle" type="button" aria-expanded={showDetails} aria-controls="movement-details" onClick={() => setShowDetails((value) => !value)}>{showDetails ? 'Ocultar detalles' : 'Añadir detalles'} <span aria-hidden="true">{showDetails ? '−' : '+'}</span></button>
-          {showDetails && <div id="movement-details" className="movement-details"><div className="form-grid"><Field label="Fecha"><input type="date" value={date} onChange={(event) => setDate(event.target.value)} /></Field><Field label="Hora" optional><input type="time" value={time} onChange={(event) => setTime(event.target.value)} /></Field></div><Field label="Comercio o nota" optional><input value={note} onChange={(event) => setNote(event.target.value)} maxLength="120" placeholder="Opcional" /></Field><Field label="Foto del comprobante" optional><label className="receipt-picker"><ImagePlus /><span>{receipt ? 'Cambiar imagen' : 'Añadir screenshot o foto'}</span><input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => readReceipt(event.target.files?.[0], setReceipt, setError)} /></label>{receipt && <div className="receipt-preview"><img src={receipt} alt="Vista previa del comprobante" /><button type="button" className="button button--quiet" onClick={() => setReceipt('')}>Quitar</button><small>Se conserva de forma privada en este dispositivo.</small></div>}</Field></div>}
+          {showDetails && <div id="movement-details" className="movement-details"><Field label="Hora" optional><input type="time" value={time} onChange={(event) => setTime(event.target.value)} /></Field><Field label="Foto del comprobante" optional><label className="receipt-picker"><ImagePlus /><span>{receipt ? 'Cambiar imagen' : 'Añadir screenshot o foto'}</span><input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => readReceipt(event.target.files?.[0], setReceipt, setError)} /></label>{receipt && <div className="receipt-preview"><img src={receipt} alt="Vista previa del comprobante" /><button type="button" className="button button--quiet" onClick={() => setReceipt('')}>Quitar</button><small>Se conserva de forma privada en este dispositivo.</small></div>}</Field></div>}
           {flow === 'debt' && <p className="info-note">Baja tu deuda y el saldo de la cuenta elegida. No suma otro gasto.</p>}
           <div className="sheet__actions">{editing && <button type="button" className="button button--danger" disabled={saving} onClick={deleteTransaction}><Trash2 /> Eliminar</button>}<button className="button button--primary" type="submit" disabled={saving || (flow !== 'income' && !sourceOptions.length) || (flow !== 'expense' && !destinationOptions.length)}>{saving ? 'Guardando…' : editing ? 'Guardar cambios' : 'Guardar movimiento'}</button></div>
         </form>

@@ -15,6 +15,7 @@ import { incomeReference } from '../settings/model/incomeSources.js'
 import { readFixedExpenses } from '../../domain/financialSetup.js'
 import { RecurringPaymentChecklist } from './components/RecurringPaymentChecklist.jsx'
 import { NightIcon } from '../../shared/components/NightIcon.jsx'
+import { GlassHero } from '../../shared/components/GlassHero.jsx'
 
 // Presenta saldos, deudas, ingresos y compromisos como un registro financiero compacto.
 export function AccountsPage() {
@@ -47,7 +48,7 @@ export function AccountsPage() {
       <PageHeader title="Cuentas" subtitle="Tu dinero y tus compromisos." action={isDemo && <span className="calm-demo">Datos de ejemplo</span>} />
       <nav className="calm-tabs" aria-label="Secciones de cuentas"><NavLink to="/cuentas" end>Dinero</NavLink><NavLink to="/cuentas/deudas">Deudas</NavLink><NavLink to="/cuentas/gastos-fijos">Gastos fijos</NavLink><NavLink to="/cuentas/pagos">Pagos</NavLink></nav>
       <div className="calm-account-panel" hidden={tab !== 'dinero' && !guideOpen}>
-        <section className="calm-account-balance" aria-label="Totales de cuentas"><div className="calm-balance-label"><span>Saldo en cuentas</span><button className="icon-button" aria-label={settings.hiddenAmounts ? 'Mostrar montos' : 'Ocultar montos'} onClick={() => actions.setSetting('hiddenAmounts', !settings.hiddenAmounts)}>{settings.hiddenAmounts ? <EyeOff /> : <Eye />}</button></div><strong className="calm-balance">{formatMinor(summary.assets, 'COP', settings.hiddenAmounts)}</strong><p>Saldos registrados, sin descontar pagos pendientes.</p></section>
+        <GlassHero className="calm-account-balance" aria-label="Totales de cuentas"><div className="calm-balance-label"><span>Saldo en cuentas</span><button className="icon-button" aria-label={settings.hiddenAmounts ? 'Mostrar montos' : 'Ocultar montos'} onClick={() => actions.setSetting('hiddenAmounts', !settings.hiddenAmounts)}>{settings.hiddenAmounts ? <EyeOff /> : <Eye />}</button></div><strong className="calm-balance">{formatMinor(summary.assets, 'COP', settings.hiddenAmounts)}</strong><p>Dinero registrado. No descuenta pagos pendientes.</p></GlassHero>
         <AccountLedgerPane
           kind="asset"
           accounts={visibleAccounts.filter((account) => account.kind === 'asset')}

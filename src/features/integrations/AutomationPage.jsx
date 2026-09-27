@@ -6,17 +6,20 @@ import { ShortcutReviewList } from './components/ShortcutReviewList.jsx'
 import { ShortcutSetup } from './components/ShortcutSetup.jsx'
 import { useShortcutIntegration } from './hooks/useShortcutIntegration.js'
 import { NightIcon } from '../../shared/components/NightIcon.jsx'
+import { GlassHero } from '../../shared/components/GlassHero.jsx'
 
 export function AutomationPage() {
   const { isDemo, accounts, categories, transactions, notify } = useApp()
   const integration = useShortcutIntegration(isDemo)
   const review = integration.events.filter((item) => ['recorded_needs_category', 'needs_review', 'duplicate', 'conflict'].includes(item.result_status) && !item.resolved_at)
-  return <div className="route-stack">
+  return <div className="route-stack automation-page">
     <IntegrationsHeader title="Automatización" subtitle="Compras compatibles mediante Atajos, con revisión y permisos separados de esta PWA." />
     <section className="integration-card shortcut-hero">
+      <GlassHero className="integration-glass-hero">
       <NightIcon icon={Smartphone} className="integration-icon" tone="violet" />
       <p className={`status-label ${integration.template.availability === 'available' ? 'status-label--active' : ''}`}>{integration.template.availability === 'available' ? 'Plantilla disponible' : 'Plantilla pendiente de publicar'}</p>
       <h2>{integration.template.shortcutName}</h2>
+      </GlassHero>
       <p>El atajo recibe únicamente el diccionario que prepara la automatización personal con monto, comercio y alias de tarjeta. No lee Wallet directamente ni importa historial.</p>
       {integration.error && <p className="push-result push-result--failed" role="alert">{integration.error} La migración o configuración del servidor puede seguir pendiente.</p>}
     </section>

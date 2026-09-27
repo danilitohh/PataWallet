@@ -1,0 +1,33 @@
+/* Inicio: saldo, tres acciones, resumen y listas cortas. */
+.calm-app .dashboard-view--available { display: grid; grid-template-columns: minmax(0,1fr); gap: 18px; }
+.calm-app .dashboard-available-hero { display: block; min-height: 0; padding: 0; border: 0; box-shadow: none; background: none; overflow: visible; }
+.calm-app .dashboard-available-hero .glass-hero__content { padding-bottom: 58px; }
+.calm-app .balance-hero__numbers { position: static; max-width: none; padding: 0; gap: 8px; pointer-events: auto; }
+.calm-app .balance-hero__numbers > strong { margin: 0; font-size: clamp(2rem,9.6vw,3.5rem); line-height: 1.12; letter-spacing: -.045em; color: #0c1730; }
+.calm-app .balance-hero__numbers > small { color: #1e2850; max-width: none; font-size: .76rem; }
+.calm-app .balance-hero__numbers .calm-balance-label { color: #111b37; font-weight: 500; }
+.calm-app .balance-hero__numbers .calm-balance-label small { font-size: .65rem; color: #293350; }
+.calm-app .balance-hero__numbers .icon-button { width: 36px; height: 44px; }
+.calm-app .dashboard-view--available > .glass-actions { margin-top: -58px; }
+.calm-app .section-heading { margin-bottom: 12px; align-items: center; }
+.calm-app .section-heading > a { color: var(--accent); font-size: .78rem; min-height: 44px; display: flex; align-items: center; }
+.calm-app .calm-upcoming, .calm-app .dashboard-recent { padding: 14px; background: var(--glass-panel); border: var(--glass-edge); border-radius: 26px; box-shadow: var(--glass-shadow); }
+.calm-payment-row { grid-template-columns: 42px minmax(0,1fr) auto; gap: 10px; padding: 12px 0; border-bottom: 1px solid #6b729936; }
+.calm-payment-row:last-child { border: 0; }
+.calm-payment-row strong { font-size: .85rem; }
+.calm-payment-row small { font-size: .72rem; }
+.calm-month-summary { display: grid; gap: 7px; padding-top: 0; }
+.calm-month-summary > label { justify-self: end; }
+.calm-app .calm-month-summary input { min-height: 44px; max-width: 190px; border: 0; background: none; padding: 0 6px; font-size: .8rem; color: var(--text-2); }
+.calm-month-summary > div { gap: 10px; }
+.calm-month-summary > div > span, .calm-month-summary > div > span + span { display: flex; align-items: center; gap: 8px; padding: 14px 10px; background: var(--glass-panel); border: var(--glass-edge); border-radius: 20px; box-shadow: var(--glass-shadow); }
+.calm-month-summary > div > span > span:not(.night-icon) { min-width: 0; display: grid; gap: 5px; font-size: .74rem; color: var(--text-2); }
+.calm-month-summary strong { font-size: clamp(.9rem,3.9vw,1.35rem); }
+.calm-app .calm-month-summary .night-icon { width: 32px; height: 32px; }
+.calm-app .calm-month-summary .night-icon__glyph { width: 20px; height: 20px; }
+@media (min-width: 700px) {
+  .calm-app .dashboard-view--available { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .calm-app .dashboard-view--available > :is(.glass-hero,.glass-actions,.calm-month-summary,.calm-details,.info-note,.helper) { grid-column: 1/-1; }
+  .calm-app .dashboard-view--available > .glass-actions { max-width: 560px; width: 100%; justify-self: center; }
+  .calm-app .dashboard-view--available > .calm-upcoming, .calm-app .dashboard-view--available > .dashboard-recent { grid-row: auto; }
+}
