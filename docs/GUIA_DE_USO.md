@@ -18,7 +18,8 @@
 - Para pagar una deuda, elige la cuenta de donde salió el dinero y la deuda pagada. El saldo de ambas baja sin contar un segundo gasto. Para un ingreso, elige la cuenta donde llegó.
 - Inicio muestra el saldo calculado desde las cuentas y movimientos registrados. «Margen tras pendientes» resta aparte los pagos todavía no hechos y las reservas; no es otro saldo bancario. Compáralo con tu banco, pues la app no consulta cuentas bancarias automáticamente.
 - En **Cuentas → Ingresos**, registra cada dinero recibido cuando llegue a tu cuenta. La fecha del próximo pago es opcional y no añade dinero antes de recibirlo.
-- En **Cuentas → Gastos fijos**, marca un vencimiento y confirma monto, origen y categoría. Esto registra el pago en Actividad, reduce la cuenta y lo quita de la checklist. El compromiso pendiente deja de apartarse, sin doble descuento.
+- En **Cuentas → Gastos fijos**, usa **Agregar gasto fijo** para guardar un compromiso. La lista muestra cinco gastos por página y permite buscar por nombre. Toca una fila para editar solo ese gasto; **Cancelar** descarta el borrador y **Eliminar gasto fijo** pide confirmación, quita sus vencimientos y conserva los movimientos ya registrados.
+- La checklist muestra seis pagos por página, ordenados por vencimiento, con **Anterior/Siguiente** para revisar el resto. Marca un vencimiento y confirma monto, origen y categoría. Esto registra el pago en Actividad, reduce la cuenta y lo quita de la checklist. El compromiso pendiente deja de apartarse, sin doble descuento.
 - En **Actividad**, abre un movimiento para corregirlo o eliminarlo. **Deshacer** restaura la eliminación mientras el aviso está visible.
 - En **Cuentas** administra activos/tarjetas. En **Plan** configura presupuesto, metas y reservas; reservar no crea ni mueve dinero.
 

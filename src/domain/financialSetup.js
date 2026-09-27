@@ -1,7 +1,7 @@
 import { assertMinor, parseLocalizedAmount, safeAdd, toInputAmount } from './money.js'
 import { isCalendarDate, normalizeExpenseSchedule, readPaymentHistory } from './recurringExpenses.js'
 
-const MAX_FIXED_EXPENSES = 50
+export const MAX_FIXED_EXPENSES = 50
 
 // Convierte gastos fijos guardados en ajustes a una forma segura para mostrar sin romper la pantalla.
 export function readFixedExpenses(value) {

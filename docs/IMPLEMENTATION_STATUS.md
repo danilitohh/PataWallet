@@ -1,6 +1,15 @@
 # Estado de implementación
 
-Actualizado: 2026-09-26. Fase actual: **recorrido guiado sobre controles reales; validación en sesión remota nueva e iPhone real pendiente**.
+Actualizado: 2026-09-26. Fase actual: **gastos fijos compactos y editables individualmente; validación en iPhone real pendiente**.
+
+## Gastos fijos compactos · 26 de septiembre
+
+- Se reemplazaron los formularios repetidos por una lista de cinco compromisos por página, con nombre, monto, frecuencia y buscador. Agregar o tocar una fila abre un único editor que guarda solo ese gasto, manteniendo el historial de pagos y las categorías existentes.
+- Eliminar requiere confirmación explícita y conserva los movimientos registrados; cancelar no persiste el borrador. Un fallo de guardado conserva los campos y ofrece reintento. Se mantiene el límite existente de 50 gastos, sin migraciones ni dependencias nuevas.
+- La checklist muestra seis vencimientos por página, con totales calculados sobre todos los pendientes, y conserva la confirmación de pago, los atrasos y el vencimiento actual/siguiente por gasto. La paginación no modifica calendarios, saldos ni cálculos financieros.
+- Se reutilizó SimpleDialog y la habilidad frontend-a11y para fondo inerte, campos etiquetados, errores anunciados y retorno del foco, incluyendo botones tocados en Safari. Se respetan montos ocultos y movimiento reducido.
+- Verificado: lint, build, 125 pruebas unitarias y 18 E2E dirigidos en 390×844, 375×812 y 1440×900: edición de 30 gastos, búsqueda, paginación, cancelación, eliminación, historial, recuperación de error, offline, privacidad, pago recurrente y recorrido guiado. Se revisaron las capturas locales: `output/playwright/fixed-expenses-*.png`. La primera prueba detectó el retorno del foco en Safari y se corrigió; los flujos largos tienen 60 segundos de margen para WebKit, sin desactivar aserciones.
+- No se modificaron datos financieros remotos. Pendiente: iPhone físico, VoiceOver y comprobación de estos cambios con sincronización remota real.
 
 ## Guía de primera visita · 26 de septiembre
 

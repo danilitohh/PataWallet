@@ -4,11 +4,15 @@ import { useApp } from '../../../app/AppContext.jsx'
 import { addCalendarDays, calendarToday, expenseFrequencyLabel, getRecurringExpenseOccurrences } from '../../../domain/recurringExpenses.js'
 import { formatMinor } from '../../../domain/money.js'
 import { RecurringPaymentConfirmation } from '../../../shared/components/RecurringPaymentConfirmation.jsx'
+import { ExpensePagination } from './ExpensePagination.jsx'
+
+const PAGE_SIZE = 6
 
 // Muestra los vencimientos próximos y permite actualizar su estado sin crear cargos automáticos.
 export function RecurringPaymentChecklist({ expenses, settings }) {
   const { transactions } = useApp()
   const [confirmingPayment, setConfirmingPayment] = useState(null)
+  const [page, setPage] = useState(0)
   const today = calendarToday()
   const occurrences = getRecurringExpenseOccurrences(expenses, {
     from: addCalendarDays(today, -14),
@@ -22,8 +26,11 @@ export function RecurringPaymentChecklist({ expenses, settings }) {
     nextPayDate: settings.nextPayDate,
   })
   const pendingCount = occurrences.filter((occurrence) => occurrence.status !== 'paid').length
-  const overdueOccurrences = occurrences.filter((occurrence) => occurrence.status === 'overdue')
-  const upcomingOccurrences = occurrences.filter((occurrence) => occurrence.status !== 'overdue')
+  // Pagina después de calcular todos los vencimientos; los totales no dependen de lo visible.
+  const currentPage = Math.min(page, Math.max(0, Math.ceil(occurrences.length / PAGE_SIZE) - 1))
+  const visible = occurrences.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE)
+  const overdueOccurrences = visible.filter((occurrence) => occurrence.status === 'overdue')
+  const upcomingOccurrences = visible.filter((occurrence) => occurrence.status !== 'overdue')
 
   return <>
     {confirmingPayment && <RecurringPaymentConfirmation key={confirmingPayment.id} payment={confirmingPayment} onCancel={() => setConfirmingPayment(null)} onDone={() => setConfirmingPayment(null)} />}
@@ -38,6 +45,7 @@ export function RecurringPaymentChecklist({ expenses, settings }) {
         <OccurrenceGroup title="Atrasados" occurrences={overdueOccurrences} hidden={settings.hiddenAmounts} onToggle={setConfirmingPayment} />
         <OccurrenceGroup title="Actuales y siguientes" occurrences={upcomingOccurrences} hidden={settings.hiddenAmounts} onToggle={setConfirmingPayment} />
       </div>}
+    <ExpensePagination page={currentPage} count={occurrences.length} pageSize={PAGE_SIZE} onChange={setPage} label="Pagos" />
     <p className="helper">Al confirmar, el pago se registra en Actividad y actualiza el saldo solo si eliges una cuenta.</p>
     </section>
   </>

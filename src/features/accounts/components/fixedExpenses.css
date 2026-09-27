@@ -1,0 +1,19 @@
+/* Filas compactas sin formularios repetidos ni montos recortados en teléfonos. */
+.fixed-expenses-section { scroll-margin-top: 90px; }
+.fixed-expense-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; border: 1px solid var(--border); border-radius: 15px; overflow: hidden; }
+.fixed-expense-list:empty { display: none; }
+.fixed-expense-list li + li { border-top: 1px solid var(--border); }
+.fixed-expense-summary { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, auto) 18px; align-items: center; gap: 10px; padding: 14px 12px; border: 0; background: var(--bg); color: var(--text); text-align: left; font: inherit; cursor: pointer; min-height: 72px; }
+.fixed-expense-summary:hover { background: var(--surface); }
+.fixed-expense-summary:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
+.fixed-expense-summary__details { min-width: 0; display: grid; gap: 5px; overflow-wrap: anywhere; }
+.fixed-expense-summary__details strong { font-size: .85rem; }
+.fixed-expense-summary__details small { color: var(--text-2); font-size: .73rem; }
+.fixed-expense-summary__amount { font-size: .8rem; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.fixed-expense-summary > svg { width: 16px; height: 16px; color: var(--accent); }
+
+/* Paginación compartida de compromisos y pagos: altura acotada incluso con 50 gastos. */
+.expense-pagination { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px; }
+.expense-pagination > span { color: var(--text-2); font-size: .73rem; }
+.expense-pagination .button { min-height: 44px; padding: 8px 10px; font-size: .75rem; }
+.fixed-expense-editor__delete { color: var(--danger); background: transparent; }

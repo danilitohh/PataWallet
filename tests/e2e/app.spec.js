@@ -139,10 +139,12 @@ test('cambia y recuerda las tres vistas de Inicio', async ({ page }) => {
   await page.getByRole('link', { name: 'Cuentas', exact: true }).click()
   const fixedExpenses = page.locator('.fixed-expenses-section')
   await fixedExpenses.getByRole('button', { name: 'Gastos fijos', exact: true }).click()
-  await fixedExpenses.getByLabel('Nombre').fill('Internet de prueba')
-  await fixedExpenses.getByLabel('Monto mensual').fill('80.000')
-  await fixedExpenses.getByRole('button', { name: 'Guardar gastos fijos' }).click()
-  await expect(page.getByText('Gastos fijos guardados')).toBeVisible()
+  await fixedExpenses.getByRole('button', { name: 'Agregar gasto fijo' }).click()
+  const fixedEditor = page.getByRole('dialog', { name: 'Agregar gasto fijo' })
+  await fixedEditor.getByLabel('Nombre').fill('Internet de prueba')
+  await fixedEditor.getByLabel('Monto mensual').fill('80.000')
+  await fixedEditor.getByRole('button', { name: 'Guardar gasto fijo' }).click()
+  await expect(page.getByText('Gasto fijo guardado')).toBeVisible()
   await page.getByRole('link', { name: 'Inicio', exact: true }).click()
 
   await views.getByRole('button', { name: 'Quincena' }).click()
@@ -204,6 +206,7 @@ test('registra un plan opcional de deuda y un ingreso recibido', async ({ page }
 })
 
 test('confirma un pago en Cuentas y conserva la marca al guardar y recargar', async ({ page }, testInfo) => {
+  test.setTimeout(60000)
   const browserErrors = []
   page.on('pageerror', (error) => browserErrors.push(error.message))
   page.on('console', (message) => { if (message.type() === 'error') browserErrors.push(message.text()) })
@@ -216,10 +219,12 @@ test('confirma un pago en Cuentas y conserva la marca al guardar y recargar', as
 
   const fixedExpenses = page.locator('.fixed-expenses-section')
   await fixedExpenses.getByRole('button', { name: 'Gastos fijos', exact: true }).click()
-  await fixedExpenses.getByLabel('Nombre').fill('Arriendo de prueba')
-  await fixedExpenses.getByLabel('Monto mensual').fill('900.000')
-  await fixedExpenses.getByRole('button', { name: 'Guardar gastos fijos' }).click()
-  await expect(page.getByText('Gastos fijos guardados')).toBeVisible()
+  await fixedExpenses.getByRole('button', { name: 'Agregar gasto fijo' }).click()
+  const fixedEditor = page.getByRole('dialog', { name: 'Agregar gasto fijo' })
+  await fixedEditor.getByLabel('Nombre').fill('Arriendo de prueba')
+  await fixedEditor.getByLabel('Monto mensual').fill('900.000')
+  await fixedEditor.getByRole('button', { name: 'Guardar gasto fijo' }).click()
+  await expect(page.getByText('Gasto fijo guardado')).toBeVisible()
 
   const payment = fixedExpenses.locator('.recurring-payment').filter({ hasText: 'Arriendo de prueba' }).first().getByRole('checkbox')
   const paymentLabel = await payment.getAttribute('aria-label')
@@ -236,8 +241,9 @@ test('confirma un pago en Cuentas y conserva la marca al guardar y recargar', as
   await page.goto('/cuentas')
   await fixedExpenses.getByRole('button', { name: 'Gastos fijos', exact: true }).click()
 
-  await fixedExpenses.getByRole('button', { name: 'Guardar gastos fijos' }).click()
-  await expect(page.getByText('Gastos fijos guardados')).toBeVisible()
+  await fixedExpenses.getByRole('button', { name: 'Editar Arriendo de prueba' }).click()
+  await page.getByRole('dialog', { name: 'Editar gasto fijo' }).getByRole('button', { name: 'Guardar gasto fijo' }).click()
+  await expect(page.getByText('Gasto fijo guardado')).toBeVisible()
   await page.reload()
   await expect(page.getByRole('heading', { name: 'Tu dinero, de un vistazo', exact: true })).toBeVisible()
   await fixedExpenses.getByRole('button', { name: 'Gastos fijos', exact: true }).click()
@@ -246,6 +252,7 @@ test('confirma un pago en Cuentas y conserva la marca al guardar y recargar', as
 })
 
 test('limita pagos quincenales a dos y confirma la marca también en Quincena', async ({ page }) => {
+  test.setTimeout(60000)
   await page.goto('/')
   await page.getByRole('button', { name: /probar con datos de ejemplo/i }).click()
   await page.getByRole('link', { name: 'Cuentas', exact: true }).click()
@@ -254,13 +261,15 @@ test('limita pagos quincenales a dos y confirma la marca también en Quincena', 
 
   const fixedExpenses = page.locator('.fixed-expenses-section')
   await fixedExpenses.getByRole('button', { name: 'Gastos fijos', exact: true }).click()
-  await fixedExpenses.getByLabel('Nombre').fill('Mercado quincenal')
-  await fixedExpenses.getByLabel('Monto mensual').fill('400.000')
-  await fixedExpenses.getByLabel('¿Cada cuánto se hace este pago?').selectOption('biweekly')
-  await fixedExpenses.getByLabel('Monto por pago').fill('400.000')
+  await fixedExpenses.getByRole('button', { name: 'Agregar gasto fijo' }).click()
+  const fixedEditor = page.getByRole('dialog', { name: 'Agregar gasto fijo' })
+  await fixedEditor.getByLabel('Nombre').fill('Mercado quincenal')
+  await fixedEditor.getByLabel('Monto mensual').fill('400.000')
+  await fixedEditor.getByLabel('¿Cada cuánto se hace este pago?').selectOption('biweekly')
+  await fixedEditor.getByLabel('Monto por pago').fill('400.000')
   const dueDate = await page.evaluate(() => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota' }).format(new Date()))
-  await fixedExpenses.getByLabel('Próxima fecha de pago').fill(dueDate)
-  await fixedExpenses.getByRole('button', { name: 'Guardar gastos fijos' }).click()
+  await fixedEditor.getByLabel('Próxima fecha de pago').fill(dueDate)
+  await fixedEditor.getByRole('button', { name: 'Guardar gasto fijo' }).click()
 
   const accountPayments = fixedExpenses.locator('.recurring-payment').filter({ hasText: 'Mercado quincenal' })
   await expect(accountPayments).toHaveCount(2)
