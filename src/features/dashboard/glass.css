@@ -25,7 +25,35 @@
 .calm-month-summary strong { font-size: clamp(.9rem,3.9vw,1.35rem); }
 .calm-app .calm-month-summary .night-icon { width: 32px; height: 32px; }
 .calm-app .calm-month-summary .night-icon__glyph { width: 20px; height: 20px; }
+
+/* Presupuesto y detalle: misma superficie de cristal que las listas de Inicio. */
+.calm-app .dashboard .dashboard-money-details { padding: 14px; border: var(--glass-edge); border-radius: 26px; background: var(--glass-panel); box-shadow: var(--glass-shadow); min-width: 0; }
+.calm-app .dashboard-money-details > summary { display: flex; align-items: center; gap: 12px; min-height: 54px; padding: 0; margin: 0; list-style: none; color: var(--text); font-size: 1rem; font-weight: 650; line-height: 1.35; border-radius: 16px; scroll-margin-top: calc(90px + env(safe-area-inset-top)); }
+.dashboard-money-details > summary::-webkit-details-marker { display: none; }
+.dashboard-money-details > summary > span:not(.night-icon) { flex: 1; min-width: 0; }
+.calm-app .dashboard-money-details > summary > .night-icon { width: 44px; height: 44px; flex: 0 0 44px; }
+.dashboard-money-details__chevron { width: 20px; height: 20px; flex: 0 0 20px; color: var(--accent); transition: transform 180ms ease; }
+.dashboard-money-details[open] > summary > .dashboard-money-details__chevron { transform: rotate(180deg); }
+.dashboard-money-details > summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 5px; }
+.dashboard-money-details__body { display: grid; gap: 14px; padding-top: 18px; margin-top: 14px; border-top: 1px solid #7176ad40; }
+.calm-app .dashboard .dashboard-money-details .feature-panel { min-width: 0; margin: 0; padding: 16px; border: 1px solid #7176ad40; border-radius: 20px; background: linear-gradient(135deg,#26334b90,#18233870); box-shadow: inset 0 1px 0 #d7d4ff0d; }
+.calm-app .dashboard-money-details .section-heading { gap: 12px; align-items: start; }
+.calm-app .dashboard-money-details h2 { font-size: 1rem; }
+.dashboard-money-details .section-heading > a { flex-shrink: 0; }
+.dashboard-money-details .dashboard-budget__body { gap: 14px; }
+.dashboard-money-details .income-summary { align-content: start; gap: 16px; }
+.dashboard-money-details .budget-ring { --success: var(--accent); --primary: #a49bfa; --coral: #d3bbff; }
+.dashboard-money-details :is(.income-summary__value strong,.available-money-card__value) { color: var(--text); font-size: clamp(1.5rem,6vw,2rem); overflow-wrap: anywhere; }
+.dashboard-money-details .available-money-card--warning .available-money-card__value { color: var(--danger); }
+.dashboard-money-details .available-money-card__breakdown { display: grid; gap: 0; }
+.dashboard-money-details .available-money-card__breakdown span { display: flex; justify-content: space-between; flex-wrap: wrap; padding-block: 8px; border-bottom: 1px solid #7176ad30; }
+.dashboard-money-details .available-money-card__breakdown span:last-child { border: 0; }
+.dashboard-money-details .dashboard-list-row { padding-block: 12px; border-color: #7176ad30; }
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-money-details__chevron { transition: none; }
+}
 @media (min-width: 700px) {
+  .dashboard-money-details .dashboard-preview-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .calm-app .dashboard-view--available { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .calm-app .dashboard-view--available > :is(.glass-hero,.glass-actions,.calm-month-summary,.calm-details,.info-note,.helper) { grid-column: 1/-1; }
   .calm-app .dashboard-view--available > .glass-actions { max-width: 560px; width: 100%; justify-self: center; }

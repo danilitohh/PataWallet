@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp, ArrowUpRight, Plus, ReceiptText, ShoppingCart } from 'lucide-react'
+import { ArrowDown, ArrowUp, ArrowUpRight, ChartPie, ChevronDown, Plus, ReceiptText, ShoppingCart } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { formatMinor } from '../../../domain/money.js'
 import { DashboardBudget, DashboardMoneyDetails, DashboardRecent, formatDashboardDate } from '../components/DashboardSections.jsx'
@@ -22,10 +22,14 @@ export function AvailableView({ summary, cash, budget, remaining, used, recent, 
     <section className="calm-month-summary" aria-label="Resumen del mes"><label><span className="sr-only">Mes del resumen</span><input type="month" value={month} onChange={(event) => onMonthChange(event.target.value)} /></label><div><span><NightIcon icon={ArrowUp} /><span>Ingresos<strong>{formatMinor(summary.income, 'COP', hidden)}</strong></span></span><span><NightIcon icon={ArrowDown} /><span>Gastos<strong>{formatMinor(summary.expenses, 'COP', hidden)}</strong></span></span></div></section>
     <UpcomingPayments />
     <DashboardRecent items={recent.slice(0, 2)} />
-    <details className="calm-details"><summary>Presupuesto y detalle de mi dinero</summary>
-      {nextPayDate && <p className="helper">Próximo ingreso previsto · {formatDashboardDate(nextPayDate)}</p>}
-      <DashboardBudget summary={summary} budget={budget} remaining={remaining} used={used} hidden={hidden} />
-      <DashboardMoneyDetails summary={summary} cash={cash} goals={goals} goalCount={goalCount} allocations={allocations} planned={planned} plannedCount={plannedCount} accounts={accounts} accountCount={accountCount} balances={balances} hidden={hidden} />
+    {/* El desplegable nativo conserva teclado y estado abierto sin lógica adicional. */}
+    <details className="calm-details dashboard-money-details">
+      <summary><NightIcon icon={ChartPie} /><span>Presupuesto y detalle de mi dinero</span><ChevronDown className="dashboard-money-details__chevron" aria-hidden="true" /></summary>
+      <div className="dashboard-money-details__body">
+        {nextPayDate && <p className="helper">Próximo ingreso previsto · {formatDashboardDate(nextPayDate)}</p>}
+        <DashboardBudget summary={summary} budget={budget} remaining={remaining} used={used} hidden={hidden} />
+        <DashboardMoneyDetails summary={summary} cash={cash} goals={goals} goalCount={goalCount} allocations={allocations} planned={planned} plannedCount={plannedCount} accounts={accounts} accountCount={accountCount} balances={balances} hidden={hidden} />
+      </div>
     </details>
   </div>
 }

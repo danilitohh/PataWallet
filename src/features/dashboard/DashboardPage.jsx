@@ -1,22 +1,18 @@
 import { useMemo, useState } from 'react'
-import { AnimatePresence, motion } from 'motion/react'
-import { Eye, EyeOff, Plus } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
 import { useApp } from '../../app/AppContext.jsx'
-import { calculateRecordedMoney, calculateSummary, monthInTimeZone } from '../../domain/finance.js'
+import { calculateRecordedMoney, calculateSummary } from '../../domain/finance.js'
 import { readFixedExpenses } from '../../domain/financialSetup.js'
 import { calendarToday } from '../../domain/recurringExpenses.js'
 import { PageHeader } from '../../shared/components/PageHeader.jsx'
 import { currentMonth } from '../../shared/lib/date.js'
 import { incomeReference } from '../settings/model/incomeSources.js'
-import { DashboardViewPicker } from './components/DashboardViewPicker.jsx'
-import { normalizeHomeView, expenseBreakdown, nextIncomeDate } from './model/dashboardViews.js'
+import { nextIncomeDate } from './model/dashboardViews.js'
 import { AvailableView } from './views/AvailableView.jsx'
-import { PaydayView } from './views/PaydayView.jsx'
-import { ActivityView } from './views/ActivityView.jsx'
 
-// Construye las tres vistas de Inicio desde el mismo resumen financiero verificado.
+// Usa un único Inicio; las preferencias antiguas de vista no alteran ni reescriben datos.
 export function DashboardPage() {
-  const { accounts, categories, transactions, budgets, goals, allocations, plannedPurchases, settings, setSheet, actions, notify, user, isDemo } = useApp()
+  const { accounts, transactions, budgets, goals, allocations, plannedPurchases, settings, setSheet, actions, user, isDemo } = useApp()
   const [month, setMonth] = useState(currentMonth())
   const summary = useMemo(() => calculateSummary(accounts, transactions, month), [accounts, transactions, month])
   const income = useMemo(() => incomeReference(settings, accounts), [settings, accounts])
@@ -28,33 +24,23 @@ export function DashboardPage() {
   const remaining = budget ? budget.limit_minor - summary.expenses : 0
   const used = budget?.limit_minor ? (summary.expenses / budget.limit_minor) * 100 : 0
   const recent = transactions.filter((item) => !['opening', 'adjustment'].includes(item.type)).slice(0, 4)
-  const monthTransactions = useMemo(() => transactions.filter((item) => item.status !== 'void' && monthInTimeZone(item.occurred_at) === month), [transactions, month])
-  const breakdown = useMemo(() => expenseBreakdown(transactions, categories, month), [transactions, categories, month])
   const activeGoals = goals.slice(0, 3)
   const planned = plannedPurchases.filter((item) => item.status === 'planned').sort((a, b) => a.target_date.localeCompare(b.target_date)).slice(0, 3)
   const plannedCount = plannedPurchases.filter((item) => item.status === 'planned').length
   const activeAccounts = accounts.filter((item) => !item.archived).slice(0, 4)
   const accountCount = accounts.filter((item) => !item.archived).length
   const hidden = Boolean(settings.hiddenAmounts)
-  const selectedView = normalizeHomeView(settings.homeView)
   const nextPayDate = nextIncomeDate({ frequency: payFrequency, nextPayDate: payDate, today: calendarToday() })
   const viewProps = {
-    summary, cash, budget, remaining, used, recent, nextPayDate, payFrequency, payDate, hidden,
+    summary, cash, budget, remaining, used, recent, nextPayDate, hidden,
     legacyIncomeConfigured: income.salaryMinor !== null,
-    monthTransactions, breakdown, fixedExpenses, actions, notify,
     goals: activeGoals, goalCount: goals.length, allocations, planned, plannedCount,
     accounts: activeAccounts, accountCount, balances: summary.balances,
   }
 
   return <div className="route-stack dashboard">
     <PageHeader title={`Hola, ${user?.user_metadata?.display_name?.split(' ')[0] || user?.user_metadata?.full_name?.split(' ')[0] || 'Danilo'}`} action={isDemo && <DemoBanner />} />
-    <AnimatePresence initial={false} mode="wait">
-      <motion.div key={selectedView} className="dashboard-view-transition" aria-live="polite" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -3 }} transition={{ duration: .18 }}>
-        {selectedView === 'payday' ? <PaydayView {...viewProps} /> : selectedView === 'activity' ? <ActivityView {...viewProps} /> : <AvailableView {...viewProps} month={month} onMonthChange={setMonth} setSheet={setSheet} toggleAmounts={() => actions.setSetting('hiddenAmounts', !hidden)} visibilityIcon={hidden ? EyeOff : Eye} />}
-      </motion.div>
-    </AnimatePresence>
-    {selectedView !== 'available' && <button className="button button--primary calm-primary" onClick={(event) => { event.currentTarget.focus(); setSheet('new') }}><Plus /> Registrar movimiento</button>}
-    <details className="calm-details"><summary>Otras vistas de Inicio</summary><DashboardViewPicker value={selectedView} actions={actions} /><div className="month-row"><label htmlFor="month-home">Mes</label><input id="month-home" type="month" value={month} onChange={(event) => setMonth(event.target.value)} /></div></details>
+    <AvailableView {...viewProps} month={month} onMonthChange={setMonth} setSheet={setSheet} toggleAmounts={() => actions.setSetting('hiddenAmounts', !hidden)} visibilityIcon={hidden ? EyeOff : Eye} />
   </div>
 }
 

@@ -2,6 +2,13 @@
 
 Actualizado: 2026-09-27. Fase actual: **rediseño cristal lavanda; validación en iPhone real pendiente**.
 
+## Inicio único y detalle financiero en cristal · 27 de septiembre
+
+- Retirado «Otras vistas de Inicio». Inicio utiliza siempre la vista principal, incluso con una preferencia antigua de Quincena o Actividad, sin reescribir ajustes ni registros. El selector de mes permanece en el resumen.
+- «Presupuesto y detalle de mi dinero» conserva su desplegable nativo y adopta cabecera con icono circular, superficie de cristal, tarjetas redondeadas y acentos lavanda. Presupuesto, ingresos, margen, metas, compras y cuentas mantienen sus fórmulas, datos y enlaces existentes.
+- Verificado: lint, build, 4 pruebas unitarias de Dashboard y 9 pruebas de navegador (detalle, accesos a movimientos y guía vacía/offline) en 390×844, 375×812 y 1440×900. Tras el ajuste final de espaciado, las tres pruebas de detalle volvieron a pasar. Cubren preferencias antiguas, teclado, privacidad, navegación, ausencia de desbordamiento y registros financieros intactos.
+- Capturas revisadas en `output/playwright/serial-check/dashboard-details-*.png`. Sin cambios de backend, dominio, persistencia ni dependencias. No se ejecutó despliegue manual; quedan pendientes comprobación de producción e iPhone físico.
+
 ## Cristal lavanda · pantallas y módulos · 27 de septiembre
 
 - Aplicado el lenguaje de las 14 vistas aprobadas: fondo azul noche, superficies orgánicas lavanda, acciones circulares con profundidad, iconos Lucide y paneles de cristal. `GlassHero` comparte únicamente la superficie SVG decorativa; los importes, formularios y navegación siguen siendo HTML accesible. CSS por módulo, sin nuevas dependencias ni imágenes de interfaz incrustadas.
