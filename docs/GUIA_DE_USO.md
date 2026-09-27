@@ -25,6 +25,8 @@
 
 ## Sincronización
 
+En **Parejas → Lo que ven juntos**, las deudas muestran el porcentaje pagado según los abonos registrados y la deuda pendiente. No incluye pagos antiguos sin registrar; compras nuevas pueden reducirlo. Los ajustes y devoluciones no son abonos. Las cuentas de dinero no llevan esta barra y **Ocultar montos** oculta también el avance.
+
 - **Guardado en este dispositivo**: el cambio existe localmente.
 - **Pendiente de sincronizar**: espera al servidor; mantén la app abierta o pulsa Reintentar.
 - **Sincronizado**: el servidor confirmó el estado.

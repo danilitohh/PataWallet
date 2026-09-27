@@ -1,6 +1,14 @@
 # Estado de implementación
 
-Actualizado: 2026-09-26. Fase actual: **gastos fijos compactos y editables individualmente; validación en iPhone real pendiente**.
+Actualizado: 2026-09-26. Fase actual: **avance de pago en deudas compartidas; validación en iPhone real pendiente**.
+
+## Avance de deuda en Parejas · 26 de septiembre
+
+- Cada deuda en «Lo que ven juntos» muestra una barra nativa accesible, porcentaje, abonos registrados y saldo pendiente. Los activos no muestran avance; ocultar montos oculta también porcentaje y barra. Sin datos suficientes se muestra «Avance no disponible», nunca un porcentaje inventado.
+- Fórmula: abonos registrados / (abonos registrados + saldo pendiente positivo). El saldo a favor no eleva el porcentaje sobre 100; mientras quede deuda no se redondea a 100. No representa el capital original ni pagos anteriores al registro. Compras nuevas cambian el denominador; ajustes y devoluciones no se suman como abonos.
+- El servidor calcula abonos desde asientos de `card_payment`, excluye anulados y consulta únicamente cuentas compartidas del propietario autorizado. Pagina el libro para no truncar a 1.000 asientos; devuelve totales, no detalles de transacciones. Sin migración ni escritura de datos financieros.
+- Verificado: 129 pruebas unitarias/API, incluyendo pagos, devoluciones, ajustes, anulaciones, límites, paginación y filtros de propietario/cuenta. Tres pruebas de navegador del componente real con fixtures locales en 390×844, 375×812 y 1440×900; capturas revisadas en `output/playwright/couple-progress-*.png`. La habilidad frontend-a11y orientó etiqueta de progreso, semántica nativa y privacidad visual.
+- Pendiente: comprobación de la consulta con una sesión remota autenticada e iPhone físico. La consulta de esquema por el conector Supabase fue denegada por permisos; se comprobó la relación contra la migración versionada y el contrato de consulta con dobles de prueba, sin intentar modificar permisos.
 
 ## Gastos fijos compactos · 26 de septiembre
 

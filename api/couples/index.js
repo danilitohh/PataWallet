@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { assertBodySize, assertTrustedOrigin, allowMethod, json } from '../../server/api-lib/http.js'
 import { adminClient, authenticatedUser } from '../../server/api-lib/supabase-server.js'
 import { randomSecret, sha256 } from '../../server/api-lib/shortcut-contract.js'
+import { sharedBalances } from '../../server/couples/sharedBalances.js'
 
 const MAX_MINOR = 999_999_999_999
 const emailSchema = z.string().trim().toLowerCase().email().max(254)
@@ -88,12 +89,13 @@ async function getOverview(admin, user) {
   const ledgerByOwner = new Map()
   await Promise.all([...new Set(accountRows.map((row) => row.user_id))].map(async (ownerId) => {
     const accountIds = accountRows.filter((row) => row.user_id === ownerId).map((row) => row.id)
-    const entries = ensure(await admin.from('ledger_entries').select('account_id,delta_minor').eq('user_id', ownerId).in('account_id', accountIds))
-    const balances = new Map()
-    entries.forEach((entry) => balances.set(entry.account_id, (balances.get(entry.account_id) || 0) + Number(entry.delta_minor || 0)))
-    ledgerByOwner.set(ownerId, balances)
+    ledgerByOwner.set(ownerId, await sharedBalances(admin, ownerId, accountIds))
   }))
-  const accountMap = new Map(accountRows.map((row) => [JSON.stringify([row.user_id, row.id]), { ...row, balance_minor: ledgerByOwner.get(row.user_id)?.get(row.id) || 0 }]))
+  // Entrega únicamente totales de cuentas autorizadas, nunca movimientos de la pareja.
+  const accountMap = new Map(accountRows.map((row) => {
+    const totals = ledgerByOwner.get(row.user_id)?.get(row.id)
+    return [JSON.stringify([row.user_id, row.id]), { ...row, balance_minor: totals?.balance_minor || 0, ...(row.kind === 'liability' ? { debt_paid_minor: totals?.paid_minor || 0 } : {}) }]
+  }))
   const sharedAccounts = shared.data.map((row) => ({ ...row, account: accountMap.get(JSON.stringify([row.owner_user_id, row.account_id])) || null, owner_label: row.owner_user_id === user.id ? 'Tú' : 'Tu pareja' })).filter((row) => row.account)
   const accountName = new Map(sharedAccounts.map((row) => [JSON.stringify([row.owner_user_id, row.account_id]), row.account.name]))
   return {
