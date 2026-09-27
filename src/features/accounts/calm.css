@@ -1,0 +1,40 @@
+/* Cuentas: paneles por ruta, filas compactas y los mismos editores bajo demanda. */
+.calm-account-panel { display: grid; gap: 22px; }
+.calm-account-balance { display: grid; gap: 4px; }
+.calm-app .accounts-ledger .calm-tabs a.active { background: var(--button-fill); color: var(--on-primary); font-weight: 650; }
+.calm-app .calm-income-action { justify-content: start; color: var(--text-2); }
+.calm-income-action > svg:last-child { margin-left: auto; }
+.calm-account-balance > span { font-weight: 600; }
+.calm-account-balance p { font-size: .85rem; }
+.calm-app .accounts-ledger__pane { grid-template-columns: minmax(0,1fr); background: none; border: 0; border-radius: 0; padding: 0; box-shadow: none; }
+.calm-app .accounts-ledger__pane--asset .accounts-ledger__pane-heading { display: none; }
+.calm-app .accounts-ledger__pane-heading { padding-bottom: 18px; }
+.calm-app .accounts-ledger__pane-heading .accounts-ledger__eyebrow { display: none; }
+.calm-app .account-list { gap: 0; }
+.calm-app .account-row { position: relative; display: grid; grid-template-columns: 40px minmax(0,1fr) auto; grid-template-rows: auto; gap: 12px; padding: 16px 0 28px; border: 0; border-bottom: 1px solid var(--border); border-radius: 0; background: none; box-shadow: none; }
+.calm-app .accounts-ledger__pane .account-row > .account-row__icon { grid-column: 1; grid-row: 1; }
+.calm-app .accounts-ledger__pane .account-row > div { grid-column: 2; grid-row: 1; }
+.calm-app .accounts-ledger__pane .account-row > strong { grid-column: 3; grid-row: 1; align-self: center; justify-self: end; }
+.calm-app .accounts-ledger__pane .account-row__action--edit, .calm-app .accounts-ledger__pane .account-row__action--archive { width: 44px; height: 44px; }
+.calm-app .account-row h3 { font-size: .92rem; }
+.calm-app .account-row p, .calm-app .account-row__schedule { font-size: .75rem; }
+.calm-app .account-row > strong { font-size: .94rem; max-width: 145px; overflow-wrap: anywhere; }
+.calm-app .account-row .night-icon { width: 40px; height: 40px; }
+.account-row__options { position: absolute; right: 0; bottom: 0; z-index: 1; }
+.account-row__options summary { display: grid; place-items: center; min-width: 44px; min-height: 44px; color: var(--text-2); cursor: pointer; list-style: none; }
+.account-row__options summary::-webkit-details-marker { display: none; }
+.account-row__options[open] { background: var(--surface); border-radius: 12px; }
+.account-row__options > div { display: flex; }
+.calm-app .accounts-ledger__inline-add { grid-column: 1; grid-row: auto; justify-self: stretch; margin-top: 16px; font-size: .95rem; }
+.calm-account-shortcuts { display: grid; }
+.calm-account-shortcuts h2 { margin: 10px 0; }
+.calm-account-shortcuts > a { display: flex; align-items: center; gap: 12px; padding: 16px 0; border-bottom: 1px solid var(--border); }
+.calm-account-shortcuts > a > span:nth-child(2) { flex: 1; display: grid; gap: 5px; }
+.calm-account-shortcuts small, .calm-account-shortcuts a > span:nth-child(3) { color: var(--text-2); font-size: .76rem; }
+.calm-account-shortcuts b { font-size: .88rem; }
+.calm-account-shortcuts svg { flex-shrink: 0; }
+.calm-app .accounts-ledger .settings-group, .calm-app .recurring-payments { padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; }
+.calm-app .fixed-expense-summary, .calm-app .recurring-payment { background: none; border-radius: 0; border: 0; border-bottom: 1px solid var(--border); padding: 16px 0; }
+.calm-app .fixed-expenses-section > header { display: grid; gap: 8px; }
+.calm-app .account-section-toggle__content { padding-top: 12px; }
+.calm-app .recurring-payments__heading { align-items: start; flex-wrap: wrap; }

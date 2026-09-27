@@ -1,15 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
-import { AlertTriangle, Bell, Bot, Check, CloudUpload, HardDrive, Home, LoaderCircle, ListOrdered, PawPrint, PiggyBank, Plus, Settings, UsersRound, WalletCards } from 'lucide-react'
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { AlertTriangle, Bell, Check, CloudUpload, HardDrive, Home, LoaderCircle, SquareMenu, PawPrint, Target, Plus, Settings, UsersRound, Wallet } from 'lucide-react'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useApp } from './AppContext.jsx'
-import Dock from '../shared/components/Dock.jsx'
 import { NightIcon } from '../shared/components/NightIcon.jsx'
 
 const navigation = [
   ['/', Home, 'Inicio'],
-  ['/actividad', ListOrdered, 'Actividad'],
-  ['/plan', PiggyBank, 'Plan'],
-  ['/cuentas', WalletCards, 'Cuentas'],
+  ['/actividad', SquareMenu, 'Actividad'],
+  ['/plan', Target, 'Plan'],
+  ['/cuentas', Wallet, 'Cuentas'],
+  ['/parejas', UsersRound, 'Parejas'],
 ]
 
 // Asigna colores consistentes a los accesos para que la navegación tenga una firma visual propia.
@@ -22,16 +22,10 @@ function NavigationIcon({ icon: Icon, to }) {
 export function AppShell({ children }) {
   const { setSheet, isDemo, user, syncState, actions } = useApp()
   const location = useLocation()
-  const navigate = useNavigate()
   const mainRef = useRef(null)
 
   // Parejas debe ser accesible antes de aceptar una invitación para poder crearla.
-  const items = !isDemo ? [...navigation, ['/parejas', UsersRound, 'Parejas']] : navigation
-  const dockItems = [
-    ...items.slice(0, 2).map(([to, Icon, label]) => ({ key: to, href: to, icon: <NavigationIcon icon={Icon} to={to} />, label, active: isRouteActive(to, location.pathname), onClick: () => navigate(to) })),
-    { key: 'new', icon: <NightIcon icon={Plus} variant="nav" tone="violet" />, label: 'Nuevo movimiento', className: 'dock-item--primary', onClick: () => setSheet('new') },
-    ...items.slice(2).map(([to, Icon, label]) => ({ key: to, href: to, icon: <NavigationIcon icon={Icon} to={to} />, label, active: isRouteActive(to, location.pathname), onClick: () => navigate(to) })),
-  ]
+  const items = navigation
 
   useEffect(() => {
     // Cada ruta empieza arriba para que la barra móvil no cubra su encabezado.
@@ -43,7 +37,7 @@ export function AppShell({ children }) {
   }, [location.pathname, location.state?.guideFocus])
 
   return (
-    <div className="app-shell">
+    <div className="app-shell calm-app">
       <aside className="side-nav" aria-label="Navegación principal">
         <div className="wordmark wordmark--small"><PawPrint /> <span>PataWallet</span></div>
         <nav>{items.map(([to, Icon, label]) => <NavLink key={to} to={to} end={to === '/'}><NavigationIcon icon={Icon} to={to} /><span>{label}</span></NavLink>)}</nav>
@@ -58,21 +52,10 @@ export function AppShell({ children }) {
         {!isDemo && syncState && syncState.kind !== 'synced' && <div className="mobile-sync"><SyncStatus state={syncState} retry={actions.retrySync} /></div>}
         {children}
       </main>
-      {location.pathname !== '/asistente' && <AssistantBubble isDemo={isDemo} />}
-      <div className="mobile-dock"><Dock items={dockItems} className={!isDemo ? 'dock-panel--couple' : ''} /></div>
+      <nav className="calm-navigation" aria-label="Navegación principal móvil">{items.map(([to, Icon, label]) => <NavLink key={to} to={to} end={to === '/'}><Icon aria-hidden="true" /><span>{label}</span></NavLink>)}</nav>
       <OnlineStatus />
     </div>
   )
-}
-
-// Considera activas las rutas hijas para que el dock conserve el contexto al entrar a un submódulo.
-function isRouteActive(to, pathname) {
-  return to === '/' ? pathname === '/' : pathname === to || pathname.startsWith(`${to}/`)
-}
-
-// Mantiene el asistente a un toque desde Inicio sin convertirlo en una acción financiera automática.
-function AssistantBubble({ isDemo }) {
-  return <Link className="assistant-fab" to="/asistente" aria-label="Abrir asistente" title={isDemo ? 'Asistente disponible en cuentas reales' : 'Abrir asistente PataWallet'}><NightIcon icon={Bot} variant="nav" tone="violet" /><span className="assistant-fab__label">Asistente</span></Link>
 }
 
 function SyncStatus({ state, retry }) {

@@ -1,0 +1,38 @@
+/* Cronología abierta: conserva filtros y datos, reduce contenedores y ornamentación. */
+.calm-app .activity-page { grid-template-columns: minmax(0,1fr); grid-template-areas: none; }
+.calm-app .activity-page > * { grid-area: auto; }
+.calm-app .activity-month-toolbar { display: block; }
+.calm-app .activity-month-picker { width: 100%; display: flex; justify-content: space-between; border: 0; background: none; padding: 0; box-shadow: none; }
+.calm-app .activity-month-picker__calendar { display: none; }
+.calm-app .activity-month-picker time { font-size: 1rem; font-weight: 650; }
+.calm-app .activity-month-picker button { min-width: 44px; min-height: 44px; background: none; color: var(--text-2); }
+.calm-app .activity-month-summary { padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; }
+.calm-app .activity-month-summary > div { display: grid; gap: 5px; color: var(--text-2); }
+.calm-app .activity-month-summary > div + div { padding-left: 20px; border-left: 1px solid var(--border); }
+.calm-app .activity-month-summary strong { font-size: 1.35rem; overflow-wrap: anywhere; }
+.calm-app .activity-filter-panel { display: grid; grid-template-columns: minmax(0,1fr) 44px; gap: 12px; padding: 0; background: none; border: 0; box-shadow: none; }
+.calm-app .activity-search-box { grid-column: 1; min-width: 0; border-radius: 12px; background: transparent; }
+.calm-app .activity-search-box input { font-size: 1rem; }
+.calm-app .activity-search-box input { background: transparent; }
+.calm-app .calm-filter-toggle { width: 44px; height: 48px; border: 1px solid var(--border); border-radius: 12px; }
+.calm-app .activity-account-filter, .calm-app .activity-type-chips { grid-column: 1/-1; }
+.calm-app .activity-type-chips { gap: 8px; padding: 0 0 4px; }
+.calm-app .activity-type-chips button { box-shadow: none; background: transparent; min-height: 44px; padding: 8px 16px; border: 1px solid var(--border); }
+.calm-app .activity-type-chips button[aria-pressed=true] { background: var(--button-fill); color: var(--on-primary); border-color: transparent; }
+.calm-app .activity-type-chips button span { display: none; }
+.calm-app .activity-list-panel { padding: 0; border: 0; background: none; box-shadow: none; }
+.calm-app .activity-panel-heading { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.calm-app .transaction-list, .calm-app .activity-page .transaction-group .transaction-list { padding: 0; border: 0; background: none; border-radius: 0; overflow: visible; }
+.calm-app .transaction { grid-template-columns: 40px minmax(0,1fr) auto; padding: 16px 0; column-gap: 12px; border-radius: 0; background: none; border: 0; border-bottom: 1px solid var(--border); }
+.calm-app .transaction:hover { background: color-mix(in srgb, var(--surface) 45%, transparent); }
+.calm-app .transaction__icon { width: 40px; height: 40px; }
+.calm-app .transaction__main strong { font-size: .9rem; font-weight: 650; }
+.calm-app .transaction__main small { font-size: .75rem; color: var(--text-2); }
+.calm-app .transaction__amount { color: var(--text); white-space: normal; text-align: right; }
+.calm-app .transaction__amount strong { font-size: .9rem; overflow-wrap: anywhere; }
+.calm-app .transaction__amount.positive { color: var(--success); }
+.calm-app .transaction__amount small { font-size: .68rem; }
+.calm-app .transaction__chevron { display: none; }
+.calm-app .transaction-group > h2 { font-size: .76rem; text-transform: uppercase; letter-spacing: .025em; color: var(--text-2); padding: 0; margin-bottom: 4px; }
+.calm-app .activity-groups { gap: 24px; }
+.calm-app .activity-footnote { background: none; border: 0; padding: 0; color: var(--text-2); font-size: .78rem; }

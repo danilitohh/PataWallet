@@ -8,7 +8,8 @@ test('guía vacía, montos ocultos, cambio de tamaño y salida offline', async (
   await expect(page.getByRole('heading', { name: /Hola, Danilo/i })).toBeVisible()
   await page.evaluate(async () => {
     const { db } = await import('/src/data/db.js')
-    for (const name of ['accounts', 'transactions', 'budgets', 'goals', 'allocations', 'planned_purchases']) await db.table(name).clear()
+    // Retira primero movimientos y reservas para no crear referencias huérfanas durante la preparación.
+    for (const name of ['transactions', 'allocations', 'budgets', 'goals', 'planned_purchases', 'accounts']) await db.table(name).clear()
     await db.settings.put({ key: 'hiddenAmounts', value: true })
     await db.settings.put({ key: 'homeView', value: 'payday' })
   })
@@ -33,6 +34,7 @@ test('guía vacía, montos ocultos, cambio de tamaño y salida offline', async (
   await expect(guide).toHaveCount(0)
   await expect(page).toHaveURL(/\/ajustes$/)
   await expect(page.getByRole('switch', { name: 'Ocultar montos' })).toBeChecked()
+  await page.getByText('Recorridos por tema', { exact: true }).click()
   await page.getByRole('button', { name: 'Instalación y Atajos', exact: true }).click()
   await expect(guide).toHaveAttribute('data-target-found', 'true')
   // Simula un control no disponible para comprobar que el recorrido siempre permite salir.

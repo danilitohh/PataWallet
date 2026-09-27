@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { AnimatePresence } from 'motion/react'
-import { ArrowDownRight, ArrowUpRight, CalendarDays, CalendarClock, Pencil, Plus, Sparkles } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { ArrowDownRight, ArrowUpRight, CalendarClock, Eye, EyeOff, Pencil, Plus } from 'lucide-react'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useApp } from '../../app/AppContext.jsx'
 import { calculateRecordedMoney, calculateSummary, goalProgress } from '../../domain/finance.js'
 import { readFixedExpenses } from '../../domain/financialSetup.js'
@@ -12,14 +12,16 @@ import { Progress } from '../../shared/components/Progress.jsx'
 import { SimpleDialog } from '../../shared/components/Modal.jsx'
 import { currentMonth } from '../../shared/lib/date.js'
 import { AllocationDialog, BudgetDialog, GoalDialog } from './components/PlanningDialogs.jsx'
-import { PlanGoalFeature, PlanGoalRow } from './components/PlanGoalFeatures.jsx'
+import { PlanGoalRow } from './components/PlanGoalFeatures.jsx'
 import { PlanPurchaseCard } from './components/PlanPurchaseCard.jsx'
 import { PlannedPurchaseDialog } from './components/PlannedPurchaseDialog.jsx'
 import { incomeReference } from '../settings/model/incomeSources.js'
 
 // Pone la meta al frente y conserva los cálculos, formularios y acciones financieras de Plan.
 export function PlanPage() {
-  const { accounts, transactions, budgets, goals, allocations, plannedPurchases, settings, notify, actions } = useApp()
+  const { accounts, transactions, budgets, goals, allocations, plannedPurchases, settings, notify, actions, isDemo, guideOpen } = useApp()
+  const location = useLocation()
+  const showingBudget = location.pathname === '/plan/presupuesto'
   const month = currentMonth()
   const monthLabel = formatPlanMonth(month)
   const summary = calculateSummary(accounts, transactions, month)
@@ -33,9 +35,6 @@ export function PlanPage() {
     nextPayDate: settings.nextPayDate || income.primary?.next_pay_date,
   })
   const budget = budgets.find((item) => item.month === month)
-  const featuredGoal = goals[0] || null
-  const featuredProgress = featuredGoal ? goalProgress(featuredGoal, allocations) : null
-  const otherGoals = goals.slice(1)
   const activePurchases = plannedPurchases
     .filter((item) => item.status === 'planned')
     .sort((left, right) => left.target_date.localeCompare(right.target_date))
@@ -70,23 +69,15 @@ export function PlanPage() {
 
   return (
     <div className="route-stack plan-page">
-      <div className="plan-page__intro">
-        <span className="plan-eyebrow">Lo que estás construyendo</span>
-        <PageHeader
-          title="Metas y plan"
-          subtitle="Cuida el hoy mientras avanzas hacia lo que quieres."
-          action={<div className="plan-current-period" aria-label={`Periodo actual: ${monthLabel}`}><CalendarDays aria-hidden="true" /><span>{monthLabel}</span></div>}
-        />
-      </div>
-
-      <PlanGoalFeature
-        goal={featuredGoal}
-        progress={featuredProgress}
-        hidden={settings.hiddenAmounts}
-        onReserve={() => setAllocationGoal(featuredGoal)}
-        onCreate={setGoalOpen}
-        onDelete={deleteGoal}
-      />
+      <PageHeader title="Plan" subtitle="Tus metas, paso a paso." action={isDemo && <span className="calm-demo">Datos de ejemplo</span>} />
+      <nav className="calm-tabs" aria-label="Secciones de Plan"><NavLink to="/plan" end>Metas</NavLink><NavLink to="/plan/presupuesto">Presupuesto</NavLink></nav>
+      <section className="calm-goals" hidden={showingBudget && !guideOpen}>
+        <div className="calm-goal-balance"><div className="calm-balance-label"><span>Reservado para tus metas</span><button className="icon-button" aria-label={settings.hiddenAmounts ? 'Mostrar montos' : 'Ocultar montos'} onClick={() => actions.setSetting('hiddenAmounts', !settings.hiddenAmounts)}>{settings.hiddenAmounts ? <EyeOff /> : <Eye />}</button></div><strong className="calm-balance">{formatMinor(cash.reservedMinor, 'COP', settings.hiddenAmounts)}</strong><p>Parte de tu saldo, no dinero adicional.</p></div>
+        <button className="button button--primary calm-primary plan-featured-goal__action" onClick={() => setGoalOpen(true)}><Plus aria-hidden="true" /> Crear meta</button>
+        <div className="section-heading"><h2>Metas activas</h2><span className="helper">{goals.length} {goals.length === 1 ? 'meta' : 'metas'}</span></div>
+        <div className="plan-goal-list">{goals.map((goal) => <PlanGoalRow key={goal.id} goal={goal} progress={goalProgress(goal, allocations)} hidden={settings.hiddenAmounts} onReserve={() => setAllocationGoal(goal)} onDelete={deleteGoal} />)}</div>
+        {!goals.length && <p className="helper">Aún no tienes metas. Crea la primera cuando quieras.</p>}
+      </section>
 
       <section className="plan-overview-grid" aria-label="Presupuesto y dinero libre">
         <BudgetOverview
@@ -97,9 +88,10 @@ export function PlanPage() {
           hidden={settings.hiddenAmounts}
           onEdit={() => setBudgetOpen(true)}
         />
-        <AvailablePlanSummary cash={cash} hidden={settings.hiddenAmounts} />
       </section>
 
+      <details className="calm-details calm-planning-details" open={guideOpen || showingBudget}><summary>Compras previstas y margen disponible</summary>
+      <AvailablePlanSummary cash={cash} hidden={settings.hiddenAmounts} />
       <section className="plan-purchases" aria-labelledby="plan-purchases-title">
         <div className="section-heading">
           <div><h2 id="plan-purchases-title">Próximas compras</h2><p>Revísalas antes de comprometer ese dinero.</p></div>
@@ -130,25 +122,7 @@ export function PlanPage() {
         </div> : <div className="empty-inline"><CalendarClock aria-hidden="true" /><p>Aún no has anotado compras futuras.</p></div>}
       </section>
 
-      {otherGoals.length > 0 && <section className="plan-other-goals" aria-labelledby="plan-other-goals-title">
-        <div className="section-heading">
-          <div><span className="plan-eyebrow">También importa</span><h2 id="plan-other-goals-title">Otras metas</h2></div>
-          <span className="plan-other-goals__count" aria-label={`${otherGoals.length} metas adicionales`}>{otherGoals.length}</span>
-        </div>
-        <div className="plan-goal-list">{otherGoals.map((goal) => <PlanGoalRow
-          key={goal.id}
-          goal={goal}
-          progress={goalProgress(goal, allocations)}
-          hidden={settings.hiddenAmounts}
-          onReserve={() => setAllocationGoal(goal)}
-          onDelete={deleteGoal}
-        />)}</div>
-      </section>}
-
-      <footer className="plan-page__footer">
-        <p><Sparkles aria-hidden="true" /> Una reserva organiza tu meta, pero no mueve dinero entre cuentas.</p>
-        {featuredGoal && <button className="button button--secondary" type="button" onClick={() => setGoalOpen(true)}><Plus aria-hidden="true" /> Otra meta</button>}
-      </footer>
+      </details>
 
       <AnimatePresence>{budgetOpen && <BudgetDialog budget={budget} month={month} close={() => setBudgetOpen(false)} />}</AnimatePresence>
       <AnimatePresence>{goalOpen && <GoalDialog close={() => setGoalOpen(false)} />}</AnimatePresence>

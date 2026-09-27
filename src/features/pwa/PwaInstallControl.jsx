@@ -5,7 +5,7 @@ import { pwaInstallManager } from './installManager.js'
 import './pwa-install.css'
 
 /** Presenta instalación nativa cuando existe y pasos manuales en el resto de navegadores. */
-export function PwaInstallControl() {
+export function PwaInstallControl({ compact = false }) {
   const installState = useSyncExternalStore(pwaInstallManager.subscribe, pwaInstallManager.getSnapshot, pwaInstallManager.getSnapshot)
   const [guideOpen, setGuideOpen] = useState(false)
   const [installing, setInstalling] = useState(false)
@@ -40,8 +40,8 @@ export function PwaInstallControl() {
   }
 
   return (
-    <section className="settings-group pwa-install" aria-labelledby="pwa-install-title">
-      <h2 id="pwa-install-title">Aplicación</h2>
+    <section className={`settings-group pwa-install ${compact ? 'pwa-install--compact' : ''}`} aria-label="Instalación de PataWallet">
+      {!compact && <h2 id="pwa-install-title">Aplicación</h2>}
       <div className="setting-row pwa-install__row">
         <NightIcon icon={installState.installed ? Check : Download} className="setting-row__icon" tone="peach" />
         <div>

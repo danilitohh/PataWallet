@@ -1,8 +1,8 @@
 import { useRef, useState } from 'react'
-import { Bell, Check, ChevronRight, Heart, Pencil, ShieldCheck, UserRound, X } from 'lucide-react'
+import { Bell, Check, ChevronRight, Plus, ShieldCheck, SlidersHorizontal, UserRound, X } from 'lucide-react'
 import { SimpleDialog } from '../../../shared/components/Modal.jsx'
 import { NightIcon } from '../../../shared/components/NightIcon.jsx'
-import { formatInputAmount, formatMinor, parseLocalizedAmount } from '../../../domain/money.js'
+import { formatInputAmount, formatMinor, parseLocalizedAmount, safeAdd } from '../../../domain/money.js'
 import { performCoupleAction } from '../../../services/couples/couplesClient.js'
 import { SharedAccountCard } from './SharedAccountCard.jsx'
 import './couplesSerena.css'
@@ -100,17 +100,17 @@ export function ActiveCouple({ couple, accounts, settings, user, busy, setBusy, 
 
   return <div className="couples-serena">
     <header className="couples-serena__intro">
-      <div><h1>Parejas</h1><p>Un espacio compartido.<br />Cada cuenta sigue siendo de quien la creó.</p>
-        <button className="button button--secondary" onClick={(event) => openPanel('sharing', event)} disabled={busy}>Qué compartimos <ChevronRight aria-hidden="true" /></button>
-      </div>
+      <div className="couples-serena__title"><h1>Parejas</h1><p>Las cuentas claras, en equipo.</p></div>
       <div className="couples-serena__members" aria-label="Integrantes del espacio compartido">
-        <span><NightIcon icon={UserRound} />Tú</span><Heart className="couples-serena__heart" aria-hidden="true" /><span><NightIcon icon={UserRound} tone="mint" />Tu pareja</span>
+        <span><NightIcon icon={UserRound} />Tú</span><span><NightIcon icon={UserRound} tone="mint" />Tu pareja</span>
       </div>
+      <button className="button button--secondary" onClick={(event) => openPanel('sharing', event)} disabled={busy}><SlidersHorizontal aria-hidden="true" /> Qué compartimos</button>
     </header>
 
     <div className="couples-serena__groups">
-      {[{ title: 'Deudas compartidas', rows: debts, empty: 'Aún no comparten deudas.' }, { title: 'Dinero compartido', rows: money, empty: 'Aún no comparten cuentas de dinero.' }].map(({ title, rows, empty }) => <section className="couples-serena__group" aria-label={title} key={title}>
+      {[{ title: 'Dinero compartido', rows: money, empty: 'Aún no comparten cuentas de dinero.' }, { title: 'Deudas compartidas', rows: debts, empty: 'Aún no comparten deudas.' }].map(({ title, rows, empty }) => <section className="couples-serena__group" aria-label={title} key={title}>
         <div className="couples-serena__heading"><h2>{title}</h2><span>{rows.length}</span></div>
+        {rows === money && rows.length > 0 && <strong className="calm-balance couples-money-total">{formatMinor(rows.reduce((total, item) => safeAdd(total, Number(item.account.balance_minor)), 0), settings.currency || 'COP', settings.hiddenAmounts)}</strong>}
         <div className="shared-account-list">{rows.length ? rows.map((item) => <SharedAccountCard key={accountKey(item)} item={item} hiddenAmounts={settings.hiddenAmounts} />) : <p className="couples-serena__empty">{empty} Elige qué mostrar en «Qué compartimos».</p>}</div>
       </section>)}
     </div>
@@ -118,8 +118,8 @@ export function ActiveCouple({ couple, accounts, settings, user, busy, setBusy, 
     <button className="couples-serena__requests" onClick={(event) => openPanel('requests', event)}>
       <NightIcon icon={Bell} /><span><strong>{pending.length ? `${pending.length} ${pending.length === 1 ? 'solicitud pendiente' : 'solicitudes pendientes'}` : 'Sin solicitudes pendientes'}</strong><small>{pending.length ? 'Revisen los cambios propuestos.' : 'Ver solicitudes e historial.'}</small></span><ChevronRight aria-hidden="true" />
     </button>
-    {couple.shared_accounts.length > 0 && <button className="button button--secondary couples-serena__propose" disabled={busy} onClick={(event) => openPanel('proposal', event)}><Pencil aria-hidden="true" /> Proponer un cambio</button>}
-    <p className="couples-serena__privacy"><ShieldCheck aria-hidden="true" /> Solo se muestra lo que cada uno decide compartir.</p>
+    {couple.shared_accounts.length > 0 && <button className="button button--primary calm-primary couples-serena__propose" disabled={busy} onClick={(event) => openPanel('proposal', event)}><Plus aria-hidden="true" /> Proponer un cambio</button>}
+    <p className="couples-serena__privacy"><ShieldCheck aria-hidden="true" /> Se aplica cuando la otra persona lo aprueba. Solo se muestra lo que cada uno decide compartir.</p>
     {debts.length > 0 && <details className="couples-serena__help"><summary>Cómo se calcula el avance</summary><p>Compara los abonos registrados con abonos más deuda pendiente. Nuevas compras pueden reducir el porcentaje; ajustes y devoluciones no cuentan como pagos. No incluye pagos anteriores que no hayas registrado.</p></details>}
 
     {panel && <SimpleDialog title={panel === 'sharing' ? 'Qué compartimos' : panel === 'proposal' ? 'Proponer un cambio' : 'Solicitudes'} close={closePanel}>

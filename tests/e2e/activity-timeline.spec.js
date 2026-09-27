@@ -16,7 +16,7 @@ test('muestra la cronología mensual con datos reales y conserva los filtros', a
   await expect(page.locator('.activity-month-picker time')).toHaveAttribute('datetime', '2026-09')
   await expect(summary).toContainText(/272\.000/)
   await expect(summary).toContainText(/3\.200\.000/)
-  await expect(summary).toContainText('7 movimientos')
+  await expect(page.locator('.activity-count')).toContainText('7')
   await expect(page.getByRole('button', { name: /Mercado de ejemplo/ })).toBeVisible()
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true)
   await page.screenshot({ path: testInfo.outputPath('activity-timeline.png'), fullPage: true })

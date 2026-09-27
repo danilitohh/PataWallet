@@ -1,4 +1,4 @@
-import { CreditCard, Landmark, Pencil, Plus, Trash2 } from 'lucide-react'
+import { Banknote, CreditCard, Landmark, Pencil, Plus, Trash2, Wallet } from 'lucide-react'
 import { useApp } from '../../../app/AppContext.jsx'
 import { debtScheduleLabel } from '../../../domain/debtSchedule.js'
 import { formatMinor } from '../../../domain/money.js'
@@ -32,22 +32,21 @@ export function AccountLedgerPane({ kind, accounts, amount, balances, hidden, on
         {accounts.map((account) => <AccountRow key={account.id} account={account} kind={kind} balance={balances[account.id] || 0} hidden={hidden} onEdit={onEdit} onArchive={archive} />)}
       </div> : <div className="accounts-ledger__empty">
         <p>{kind === 'asset' ? 'Aún no hay dinero disponible registrado.' : 'No tienes deudas registradas.'}</p>
-        <button type="button" className="accounts-ledger__inline-add" onClick={onAdd}><Plus aria-hidden="true" /> Agregar {kind === 'asset' ? 'cuenta' : 'deuda'}</button>
+        <button type="button" className={`button button--primary calm-primary accounts-ledger__inline-add ${kind === 'asset' ? 'accounts-ledger__add' : ''}`} onClick={onAdd}><Plus aria-hidden="true" /> Agregar {kind === 'asset' ? 'cuenta' : 'deuda'}</button>
       </div>}
-      {!!accounts.length && <button type="button" className="accounts-ledger__inline-add" onClick={onAdd}><Plus aria-hidden="true" /> Agregar {kind === 'asset' ? 'cuenta' : 'deuda'}</button>}
+      {!!accounts.length && <button type="button" className={`button button--primary calm-primary accounts-ledger__inline-add ${kind === 'asset' ? 'accounts-ledger__add' : ''}`} onClick={onAdd}><Plus aria-hidden="true" /> Agregar {kind === 'asset' ? 'cuenta' : 'deuda'}</button>}
     </section>
   )
 }
 
 // Mantiene saldo, tipo y acciones legibles en el espacio compacto de cada panel.
 function AccountRow({ account, kind, balance, hidden, onEdit, onArchive }) {
-  const Icon = GROUPS[kind].icon
+  const Icon = kind === 'asset' ? account.subtype === 'cash' ? Banknote : Wallet : GROUPS[kind].icon
   const schedule = kind === 'liability' ? debtScheduleLabel(account, (value) => formatMinor(value, 'COP', hidden)) : null
   return <article className="account-row">
     <NightIcon icon={Icon} className="account-row__icon" tone={kind === 'asset' ? 'sky' : 'violet'} />
     <div><h3>{account.name}</h3><p>{accountTypeLabel(account)}</p>{schedule && <small className="account-row__schedule">{schedule}</small>}</div>
     <strong>{formatMinor(balance, 'COP', hidden)}</strong>
-    <button type="button" className="icon-button icon-button--small account-row__action--edit" aria-label={`Editar ${account.name}`} onClick={() => onEdit(account)}><Pencil aria-hidden="true" /></button>
-    <button type="button" className="icon-button icon-button--small account-row__action--archive" aria-label={`Archivar ${account.name}`} onClick={() => onArchive(account)}><Trash2 aria-hidden="true" /></button>
+    <details className="account-row__options"><summary aria-label={`Opciones de ${account.name}`}>···</summary><div><button type="button" className="icon-button icon-button--small account-row__action--edit" aria-label={`Editar ${account.name}`} onClick={() => onEdit(account)}><Pencil aria-hidden="true" /></button><button type="button" className="icon-button icon-button--small account-row__action--archive" aria-label={`Archivar ${account.name}`} onClick={() => onArchive(account)}><Trash2 aria-hidden="true" /></button></div></details>
   </article>
 }

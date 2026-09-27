@@ -14,10 +14,10 @@ import './fixedExpenses.css'
 const PAGE_SIZE = 5
 
 // Lista los compromisos guardados; solo el gasto elegido monta un formulario.
-export function FixedExpensesSection() {
+export function FixedExpensesSection({ standalone = false, showChecklist = true }) {
   const { settings, guideOpen } = useApp()
   const [userExpanded, setExpanded] = useAccountSectionExpansion('gastos-fijos')
-  const expanded = userExpanded || Boolean(guideOpen)
+  const expanded = standalone || userExpanded || Boolean(guideOpen)
   const [editor, setEditor] = useState(null)
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(0)
@@ -41,9 +41,9 @@ export function FixedExpensesSection() {
   const visible = filtered.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE)
 
   return <section className="settings-group fixed-expenses-section" id="gastos-fijos">
-    <AccountSectionToggle sectionId="gastos-fijos" title="Gastos fijos" description="Compromisos recurrentes que conviene apartar antes de comprar." summary={sectionSummary} expanded={expanded} onToggle={() => setExpanded((value) => !value)} />
+    {standalone ? <header className="account-section-toggle"><h2>Gastos fijos</h2><p className="helper">{sectionSummary}</p></header> : <AccountSectionToggle sectionId="gastos-fijos" title="Gastos fijos" description="Compromisos recurrentes que conviene apartar antes de comprar." summary={sectionSummary} expanded={expanded} onToggle={() => setExpanded((value) => !value)} />}
     {expanded && <div id="gastos-fijos-content" className="account-section-toggle__content">
-      <p className="settings-group__intro">Programa tus compromisos y confirma abajo los pagos que ya hiciste. Agregar un gasto fijo no descuenta dinero.</p>
+      <p className="settings-group__intro">Programa tus compromisos y confirma {showChecklist ? 'abajo' : 'en la pestaña Pagos'} los pagos que ya hiciste. Agregar un gasto fijo no descuenta dinero.</p>
       <button ref={addButton} type="button" className="button button--secondary" onClick={(event) => openEditor(event, {})}><Plus aria-hidden="true" /> Agregar gasto fijo</button>
       {savedExpenses.length > 0 && <Field label="Buscar gasto fijo"><input type="search" value={search} onChange={(event) => { setSearch(event.target.value); setPage(0) }} placeholder="Internet, mercado…" /></Field>}
       <ul className="fixed-expense-list" aria-label="Gastos fijos guardados">
@@ -57,7 +57,7 @@ export function FixedExpensesSection() {
       </ul>
       {!visible.length && <p className="helper" role="status">{savedExpenses.length ? 'No encontramos gastos con ese nombre.' : 'Aún no tienes gastos fijos. Agrega el primero cuando quieras.'}</p>}
       <ExpensePagination page={currentPage} count={filtered.length} pageSize={PAGE_SIZE} onChange={setPage} label="Gastos fijos" />
-      <RecurringPaymentChecklist expenses={savedExpenses} settings={settings} />
+      {showChecklist && <RecurringPaymentChecklist expenses={savedExpenses} settings={settings} />}
     </div>}
     {editor && <FixedExpenseEditor expense={editor.id ? editor : null} close={closeEditor} />}
   </section>

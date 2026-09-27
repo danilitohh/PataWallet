@@ -19,8 +19,8 @@ test('mantiene el diseño noche sin desbordes en todos los módulos', async ({ p
   expect(errors).toEqual([])
 })
 
-// La profundidad táctil debe existir en los controles compartidos y conservarse con la preferencia de movimiento reducido.
-test('aplica profundidad 3D accesible a botones e iconos', async ({ page }) => {
+// La referencia aprobada sustituye la profundidad 3D por controles planos, también con movimiento reducido.
+test('aplica el acabado plano aprobado a botones e iconos', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: 'Probar con datos de ejemplo' }).click()
   await expect(page.getByRole('heading', { name: 'Hola, Danilo' })).toBeVisible()
@@ -35,8 +35,8 @@ test('aplica profundidad 3D accesible a botones e iconos', async ({ page }) => {
       depthToken: root.getPropertyValue('--depth-shadow').trim(),
     }
   })
-  expect(depth.buttonShadow).not.toBe('none')
-  expect(depth.iconShadow).not.toBe('none')
+  expect(depth.buttonShadow).toBe('none')
+  expect(depth.iconShadow).toBe('none')
   expect(depth.depthToken).not.toBe('')
 
   await page.emulateMedia({ reducedMotion: 'reduce' })
@@ -52,7 +52,7 @@ test('mantiene tema oscuro y reduce efectos por sistema o preferencia propia', a
   await page.getByRole('button', { name: 'Probar con datos de ejemplo' }).click()
   await expect(page.getByRole('heading', { name: 'Hola, Danilo' })).toBeVisible()
   await page.goto('/ajustes')
-  await expect(page.getByText('Modo nocturno')).toBeVisible()
+  await expect(page.getByText('Oscuro')).toBeVisible()
   await expect(page.getByRole('combobox', { name: 'Tema', exact: true })).toHaveCount(0)
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
   await page.reload()

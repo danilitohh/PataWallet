@@ -1,0 +1,32 @@
+/* Inicio: saldo real, una acción principal y dos listas breves como en la referencia. */
+.calm-app .dashboard .page-header { gap: 10px; }
+.calm-app .dashboard-view--available { display: grid; gap: 26px; }
+.calm-app .dashboard-available-hero { padding: 0; min-height: 0; background: none; border: 0; border-radius: 0; box-shadow: none; display: block; }
+.calm-app .dashboard-available-hero::before, .calm-app .dashboard-available-hero::after { display: none; }
+.calm-app .balance-hero__numbers { position: static; padding: 0; max-width: none; gap: 4px; pointer-events: auto; }
+.calm-app .balance-hero__numbers > strong { margin: 0; font-size: clamp(2rem, 10vw, 2.8rem); color: var(--text); letter-spacing: -.045em; line-height: 1.25; }
+.calm-app .balance-hero__numbers > small { max-width: none; color: var(--text-2); font-size: .88rem; line-height: 1.45; }
+.calm-balance-label { display: flex; align-items: center; gap: 5px; font-weight: 600; color: var(--text); }
+.calm-balance-label small { margin-left: auto; color: var(--text-2); font-weight: 400; }
+.calm-balance-label .icon-button { width: 44px; height: 44px; }
+.calm-app .dashboard-recent { padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; }
+.calm-app .section-heading { margin-bottom: 6px; }
+.calm-app .section-heading > a { color: var(--text-2); font-size: .85rem; }
+.calm-payment-row { display: grid; grid-template-columns: 40px minmax(0,1fr) auto; gap: 12px; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--border); }
+.calm-payment-row > span:not(.night-icon) { display: grid; gap: 5px; min-width: 0; }
+.calm-payment-row strong { font-size: .9rem; overflow-wrap: anywhere; }
+.calm-payment-row small { color: var(--text-2); font-size: .78rem; }
+.calm-month-summary { padding-top: 8px; }
+.calm-month-summary input { min-height: 44px; padding: 0; width: 210px; border: 0; background: transparent; font-weight: 600; }
+.calm-month-summary > div { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; }
+.calm-month-summary > div > span { display: grid; gap: 5px; color: var(--text-2); font-size: .85rem; }
+.calm-month-summary > div > span + span { border-left: 1px solid var(--border); padding-left: 20px; }
+.calm-month-summary strong { color: var(--text); font-size: 1.2rem; overflow-wrap: anywhere; }
+.calm-app .dashboard .calm-details .feature-panel { margin-bottom: 18px; }
+/* En escritorio la acción conserva su propia fila y las dos listas comparten columnas. */
+@media (min-width: 700px) {
+  .calm-app .dashboard-view--available > .calm-register { grid-column: 1/-1; }
+  .calm-app .dashboard-view--available > .calm-upcoming { grid-column: 1; grid-row: 3; }
+  .calm-app .dashboard-view--available > .dashboard-recent { grid-column: 2; grid-row: 3; }
+  .calm-app .dashboard-view--available > .calm-month-summary, .calm-app .dashboard-view--available > .calm-details { grid-column: 1/-1; }
+}

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { PawPrint, Search } from 'lucide-react'
+import { Info, Plus, Search, SlidersHorizontal } from 'lucide-react'
 import { useApp } from '../../app/AppContext.jsx'
 import { calculateSummary, monthInTimeZone } from '../../domain/finance.js'
 import { PageHeader } from '../../shared/components/PageHeader.jsx'
@@ -24,6 +24,7 @@ export function ActivityPage() {
   const [type, setType] = useState('all')
   const [account, setAccount] = useState('all')
   const [month, setMonth] = useState(initialActivityMonth)
+  const [filtersOpen, setFiltersOpen] = useState(false)
   const review = useMemo(() => shortcut.events.filter((item) => ['recorded_needs_category', 'needs_review', 'duplicate', 'conflict'].includes(item.result_status) && !item.resolved_at), [shortcut.events])
   const showingReview = type === 'review'
   const current = currentMonth()
@@ -63,8 +64,8 @@ export function ActivityPage() {
     <div className="route-stack activity-page">
       <PageHeader
         title="Actividad"
-        subtitle="Todo lo que entra y sale, en un mismo lugar."
-        action={isDemo && <span className="activity-data-badge"><i aria-hidden="true" />Datos de ejemplo</span>}
+        subtitle="Tus movimientos, en orden."
+        action={isDemo && <span className="calm-demo">Datos de ejemplo</span>}
       />
       <ActivityMonthToolbar month={month} current={current} onMonthChange={setMonth} onClearFilters={clearFilters} hasFilters={hasFilters} />
       <ActivityMonthSummary
@@ -75,13 +76,15 @@ export function ActivityPage() {
         currency={settings.currency || 'COP'}
         hidden={settings.hiddenAmounts}
       />
+      <button className="button button--primary calm-primary" onClick={(event) => { event.currentTarget.focus(); setSheet('new') }}><Plus aria-hidden="true" /> Registrar movimiento</button>
       <section className="activity-filter-panel" aria-label="Buscar y filtrar movimientos">
         <div className="search-box activity-search-box">
           <Search aria-hidden="true" />
           <label className="sr-only" htmlFor="activity-search">Buscar movimientos</label>
-          <input id="activity-search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Comercio, nota o categoría" />
+          <input id="activity-search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar movimiento" />
         </div>
-        <div className="filters activity-account-filter">
+        <button className="icon-button calm-filter-toggle" aria-label="Filtros de cuenta" aria-expanded={filtersOpen} aria-controls="activity-account-options" onClick={() => setFiltersOpen(!filtersOpen)}><SlidersHorizontal aria-hidden="true" /></button>
+        <div className="filters activity-account-filter" id="activity-account-options" hidden={!filtersOpen && account === 'all'}>
           <label className="sr-only" htmlFor="activity-account">Filtrar por cuenta</label>
           <select id="activity-account" value={account} onChange={(event) => setAccount(event.target.value)}>
             <option value="all">Todas las cuentas</option>
@@ -101,7 +104,7 @@ export function ActivityPage() {
             ? <TransactionList items={items} grouped />
             : <StateMessage illustration="empty" title="No encontramos movimientos" body="Prueba otro mes o ajusta los filtros para ver más actividad." actionLabel="Agregar movimiento" action={() => setSheet('new')} />}
       </section>
-      <p className="activity-footnote"><PawPrint aria-hidden="true" /> Revisa tu actividad con calma: los datos y los totales se actualizan con tus movimientos registrados.</p>
+      <p className="activity-footnote"><Info aria-hidden="true" /> Los pagos de deuda no duplican tus gastos.</p>
     </div>
   )
 }

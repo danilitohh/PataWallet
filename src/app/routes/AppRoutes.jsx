@@ -16,7 +16,9 @@ export function AppRoutes() {
       <Route path="/" element={<DashboardPage />} />
       <Route path="/actividad" element={<ActivityPage />} />
       <Route path="/plan" element={<PlanPage />} />
+      <Route path="/plan/presupuesto" element={<PlanPage />} />
       <Route path="/cuentas" element={<AccountsPage />} />
+      {['deudas', 'gastos-fijos', 'pagos'].map((section) => <Route key={section} path={`/cuentas/${section}`} element={<AccountsPage />} />)}
       <Route path="/parejas" element={<CouplesPage />} />
       <Route path="/asistente" element={<AssistantPage />} />
       <Route path="/ajustes" element={<SettingsPage />} />

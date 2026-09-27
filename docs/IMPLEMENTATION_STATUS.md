@@ -1,6 +1,17 @@
 # Estado de implementación
 
-Actualizado: 2026-09-26. Fase actual: **diseño Serena en Parejas; validación en iPhone real pendiente**.
+Actualizado: 2026-09-26. Fase actual: **rediseño Calma + editorial de las seis secciones; validación en iPhone real pendiente**.
+
+## Calma + editorial · presentación de las seis secciones · 26 de septiembre
+
+- Aplicado el lenguaje visual aprobado en Inicio, Actividad, Plan, Cuentas, Parejas y Ajustes: azul noche, lavanda/rosa, superficies abiertas, filas con separadores, cifras prominentes, iconos coherentes y botones sin profundidad 3D. La habilidad design-system orientó la coherencia compartida; browser-qa, la comprobación visual y funcional. No se añadieron dependencias.
+- Navegación inferior de cinco destinos en móvil y barra lateral en escritorio. Registrar movimiento queda como acción explícita en Inicio/Actividad; el asistente sigue disponible en Ajustes. Cuentas tiene rutas `/cuentas`, `/cuentas/deudas`, `/cuentas/gastos-fijos` y `/cuentas/pagos`; Plan conserva metas y presupuesto en `/plan` y `/plan/presupuesto`. Las rutas desconocidas conservan la página 404.
+- Los formularios, permisos, validaciones, callbacks financieros y persistencia se reutilizan. No se modificaron backend, API, SQL, servicios, autenticación, sincronización, service worker ni funciones de dominio. Los nuevos resúmenes de lectura reutilizan los vencimientos existentes y suman saldos compartidos ya recibidos mediante el helper entero existente; no generan movimientos ni alteran saldos.
+- Se conservan ingresos recibidos, calendario de pago, compras previstas, otras vistas de Inicio, exportación/restauración, errores de sincronización y recorridos por tema bajo opciones desplegables. La checklist y los editores conservan confirmación, paginación, borradores, privacidad y recuperación. La guía apunta a controles reales del nuevo diseño.
+- Las imágenes son referencia, no capturas incrustadas: importes, nombres, fechas, porcentajes y estados dependen de registros reales. No se inventaron perfil editable, páginas legales, integración bancaria ni personas para reproducir elementos ilustrativos. La composición se adapta a cada ancho y al número real de cuentas/metas; no se emula la barra de estado de iOS.
+- Verificado: lint, build y 129 pruebas unitarias/API. La segunda suite completa de navegador dio 132 correctas, 2 fallidas y 4 variantes no aplicables omitidas. Los dos fallos eran una carrera del test al abrir/cerrar el grupo de recorridos antes de restaurar el foco. Corregida la espera, la repetición dirigida pasó 6/6 (dos veces en cada tamaño): los 134 escenarios aplicables quedaron validados, sin afirmar una tercera pasada completa. La primera pasada también permitió corregir aperturas/cierres redundantes y navegación prematura en los tests, sin retirar comprobaciones de dinero ni cambiar handlers para hacerlos pasar.
+- Evidencia visual local: `output/playwright/calm-*.png`, `couples-serena-*.png`, `fixed-expenses-*.png` y `guide-*.png`. Las comprobaciones comparan registros antes/después de navegar, cubren 390×844, 375×812 y 1440×900 y usan únicamente demo o servicios simulados, nunca escrituras financieras remotas.
+- Pendiente: verificación en iPhone físico/VoiceOver, sesión remota y comprobación posterior a publicación. No se realizó despliegue manual ni modificación de servicios externos en esta tarea.
 
 ## Parejas · Serena · 26 de septiembre
 

@@ -4,7 +4,7 @@ import { NightIcon } from '../../../shared/components/NightIcon.jsx'
 
 // Composes a setting label and its control using the app's shared Night icon treatment.
 export function SettingRow({ icon: Icon, tone = 'violet', title, detail, children }) {
-  return <div className="setting-row"><NightIcon icon={Icon} className="setting-row__icon" tone={tone} /><div><h3>{title}</h3><p>{detail}</p></div><div className="setting-row__control">{children}</div></div>
+  return <div className="setting-row"><NightIcon icon={Icon} className="setting-row__icon" tone={tone} /><div><h3>{title}</h3>{detail && <p>{detail}</p>}</div><div className="setting-row__control">{children}</div></div>
 }
 
 // Turns a setting row into a route link while retaining its icon, copy and accessible target.

@@ -10,9 +10,10 @@ test('prioriza la meta y mantiene visibles presupuesto, margen y compras', async
   await page.getByRole('button', { name: /probar con datos de ejemplo/i }).click()
   await page.getByRole('link', { name: 'Plan', exact: true }).click()
 
-  await expect(page.getByRole('heading', { name: 'Metas y plan' })).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'Un viaje especial' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Plan', exact: true })).toBeVisible()
+  await expect(page.locator('.plan-goal-row').getByText('Un viaje especial')).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Tu presupuesto' })).toBeVisible()
+  await page.getByText('Compras previstas y margen disponible', { exact: true }).click()
   await expect(page.locator('.plan-free')).toContainText('Margen tras pagos pendientes')
   await expect(page.getByRole('heading', { name: 'Próximas compras' })).toBeVisible()
   await expect(page.getByText('Aún no has anotado compras futuras.')).toBeVisible()
@@ -29,7 +30,7 @@ test('conecta las acciones de meta, presupuesto y compra con sus diálogos', asy
   await page.getByRole('button', { name: /probar con datos de ejemplo/i }).click()
   await page.getByRole('link', { name: 'Plan', exact: true }).click()
 
-  await page.getByRole('button', { name: 'Apartar a esta meta' }).click()
+  await page.getByRole('button', { name: 'Aportar', exact: true }).click()
   const allocationDialog = page.getByRole('dialog', { name: 'Reservar para Un viaje especial' })
   await expect(allocationDialog).toBeVisible()
   await allocationDialog.getByRole('button', { name: 'Cerrar' }).click()
@@ -39,11 +40,12 @@ test('conecta las acciones de meta, presupuesto y compra con sus diálogos', asy
   await expect(budgetDialog).toBeVisible()
   await budgetDialog.getByRole('button', { name: 'Cerrar' }).click()
 
-  await page.getByRole('button', { name: 'Otra meta' }).click()
+  await page.getByRole('button', { name: 'Crear meta', exact: true }).click()
   const goalDialog = page.getByRole('dialog', { name: 'Nueva meta' })
   await expect(goalDialog).toBeVisible()
   await goalDialog.getByRole('button', { name: 'Cerrar' }).click()
 
+  await page.getByText('Compras previstas y margen disponible', { exact: true }).click()
   await page.getByRole('button', { name: 'Agregar', exact: true }).click()
   const purchaseDialog = page.getByRole('dialog', { name: 'Agregar próxima compra' })
   await expect(purchaseDialog).toBeVisible()

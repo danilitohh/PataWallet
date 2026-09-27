@@ -1,0 +1,26 @@
+/* Metas en una lista; presupuesto y compras reutilizan sus diálogos y evaluaciones. */
+.calm-app .calm-goals { display: grid; gap: 22px; }
+.calm-goal-balance { display: grid; gap: 4px; }
+.calm-goal-balance > span { font-weight: 600; }
+.calm-goal-balance p { font-size: .88rem; }
+.calm-app .plan-goal-list { gap: 0; }
+.calm-app .plan-goal-row { display: grid; grid-template-columns: 40px minmax(0,1fr) 58px; gap: 12px; border: 0; border-bottom: 1px solid var(--border); background: none; padding: 18px 0; border-radius: 0; }
+.calm-app .plan-goal-row__icon { width: 40px; height: 40px; background: var(--surface); color: var(--text-2); border: 0; border-radius: 50%; }
+.calm-app .plan-goal-row__content { gap: 8px; }
+.calm-app .plan-goal-row__content > strong { font-size: .94rem; }
+.calm-app .plan-goal-row__content > span { font-size: .78rem; }
+.calm-app .plan-goal-row__actions { grid-column: 3; grid-row: 1; display: flex; flex-direction: column; gap: 0; border-left: 1px solid var(--border); }
+.calm-app .plan-goal-row__actions .button { flex-direction: column; font-size: .72rem; padding: 0 5px; gap: 4px; }
+.calm-goal-options summary { display: grid; place-items: center; list-style: none; text-align: center; min-width: 44px; min-height: 44px; cursor: pointer; color: var(--text-2); }
+.calm-goal-options summary::-webkit-details-marker { display: none; }
+.calm-goal-progress { display: flex; gap: 10px; align-items: center; }
+.calm-goal-progress .progress-wrap { flex: 1; min-width: 0; }
+.calm-goal-progress small { font-size: .75rem; color: var(--text-2); }
+.calm-app .plan-overview-grid { display: block; }
+.calm-app .plan-budget { padding: 18px; background: transparent; border: 1px solid var(--border); box-shadow: none; border-radius: 14px; }
+.calm-app .plan-budget__amounts { font-size: .84rem; }
+.calm-app .plan-panel__heading { margin-bottom: 14px; }
+.calm-app .plan-budget .plan-eyebrow { font-size: .72rem; text-transform: none; letter-spacing: 0; }
+.calm-app .plan-text-action { min-height: 44px; }
+.calm-app .calm-planning-details .plan-free { margin-bottom: 24px; }
+.calm-app .calm-goals > .section-heading { margin-bottom: -12px; }

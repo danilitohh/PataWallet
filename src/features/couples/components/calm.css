@@ -1,0 +1,26 @@
+/* Parejas comparte el lenguaje visual sin alterar permisos ni peticiones de aprobación. */
+.calm-app .couples-serena { gap: 26px; }
+.calm-app .couples-serena__intro { display: grid; grid-template-columns: auto minmax(0,1fr); align-items: center; border: 0; padding: 0; background: none; }
+.couples-serena__title { grid-column: 1/-1; }
+.calm-app .couples-serena__intro p { font-size: .9rem; }
+.calm-app .couples-serena__intro .button { margin: 0; justify-self: end; }
+.calm-app .couples-serena__members { gap: 18px; padding-top: 0; }
+.calm-app .couples-serena__members .night-icon { width: 46px; height: 46px; }
+.calm-app .couples-serena__groups { grid-template-columns: minmax(0,1fr); gap: 26px; }
+.calm-app .couples-serena__group { border: 0; border-radius: 0; padding: 0; background: none; }
+.calm-app .couples-serena__heading { margin-bottom: 15px; }
+.calm-app .couples-serena__heading > span { color: var(--text-2); background: none; border: 0; }
+.couples-money-total { display: block; margin-bottom: 16px; }
+.calm-app .shared-account-list { gap: 0; }
+.calm-app .couples-serena .shared-account-card { border: 0; border-bottom: 1px solid var(--border); border-radius: 0; background: none; padding: 18px 0; }
+.calm-app .shared-account-card__heading { grid-template-columns: 40px minmax(0,1fr) auto; gap: 12px; }
+.calm-app .shared-account-card__heading > strong { font-size: .94rem; }
+.calm-app .shared-debt-progress progress { height: 6px; }
+.calm-app .shared-debt-progress progress::-webkit-progress-value { background: var(--button-fill); }
+.calm-app .shared-debt-progress progress::-moz-progress-bar { background: var(--button-fill); }
+.calm-app .shared-debt-progress__label strong { color: var(--text-2); }
+.calm-app .shared-debt-progress progress { grid-row: 1; }
+.calm-app .couples-serena__requests { border: 0; border-top: 1px solid var(--border); border-radius: 0; padding: 16px 0; background: none; }
+.calm-app .couples-serena__propose { width: 100%; }
+.calm-app .couples-serena__privacy { text-align: center; justify-content: center; font-size: .78rem; }
+.calm-app .couples-serena__help { background: none; padding: 0; border: 0; }

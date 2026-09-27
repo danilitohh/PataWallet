@@ -1,0 +1,21 @@
+/* Ajustes conserva sus controles funcionales y agrupa instalación, preferencias y ayuda. */
+.calm-app .settings-page--serene { display: grid; grid-template-columns: minmax(0,1fr); gap: 22px; }
+.calm-app .settings-page--serene > * { grid-column: auto; }
+.calm-app .settings-page--serene .settings-group { border: 0; border-radius: 0; background: none; padding: 0; box-shadow: none; }
+.calm-app .settings-page--serene .settings-group > h2 { font-size: .76rem; text-transform: uppercase; letter-spacing: .035em; color: var(--text-2); margin-bottom: 6px; }
+.calm-app .settings-group--account > h2, .calm-app .settings-group--account > .settings-group__intro { display: none; }
+.calm-app .settings-page--serene .setting-row { padding: 14px 0; grid-template-columns: 36px minmax(0,1fr) auto; gap: 12px; border-bottom: 1px solid var(--border); min-height: 62px; }
+.calm-app .settings-page--serene .setting-row + .setting-row, .calm-app .settings-page--serene .settings-group > .setting-link { border-top: 0; border-radius: 0; }
+.calm-app .settings-page--serene .settings-group > .setting-link:last-child { border-bottom: 0; }
+.calm-app .settings-page--serene .settings-group--account .setting-row { padding: 14px 0; background: transparent; border: 0; border-bottom: 1px solid var(--border); border-radius: 0; }
+.calm-app .settings-page--serene .setting-row__icon { width: 36px; height: 36px; }
+.calm-app .settings-page--serene .setting-row h3 { font-size: .88rem; }
+.calm-app .settings-page--serene .setting-row p { font-size: .74rem; line-height: 1.4; }
+.calm-app .settings-page--serene .setting-row__control { justify-self: end; }
+.calm-app .settings-page--serene .setting-row__control select { min-width: 0; width: 100px; padding-inline: 6px; background-color: transparent; border: 1px solid var(--border); border-radius: 10px; font-size: .8rem; color: var(--text-2); }
+.calm-app .settings-page--serene .setting-static-value { background: none; border: 0; padding: 0; font-size: .8rem; color: var(--text-2); }
+.calm-app .settings-page--serene .compact-action { padding: 6px; font-size: .78rem; }
+.calm-app .settings-page--serene .pwa-install--compact { margin: 0; }
+.calm-app .settings-page--serene .pwa-install__guide { margin-block: 12px; }
+.calm-app .settings-page--serene .calm-details { border: 0; padding: 0; }
+.calm-app .settings-page__logout { width: 100%; color: var(--danger); border-color: var(--danger); }

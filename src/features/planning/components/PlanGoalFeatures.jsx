@@ -56,11 +56,11 @@ export function PlanGoalRow({ goal, progress, hidden, onReserve, onDelete }) {
     <div className="plan-goal-row__content">
       <strong>{goal.name}</strong>
       <span>{formatMinor(progress.reserved, 'COP', hidden)} de {formatMinor(goal.target_minor, 'COP', hidden)}</span>
-      <Progress value={progress.percent} label={`${Math.round(progress.percent)}% completado`} />
+      {hidden ? <small>Avance oculto</small> : <div className="calm-goal-progress"><Progress value={progress.percent} label={`${Math.round(progress.percent)}% completado`} /><small>{Math.round(progress.percent)} %</small></div>}
     </div>
     <div className="plan-goal-row__actions">
-      <button className="button button--quiet" type="button" onClick={() => onReserve(goal)}>Reservar</button>
-      <button className="icon-button icon-button--small" type="button" aria-label={`Eliminar meta ${goal.name}`} onClick={() => onDelete(goal)}><Trash2 aria-hidden="true" /></button>
+      <button className="button button--quiet" type="button" onClick={() => onReserve(goal)}><Plus aria-hidden="true" /> Aportar</button>
+      <details className="calm-goal-options"><summary aria-label={`Opciones de meta ${goal.name}`}>···</summary><button className="icon-button icon-button--small" type="button" aria-label={`Eliminar meta ${goal.name}`} onClick={() => onDelete(goal)}><Trash2 aria-hidden="true" /></button></details>
     </div>
   </article>
 }

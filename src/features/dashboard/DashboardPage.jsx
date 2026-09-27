@@ -47,20 +47,18 @@ export function DashboardPage() {
   }
 
   return <div className="route-stack dashboard">
-    <DashboardViewPicker value={selectedView} actions={actions} />
-    <PageHeader title={`Hola, ${user?.user_metadata?.display_name?.split(' ')[0] || user?.user_metadata?.full_name?.split(' ')[0] || 'Danilo'}`} subtitle="Qué bueno tenerte por aquí." action={<button className="icon-button" aria-label={hidden ? 'Mostrar montos' : 'Ocultar montos'} onClick={() => actions.setSetting('hiddenAmounts', !hidden)}>{hidden ? <EyeOff /> : <Eye />}</button>} />
-    {isDemo && <DemoBanner />}
-    <div className="month-row"><label htmlFor="month-home">Mes</label><input id="month-home" type="month" value={month} onChange={(event) => setMonth(event.target.value)} /></div>
+    <PageHeader title={`Hola, ${user?.user_metadata?.display_name?.split(' ')[0] || user?.user_metadata?.full_name?.split(' ')[0] || 'Danilo'}`} action={isDemo && <DemoBanner />} />
     <AnimatePresence initial={false} mode="wait">
       <motion.div key={selectedView} className="dashboard-view-transition" aria-live="polite" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -3 }} transition={{ duration: .18 }}>
-        {selectedView === 'payday' ? <PaydayView {...viewProps} /> : selectedView === 'activity' ? <ActivityView {...viewProps} /> : <AvailableView {...viewProps} />}
+        {selectedView === 'payday' ? <PaydayView {...viewProps} /> : selectedView === 'activity' ? <ActivityView {...viewProps} /> : <AvailableView {...viewProps} month={month} onMonthChange={setMonth} setSheet={setSheet} toggleAmounts={() => actions.setSetting('hiddenAmounts', !hidden)} visibilityIcon={hidden ? EyeOff : Eye} />}
       </motion.div>
     </AnimatePresence>
-    <button className="button button--primary desktop-hidden" onClick={() => setSheet('new')}><Plus /> Registrar movimiento</button>
+    {selectedView !== 'available' && <button className="button button--primary calm-primary" onClick={(event) => { event.currentTarget.focus(); setSheet('new') }}><Plus /> Registrar movimiento</button>}
+    <details className="calm-details"><summary>Otras vistas de Inicio</summary><DashboardViewPicker value={selectedView} actions={actions} /><div className="month-row"><label htmlFor="month-home">Mes</label><input id="month-home" type="month" value={month} onChange={(event) => setMonth(event.target.value)} /></div></details>
   </div>
 }
 
 // Informa cuando el Inicio usa información de demostración local.
 function DemoBanner() {
-  return <div className="demo-banner"><span>Datos de ejemplo</span><p>Guardados solo en este navegador</p></div>
+  return <span className="calm-demo" title="Guardados solo en este navegador">Datos de ejemplo</span>
 }

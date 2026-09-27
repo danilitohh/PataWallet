@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { AnimatePresence } from 'motion/react'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { BadgeCheck, Clock3, Landmark, ListChecks, Plus } from 'lucide-react'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { ArrowDownCircle, CalendarDays, ChevronRight, CreditCard, Eye, EyeOff, ListChecks } from 'lucide-react'
 import { useApp } from '../../app/AppContext.jsx'
 import { calculateSummary } from '../../domain/finance.js'
 import { formatMinor } from '../../domain/money.js'
@@ -12,10 +12,13 @@ import { AccountLedgerPane } from './components/AccountLedgerPane.jsx'
 import { FixedExpensesSection } from './components/FixedExpensesSection.jsx'
 import { IncomeSection } from './components/IncomeSection.jsx'
 import { incomeReference } from '../settings/model/incomeSources.js'
+import { readFixedExpenses } from '../../domain/financialSetup.js'
+import { RecurringPaymentChecklist } from './components/RecurringPaymentChecklist.jsx'
+import { NightIcon } from '../../shared/components/NightIcon.jsx'
 
 // Presenta saldos, deudas, ingresos y compromisos como un registro financiero compacto.
 export function AccountsPage() {
-  const { accounts, transactions, settings } = useApp()
+  const { accounts, transactions, settings, isDemo, setSheet, guideOpen, actions } = useApp()
   const location = useLocation()
   const navigate = useNavigate()
   const params = new URLSearchParams(location.search)
@@ -26,6 +29,9 @@ export function AccountsPage() {
   const summary = calculateSummary(accounts, transactions, currentMonth())
   const visibleAccounts = accounts.filter((account) => !account.archived)
   const previousAmount = confirmingPreviousBalance && !visibleAccounts.some((account) => account.kind === 'asset') ? incomeReference(settings, accounts).salaryMinor : null
+  // Las pestañas solo cambian la vista; los formularios y sus acciones se conservan.
+  const tab = location.hash === '#gastos-fijos' ? 'gastos-fijos' : location.hash === '#ingresos' ? 'ingresos' : location.pathname.split('/')[2] || 'dinero'
+  const expenses = readFixedExpenses(settings.fixedExpenses)
   const closeAccountDialog = () => {
     setOpen(false)
     if (location.search) navigate('/cuentas', { replace: true })
@@ -38,36 +44,10 @@ export function AccountsPage() {
 
   return (
     <div className="route-stack accounts-ledger">
-      <PageHeader
-        className="accounts-ledger__heading"
-        eyebrow="RESUMEN DE CUENTAS"
-        title="Tu dinero, de un vistazo"
-        subtitle="Saldos y próximos compromisos en un mismo registro."
-      />
-
-      <section className="accounts-ledger__summary" aria-label="Totales de cuentas">
-        <div className="accounts-ledger__balance">
-          <span><Landmark aria-hidden="true" /> Dinero en tus cuentas</span>
-          <strong>{formatMinor(summary.assets, 'COP', settings.hiddenAmounts)}</strong>
-          <small>Disponible en efectivo y cuentas propias</small>
-        </div>
-        <div className="accounts-ledger__metrics">
-          <Metric label="Deuda" amount={summary.debt} hidden={settings.hiddenAmounts} tone="debt" />
-          <Metric label="Neto" amount={summary.net} hidden={settings.hiddenAmounts} tone="net" />
-        </div>
-        <button className="button button--secondary accounts-ledger__add" type="button" onClick={() => openAccountDialog()}>
-          <Plus aria-hidden="true" /> Agregar
-        </button>
-      </section>
-
-      <div className="accounts-ledger__status" aria-label="Próximos pagos">
-        <span><Clock3 aria-hidden="true" /> Próximos pagos</span>
-        <strong>Checklist manual</strong>
-        <span className="accounts-ledger__separator" aria-hidden="true" />
-        <span><BadgeCheck aria-hidden="true" /> Marca los pagos al realizarlos</span>
-      </div>
-
-      <div className="accounts-ledger__columns">
+      <PageHeader title="Cuentas" subtitle="Tu dinero y tus compromisos." action={isDemo && <span className="calm-demo">Datos de ejemplo</span>} />
+      <nav className="calm-tabs" aria-label="Secciones de cuentas"><NavLink to="/cuentas" end>Dinero</NavLink><NavLink to="/cuentas/deudas">Deudas</NavLink><NavLink to="/cuentas/gastos-fijos">Gastos fijos</NavLink><NavLink to="/cuentas/pagos">Pagos</NavLink></nav>
+      <div className="calm-account-panel" hidden={tab !== 'dinero' && !guideOpen}>
+        <section className="calm-account-balance" aria-label="Totales de cuentas"><div className="calm-balance-label"><span>Saldo en cuentas</span><button className="icon-button" aria-label={settings.hiddenAmounts ? 'Mostrar montos' : 'Ocultar montos'} onClick={() => actions.setSetting('hiddenAmounts', !settings.hiddenAmounts)}>{settings.hiddenAmounts ? <EyeOff /> : <Eye />}</button></div><strong className="calm-balance">{formatMinor(summary.assets, 'COP', settings.hiddenAmounts)}</strong><p>Saldos registrados, sin descontar pagos pendientes.</p></section>
         <AccountLedgerPane
           kind="asset"
           accounts={visibleAccounts.filter((account) => account.kind === 'asset')}
@@ -77,6 +57,15 @@ export function AccountsPage() {
           onAdd={() => openAccountDialog('asset')}
           onEdit={setEditingAccount}
         />
+        <button className="button button--secondary calm-primary calm-income-action" onClick={() => setSheet('income')}><ArrowDownCircle aria-hidden="true" /> Registrar ingreso<ChevronRight aria-hidden="true" /></button>
+        <section className="calm-account-shortcuts"><h2>Por organizar</h2>
+          <Link to="/cuentas/deudas"><NightIcon icon={CreditCard} /><span><strong>Deudas</strong><small>{visibleAccounts.filter((item) => item.kind === 'liability').length} registradas</small></span><b>{formatMinor(summary.debt, 'COP', settings.hiddenAmounts)}</b><ChevronRight aria-hidden="true" /></Link>
+          <Link to="/cuentas/gastos-fijos"><NightIcon icon={CalendarDays} /><span><strong>Gastos fijos</strong><small>{expenses.length} registrados</small></span><span>Ver lista</span><ChevronRight aria-hidden="true" /></Link>
+          <Link to="/cuentas/pagos"><NightIcon icon={ListChecks} /><span><strong>Pagos pendientes</strong><small>Actuales y siguientes</small></span><ChevronRight aria-hidden="true" /></Link>
+        </section>
+        <details className="calm-details"><summary>Detalle del saldo</summary><Metric label="Posición neta registrada" amount={summary.net} hidden={settings.hiddenAmounts} tone="net" /></details>
+      </div>
+      <div hidden={tab !== 'deudas' && !guideOpen}>
         <AccountLedgerPane
           kind="liability"
           accounts={visibleAccounts.filter((account) => account.kind === 'liability')}
@@ -87,15 +76,9 @@ export function AccountsPage() {
           onEdit={setEditingAccount}
         />
       </div>
-
-      <div className="accounts-ledger__commitments-heading">
-        <div><span className="accounts-ledger__eyebrow">FLUJO DEL MES</span><h2>Entradas y compromisos</h2></div>
-        <ListChecks aria-hidden="true" />
-      </div>
-      <div className="accounts-ledger__commitments">
-        <IncomeSection />
-        <FixedExpensesSection />
-      </div>
+      <details className="calm-details" hidden={tab !== 'dinero' && tab !== 'ingresos' && !guideOpen} open={tab === 'ingresos' || guideOpen}><summary>Mis ingresos</summary><IncomeSection /></details>
+      <div hidden={tab !== 'gastos-fijos' && !guideOpen}><FixedExpensesSection standalone showChecklist={false} /></div>
+      <div hidden={tab !== 'pagos' && !guideOpen}><RecurringPaymentChecklist expenses={expenses} settings={settings} /></div>
 
       <AnimatePresence>
         {open && <AccountDialog initialKind={accountKind} initialAmount={previousAmount} close={closeAccountDialog} />}

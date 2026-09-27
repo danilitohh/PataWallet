@@ -1,5 +1,5 @@
-import { AlertTriangle, Bell, Bot, CircleDollarSign, CircleHelp, Eye, EyeOff, Handshake, LogOut, Menu, Moon, RefreshCw, Smartphone, UserRound } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { AlertTriangle, Bell, Bot, CircleDollarSign, Compass, CreditCard, Eye, EyeOff, Handshake, LogOut, SlidersHorizontal, Moon, RefreshCw, UserRound } from 'lucide-react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useApp } from '../../app/AppContext.jsx'
 import { PageHeader } from '../../shared/components/PageHeader.jsx'
 import { SettingLink, SettingRow, Switch } from './components/SettingsControls.jsx'
@@ -11,6 +11,7 @@ import { GUIDE_TOURS } from '../onboarding/guideSteps.js'
 export function SettingsPage() {
   const { settings, syncState, notify, actions, isDemo, user, signOut, accounts, categories, transactions, budgets, goals, allocations, plannedPurchases, startGuide } = useApp()
   const navigate = useNavigate()
+  const location = useLocation()
   const setSetting = (key, value) => actions.setSetting(key, value)
 
   // Restaura solamente la demo local y vuelve a Inicio después de confirmar el resultado.
@@ -22,43 +23,40 @@ export function SettingsPage() {
 
   return (
     <div className="route-stack settings-page--serene">
-      <PageHeader title="Ajustes" subtitle={isDemo ? 'Preferencias de esta demo local.' : 'Preferencias de tu cuenta.'} />
+      <PageHeader title="Ajustes" subtitle="Tu app, a tu manera." action={isDemo && <span className="calm-demo">Datos de ejemplo</span>} />
 
       <SettingsSection id="settings-account-heading" title="Cuenta" intro={isDemo ? 'Esta información de ejemplo se guarda en este dispositivo.' : 'Tu perfil y acceso a PataWallet.'} className="settings-group--account">
         <SettingRow icon={UserRound} tone="violet" title={isDemo ? 'Espacio de demostración' : user?.user_metadata?.display_name || user?.user_metadata?.full_name || 'Tu cuenta'} detail={isDemo ? 'Tus datos reales permanecen separados.' : user?.email || 'Sesión autenticada'}>
           <span className="setting-static-value">{isDemo ? 'Local' : 'Activa'}</span>
         </SettingRow>
-        {!isDemo && <button className="button button--secondary settings-page__logout" type="button" onClick={signOut}><LogOut aria-hidden="true" /> Cerrar sesión</button>}
       </SettingsSection>
 
-      <SettingsSection id="settings-appearance-heading" title="Apariencia y privacidad" intro="Un espacio cómodo y privado para tus finanzas." className="settings-group--appearance">
-        <SettingRow icon={Moon} tone="violet" title="Modo nocturno" detail="El tema oscuro está siempre activo en PataWallet"><span className="setting-static-value">Siempre activo</span></SettingRow>
+      <SettingsSection id="settings-application-heading" title="Aplicación" className="settings-group--application">
+        <PwaInstallControl compact />
+        <SettingLink icon={CreditCard} tone="sky" title="Pagos con tarjeta" detail="Configura el atajo de iPhone" to="/ajustes/automatizacion" />
+        <SettingLink icon={Bell} tone="rose" title="Notificaciones" detail="Administrar avisos" to="/ajustes/notificaciones" />
+      </SettingsSection>
+
+      <SettingsSection id="settings-appearance-heading" title="Preferencias" className="settings-group--appearance">
         <SettingRow icon={settings.hiddenAmounts ? EyeOff : Eye} tone="sky" title="Ocultar montos" detail="Privacidad visual; no reemplaza la autenticación"><Switch checked={Boolean(settings.hiddenAmounts)} label="Ocultar montos" onChange={(value) => setSetting('hiddenAmounts', value)} /></SettingRow>
-        <SettingRow icon={Menu} tone="mint" title="Movimiento" detail="Respeta la preferencia de movimiento de tu dispositivo"><select aria-label="Movimiento" value={settings.motion || 'system'} onChange={(event) => setSetting('motion', event.target.value)}><option value="system">Sistema</option><option value="soft">Suave</option><option value="off">Desactivado</option></select></SettingRow>
+        <SettingRow icon={Moon} tone="violet" title="Apariencia"><span className="setting-static-value">Oscuro</span></SettingRow>
+        <SettingRow icon={SlidersHorizontal} tone="mint" title="Animaciones"><select aria-label="Movimiento" value={settings.motion || 'system'} onChange={(event) => setSetting('motion', event.target.value)}><option value="system">Sistema</option><option value="soft">Suave</option><option value="off">Desactivado</option></select></SettingRow>
       </SettingsSection>
 
-      <PwaInstallControl />
-
-      {!isDemo && <SettingsSection id="settings-sharing-heading" title="Compartir" intro="Decide qué cuentas o deudas compartir." className="settings-group--sharing">
-        <SettingLink icon={Handshake} tone="peach" title="Cuentas en pareja" detail="Administra el acceso compartido" to="/parejas" />
-      </SettingsSection>}
-
-      <SettingsSection id="settings-help-heading" title="Asistencia" intro="Ayuda para entender tus movimientos y cuentas." className="settings-group--help">
-        <SettingRow icon={CircleHelp} tone="sky" title="Guía de uso" detail="Recorre Inicio, Cuentas y el registro de movimientos"><button className="compact-action" type="button" data-guide-start="general" onClick={() => startGuide()}>Ver guía</button></SettingRow>
-        <div className="guide-topics" aria-label="Recorridos por tema">{Object.entries(GUIDE_TOURS).filter(([key]) => key !== 'general').map(([key, tour]) => <button className="button button--quiet" type="button" key={key} data-guide-start={key} onClick={() => startGuide(key)}>{tour.label}</button>)}</div>
+      <SettingsSection id="settings-help-heading" title="Ayuda y datos" className="settings-group--help">
+        <SettingRow icon={Compass} tone="sky" title="Guía paso a paso"><button className="compact-action" type="button" data-guide-start="general" onClick={() => startGuide()}>Ver guía</button></SettingRow>
+        <details className="calm-details" open={Boolean(location.state?.guideFocus && location.state.guideFocus !== 'general')}><summary>Recorridos por tema</summary><div className="guide-topics" aria-label="Recorridos por tema">{Object.entries(GUIDE_TOURS).filter(([key]) => key !== 'general').map(([key, tour]) => <button className="button button--quiet" type="button" key={key} data-guide-start={key} onClick={() => startGuide(key)}>{tour.label}</button>)}</div></details>
         <SettingLink icon={Bot} tone="violet" title="Asistente PataWallet" detail="Preguntas y resúmenes de solo lectura" to="/asistente" />
+        {!isDemo && <SettingLink icon={Handshake} tone="peach" title="Cuentas en pareja" detail="Administra el acceso compartido" to="/parejas" />}
       </SettingsSection>
-
-      <SettingsSection id="settings-integrations-heading" title="Servicios" intro="Recordatorios y herramientas para tu día a día." className="settings-group--integrations">
-        <SettingLink icon={Bell} tone="rose" title="Notificaciones" detail="Instalación, permisos y privacidad" to="/ajustes/notificaciones" />
-        <SettingLink icon={Smartphone} tone="sky" title="Automatización" detail="Atajos, tarjetas, reglas y revisión" to="/ajustes/automatizacion" />
-      </SettingsSection>
-
+      <details className="calm-details"><summary>{isDemo ? 'Datos de demostración' : 'Exportar datos y sincronización'}</summary>
       <SettingsSection id="settings-data-heading" title={isDemo ? 'Datos de demostración' : 'Datos'} intro={isDemo ? 'Una moneda activa y datos locales separados.' : 'Moneda, sincronización y copias de seguridad.'} className="settings-group--data">
         <SettingRow icon={CircleDollarSign} tone="gold" title="Moneda" detail="Una moneda activa en esta fase"><strong className="setting-static-value">COP</strong></SettingRow>
         {!isDemo && <RemoteDataControls data={{ accounts, categories, transactions, budgets, goals, allocations, plannedPurchases, settingsRows: Object.entries(settings).map(([key, value]) => ({ key, value })) }} user={user} syncState={syncState} actions={actions} notify={notify} />}
         {isDemo && <button className="button button--danger settings-page__reset" type="button" onClick={resetDemo}>Restaurar datos de ejemplo</button>}
       </SettingsSection>
+      </details>
+      {!isDemo && <button className="button button--secondary settings-page__logout" type="button" onClick={signOut}><LogOut aria-hidden="true" /> Cerrar sesión</button>}
     </div>
   )
 }
