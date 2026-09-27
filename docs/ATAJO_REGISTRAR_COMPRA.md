@@ -97,6 +97,8 @@ No mostrar “vinculado” si falta alguno de esos campos o falla el guardado.
 2. Probar primero `pair` y después `connection_test`; ninguna de estas operaciones crea una compra.
 3. En la siguiente compra habitual compatible, comprobar los valores y tipos efectivos de `Tarjeta o pase`, `Comercio` y `Cantidad`; no registrar número completo de tarjeta.
 4. Confirmar débito/crédito, mapeo de alias, categoría, duplicado y revocación con `docs/FASE_4_PRUEBAS_IPHONE.md`.
-5. Enlace publicado: `https://www.icloud.com/shortcuts/12c4f7d2f466425ba3e9379203ab59f5`. Configurar en Vercel `SHORTCUT_ICLOUD_URL`, `SHORTCUT_TEMPLATE_VERSION` y `SHORTCUT_NAME`. Añadir `SHORTCUT_MIN_IOS_TESTED` únicamente después de completar las pruebas reales en esa versión de iOS.
+5. Enlace corregido compartido por el responsable el 27 de septiembre de 2026: `https://www.icloud.com/shortcuts/a804ef275939493cafca512894b61c8c`. Sustituye el enlace anterior `12c4f7d2f466425ba3e9379203ab59f5`. Configurar en Vercel `SHORTCUT_ICLOUD_URL`, conservando `SHORTCUT_TEMPLATE_VERSION=1.0.0` y `SHORTCUT_NAME=PataWallet - Registrar compra`, que coinciden con la plantilla del iPhone. Añadir `SHORTCUT_MIN_IOS_TESTED` únicamente después de completar las pruebas reales en esa versión de iOS.
+
+La corrección añade la petición a `/api/shortcuts/test` tras guardar el token y condiciona el aviso de éxito a `status = connection_verified`. El responsable confirmó que la vinculación corregida funcionó; no equivale a validar compras reales, reintentos ni la importación en otro iPhone. Los usuarios con la copia anterior necesitan instalar la corregida conservando el nombre usado por su automatización. Nunca distribuir el archivo privado del token.
 
 Con URL, origen y versión válidos, la UI puede mostrar **Plantilla disponible**, pero debe indicar **pendiente de validación en iPhone** mientras falte `SHORTCUT_MIN_IOS_TESTED`.

@@ -50,13 +50,14 @@ describe('contrato de eventos de Atajos', () => {
 
   it('habilita una plantilla publicada aunque la prueba de iOS siga pendiente', () => {
     const prior = Object.fromEntries(['SHORTCUT_ICLOUD_URL', 'APP_ORIGIN', 'SHORTCUT_TEMPLATE_VERSION', 'SHORTCUT_MIN_IOS_TESTED'].map((key) => [key, process.env[key]]))
-    process.env.SHORTCUT_ICLOUD_URL = 'https://www.icloud.com/shortcuts/12c4f7d2f466425ba3e9379203ab59f5'
+    process.env.SHORTCUT_ICLOUD_URL = 'https://www.icloud.com/shortcuts/a804ef275939493cafca512894b61c8c'
     process.env.APP_ORIGIN = 'https://pata-wallet.vercel.app'
     process.env.SHORTCUT_TEMPLATE_VERSION = '1.0.0'
     delete process.env.SHORTCUT_MIN_IOS_TESTED
 
     const metadata = templateMetadata()
     expect(metadata.availability).toBe('available')
+    expect(metadata.shortcutIcloudUrl).toBe(process.env.SHORTCUT_ICLOUD_URL)
     expect(metadata.minSupportedVersionTested).toBeNull()
 
     for (const [key, value] of Object.entries(prior)) {

@@ -2,6 +2,13 @@
 
 Actualizado: 2026-09-27. Fase actual: **rediseño cristal lavanda; validación en iPhone real pendiente**.
 
+## Enlace del atajo corregido en producción · 27 de septiembre
+
+- Con autorización explícita, actualizada únicamente `SHORTCUT_ICLOUD_URL` en Production de Vercel a `https://www.icloud.com/shortcuts/a804ef275939493cafca512894b61c8c`. Se conservan nombre y versión 1.0.0 para no invalidar la plantilla ni las vinculaciones existentes.
+- Redesplegada la misma fuente de producción `2b634b3`, sin cambios de código de aplicación, SQL ni datos financieros. Vercel confirmó Ready en `E6AnEModX4DrPTF8rwyfwTD5G7Qr`, asignado a `pata-wallet.vercel.app`; el despliegue anterior `BqYVpnwUPKb8HRZYDbgKDha8kFkM` queda como referencia de recuperación.
+- Verificado en la app autenticada tras recargar: «Añadir atajo» apunta exactamente al nuevo enlace. iCloud muestra «PataWallet - Registrar compra». Lint y 7 pruebas del contrato de Atajos correctas; la prueba comprueba que se entrega la URL configurada. Evidencia: `output/playwright/serial-check/shortcut-release.png`.
+- La habilidad deployment-patterns orientó la comprobación de entorno, conservación de la versión anterior y verificación posterior del enlace real. El responsable informó que la vinculación corregida funcionó en su iPhone; siguen pendientes importación en un segundo dispositivo y prueba de una compra habitual. No se certificó la ejecución completa de la plantilla ni se modificó `SHORTCUT_MIN_IOS_TESTED`.
+
 ## Inicio único y detalle financiero en cristal · 27 de septiembre
 
 - Retirado «Otras vistas de Inicio». Inicio utiliza siempre la vista principal, incluso con una preferencia antigua de Quincena o Actividad, sin reescribir ajustes ni registros. El selector de mes permanece en el resumen.
