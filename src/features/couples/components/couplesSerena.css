@@ -1,0 +1,61 @@
+/* Serena: resumen abierto, dos clases de saldo y acciones secundarias bajo demanda. */
+.couples-serena { display: grid; gap: 20px; }
+.couples-serena__intro { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 4px 0 8px; }
+.couples-serena__intro p { margin: 10px 0 16px; font-size: .87rem; max-width: 36ch; }
+.couples-serena__intro .button { min-height: 44px; border-color: var(--accent); background: transparent; font-size: .8rem; }
+.couples-serena__members { display: flex; align-items: center; gap: 5px; padding-top: 2px; flex-shrink: 0; }
+.couples-serena__members > span { display: grid; justify-items: center; gap: 8px; font-size: .72rem; color: var(--text-2); }
+.couples-serena__members .night-icon { width: 48px; height: 48px; border-radius: 50%; }
+.couples-serena__heart { width: 12px; height: 12px; color: var(--accent); fill: currentColor; margin-top: -20px; }
+.couples-serena__groups { display: grid; gap: 24px; align-items: start; }
+.couples-serena__group { min-width: 0; display: grid; gap: 12px; }
+.couples-serena__heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.couples-serena__heading h2 { font-size: 1.05rem; }
+.couples-serena__heading > span { color: var(--text-2); font-size: .75rem; }
+.couples-serena__empty { padding: 18px; border: 1px dashed var(--border); border-radius: 18px; font-size: .85rem; }
+.couples-serena .shared-account-list { gap: 10px; }
+.couples-serena .shared-account-card { border-radius: 18px; padding: 16px; background: var(--panel-fill, var(--surface)); }
+.shared-account-list .shared-account-card > .shared-account-card__heading { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; gap: 10px; }
+.shared-account-card__heading .night-icon { width: 36px; height: 36px; border-radius: 12px; }
+.shared-account-card__heading strong { font-size: .88rem; }
+.shared-account-card__heading > strong { font-size: 1rem; }
+.couples-serena .shared-debt-progress { border-top: 0; padding-top: 2px; }
+.couples-serena .shared-debt-progress progress { height: 7px; }
+.couples-serena__requests { display: flex; align-items: center; gap: 12px; text-align: left; width: 100%; min-height: 78px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 18px; background: var(--panel-fill, var(--surface)); }
+.couples-serena__requests > span:not(.night-icon) { flex: 1; display: grid; gap: 4px; }
+.couples-serena__requests .night-icon { width: 38px; height: 38px; flex-shrink: 0; }
+.couples-serena__requests > svg { flex-shrink: 0; color: var(--text-2); }
+.couples-serena__requests strong { font-size: .9rem; }
+.couples-serena__requests small { color: var(--text-2); line-height: 1.4; }
+.couples-serena__propose { width: 100%; }
+.couples-serena__privacy { display: flex; align-items: flex-start; justify-content: center; gap: 8px; font-size: .75rem; }
+.couples-serena__privacy svg { width: 16px; height: 16px; flex-shrink: 0; }
+.couples-serena__help { color: var(--text-2); font-size: .78rem; }
+.couples-serena__help summary { cursor: pointer; padding: 12px 0; min-height: 44px; }
+.couples-serena__help summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.couples-serena__help p { padding-bottom: 10px; }
+
+/* Diálogos reutilizan foco, retorno, scroll y fondo inerte del componente común. */
+.couples-serena__dialog { display: grid; gap: 16px; }
+.couples-serena__dialog p { font-size: .85rem; }
+.couples-serena__dialog .couple-account-picker label { display: flex; }
+.couples-serena__dialog .couple-account-picker input { width: 20px; min-height: 20px; height: 20px; flex-shrink: 0; }
+.couples-serena__request-list article { display: grid; gap: 12px; }
+.couples-serena__request-list article > div:first-child { display: grid; gap: 6px; overflow-wrap: anywhere; }
+.couples-serena__request-list article > div:last-child:not(:first-child) { display: flex; flex-wrap: wrap; }
+.couples-serena__request-list .button { min-height: 44px; }
+
+/* Conserva cifras completas y orden de lectura en móvil; aprovecha el ancho de escritorio. */
+@media (min-width: 760px) {
+  .couples-serena__groups { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .couples-serena__members .night-icon { width: 58px; height: 58px; }
+}
+@media (max-width: 420px) {
+  .couples-serena__intro { gap: 10px; }
+  .couples-serena__members { gap: 2px; }
+  .couples-serena__members .night-icon { width: 38px; height: 38px; }
+  .couples-serena .shared-account-card { padding: 13px; }
+  .shared-account-list .shared-account-card > .shared-account-card__heading { grid-template-columns: 28px minmax(0, 1fr) minmax(0, auto); gap: 8px; }
+  .shared-account-card__heading .night-icon { width: 28px; height: 32px; }
+  .shared-account-card__heading > strong { font-size: .91rem; white-space: normal; overflow-wrap: anywhere; }
+}

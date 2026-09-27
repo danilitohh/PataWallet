@@ -1,6 +1,15 @@
 # Estado de implementación
 
-Actualizado: 2026-09-26. Fase actual: **avance de pago en deudas compartidas; validación en iPhone real pendiente**.
+Actualizado: 2026-09-26. Fase actual: **diseño Serena en Parejas; validación en iPhone real pendiente**.
+
+## Parejas · Serena · 26 de septiembre
+
+- Aplicada la propuesta 1 aprobada: cabecera compacta con integrantes, deudas y dinero en grupos separados, iconos propios y acceso resumido a solicitudes. En escritorio los grupos aprovechan dos columnas. No se aplicó la propuesta 2 «En equipo».
+- «Qué compartimos», «Proponer un cambio» y «Solicitudes» reutilizan SimpleDialog con foco, fondo inerte y cierre por teclado. El patrón de composición de la habilidad frontend-patterns permitió separar el espacio activo de invitaciones/carga sin agregar dependencias ni duplicar controles. Formularios y explicación del porcentaje dejan de ocupar la vista principal permanentemente.
+- Se conservan el cálculo de avance, la privacidad de montos, las cuentas propias no archivadas y la aprobación por la otra persona. La revisión muestra el importe propuesto respetando montos ocultos. Se aclara que un ajuste no es un pago de deuda. No se cambió la API, el esquema ni información financiera remota.
+- Recargar el resumen no desmonta los formularios. Errores conservan borradores; selección se inicializa desde las cuentas compartidas al abrir; tras un guardado parcial se refresca el estado remoto. Cerrar un diálogo no cancela una petición pendiente ni habilita envíos duplicados.
+- Verificado: lint, build, 129 pruebas unitarias/API y seis pruebas Playwright de componentes reales con datos/servicio locales simulados en 390×844, 375×812 y 1440×900. Cubren separación de grupos, porcentajes, cuentas propias, crear propuestas de saldo/cuota, aprobar/rechazar, errores recuperables, foco de Safari emulado, cierre, vacío, montos ocultos y movimiento reducido. Capturas revisadas: `output/playwright/couples-serena-*.png`.
+- Las primeras ejecuciones corrigieron la carga duplicada de React en el montaje de pruebas, su estructura de escritorio y el cierre por Escape tras revisiones en WebKit. La ejecución final pasó 6/6. Pendiente: sesión remota autenticada, offline real, VoiceOver e iPhone físico; los dobles de servicio no certifican permisos de producción.
 
 ## Avance de deuda en Parejas · 26 de septiembre
 

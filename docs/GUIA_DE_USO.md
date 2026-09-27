@@ -23,9 +23,15 @@
 - En **Actividad**, abre un movimiento para corregirlo o eliminarlo. **Deshacer** restaura la eliminación mientras el aviso está visible.
 - En **Cuentas** administra activos/tarjetas. En **Plan** configura presupuesto, metas y reservas; reservar no crea ni mueve dinero.
 
-## Sincronización
+## Parejas
 
-En **Parejas → Lo que ven juntos**, las deudas muestran el porcentaje pagado según los abonos registrados y la deuda pendiente. No incluye pagos antiguos sin registrar; compras nuevas pueden reducirlo. Los ajustes y devoluciones no son abonos. Las cuentas de dinero no llevan esta barra y **Ocultar montos** oculta también el avance.
+La vista Serena separa **Deudas compartidas** de **Dinero compartido**. Cada tarjeta indica a quién pertenece la cuenta. Las deudas muestran el porcentaje pagado según los abonos registrados y la deuda pendiente. No incluye pagos antiguos sin registrar; compras nuevas pueden reducirlo. Los ajustes y devoluciones no son abonos. Las cuentas de dinero no llevan esta barra y **Ocultar montos** oculta también el avance.
+
+- **Qué compartimos** abre la selección de tus cuentas; tu pareja elige las suyas. Dejar de compartir no elimina cuentas ni movimientos.
+- **Solicitudes** abre los cambios pendientes y el historial. Solo puedes aprobar o rechazar propuestas de la otra persona.
+- **Proponer un cambio** permite solicitar un ajuste o cambio de cuota sin aplicarlo hasta su aprobación. Un pago real de deuda se registra desde **Nuevo movimiento → Pagué una deuda**, no como ajuste.
+
+## Sincronización
 
 - **Guardado en este dispositivo**: el cambio existe localmente.
 - **Pendiente de sincronizar**: espera al servidor; mantén la app abierta o pulsa Reintentar.
