@@ -1,12 +1,59 @@
 # Estado de implementación
 
-Actualizado: 2026-09-28. Fase actual: **guía de automatización de Wallet con video; validación en iPhone real pendiente**.
+## Corrección de Web Push · 28 de septiembre
 
-## Guía visual y video de automatización de Wallet · 28 de septiembre
+- Corregido el estado falso «Falta la clave pública VAPID»: el cliente obtiene la clave pública desde `/api/push/config` y la clave privada continúa solo en Vercel. No se rotaron claves, suscripciones ni datos financieros.
+- Publicado en `main`; falta probar la solicitud de permiso y el aviso visible en un dispositivo instalado.
 
-- `/ajustes/automatizacion` conserva una referencia visual de configuración y ahora ofrece abrir el video MP4 aportado, junto con los siete pasos y el mapeo `amount` → Cantidad, `card_alias` → Tarjeta o pase y `merchant_name` → Comercio.
-- El video se carga al abrirlo y no se precarga en la PWA. No se probó su reproducción offline ni en un iPhone físico.
-- Verificado con lint, build y Playwright dirigido (4 pruebas pasaron, 2 se omitieron según configuración; la prueba nocturna móvil enfocada pasó 1/1). El servidor local entrega el MP4 como `video/mp4`.
+Actualizado: 2026-09-29. Fase actual: **ingesta automática Gmail configurada en infraestructura; falta verificar un correo nuevo de banco de extremo a extremo**.
+
+## Android TWA / APK · 28 de septiembre
+
+- Añadido un wrapper Android TWA en `android/` que abre la PWA existente con `com.patawallet.app`, modo standalone, iconos actuales y notificaciones delegadas al origen web. No modifica la lógica web, financiera, de autenticación ni de correo.
+- `npm run android:build` genera una APK firmada localmente y un AAB. La clave queda ignorada por Git; debe respaldarse antes de distribuir actualizaciones.
+- Añadido `public/.well-known/assetlinks.json` con la huella de la clave de distribución directa actual. Si Google Play firma la aplicación con otra clave, habrá que agregar también esa huella antes de publicar el AAB.
+- Ajustes muestra `Descargar APK` junto a la instalación PWA en navegadores no iOS; la descarga apunta a `public/downloads/patawallet-android.apk` y Android aún requiere confirmar manualmente la instalación.
+- Verificado: compilación Android TWA completada; `npm run lint`, `npm test` (175 pruebas), `npm run build` y 5 pruebas E2E dirigidas de instalación pasaron. Falta probar en un dispositivo Android real y no se desplegó la asociación de dominio.
+- No incluye un lector nativo de notificaciones bancarias ni acceso al historial de Google Pay; ambas funciones siguen fuera de esta fase.
+
+## Avisos automáticos de correo · 28 de septiembre
+
+- Gmail Pub/Sub dispara la búsqueda incremental, los candidatos quedan pendientes sin alterar saldos y `push_outbox` encola la notificación «Tienes un movimiento por revisar» hacia `/ajustes/correos-bancarios`. El reenvío selectivo usa el mismo aviso.
+- Configurados el tema y la suscripción push de Pub/Sub con OIDC y una cuenta de servicio dedicada de privilegio mínimo. Vercel Production tiene `MAIL_GOOGLE_PUBSUB_TOPIC`, `MAIL_GOOGLE_PUSH_AUDIENCE` y `MAIL_GOOGLE_PUSH_SERVICE_ACCOUNT`; el despliegue Ready `B7mspmx324ETDPSVqrwdrYFwhGEV` usa `main` (`3333b30`).
+- Las columnas, el índice y las funciones de la migración `20260928120000_mail_automation_push.sql` ya estaban presentes en Supabase y los permisos limitan la ejecución a `service_role`; no se ejecutó SQL duplicado. La versión no figuraba en `schema_migrations`.
+- Falta comprobar un correo nuevo Bancolombia/Lulo/Nequi de extremo a extremo y la notificación en un dispositivo. La primera sincronización puede iniciar Gmail Watch si no existe una vigilancia activa; la búsqueda manual sigue disponible. No se simuló un correo real ni se probaron push/eventos en vivo.
+
+## Guía visual de automatización de Wallet · 28 de septiembre
+
+- La pantalla `/ajustes/automatizacion` muestra en el paso de automatización una referencia visual proporcionada por el responsable, con texto alternativo, dimensiones explícitas, carga diferida y una aclaración de que cada usuario debe seleccionar sus propias tarjetas.
+- Añadido el video `tutorial-patawallet-paso-a-paso.mp4` (7,9 MB) con un enlace que lo abre en el reproductor del navegador, y una guía accesible con los siete pasos y el mapeo `amount` → Cantidad, `card_alias` → Tarjeta o pase y `merchant_name` → Comercio. El video no se precarga en la PWA; la reproducción offline y en un iPhone físico no se probaron.
+- No cambia el atajo compartido, el contrato de eventos ni la selección local de tarjetas de Wallet. Verificado con `npm run lint`, `npm run build` y `npm run test:e2e -- tests/e2e/shortcuts-visual.spec.js` (4 pruebas pasaron, 2 se omitieron según la configuración del proyecto); la prueba nocturna móvil enfocada pasó 1/1. El servidor local entrega el MP4 con tipo `video/mp4`; no se probó en un iPhone físico.
+
+## Conexión de correo Gmail y Outlook · 28 de septiembre
+
+- Primera entrega local en `/ajustes/correos-bancarios`: selección de bancos, consentimiento explícito, autorización OAuth, estado real del proveedor, búsqueda bajo demanda y desconexión. Respeta el diseño cristal existente y comparte parser/bandeja con el reenvío, sin exigir Resend para leer por OAuth. Yahoo se presenta como pendiente, no disponible.
+- Inicio de sesión de PataWallet separado del permiso del buzón. Gmail readonly y Microsoft Graph Mail.Read/User.Read/offline_access; el permiso abarca el buzón, mientras la aplicación filtra Lulo/Bancolombia/Nequi. No se envían/borran correos, no se descargan adjuntos ni se envía contenido a IA.
+- Estado de un uso, cookie HttpOnly/Secure, PKCE S256, validación de identidad con el proveedor, refresh token cifrado AES-GCM vinculado a usuario/proveedor/generación y ninguna lectura de credenciales desde cliente. Rutas de retorno sin parámetros, requeridas por Outlook personal, con reescrituras explícitas en Vercel.
+- Migraciones aditivas `20260927200000_bank_email_inbox.sql` y `20260928010000_mail_connections.sql` aplicadas en Supabase `gzsuhlkvaiinphlcqelt`; funciones exclusivas de servidor, RLS y permisos verificados. La consulta confirmó 0 bandejas, 0 avisos, 0 conexiones, y preservó 28 cuentas, 37 movimientos y 36 asientos. Gmail sigue desactivado y no se conectó un buzón.
+- Publicada en Vercel el 28 de septiembre: `pata-wallet.vercel.app` quedó aliasado al despliegue Ready `j6ua2mff9-danilos-projects-5ba356bd.vercel.app`. Para respetar el límite Hobby de 12 funciones, las rutas de Atajos se consolidaron en `api/shortcuts.js` con rewrites equivalentes; quedaron 10 funciones serverless. Verificado: página pública HTTP 200 y ruta protegida de estado HTTP 401 con `Cache-Control: no-store`.
+- Siete días iniciales; siguientes intervalos desde la última búsqueda completa con solapamiento de cinco minutos. Veinte mensajes por página, 30 segundos entre intentos y 200 avisos/día compartidos con reenvío. Message-ID evita duplicados entre canales cuando se conserva. Ningún aviso genera asientos sin revisión; una transferencia propia no se clasifica automáticamente como gasto.
+- Habilidades api-connector-builder, database-migrations y frontend-patterns orientaron reutilizar contratos, parser, revisión financiera y controles nativos. Sin dependencias nuevas en esta fase; cifrado, PKCE y HTTP usan Node/estándares existentes. Se conserva la implementación local de reenvío anterior.
+- Verificado: lint, build y `git diff --check`; **174 pruebas unitarias/API en 34 archivos**; **12 pruebas Playwright** dirigidas en 390×844, 375×812 y 1440×900; PostgreSQL 17 real efímero con ambas migraciones. Incluye consentimiento, configuración pendiente, error recuperable, desconexión, datos privados, deduplicación, callback de un uso, bloqueo, rollback y aislamiento de propietario. No se ejecutó toda la suite histórica de navegador. Capturas de datos sintéticos en `output/playwright/mail-connections-*.png` y `bank-email-*.png`.
+- **Publicado, pero no conectado a buzones reales**. Faltan revisiones de proveedores, políticas/retención, flujo real de ambos proveedores e iPhone físico. Entorno local Node 26.7.0 y build remoto correcto; el proyecto declara Node 22.x, pendiente repetir con ese runtime. Gmail permanece desactivado y no se modificaron registros financieros remotos.
+- Simplificación anunciada: botón «Buscar correos», no sincronización con la app cerrada. IA, conciliación autónoma y Yahoo son fases posteriores. Activación, seguridad, límites, fuentes oficiales y recuperación en `docs/MAIL_CONNECTIONS.md`; variables de servidor en `.env.example`.
+
+## Correos bancarios por reenvío selectivo · 27 de septiembre
+
+- El usuario eligió reenviar únicamente correos bancarios, sin OAuth ni acceso general a Gmail. Implementados receptor Resend firmado, dirección privada por usuario con consentimiento/revocación y bandeja `/ajustes/correos-bancarios`, accesible desde Ajustes con el diseño cristal existente.
+- Extracción determinista de los formatos compartidos de Lulo, Bancolombia y Nequi, con importes enteros y hora de Colombia. Todos quedan por revisar: entrada/salida no se confunde con ingreso/gasto. Nequi → Lulo puede registrarse como transferencia entre cuentas propias; se puede vincular el segundo aviso a un movimiento existente sin duplicarlo.
+- SQL aditivo con RLS, ingreso exclusivo del servidor y resolución atómica que reutiliza el registro financiero existente. Huella por Message-ID y proveedor, confirmación idempotente, detección orientativa de movimientos similares y límite de 200 eventos/día por usuario. No se autentica el banco por nombre del remitente ni se confía en el cuerpo para elegir usuario.
+- API usa destinatario SMTP `received_for` para los reenvíos, valida bytes originales de Svix antes de consultar y descarga solo texto/HTML limitado del proveedor. No sigue enlaces ni descarga adjuntos. PataWallet guarda datos extraídos, no el cuerpo completo; el proveedor sí recibe el mensaje completo. No se envían correos a IA.
+- Las habilidades api-connector-builder y database-migrations orientaron la reutilización de contratos, validaciones y asientos existentes, aislamiento por propietario y migración reversible sin borrar datos. frontend-patterns orientó formularios nativos y componentes compartidos; no se incorporó otra biblioteca de interfaz. Añadido únicamente `html-to-text` 10.0.1 (MIT) para conversión HTML en servidor.
+- Verificado: 162 pruebas unitarias/API (33 archivos), lint y build; 6 pruebas Playwright dirigidas en 390×844, 375×812 y 1440×900. Cubren consentimiento, datos sintéticos, confirmación, vacío, error de conexión simulado, montos ocultos, movimiento reducido y navegación. Capturas revisadas en `output/playwright/bank-email-*.png`. No se ejecutó toda la suite histórica de navegador ni se probó offline real en esta ronda.
+- PostgreSQL 17 real en Docker efímero: migraciones base relevantes + migración nueva aplicadas; recepción sin efectos financieros, deduplicación, RLS entre dos usuarios, rechazo de cuenta ajena, transferencia con dos asientos compensados, reintento idempotente, vinculación y revocación correctos. Contenedor de prueba eliminado al terminar, sin volúmenes ni datos de usuario.
+- Las primeras pruebas corrigieron una duplicación de contexto Router en el montaje aislado y una navegación prematura antes de finalizar la creación de demo. La repetición final pasó completa. Entorno local Node 26.7.0; el proyecto declara 22.x: falta repetir en el runtime de producción.
+- **No publicado ni activado**: no se creó cuenta/dominio/servicio de pago, no se cambiaron filtros de Gmail, secretos remotos ni base de producción. Faltan configuración Resend, autorización de migración/despliegue, comprobación de capacidad del plan Vercel (14 archivos API), correo real extremo a extremo, iPhone físico y revisión de privacidad/retención antes de lanzamiento público.
+- Simplificación explícita: recepción automática, registro confirmado por la persona; no hay reglas aprendidas, categorización por IA, conciliación automática ni importación de correos antiguos. Guía operativa, límites, fuentes y comandos en `docs/BANK_EMAIL_FORWARDING.md`; variables de servidor en `.env.example`.
 
 ## Enlace del atajo corregido en producción · 27 de septiembre
 

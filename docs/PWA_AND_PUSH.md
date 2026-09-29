@@ -12,9 +12,9 @@ Una respuesta `202` de `/api/push/test` significa solamente que el servicio Push
 
 Copiar `.env.example` a `.env.local` para desarrollo. No confirmar ese archivo ni compartir valores en chats o capturas.
 
-- Cliente: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_VAPID_PUBLIC_KEY`.
+- Cliente: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`. La clave pública VAPID se obtiene en tiempo de ejecución desde `/api/push/config`.
 - Servidor: `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY`, `APP_ORIGIN`, `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, `CRON_SECRET`.
-- `VITE_VAPID_PUBLIC_KEY` y `VAPID_PUBLIC_KEY` contienen la misma clave pública. La clave privada jamás usa prefijo `VITE_`.
+- `VAPID_PUBLIC_KEY` es pública y se entrega únicamente para crear la suscripción; `VAPID_PRIVATE_KEY` jamás se expone al navegador ni usa prefijo `VITE_`.
 - `VAPID_SUBJECT` debe ser un contacto válido, por ejemplo `mailto:responsable@dominio.example`.
 
 Generar el par VAPID en una terminal privada con `npx web-push generate-vapid-keys --json`. Guardar la pública y privada directamente en el gestor de variables del entorno; no pegarlas en el repositorio ni en logs. Rotar las claves exige volver a suscribir cada instalación.
@@ -49,6 +49,14 @@ Usar datos ficticios y un origen HTTPS estable autorizado.
 En Ajustes → Aplicación, el botón de instalación usa `beforeinstallprompt` cuando el navegador lo ofrece y solo abre el aviso nativo después de que la persona lo pulsa. Si el aviso no está disponible, muestra los pasos manuales del dispositivo; en iPhone/iPad explica Compartir → Añadir a pantalla de inicio → Abrir como app web → Añadir. El evento `appinstalled` y el modo independiente actualizan el estado visible.
 
 La web no puede omitir la confirmación del sistema ni pulsar por el usuario los controles de Safari. El navegador puede no ofrecer `beforeinstallprompt` si no se cumplen sus criterios o si ya está instalada; por eso siempre se conserva una guía manual. La comprobación automatizada simula el evento para verificar el flujo, pero no sustituye una instalación real en Android o iPhone.
+
+## APK Android mediante Trusted Web Activity
+
+La misma PWA puede instalarse como una APK Android mediante el wrapper TWA de `android/`. La TWA abre `https://pata-wallet.vercel.app/` en modo standalone, conserva la lógica y la sesión web existentes y delega las notificaciones del origen a Android. La configuración y los comandos están en [`android/README.md`](../android/README.md).
+
+La asociación entre la APK y el dominio se publica en `/.well-known/assetlinks.json`. Su huella debe coincidir exactamente con el certificado que firma la APK instalada; la huella de una futura firma de Google Play puede ser distinta y debe agregarse por separado. Android puede solicitar el permiso de notificaciones en tiempo de ejecución en versiones recientes; PataWallet conserva la activación explícita desde Ajustes.
+
+La TWA no convierte la aplicación web en un lector de notificaciones bancarias ni concede acceso al historial de Google Pay. Esas capacidades requerirían componentes Android nativos, permisos adicionales y una revisión independiente de privacidad y políticas.
 
 Si la revocación al servidor falla sin conexión, la suscripción del navegador se elimina localmente y la interfaz lo advierte. Eso no retira una notificación que ya llegó.
 

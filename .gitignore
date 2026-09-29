@@ -12,3 +12,14 @@ graphify-out/
 .env.*.local
 client_secret*.json
 supabase/.temp/
+
+# Android/TWA outputs and signing material are generated locally and never committed.
+android/.gradle/
+android/build/
+android/app/build/
+android/*.keystore
+android/*.apk
+android/*.apk.idsig
+android/*.aab
+
+.vercel
