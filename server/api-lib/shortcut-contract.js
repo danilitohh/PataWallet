@@ -12,8 +12,12 @@ export const reviewSchema = z.object({
   expected_version: z.number().int().positive(), action: z.enum(['record', 'categorize', 'associate']),
   account_id: shortText(180).min(1).optional(), category_id: shortText(180).min(1).optional(),
   amount_minor: z.string().regex(/^[1-9]\d{0,11}$/).optional(), occurred_at: z.string().datetime({ offset: true }).optional(),
-  transaction_id: shortText(180).min(1).optional(), create_rule: z.boolean().default(false),
-}).strict()
+  transaction_id: shortText(180).min(1).optional(), create_rule: z.boolean().default(false), remember_card_mapping: z.boolean().default(false),
+}).strict().superRefine((value, context) => {
+  if (value.remember_card_mapping && (value.action !== 'record' || !value.account_id)) {
+    context.addIssue({ code: 'custom', message: 'Guardar la tarjeta requiere registrar el evento con una cuenta.', path: ['remember_card_mapping'] })
+  }
+})
 
 export const shortcutEventSchema = z.object({
   schema_version: z.literal(1), event_id: z.string().uuid(),

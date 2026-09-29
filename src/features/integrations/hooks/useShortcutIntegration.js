@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { createPairingTicket, declareShortcutAutomation, deleteCardMapping, deleteCategoryRule, pendingTemplate, readShortcutStatus, resolveShortcutEvent, revokeShortcutDevice, saveCardMapping, saveCategoryRule } from '../../../services/shortcuts/shortcutClient.js'
 
 export function useShortcutIntegration(isDemo) {
-  const [state,setState]=useState({template:pendingTemplate,devices:[],mappings:[],rules:[],events:[],loading:!isDemo,error:''})
+  const [state,setState]=useState({template:pendingTemplate,categoryAiAvailable:false,devices:[],mappings:[],rules:[],events:[],loading:!isDemo,error:''})
   const refresh=useCallback(async()=>{
     if(isDemo) return
     setState((current)=>({...current,loading:true,error:''}))

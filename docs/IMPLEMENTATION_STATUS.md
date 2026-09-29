@@ -7,6 +7,14 @@
 
 Actualizado: 2026-09-29. Fase actual: **ingesta automática Gmail configurada en infraestructura; falta verificar un correo nuevo de banco de extremo a extremo**.
 
+## Asociación automática de compras por Atajos · 29 de septiembre
+
+- Quitados los formularios manuales para crear mapeos de tarjeta/cuenta y reglas de categoría. Los mapeos existentes se conservan y pueden eliminarse desde la lista.
+- Cuando un alias de tarjeta sea nuevo, al revisar el primer evento el usuario elige la cuenta y puede pedir que se recuerde para próximas compras.
+- Para comercios nuevos, dos modelos OpenAI distintos revisan en paralelo solo el nombre del comercio y los nombres de categorías de gasto del usuario. Se guarda una regla exacta únicamente si ambos coinciden con confianza alta; en cualquier otro caso, fallo o timeout, continúa el flujo actual de revisión y `Sin categoría`.
+- `OPENAI_API_KEY` y modelos son variables solo de servidor. La clave pegada en el chat se considera expuesta y debe revocarse; producción no se considera habilitada hasta que se agregue una clave nueva a Vercel. No se hicieron llamadas reales a OpenAI ni se enviaron movimientos reales.
+- Verificado localmente: lint, build y 178 pruebas unitarias/API. Falta probar clasificación con una clave rotada y un comercio de prueba antes de confirmar el comportamiento en producción.
+
 ## Bandeja de notificaciones · 29 de septiembre
 
 - La campana de la cabecera abre `/notificaciones`, una bandeja centrada en avisos bancarios pendientes; ya no envía al formulario largo de conexión Gmail/reenvío. La revisión reutiliza el flujo actual de Registrar, Ya existe o Descartar; los saldos cambian solo después de confirmar.

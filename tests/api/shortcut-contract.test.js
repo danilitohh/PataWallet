@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canonicalEventHash, normalizeLabel, normalizeShortcutEvent, randomSecret, sha256, templateMetadata } from '../../server/api-lib/shortcut-contract.js'
+import { canonicalEventHash, normalizeLabel, normalizeShortcutEvent, randomSecret, reviewSchema, sha256, templateMetadata } from '../../server/api-lib/shortcut-contract.js'
 
 const event = {
   schema_version: 1,
@@ -69,5 +69,11 @@ describe('contrato de eventos de Atajos', () => {
   it('normaliza alias sin fusionar signos o palabras diferentes', () => {
     expect(normalizeLabel('  Visa   Principal ')).toBe('visa principal')
     expect(normalizeLabel('Mercado Norte')).not.toBe(normalizeLabel('Mercado Sur'))
+  })
+
+  it('solo recuerda alias al registrar el evento con una cuenta elegida', () => {
+    expect(reviewSchema.safeParse({ expected_version: 1, action: 'record', remember_card_mapping: true }).success).toBe(false)
+    expect(reviewSchema.safeParse({ expected_version: 1, action: 'categorize', account_id: 'cuenta-1', remember_card_mapping: true }).success).toBe(false)
+    expect(reviewSchema.safeParse({ expected_version: 1, action: 'record', account_id: 'cuenta-1', remember_card_mapping: true }).success).toBe(true)
   })
 })
