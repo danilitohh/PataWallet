@@ -58,18 +58,17 @@ function NotificationsInbox({ app }) {
 
   return <div className="route-stack notifications-inbox">
     <PageHeader title="Notificaciones" subtitle="Movimientos detectados para revisar. Nada cambia tus saldos hasta que confirmes." />
-    {isDemo || !user?.id ? <section className="integration-card notifications-inbox__empty"><NightIcon icon={Bell} className="integration-icon" tone="sky" /><p>Los avisos de correo bancario aparecerán aquí cuando uses tu cuenta.</p></section> : <section className="integration-card notifications-inbox__panel" aria-busy={loading}>
+    {isDemo || !user?.id ? <section className="integration-card notifications-inbox__empty"><NightIcon icon={Bell} className="integration-icon" tone="sky" /><div><h2>Tu bandeja está lista</h2><p>Cuando PataWallet detecte un movimiento en tus correos bancarios, aparecerá aquí para que decidas qué hacer.</p></div></section> : <section className="integration-card notifications-inbox__panel" aria-busy={loading}>
       <div className="notifications-inbox__heading">
         <div className="notifications-inbox__heading-copy">
-          <span className="notifications-inbox__eyebrow">Avisos bancarios</span>
           <h2>Por revisar <span className="notifications-inbox__count">{data.events.length}</span></h2>
-          <p>{data.events.length === 1 ? 'Un movimiento espera tu confirmación' : 'Movimientos que esperan tu confirmación'}</p>
+          <p>{data.events.length === 1 ? '1 movimiento necesita tu confirmación' : `${data.events.length} movimientos necesitan tu confirmación`}</p>
         </div>
         <button type="button" className="button button--secondary notifications-inbox__refresh" aria-label="Actualizar avisos" disabled={loading} onClick={refresh}><RefreshCw aria-hidden="true" /><span>Actualizar</span></button>
       </div>
       {error && <div className="notifications-inbox__error" role="alert"><p>{error}</p><button type="button" className="button button--secondary" onClick={refresh}>Reintentar</button></div>}
       {!error && loading && <p role="status">Cargando avisos…</p>}
-      {!error && !loading && !data.events.length && <div className="empty-inline"><CheckCircle2 aria-hidden="true" /><span>No tienes movimientos pendientes por revisar.</span></div>}
+      {!error && !loading && !data.events.length && <div className="notifications-inbox__zero"><CheckCircle2 aria-hidden="true" /><div><strong>Todo al día</strong><p>Los movimientos detectados en tus correos aparecerán aquí para que los revises.</p></div></div>}
       <div className="notifications-inbox__list">{data.events.map((item) => <details className="calm-details notifications-inbox__item" key={item.id}>
         <summary>
           <span className="notifications-inbox__icon"><Bell aria-hidden="true" /></span>

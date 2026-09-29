@@ -25,8 +25,9 @@ Actualizado: 2026-09-29. Fase actual: **ingesta automática Gmail configurada en
 ## Bandeja de notificaciones · 29 de septiembre
 
 - La campana de la cabecera abre `/notificaciones`, una bandeja centrada en avisos bancarios pendientes; ya no envía al formulario largo de conexión Gmail/reenvío. La revisión reutiliza el flujo actual de Registrar, Ya existe o Descartar; los saldos cambian solo después de confirmar.
+- Refinada con la opción A: lista más compacta, contador y avisos expandibles; al abrir uno se puede elegir la decisión y completar el registro. El estado vacío explica qué aparecerá en la bandeja y el estado de demo aclara que requiere una cuenta real conectada.
 - `/ajustes/correos-bancarios` conserva la configuración del proveedor. La ruta de bandeja también está permitida para navegación segura desde la PWA.
-- Verificado: lint, build, 177 pruebas unitarias/API y 3 pruebas E2E de la campana/bandeja en 375×812, 390×844 y 1440×900. Falta la verificación del flujo con correo bancario real descrita arriba.
+- Verificado: lint, build, 181 pruebas unitarias y 6 pruebas E2E de la campana y expansión del aviso en 375×812, 390×844 y 1440×900. Falta la verificación del flujo con correo bancario real descrita arriba.
 
 ## Tutorial de automatización en video · 29 de septiembre
 
