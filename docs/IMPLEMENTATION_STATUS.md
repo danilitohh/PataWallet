@@ -13,6 +13,11 @@ Actualizado: 2026-09-29. Fase actual: **ingesta automática Gmail configurada en
 - `/ajustes/correos-bancarios` conserva la configuración del proveedor. La ruta de bandeja también está permitida para navegación segura desde la PWA.
 - Verificado: lint, build, 177 pruebas unitarias/API y 3 pruebas E2E de la campana/bandeja en 375×812, 390×844 y 1440×900. Falta la verificación del flujo con correo bancario real descrita arriba.
 
+## Tutorial de automatización en video · 29 de septiembre
+
+- Corregido el fallback de navegación del service worker para que no sustituya recursos de `/assets/` por el HTML de la SPA; el MP4 ya abre en el reproductor del navegador.
+- Regresión verificada con el service worker real en preview de producción: la pestaña de tutorial carga con tipo `video/mp4`. `npm run test:pwa -- --workers=1`, lint, build y 177 pruebas unitarias pasaron. Pendiente de prueba manual en iPhone.
+
 ## Android TWA / APK · 28 de septiembre
 
 - Añadido un wrapper Android TWA en `android/` que abre la PWA existente con `com.patawallet.app`, modo standalone, iconos actuales y notificaciones delegadas al origen web. No modifica la lógica web, financiera, de autenticación ni de correo.

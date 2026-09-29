@@ -4,8 +4,9 @@ import { NavigationRoute, registerRoute } from 'workbox-routing'
 cleanupOutdatedCaches()
 precacheAndRoute(self.__WB_MANIFEST)
 
+// Routes app navigation offline without replacing static files with the SPA shell.
 registerRoute(new NavigationRoute(createHandlerBoundToURL('index.html'), {
-  denylist: [/^\/api\//, /\/auth\/v1\//, /\/rest\/v1\//],
+  denylist: [/^\/api\//, /^\/assets\//, /\/auth\/v1\//, /\/rest\/v1\//],
 }))
 
 self.addEventListener('message', (event) => {
