@@ -15,7 +15,7 @@ export function detectPushCapabilities(scope = globalThis) {
 export function classifyPushState({ capabilities, permission = 'default', subscription = null, configured = false, error = '' }) {
   if (error) return { kind: 'error', label: 'Error', detail: error }
   if (!capabilities.secure) return { kind: 'unsupported', label: 'Contexto no seguro', detail: 'Abre PataWallet mediante HTTPS.' }
-  if (capabilities.appleHomeScreenRequired) return { kind: 'needs-install', label: 'Necesita instalación', detail: 'Añade PataWallet a Inicio desde Safari y ábrela desde su icono.' }
+  if (capabilities.appleHomeScreenRequired) return { kind: 'needs-install', label: 'Necesita instalación', detail: 'Para recibir avisos en iPhone, añade PataWallet a la pantalla de inicio y ábrela desde su icono.' }
   if (!capabilities.serviceWorker || !capabilities.pushManager || !capabilities.notifications) return { kind: 'unsupported', label: 'No compatible', detail: 'Este navegador o contexto no ofrece Web Push.' }
   if (!configured) return { kind: 'unconfigured', label: 'Configuración pendiente', detail: 'Falta la clave pública VAPID de este entorno.' }
   if (permission === 'denied') return { kind: 'denied', label: 'Permiso denegado', detail: 'El permiso debe cambiarse desde los ajustes del sistema o del sitio.' }

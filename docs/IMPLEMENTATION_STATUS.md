@@ -5,6 +5,12 @@
 - Corregido el estado falso «Falta la clave pública VAPID»: el cliente obtiene la clave pública desde `/api/push/config` y la clave privada continúa solo en Vercel. No se rotaron claves, suscripciones ni datos financieros.
 - Publicado en `main`; falta probar la solicitud de permiso y el aviso visible en un dispositivo instalado.
 
+## Guía de notificaciones en iPhone · 29 de septiembre
+
+- La explicación para añadir PataWallet a Inicio solo aparece cuando Safari en iPhone detecta que la web aún no está instalada. En equipos compatibles ya instalados, se oculta.
+- Se explica el motivo, los tres pasos para instalar y luego conceder permiso, y se enlaza la guía oficial actual de Apple. Se quitó una nota interna de pruebas que no ayudaba al usuario.
+- Verificado: lint, build, 181 pruebas unitarias y 4 E2E en 390×844 y 375×812. No se hizo prueba física en iPhone.
+
 Actualizado: 2026-09-29. Fase actual: **ingesta automática Gmail configurada en infraestructura; falta verificar un correo nuevo de banco de extremo a extremo**.
 
 ## Asociación automática de compras por Atajos · 29 de septiembre
