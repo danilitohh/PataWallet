@@ -62,7 +62,7 @@ export function PwaInstallControl({ compact = false }) {
                 {installing ? 'Abriendo…' : installState.canPrompt ? 'Instalar' : guideOpen ? 'Ocultar pasos' : 'Ver pasos'}
               </button>
               {!appleMobile && <a
-                className="compact-action pwa-install__apk-action"
+                className="compact-action pwa-install__action"
                 href="/downloads/patawallet-android.apk"
                 download="PataWallet.apk"
                 aria-label="Descargar APK de PataWallet para Android"
