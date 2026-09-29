@@ -1,0 +1,15 @@
+/* Reutiliza superficies cristal y controles existentes; evita desbordes de direcciones privadas. */
+.bank-email-page .integration-card { min-width: 0; }
+.bank-email-page .integration-glass-hero p { grid-column: 1; }
+.bank-email-page .integration-card > p { line-height: 1.6; }
+.bank-email-page ol { padding-left: 1.5rem; display: grid; gap: 1rem; }
+.bank-email-page .calm-details { overflow-wrap: anywhere; }
+.bank-email-page .notification-actions { flex-wrap: wrap; align-items: center; }
+.bank-email-review { display: grid; gap: 1rem; padding: 1rem 0; }
+.bank-email-review select, .bank-email-page input { width: 100%; min-width: 0; max-width: 100%; }
+.bank-email-page .check-row input { width: auto; flex: 0 0 auto; }
+
+/* Proveedores dentro del módulo existente; el estado nunca depende solo del color. */
+.mail-connections { display: grid; gap: 16px; }
+.mail-connections fieldset { border: var(--glass-edge); border-radius: 16px; padding: 16px; display: grid; gap: 12px; }
+.mail-connection { display: grid; gap: 12px; border-top: var(--glass-edge); padding-top: 16px; overflow-wrap: anywhere; }

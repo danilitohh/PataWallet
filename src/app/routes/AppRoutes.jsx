@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router-dom'
 import { AccountsPage } from '../../features/accounts/AccountsPage.jsx'
 import { AssistantPage } from '../../features/assistant/AssistantPage.jsx'
+import { BankEmailPage } from '../../features/bank-email/BankEmailPage.jsx'
 import { CouplesPage } from '../../features/couples/CouplesPage.jsx'
 import { DashboardPage } from '../../features/dashboard/DashboardPage.jsx'
 import { AutomationPage } from '../../features/integrations/AutomationPage.jsx'
@@ -24,6 +25,7 @@ export function AppRoutes() {
       <Route path="/ajustes" element={<SettingsPage />} />
       <Route path="/ajustes/notificaciones" element={<NotificationsPage />} />
       <Route path="/ajustes/automatizacion" element={<AutomationPage />} />
+      <Route path="/ajustes/correos-bancarios" element={<BankEmailPage />} />
       <Route path="*" element={<StateMessage title="Esta página no existe" body="Vuelve al inicio para continuar." actionLabel="Ir al inicio" action={() => { location.href = '/' }} />} />
     </Routes>
   )

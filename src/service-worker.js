@@ -12,7 +12,7 @@ self.addEventListener('message', (event) => {
   if (event.data?.type === 'SKIP_WAITING') self.skipWaiting()
 })
 
-const SAFE_ROUTES = new Set(['/', '/actividad', '/plan', '/cuentas', '/ajustes', '/ajustes/notificaciones'])
+const SAFE_ROUTES = new Set(['/', '/actividad', '/plan', '/cuentas', '/ajustes', '/ajustes/notificaciones', '/ajustes/correos-bancarios'])
 
 function safeRoute(value) {
   if (typeof value !== 'string') return '/ajustes/notificaciones'

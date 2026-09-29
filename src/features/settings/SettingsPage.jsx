@@ -1,4 +1,4 @@
-import { AlertTriangle, Bell, Bot, CircleDollarSign, Compass, CreditCard, Eye, EyeOff, Handshake, LogOut, SlidersHorizontal, Moon, RefreshCw, UserRound } from 'lucide-react'
+import { AlertTriangle, Bell, Bot, CircleDollarSign, Compass, CreditCard, Eye, EyeOff, Handshake, LogOut, Mail, SlidersHorizontal, Moon, RefreshCw, UserRound } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useApp } from '../../app/AppContext.jsx'
 import { PageHeader } from '../../shared/components/PageHeader.jsx'
@@ -37,6 +37,7 @@ export function SettingsPage() {
       <SettingsSection id="settings-application-heading" title="Aplicación" className="settings-group--application">
         <PwaInstallControl compact />
         <SettingLink icon={CreditCard} tone="sky" title="Pagos con tarjeta" detail="Configura el atajo de iPhone" to="/ajustes/automatizacion" />
+        <SettingLink icon={Mail} tone="violet" title="Correos bancarios" detail="Conexión de correo, reenvío y revisión" to="/ajustes/correos-bancarios" />
         <SettingLink icon={Bell} tone="rose" title="Notificaciones" detail="Administrar avisos" to="/ajustes/notificaciones" />
       </SettingsSection>
 

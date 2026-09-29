@@ -36,7 +36,7 @@ export function assertSafeEndpoint(value) {
 }
 
 export function safeNotificationRoute(value) {
-  const allowed = new Set(['/', '/actividad', '/plan', '/cuentas', '/ajustes', '/ajustes/notificaciones'])
+  const allowed = new Set(['/', '/actividad', '/plan', '/cuentas', '/ajustes', '/ajustes/notificaciones', '/ajustes/correos-bancarios'])
   return typeof value === 'string' && allowed.has(value) ? value : '/ajustes/notificaciones'
 }
 
@@ -49,6 +49,9 @@ export function notificationPayload(event, subscription, transaction = null) {
   }
   if (event.event_kind === 'budget') {
     return { title: 'Revisa tu presupuesto', body: detailed ? `Tu presupuesto llegó al ${event.payload?.threshold || 80} %.` : 'Hay una actualización en tu presupuesto.', route: '/plan', tag: event.event_key }
+  }
+  if (event.event_kind === 'review') {
+    return { title: 'Tienes un movimiento por revisar', body: 'PataWallet detectó un correo bancario. Revisa si quieres registrarlo, vincularlo o descartarlo.', route: '/ajustes/correos-bancarios', tag: event.event_key }
   }
   return { title: 'PataWallet', body: 'Tienes una actualización en PataWallet.', route: safeNotificationRoute(event.payload?.route), tag: event.event_key }
 }

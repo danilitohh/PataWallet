@@ -1,6 +1,12 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "crons": [
+    { "path": "/api/mail/renew-watches", "schedule": "0 6 * * *" }
+  ],
   "rewrites": [
+    { "source": "/api/mail/callback/gmail", "destination": "/api/mail?operation=callback&provider=gmail" },
+    { "source": "/api/mail/callback/outlook", "destination": "/api/mail?operation=callback&provider=outlook" },
+    { "source": "/api/mail/renew-watches", "destination": "/api/mail?operation=renew-watches" },
     { "source": "/api/shortcuts/pairing-tickets", "destination": "/api/shortcuts/pair?operation=create-ticket" },
     { "source": "/api/shortcuts/rules", "destination": "/api/shortcuts/mappings?operation=rules" },
     { "source": "/api/push/test", "destination": "/api/push/process?operation=test" },

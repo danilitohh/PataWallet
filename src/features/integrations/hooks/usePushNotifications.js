@@ -3,7 +3,7 @@ import { activatePush, currentBrowserSubscription, deactivatePush, reconcilePush
 import { classifyPushState, detectPushCapabilities } from '../../../services/push/pushCapabilities.js'
 
 const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY?.trim() || ''
-const defaults = { movements: true, budgets: true, review: false, showDetails: false }
+const defaults = { movements: true, budgets: true, review: true, showDetails: false }
 
 export function usePushNotifications(user, isDemo) {
   const [subscription, setSubscription] = useState(null)

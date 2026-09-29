@@ -18,12 +18,15 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "test:pwa": "playwright test -c playwright.pwa.config.js"
+    "test:pwa": "playwright test -c playwright.pwa.config.js",
+    "android:init": "npx --yes @bubblewrap/cli@1.25.0 init --manifest https://pata-wallet.vercel.app/manifest.webmanifest --directory android",
+    "android:build": "cd android && npx --yes @bubblewrap/cli@1.25.0 build"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.116.0",
     "dexie": "4.4.6",
     "dexie-react-hooks": "4.4.0",
+    "html-to-text": "10.0.1",
     "lucide-react": "1.44.0",
     "motion": "13.2.0",
     "react": "19.3.0",
