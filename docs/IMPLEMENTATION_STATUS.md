@@ -17,7 +17,7 @@ Actualizado: 2026-09-29. Fase actual: **ingesta automática Gmail configurada en
 
 - Vercel registra solicitudes POST de `APIs-Google` a `/api/mail?operation=gmail-push`, con `503` repetidos; la sincronización manual a `/api/bank-email` responde `200`. Las entregas llegan a producción pero el handler falla antes de completar la sincronización.
 - El log seguro localizó la falla en `notification_parse`: el `historyId` real llegó como número, aunque el parser solo aceptaba texto. El parser ahora normaliza ambas formas y decodifica Base64URL; los registros técnicos omiten correo, token, cuerpo y texto de error.
-- Regresión local con `historyId` numérico y textual en un sobre Base64URL: `tests/api/mail.test.js`. Pendiente publicar esta corrección en `main`, confirmar que Pub/Sub acepte (2xx) y procese el reintento, y verificar la notificación en un dispositivo; todavía no se ha confirmado el ciclo completo con una transferencia real.
+- Regresión local con `historyId` numérico y textual en un sobre Base64URL: `tests/api/mail.test.js`. Publicado en `main` (`3941540`, diagnóstico; `d057ea3`, corrección) y despliegue de producción Ready. Los logs posteriores registran una entrega `200` y una entrega concurrente `202`; el handler ya pasó la etapa de parseo. La pantalla de correo muestra detección automática activa y un aviso pendiente. Falta confirmar visualmente la notificación nativa en el iPhone; no se infiere que el aviso pendiente haya sido creado por este reintento.
 
 ## Asociación automática de compras por Atajos · 29 de septiembre
 
