@@ -14,6 +14,7 @@ Actualizado: 2026-09-29. Fase actual: **ingesta automática Gmail configurada en
 - Para comercios nuevos, Gemini y un modelo ligero de OpenAI revisan en paralelo solo el nombre del comercio y los nombres de categorías de gasto del usuario. El tercer modelo de OpenAI solo se llama si discrepan; la regla exacta se guarda solo si hay mayoría con confianza alta. Un desacuerdo final, fallo o timeout conserva el flujo de revisión y `Sin categoría`.
 - `OPENAI_API_KEY`, `GEMINI_API_KEY` y los modelos son variables solo de servidor. Las claves pegadas en el chat se consideran expuestas y deben revocarse; producción no se considera habilitada hasta agregar claves nuevas a Vercel. No se hicieron llamadas reales a proveedores ni se enviaron movimientos reales.
 - Verificado localmente: lint, build y 178 pruebas unitarias/API. Falta probar clasificación con una clave rotada y un comercio de prueba antes de confirmar el comportamiento en producción.
+- Ahorro de tokens: el catálogo de categorías viaja solo en el esquema; Gemini 2.5 Flash usa `thinkingBudget: 0`, GPT-5 usa esfuerzo `minimal` solo en el desempate y Ollama tiene tope de 320 tokens de salida. El contexto del asistente ya no duplica los importes como centavos y formato legible; las cifras formateadas se conservan. Verificado con pruebas simuladas; no se hicieron llamadas reales ni medición de facturación.
 
 ## Bandeja de notificaciones · 29 de septiembre
 
