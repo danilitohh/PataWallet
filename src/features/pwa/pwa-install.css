@@ -1,6 +1,8 @@
 /* Instalación desde Ajustes: instrucciones compactas y legibles junto a los controles del dispositivo. */
 .pwa-install__row { border-top: 1px solid var(--border); }
+.pwa-install__actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
 .pwa-install__action { min-width: 84px; white-space: nowrap; }
+.pwa-install__apk-action { min-width: 112px; color: var(--accent); text-decoration: none; text-align: center; white-space: nowrap; }
 .pwa-install__badge { display: inline-flex; align-items: center; gap: 5px; color: var(--success); font-size: .73rem; font-weight: 760; white-space: nowrap; }
 .pwa-install__message { margin: 0 14px 12px 62px; color: var(--text-2); font-size: .76rem; }
 .pwa-install__guide { margin: 0 12px 12px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 15px; background: color-mix(in srgb, var(--surface) 76%, transparent); }
@@ -10,6 +12,8 @@
 
 @media (max-width: 520px) {
   .pwa-install__row { grid-template-columns: 38px minmax(0, 1fr) auto; gap: 9px; }
+  .pwa-install__actions { gap: 5px; }
   .pwa-install__action { min-width: 74px; padding-inline: 9px; }
+  .pwa-install__apk-action { min-width: 0; padding-inline: 8px; }
   .pwa-install__message { margin-left: 14px; }
 }

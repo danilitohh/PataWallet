@@ -46,20 +46,30 @@ export function PwaInstallControl({ compact = false }) {
         <NightIcon icon={installState.installed ? Check : Download} className="setting-row__icon" tone="peach" />
         <div>
           <h3>{installState.installed ? 'PataWallet está instalada' : 'Instalar PataWallet'}</h3>
-          <p>{installState.installed ? 'Puedes abrirla desde el inicio de tu dispositivo.' : 'Agrégala a tu dispositivo para abrirla como una app.'}</p>
+          <p>{installState.installed ? 'Puedes abrirla desde el inicio de tu dispositivo.' : 'Instálala como app web o descarga la APK para Android.'}</p>
         </div>
         {installState.installed
           ? <span className="pwa-install__badge">Instalada</span>
-          : <button
-              type="button"
-              className="compact-action pwa-install__action"
-              onClick={handleInstall}
-              disabled={installing}
-              aria-expanded={!installState.canPrompt ? guideOpen : undefined}
-              aria-controls={!installState.canPrompt ? 'pwa-install-guide' : undefined}
-            >
-              {installing ? 'Abriendo…' : installState.canPrompt ? 'Instalar' : guideOpen ? 'Ocultar pasos' : 'Ver pasos'}
-            </button>}
+          : <div className="pwa-install__actions">
+              <button
+                type="button"
+                className="compact-action pwa-install__action"
+                onClick={handleInstall}
+                disabled={installing}
+                aria-expanded={!installState.canPrompt ? guideOpen : undefined}
+                aria-controls={!installState.canPrompt ? 'pwa-install-guide' : undefined}
+              >
+                {installing ? 'Abriendo…' : installState.canPrompt ? 'Instalar' : guideOpen ? 'Ocultar pasos' : 'Ver pasos'}
+              </button>
+              {!appleMobile && <a
+                className="compact-action pwa-install__apk-action"
+                href="/downloads/patawallet-android.apk"
+                download="PataWallet.apk"
+                aria-label="Descargar APK de PataWallet para Android"
+              >
+                Descargar APK
+              </a>}
+            </div>}
       </div>
       {message && <p className="pwa-install__message" role="status">{message}</p>}
       {!installState.installed && <div className="pwa-install__guide" id="pwa-install-guide" hidden={!guideOpen}>
