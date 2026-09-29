@@ -53,5 +53,7 @@ export function gmailPushNotification(body) {
   let decoded
   // Gmail entrega Pub/Sub data en Base64URL, sin garantizar el padding estándar.
   try { decoded = JSON.parse(Buffer.from(data.message.data, 'base64url').toString('utf8')) } catch { throw Object.assign(new Error('Notificación Gmail inválida.'), { status: 400 }) }
-  return z.object({ emailAddress: z.email(), historyId: z.string().min(1).max(80) }).passthrough().parse(decoded)
+  // Gmail puede serializar historyId como número o texto; normalizarlo evita rechazar entregas válidas.
+  const historyId = z.union([z.string().regex(/^\d{1,80}$/), z.number().int().nonnegative()]).transform(String)
+  return z.object({ emailAddress: z.email(), historyId }).passthrough().parse(decoded)
 }

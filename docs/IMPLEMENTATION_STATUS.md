@@ -16,8 +16,8 @@ Actualizado: 2026-09-29. Fase actual: **ingesta automática Gmail configurada en
 ## Diagnóstico de entregas automáticas Gmail · 29 de septiembre
 
 - Vercel registra solicitudes POST de `APIs-Google` a `/api/mail?operation=gmail-push`, con `503` repetidos; la sincronización manual a `/api/bank-email` responde `200`. Las entregas llegan a producción pero el handler falla antes de completar la sincronización.
-- El parser ahora decodifica explícitamente Base64URL, que es el formato documentado para `message.data` de Gmail Pub/Sub. El handler registra etapa y metadatos técnicos seguros ante fallos, nunca correo, token, cuerpo ni texto de error.
-- Regresión local con el sobre Base64URL documentado: `tests/api/mail.test.js`. Pendiente publicar en `main`, comprobar el nuevo diagnóstico/ack en Vercel y repetir prueba automática del buzón/dispositivo; no se verificó aún una transferencia real end-to-end.
+- El log seguro localizó la falla en `notification_parse`: el `historyId` real llegó como número, aunque el parser solo aceptaba texto. El parser ahora normaliza ambas formas y decodifica Base64URL; los registros técnicos omiten correo, token, cuerpo y texto de error.
+- Regresión local con `historyId` numérico y textual en un sobre Base64URL: `tests/api/mail.test.js`. Pendiente publicar esta corrección en `main`, confirmar que Pub/Sub acepte (2xx) y procese el reintento, y verificar la notificación en un dispositivo; todavía no se ha confirmado el ciclo completo con una transferencia real.
 
 ## Asociación automática de compras por Atajos · 29 de septiembre
 
