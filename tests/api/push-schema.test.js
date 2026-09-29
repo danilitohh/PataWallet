@@ -18,4 +18,12 @@ describe('contrato del servidor Push', () => {
     expect(safeNotificationRoute('https://evil.example')).toBe('/ajustes/notificaciones')
     expect(safeNotificationRoute('/actividad')).toBe('/actividad')
   })
+
+  it('dirige el aviso bancario al movimiento exacto en la bandeja de revisión', () => {
+    const event = { event_kind: 'review', event_key: 'mail-review:550e8400-e29b-41d4-a716-446655440000', payload: {} }
+    const notice = notificationPayload(event, { show_sensitive_details: false })
+
+    expect(notice.route).toBe('/notificaciones?review=550e8400-e29b-41d4-a716-446655440000')
+    expect(safeNotificationRoute('/notificaciones')).toBe('/notificaciones')
+  })
 })

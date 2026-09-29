@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { Bell, CheckCircle2, ChevronDown, RefreshCw } from 'lucide-react'
 import { useApp } from '../../app/AppContext.jsx'
 import { formatMinor } from '../../domain/money.js'
@@ -15,6 +16,8 @@ export function NotificationsInboxPage() {
 }
 
 function NotificationsInbox({ app }) {
+  const location = useLocation()
+  const reviewId = new URLSearchParams(location.search).get('review')
   const { isDemo, user, accounts, categories, transactions, settings, actions, notify } = app
   const [data, setData] = useState({ events: [], has_more: false })
   const [page, setPage] = useState(0)
@@ -37,6 +40,12 @@ function NotificationsInbox({ app }) {
   }, [isDemo, page, user?.id])
 
   useEffect(() => { refresh() }, [refresh])
+  // Opens and brings the exact pending event from a push link into view after the inbox loads.
+  useEffect(() => {
+    if (!loading && data.events.some((item) => item.id === reviewId)) {
+      document.getElementById(`bank-review-${reviewId}`)?.scrollIntoView({ block: 'center' })
+    }
+  }, [data.events, loading, reviewId])
   useEffect(() => {
     const onVisible = () => { if (document.visibilityState === 'visible') refresh() }
     document.addEventListener('visibilitychange', onVisible)
@@ -69,7 +78,7 @@ function NotificationsInbox({ app }) {
       {error && <div className="notifications-inbox__error" role="alert"><p>{error}</p><button type="button" className="button button--secondary" onClick={refresh}>Reintentar</button></div>}
       {!error && loading && <p role="status">Cargando avisos…</p>}
       {!error && !loading && !data.events.length && <div className="notifications-inbox__zero"><CheckCircle2 aria-hidden="true" /><div><strong>Todo al día</strong><p>Los movimientos detectados en tus correos aparecerán aquí para que los revises.</p></div></div>}
-      <div className="notifications-inbox__list">{data.events.map((item) => <details className="calm-details notifications-inbox__item" key={item.id}>
+      <div className="notifications-inbox__list">{data.events.map((item) => <details className="calm-details notifications-inbox__item" id={`bank-review-${item.id}`} key={item.id} open={item.id === reviewId}>
         <summary>
           <span className="notifications-inbox__icon"><Bell aria-hidden="true" /></span>
           <span className="notifications-inbox__summary">

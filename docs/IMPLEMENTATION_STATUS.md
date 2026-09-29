@@ -35,6 +35,11 @@ Actualizado: 2026-09-29. Fase actual: **ingesta automática Gmail configurada en
 - `/ajustes/correos-bancarios` conserva la configuración del proveedor. La ruta de bandeja también está permitida para navegación segura desde la PWA.
 - Verificado: lint, build, 181 pruebas unitarias y 6 pruebas E2E de la campana y expansión del aviso en 375×812, 390×844 y 1440×900. Falta la verificación del flujo con correo bancario real descrita arriba.
 
+## Enlace de notificación a revisión · 29 de septiembre
+
+- Corregido el destino del push bancario: al tocarlo abre `/notificaciones` con el evento exacto expandido y su formulario Registrar / Ya existe / Descartar visible. Usa únicamente el UUID del evento en la URL; no incluye monto, comercio ni contenido del correo. Si el ID del aviso no tiene el formato esperado, abre la bandeja general.
+- Verificado: lint, build, 183 pruebas unitarias y 6 E2E del flujo en escritorio, 375×812 y 390×844. La notificación real ya llega al teléfono según la prueba del usuario; el clic físico aún requiere confirmación después del despliegue.
+
 ## Tutorial de automatización en video · 29 de septiembre
 
 - Corregido el fallback de navegación del service worker para que no sustituya recursos de `/assets/` por el HTML de la SPA; el MP4 ya abre en el reproductor del navegador.
@@ -51,7 +56,7 @@ Actualizado: 2026-09-29. Fase actual: **ingesta automática Gmail configurada en
 
 ## Avisos automáticos de correo · 28 de septiembre
 
-- Gmail Pub/Sub dispara la búsqueda incremental, los candidatos quedan pendientes sin alterar saldos y `push_outbox` encola la notificación «Tienes un movimiento por revisar» hacia `/ajustes/correos-bancarios`. El reenvío selectivo usa el mismo aviso.
+- Gmail Pub/Sub dispara la búsqueda incremental, los candidatos quedan pendientes sin alterar saldos y `push_outbox` encola la notificación «Tienes un movimiento por revisar» hacia `/notificaciones`; al tocarla, se abre directamente el evento pendiente correspondiente. El reenvío selectivo usa el mismo aviso.
 - Configurados el tema y la suscripción push de Pub/Sub con OIDC y una cuenta de servicio dedicada de privilegio mínimo. Vercel Production tiene `MAIL_GOOGLE_PUBSUB_TOPIC`, `MAIL_GOOGLE_PUSH_AUDIENCE` y `MAIL_GOOGLE_PUSH_SERVICE_ACCOUNT`; el despliegue Ready `B7mspmx324ETDPSVqrwdrYFwhGEV` usa `main` (`3333b30`).
 - Las columnas, el índice y las funciones de la migración `20260928120000_mail_automation_push.sql` ya estaban presentes en Supabase y los permisos limitan la ejecución a `service_role`; no se ejecutó SQL duplicado. La versión no figuraba en `schema_migrations`.
 - Falta comprobar un correo nuevo Bancolombia/Lulo/Nequi de extremo a extremo y la notificación en un dispositivo. La primera sincronización puede iniciar Gmail Watch si no existe una vigilancia activa; la búsqueda manual sigue disponible. No se simuló un correo real ni se probaron push/eventos en vivo.
