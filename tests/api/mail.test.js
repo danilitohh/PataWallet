@@ -113,8 +113,18 @@ describe('OAuth de correo y fronteras de proveedores', () => {
     vi.stubGlobal('fetch', fetch)
     await expect(startGmailWatch(providerConfig('gmail'), 'access')).resolves.toEqual({ historyId: '12345', expiration: '1790640000000' })
     expect(JSON.parse(fetch.mock.calls[0][1].body)).toEqual({ topicName: 'projects/patawallet/topics/gmail-events', labelIds: ['INBOX'], labelFilterAction: 'include' })
-    const payload = { message: { data: Buffer.from(JSON.stringify({ emailAddress: 'mailbox@example.invalid', historyId: '12345' })).toString('base64') } }
+    const payload = { message: { data: Buffer.from(JSON.stringify({ emailAddress: 'mailbox@example.invalid', historyId: '12345' })).toString('base64url') } }
     expect(gmailPushNotification(payload)).toMatchObject({ emailAddress: 'mailbox@example.invalid', historyId: '12345' })
+  })
+
+  it('rechaza entregas sin OIDC antes de consultar Gmail o registrar datos', async () => {
+    vi.stubEnv('MAIL_GOOGLE_PUSH_AUDIENCE', 'https://app.example.invalid/api/mail?operation=gmail-push')
+    vi.stubEnv('MAIL_GOOGLE_PUSH_SERVICE_ACCOUNT', 'push@example.invalid')
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const res = { status(value) { this.code = value; return this }, setHeader() { return this }, json(body) { this.body = body; return this }, end() {} }
+    await handler({ method: 'POST', query: { operation: 'gmail-push' }, headers: {}, body: { message: { data: 'private-payload' } } }, res)
+    expect(res.code).toBe(401)
+    expect(log).not.toHaveBeenCalled()
   })
 
   it('extrae MIME inline sin adjuntos ni doble texto de alternativas y limita profundidad', () => {

@@ -53,19 +53,34 @@ export default async function handler(req, res) {
 // Recibe únicamente el aviso de cambio de Gmail; el contenido del correo se obtiene después con OAuth del propietario.
 async function gmailPush(req, res) {
   if (!allowMethod(req, res, ['POST'])) return
+  let stage = 'body_size'
   try {
     assertBodySize(req, 20_000)
+    stage = 'oidc_auth'
     await assertPubSubIdentity(req.headers || {})
+    stage = 'notification_parse'
     const notification = gmailPushNotification(typeof req.body === 'string' ? JSON.parse(req.body) : req.body)
+    stage = 'admin_client'
     const admin = adminClient()
+    stage = 'connection_lookup'
     const { data: connection, error } = await admin.from('mail_connections').select('user_id,provider,status,mailbox').eq('provider', 'gmail').eq('status', 'connected').eq('mailbox', notification.emailAddress.toLowerCase()).maybeSingle()
     if (error) throw error
     if (!connection) return res.status(204).end()
+    stage = 'gmail_sync'
     const result = await syncConnection(admin, connection.user_id, 'gmail')
+    stage = 'push_dispatch'
     await processPushOutbox(admin).catch(() => {})
     return json(res, 200, { accepted: true, added: result.added || 0 })
   } catch (error) {
+    // Registrar solo metadatos técnicos: nunca correo, token, cuerpo ni contenido del error.
     const status = error.code === 'PT409' ? 202 : error.status === 401 ? 401 : 503
+    if (status === 503) console.error('gmail-push-failed', {
+      stage,
+      errorType: error?.name || 'UnknownError',
+      status: Number(error?.status) || 0,
+      code: typeof error?.code === 'string' && /^[A-Z0-9_]{1,32}$/.test(error.code) ? error.code : undefined,
+      validation: error instanceof z.ZodError ? error.issues.slice(0, 5).map(({ code, path }) => ({ code, path: path.join('.') })) : undefined,
+    })
     return json(res, status, status === 401 ? { error: 'Entrega Pub/Sub no autorizada.' } : { accepted: status === 202 })
   }
 }

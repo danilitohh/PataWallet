@@ -51,6 +51,7 @@ export async function assertPubSubIdentity(headers) {
 export function gmailPushNotification(body) {
   const data = z.object({ message: z.object({ data: z.string().min(1).max(12_000) }).passthrough() }).passthrough().parse(body)
   let decoded
-  try { decoded = JSON.parse(Buffer.from(data.message.data, 'base64').toString('utf8')) } catch { throw Object.assign(new Error('Notificación Gmail inválida.'), { status: 400 }) }
+  // Gmail entrega Pub/Sub data en Base64URL, sin garantizar el padding estándar.
+  try { decoded = JSON.parse(Buffer.from(data.message.data, 'base64url').toString('utf8')) } catch { throw Object.assign(new Error('Notificación Gmail inválida.'), { status: 400 }) }
   return z.object({ emailAddress: z.email(), historyId: z.string().min(1).max(80) }).passthrough().parse(decoded)
 }
