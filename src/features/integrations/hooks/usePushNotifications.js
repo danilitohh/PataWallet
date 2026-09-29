@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { activatePush, currentBrowserSubscription, deactivatePush, reconcilePushSubscription, savePushPreferences, sendTestPush, storedSubscriptionId } from '../../../services/push/pushClient.js'
 import { classifyPushState, detectPushCapabilities } from '../../../services/push/pushCapabilities.js'
-
-const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY?.trim() || ''
 const defaults = { movements: true, budgets: true, review: true, showDetails: false }
 
 export function usePushNotifications(user, isDemo) {
+  const [vapidPublicKey, setVapidPublicKey] = useState('')
   const [subscription, setSubscription] = useState(null)
   const [preferences, setPreferences] = useState(defaults)
   const [permissionState, setPermissionState] = useState(() => ('Notification' in window ? Notification.permission : 'default'))
@@ -14,6 +13,17 @@ export function usePushNotifications(user, isDemo) {
   const [testResult, setTestResult] = useState(null)
   const capabilities = useMemo(() => detectPushCapabilities(window), [])
   const permission = capabilities.notifications ? permissionState : 'default'
+
+  // Obtiene la clave pública desde el servidor para no duplicarla en variables Vite.
+  useEffect(() => {
+    if (isDemo) return undefined
+    let mounted = true
+    fetch('/api/push/config', { headers: { Accept: 'application/json' } })
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error('No se pudo cargar la configuración de notificaciones.')))
+      .then((config) => { if (mounted) setVapidPublicKey(typeof config.publicKey === 'string' ? config.publicKey.trim() : '') })
+      .catch(() => { if (mounted) setVapidPublicKey('') })
+    return () => { mounted = false }
+  }, [isDemo])
 
   const refresh = useCallback(async () => {
     if (isDemo || !user || !vapidPublicKey || !capabilities.serviceWorker || !capabilities.pushManager) return
@@ -31,7 +41,7 @@ export function usePushNotifications(user, isDemo) {
       setError(issue.message)
       setSubscription(await currentBrowserSubscription().catch(() => null))
     }
-  }, [capabilities.pushManager, capabilities.serviceWorker, isDemo, permission, user])
+  }, [capabilities.pushManager, capabilities.serviceWorker, isDemo, permission, user, vapidPublicKey])
 
   useEffect(() => { refresh() }, [refresh])
   useEffect(() => {

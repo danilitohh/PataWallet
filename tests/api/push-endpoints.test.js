@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import subscriptionsHandler from '../../api/push/subscriptions/index.js'
+import processHandler from '../../api/push/process.js'
 import { handlePushTest as testHandler } from '../../server/api-lib/push-test.js'
 
 function response() {
@@ -36,5 +37,16 @@ describe('protección de endpoints Push', () => {
     expect(res.statusCode).toBe(413)
     if (priorOrigin === undefined) delete process.env.APP_ORIGIN
     else process.env.APP_ORIGIN = priorOrigin
+  })
+
+  it('expone solo la clave pública VAPID para activar el navegador', async () => {
+    const prior = process.env.VAPID_PUBLIC_KEY
+    process.env.VAPID_PUBLIC_KEY = 'public-key-for-browser'
+    const res = response()
+    await processHandler({ method: 'GET', query: { operation: 'config' }, headers: {} }, res)
+    expect(res.statusCode).toBe(200)
+    expect(res.payload).toEqual({ publicKey: 'public-key-for-browser' })
+    if (prior === undefined) delete process.env.VAPID_PUBLIC_KEY
+    else process.env.VAPID_PUBLIC_KEY = prior
   })
 })

@@ -16,6 +16,7 @@
     { "source": "/api/shortcuts/devices/:id", "destination": "/api/shortcuts?operation=device&id=:id" },
     { "source": "/api/shortcuts/review/:id", "destination": "/api/shortcuts?operation=review&id=:id" },
     { "source": "/api/push/test", "destination": "/api/push/process?operation=test" },
+    { "source": "/api/push/config", "destination": "/api/push/process?operation=config" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
   "headers": [
