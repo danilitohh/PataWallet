@@ -1,15 +1,30 @@
 import { supabase } from '../../lib/supabase/client.js'
 
-// Mantiene la sesión de PataWallet; no solicita acceso al buzón ni credenciales de Gmail.
-export async function bankEmailRequest(method = 'GET', page = 0) {
+async function authorizedRequest(path, options = {}) {
   const { data, error } = await supabase.auth.getSession()
   if (error || !data.session?.access_token) throw new Error('Vuelve a iniciar sesión.')
-  const response = await fetch(`/api/bank-email?page=${page}`, {
-    method, headers: { Authorization: `Bearer ${data.session.access_token}`, 'Content-Type': 'application/json' },
+  return fetch(path, {
+    ...options,
+    headers: { Authorization: `Bearer ${data.session.access_token}`, 'Content-Type': 'application/json', ...options.headers },
+  })
+}
+
+// Mantiene la sesión de PataWallet; no solicita acceso al buzón ni credenciales de Gmail.
+export async function bankEmailRequest(method = 'GET', page = 0) {
+  const response = await authorizedRequest(`/api/bank-email?page=${page}`, {
+    method,
     ...(method === 'POST' ? { body: JSON.stringify({ consent: true }) } : {}),
   })
   const result = await response.json().catch(() => ({}))
   if (!response.ok) throw new Error(result.error || 'No se pudo consultar la recepción de correos.')
+  return result
+}
+
+// Consulta solo el total pendiente para el badge global, sin cargar candidatos ni cuerpos de correo.
+export async function bankEmailSummary() {
+  const response = await authorizedRequest('/api/bank-email?summary=1')
+  const result = await response.json().catch(() => ({}))
+  if (!response.ok) throw new Error(result.error || 'No se pudo consultar los avisos pendientes.')
   return result
 }
 

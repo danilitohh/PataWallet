@@ -28,7 +28,10 @@ function BankEmailContent({ app }) {
   const refresh = useCallback(async () => {
     if (isDemo) return
     setLoading(true); setError('')
-    try { setData(await bankEmailRequest('GET', page)) } catch (issue) { setError(issue.message) } finally { setLoading(false) }
+    try {
+      setData(await bankEmailRequest('GET', page))
+      window.dispatchEvent(new Event('patawallet:notifications-changed'))
+    } catch (issue) { setError(issue.message) } finally { setLoading(false) }
   }, [isDemo, page])
   useEffect(() => { refresh() }, [refresh])
   useEffect(() => {

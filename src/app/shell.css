@@ -8,6 +8,8 @@ main.page:focus-visible { outline: none; }
 .mobile-top__actions { display: flex; gap: 6px; }
 .mobile-top > .wordmark { display: flex; width: auto; }
 .mobile-top__actions a { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+.mobile-top__actions .notification-link { position: relative; }
+.notification-badge { position: absolute; top: 1px; right: 1px; min-width: 18px; height: 18px; padding: 0 4px; display: grid; place-items: center; border: 2px solid var(--bg); border-radius: 999px; background: var(--danger); color: var(--bg); font-size: .62rem; font-weight: 800; line-height: 1; }
 .assistant-fab { width: 44px; height: 44px; min-height: 44px; padding: 0; justify-content: center; right: 20px; border-radius: 15px; }
 .assistant-fab .assistant-fab__label { display: none; }
 /* Ajustes ya ofrece el acceso al asistente en su lista; se evita tapar sus filas con el botón flotante. */

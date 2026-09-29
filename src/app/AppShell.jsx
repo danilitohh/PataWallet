@@ -3,6 +3,7 @@ import { AlertTriangle, Bell, ChartNoAxesColumn, Check, CloudUpload, HardDrive, 
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useApp } from './AppContext.jsx'
 import { NightIcon } from '../shared/components/NightIcon.jsx'
+import { bankEmailSummary } from '../services/bank-email/bankEmailClient.js'
 
 const navigation = [
   ['/', Home, 'Inicio'],
@@ -23,9 +24,32 @@ export function AppShell({ children }) {
   const { setSheet, isDemo, user, syncState, actions } = useApp()
   const location = useLocation()
   const mainRef = useRef(null)
+  const [pendingReviewCount, setPendingReviewCount] = useState(0)
 
   // Parejas debe ser accesible antes de aceptar una invitación para poder crearla.
   const items = navigation
+
+  // Mantiene visible el total de correos bancarios pendientes, incluso si el push no llegó al dispositivo.
+  useEffect(() => {
+    if (isDemo || !user?.id) return undefined
+    let active = true
+    const refresh = () => bankEmailSummary().then((result) => {
+      if (active) setPendingReviewCount(Math.max(0, Number(result.pending_count) || 0))
+    }).catch(() => {})
+    const onVisible = () => { if (document.visibilityState === 'visible') refresh() }
+    const onChanged = () => refresh()
+    refresh()
+    const interval = window.setInterval(refresh, 30_000)
+    document.addEventListener('visibilitychange', onVisible)
+    window.addEventListener('patawallet:notifications-changed', onChanged)
+    return () => {
+      active = false
+      window.clearInterval(interval)
+      document.removeEventListener('visibilitychange', onVisible)
+      window.removeEventListener('patawallet:notifications-changed', onChanged)
+    }
+  }, [isDemo, user?.id])
+  const badgeCount = isDemo || !user?.id ? 0 : pendingReviewCount
 
   useEffect(() => {
     // Cada ruta empieza arriba para que la barra móvil no cubra su encabezado.
@@ -47,7 +71,7 @@ export function AppShell({ children }) {
         <p className="side-nav__demo">{isDemo ? 'Demo local' : user?.email}</p>
         {!isDemo && <SyncStatus state={syncState} retry={actions.retrySync} />}
       </aside>
-      <div className="mobile-top"><Link to="/" className="wordmark wordmark--small" aria-label="PataWallet"><PawPrint /> PataWallet</Link><div className="mobile-top__actions"><Link to="/ajustes/notificaciones" aria-label="Abrir notificaciones"><NightIcon icon={Bell} variant="nav" tone="sky" /></Link><Link to="/ajustes" aria-label="Abrir ajustes"><NightIcon icon={Settings} variant="nav" tone="violet" /></Link></div></div>
+      <div className="mobile-top"><Link to="/" className="wordmark wordmark--small" aria-label="PataWallet"><PawPrint /> PataWallet</Link><div className="mobile-top__actions"><Link className="notification-link" to="/ajustes/correos-bancarios" aria-label={badgeCount ? `Abrir avisos: ${badgeCount} pendientes` : 'Abrir avisos'}><NightIcon icon={Bell} variant="nav" tone="sky" />{badgeCount > 0 && <span className="notification-badge" aria-hidden="true">{badgeCount > 99 ? '99+' : badgeCount}</span>}</Link><Link to="/ajustes" aria-label="Abrir ajustes"><NightIcon icon={Settings} variant="nav" tone="violet" /></Link></div></div>
       <main ref={mainRef} tabIndex="-1" className="page" aria-label="Contenido principal">
         {!isDemo && syncState && syncState.kind !== 'synced' && <div className="mobile-sync"><SyncStatus state={syncState} retry={actions.retrySync} /></div>}
         {children}

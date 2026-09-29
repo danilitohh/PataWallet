@@ -12,6 +12,11 @@ export default async function handler(req, res) {
     const configuration = receiverConfiguration()
     // La bandeja también recibe OAuth: permanece legible aunque Resend esté desactivado.
     const admin = adminClient()
+    if (req.method === 'GET' && req.query?.summary === '1') {
+      const { count, error } = await admin.from('bank_email_events').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'pending')
+      if (error) throw error
+      return json(res, 200, { pending_count: count || 0 })
+    }
     if (req.method === 'POST') {
       if (!configuration.enabled) return json(res, 503, { error: 'El receptor aún no está configurado.' })
       if (req.body?.consent !== true) return json(res, 400, { error: 'Confirma el tratamiento de los correos reenviados.' })
