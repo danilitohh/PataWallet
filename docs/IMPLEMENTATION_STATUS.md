@@ -1,6 +1,12 @@
 # Estado de implementación
 
-Actualizado: 2026-09-27. Fase actual: **rediseño cristal lavanda; validación en iPhone real pendiente**.
+Actualizado: 2026-09-28. Fase actual: **guía de automatización de Wallet con video; validación en iPhone real pendiente**.
+
+## Guía visual y video de automatización de Wallet · 28 de septiembre
+
+- `/ajustes/automatizacion` conserva una referencia visual de configuración y ahora ofrece abrir el video MP4 aportado, junto con los siete pasos y el mapeo `amount` → Cantidad, `card_alias` → Tarjeta o pase y `merchant_name` → Comercio.
+- El video se carga al abrirlo y no se precarga en la PWA. No se probó su reproducción offline ni en un iPhone físico.
+- Verificado con lint, build y Playwright dirigido (4 pruebas pasaron, 2 se omitieron según configuración; la prueba nocturna móvil enfocada pasó 1/1). El servidor local entrega el MP4 como `video/mp4`.
 
 ## Enlace del atajo corregido en producción · 27 de septiembre
 
