@@ -2,7 +2,7 @@ import { assertBodySize, assertTrustedOrigin, allowMethod, json } from '../serve
 import { canonicalEventHash, mappingSchema, normalizeLabel, normalizeShortcutEvent, pairSchema, pairingTicketSchema, reviewSchema, randomSecret, sha256, shortcutEventSchema, templateMetadata } from '../server/api-lib/shortcut-contract.js'
 import { authorizedShortcut, shortcutError } from '../server/api-lib/shortcut-server.js'
 import { categoryRuleHandler } from '../server/api-lib/shortcut-rules.js'
-import { agreeOnMerchantCategory } from '../server/api-lib/shortcut-category-ai.js'
+import { classifyMerchantCategory } from '../server/api-lib/shortcut-category-ai.js'
 import { adminClient, authenticatedUser } from '../server/api-lib/supabase-server.js'
 
 // Unifica las rutas de Atajos para respetar el límite de funciones del plan Hobby.
@@ -38,9 +38,9 @@ async function statusHandler(req, res) {
 
 // Expone solo el estado de configuración, nunca la clave ni los valores de autenticación.
 function categoryAiConfigured() {
-  const first = process.env.OPENAI_CATEGORY_MODEL?.trim() || 'gpt-5-mini'
-  const second = process.env.OPENAI_CATEGORY_REVIEW_MODEL?.trim() || 'gpt-4o-mini'
-  return Boolean(process.env.OPENAI_API_KEY?.trim() && first !== second)
+  const verifier = process.env.OPENAI_CATEGORY_MODEL?.trim() || 'gpt-4o-mini'
+  const arbiter = process.env.OPENAI_CATEGORY_REVIEW_MODEL?.trim() || 'gpt-5-mini'
+  return Boolean(process.env.GEMINI_API_KEY?.trim() && process.env.OPENAI_API_KEY?.trim() && verifier !== arbiter)
 }
 
 // Consume un ticket de vinculación emitido por la pantalla de Atajos.
@@ -135,10 +135,12 @@ async function saveAgreedCategoryRule(admin, userId, event) {
     ])
     if (prior || !mapping || rules?.length || !categoryRows?.length) return
     const names = [...new Set(categoryRows.map((category) => category.name))]
-    const name = await agreeOnMerchantCategory({
-      apiKey,
-      firstModel: process.env.OPENAI_CATEGORY_MODEL?.trim() || 'gpt-5-mini',
-      secondModel: process.env.OPENAI_CATEGORY_REVIEW_MODEL?.trim() || 'gpt-4o-mini',
+    const name = await classifyMerchantCategory({
+      geminiApiKey: process.env.GEMINI_API_KEY?.trim(),
+      openAiApiKey: apiKey,
+      geminiModel: process.env.GEMINI_MODEL?.trim() || 'gemini-2.5-flash',
+      verifierModel: process.env.OPENAI_CATEGORY_MODEL?.trim() || 'gpt-4o-mini',
+      arbiterModel: process.env.OPENAI_CATEGORY_REVIEW_MODEL?.trim() || 'gpt-5-mini',
       merchant: event.merchant_name,
       categories: names,
     })

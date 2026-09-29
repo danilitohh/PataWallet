@@ -11,8 +11,8 @@ Actualizado: 2026-09-29. Fase actual: **ingesta automática Gmail configurada en
 
 - Quitados los formularios manuales para crear mapeos de tarjeta/cuenta y reglas de categoría. Los mapeos existentes se conservan y pueden eliminarse desde la lista.
 - Cuando un alias de tarjeta sea nuevo, al revisar el primer evento el usuario elige la cuenta y puede pedir que se recuerde para próximas compras.
-- Para comercios nuevos, dos modelos OpenAI distintos revisan en paralelo solo el nombre del comercio y los nombres de categorías de gasto del usuario. Se guarda una regla exacta únicamente si ambos coinciden con confianza alta; en cualquier otro caso, fallo o timeout, continúa el flujo actual de revisión y `Sin categoría`.
-- `OPENAI_API_KEY` y modelos son variables solo de servidor. La clave pegada en el chat se considera expuesta y debe revocarse; producción no se considera habilitada hasta que se agregue una clave nueva a Vercel. No se hicieron llamadas reales a OpenAI ni se enviaron movimientos reales.
+- Para comercios nuevos, Gemini y un modelo ligero de OpenAI revisan en paralelo solo el nombre del comercio y los nombres de categorías de gasto del usuario. El tercer modelo de OpenAI solo se llama si discrepan; la regla exacta se guarda solo si hay mayoría con confianza alta. Un desacuerdo final, fallo o timeout conserva el flujo de revisión y `Sin categoría`.
+- `OPENAI_API_KEY`, `GEMINI_API_KEY` y los modelos son variables solo de servidor. Las claves pegadas en el chat se consideran expuestas y deben revocarse; producción no se considera habilitada hasta agregar claves nuevas a Vercel. No se hicieron llamadas reales a proveedores ni se enviaron movimientos reales.
 - Verificado localmente: lint, build y 178 pruebas unitarias/API. Falta probar clasificación con una clave rotada y un comercio de prueba antes de confirmar el comportamiento en producción.
 
 ## Bandeja de notificaciones · 29 de septiembre
