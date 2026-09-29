@@ -7,6 +7,12 @@
 
 Actualizado: 2026-09-29. Fase actual: **ingesta automática Gmail configurada en infraestructura; falta verificar un correo nuevo de banco de extremo a extremo**.
 
+## Bandeja de notificaciones · 29 de septiembre
+
+- La campana de la cabecera abre `/notificaciones`, una bandeja centrada en avisos bancarios pendientes; ya no envía al formulario largo de conexión Gmail/reenvío. La revisión reutiliza el flujo actual de Registrar, Ya existe o Descartar; los saldos cambian solo después de confirmar.
+- `/ajustes/correos-bancarios` conserva la configuración del proveedor. La ruta de bandeja también está permitida para navegación segura desde la PWA.
+- Verificado: lint, build, 177 pruebas unitarias/API y 3 pruebas E2E de la campana/bandeja en 375×812, 390×844 y 1440×900. Falta la verificación del flujo con correo bancario real descrita arriba.
+
 ## Android TWA / APK · 28 de septiembre
 
 - Añadido un wrapper Android TWA en `android/` que abre la PWA existente con `com.patawallet.app`, modo standalone, iconos actuales y notificaciones delegadas al origen web. No modifica la lógica web, financiera, de autenticación ni de correo.

@@ -71,7 +71,7 @@ export function AppShell({ children }) {
         <p className="side-nav__demo">{isDemo ? 'Demo local' : user?.email}</p>
         {!isDemo && <SyncStatus state={syncState} retry={actions.retrySync} />}
       </aside>
-      <div className="mobile-top"><Link to="/" className="wordmark wordmark--small" aria-label="PataWallet"><PawPrint /> PataWallet</Link><div className="mobile-top__actions"><Link className="notification-link" to="/ajustes/correos-bancarios" aria-label={badgeCount ? `Abrir avisos: ${badgeCount} pendientes` : 'Abrir avisos'}><NightIcon icon={Bell} variant="nav" tone="sky" />{badgeCount > 0 && <span className="notification-badge" aria-hidden="true">{badgeCount > 99 ? '99+' : badgeCount}</span>}</Link><Link to="/ajustes" aria-label="Abrir ajustes"><NightIcon icon={Settings} variant="nav" tone="violet" /></Link></div></div>
+      <div className="mobile-top"><Link to="/" className="wordmark wordmark--small" aria-label="PataWallet"><PawPrint /> PataWallet</Link><div className="mobile-top__actions"><Link className="notification-link" to="/notificaciones" aria-label={badgeCount ? `Abrir avisos: ${badgeCount} pendientes` : 'Abrir avisos'}><NightIcon icon={Bell} variant="nav" tone="sky" />{badgeCount > 0 && <span className="notification-badge" aria-hidden="true">{badgeCount > 99 ? '99+' : badgeCount}</span>}</Link><Link to="/ajustes" aria-label="Abrir ajustes"><NightIcon icon={Settings} variant="nav" tone="violet" /></Link></div></div>
       <main ref={mainRef} tabIndex="-1" className="page" aria-label="Contenido principal">
         {!isDemo && syncState && syncState.kind !== 'synced' && <div className="mobile-sync"><SyncStatus state={syncState} retry={actions.retrySync} /></div>}
         {children}
