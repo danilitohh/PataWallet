@@ -1,12 +1,13 @@
 // Shared server-only Web Push client. This file is not a Vercel route.
 import webpush from 'web-push'
+import { getVapidPublicKey } from './vapid.js'
 
 let configured = false
 
 function configure() {
   if (configured) return
   const subject = process.env.VAPID_SUBJECT
-  const publicKey = process.env.VAPID_PUBLIC_KEY
+  const publicKey = getVapidPublicKey()
   const privateKey = process.env.VAPID_PRIVATE_KEY
   if (!subject || !publicKey || !privateKey) throw Object.assign(new Error('Falta configuración VAPID del servidor.'), { status: 503 })
   webpush.setVapidDetails(subject, publicKey, privateKey)

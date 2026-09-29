@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { createECDH } from 'node:crypto'
 import subscriptionsHandler from '../../api/push/subscriptions/index.js'
 import processHandler from '../../api/push/process.js'
 import { handlePushTest as testHandler } from '../../server/api-lib/push-test.js'
@@ -41,6 +42,7 @@ describe('protección de endpoints Push', () => {
 
   it('expone solo la clave pública VAPID para activar el navegador', async () => {
     const prior = process.env.VAPID_PUBLIC_KEY
+    const priorPrivate = process.env.VAPID_PRIVATE_KEY
     process.env.VAPID_PUBLIC_KEY = 'public-key-for-browser'
     const res = response()
     await processHandler({ method: 'GET', query: { operation: 'config' }, headers: {} }, res)
@@ -48,5 +50,24 @@ describe('protección de endpoints Push', () => {
     expect(res.payload).toEqual({ publicKey: 'public-key-for-browser' })
     if (prior === undefined) delete process.env.VAPID_PUBLIC_KEY
     else process.env.VAPID_PUBLIC_KEY = prior
+    if (priorPrivate === undefined) delete process.env.VAPID_PRIVATE_KEY
+    else process.env.VAPID_PRIVATE_KEY = priorPrivate
+  })
+
+  it('deriva la clave pública cuando Vercel solo entrega la privada', async () => {
+    const prior = process.env.VAPID_PUBLIC_KEY
+    const priorPrivate = process.env.VAPID_PRIVATE_KEY
+    const ecdh = createECDH('prime256v1')
+    ecdh.generateKeys()
+    process.env.VAPID_PUBLIC_KEY = ''
+    process.env.VAPID_PRIVATE_KEY = ecdh.getPrivateKey().toString('base64url')
+    const res = response()
+    await processHandler({ method: 'GET', query: { operation: 'config' }, headers: {} }, res)
+    expect(res.statusCode).toBe(200)
+    expect(res.payload.publicKey).toBe(ecdh.getPublicKey('base64url'))
+    if (prior === undefined) delete process.env.VAPID_PUBLIC_KEY
+    else process.env.VAPID_PUBLIC_KEY = prior
+    if (priorPrivate === undefined) delete process.env.VAPID_PRIVATE_KEY
+    else process.env.VAPID_PRIVATE_KEY = priorPrivate
   })
 })
