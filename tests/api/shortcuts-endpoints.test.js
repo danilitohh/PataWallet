@@ -1,27 +1,24 @@
 import { describe, expect, it } from 'vitest'
-import pairHandler, { createPairingTicketHandler as pairingHandler } from '../../api/shortcuts/pair.js'
-import eventsHandler from '../../api/shortcuts/events.js'
-import statusHandler from '../../api/shortcuts/status.js'
+import shortcutHandler from '../../api/shortcuts.js'
 import testHandler from '../../api/shortcuts/test.js'
-import deviceHandler from '../../api/shortcuts/devices/[id].js'
 
 function response() { return { statusCode:0, payload:null, headers:{}, status(code){this.statusCode=code;return this}, setHeader(name,value){this.headers[name]=value;return this}, json(value){this.payload=value;return this} } }
 
 describe('protección HTTP de Atajos', () => {
-  it.each([pairingHandler,statusHandler,deviceHandler])('exige sesión para endpoints del propietario', async (handler) => {
-    const res=response(); await handler({method:handler===statusHandler?'GET':'POST',headers:{},body:{automation_declared:true},query:{id:'x'}},res)
+  it.each([['create-ticket', 'POST'], ['status', 'GET'], ['device', 'POST']])('exige sesión para endpoints del propietario', async (operation, method) => {
+    const res=response(); await shortcutHandler({method,headers:{},body:{automation_declared:true},query:{operation,id:'x'}},res)
     expect(res.statusCode).toBe(401); expect(res.headers['Cache-Control']).toBe('no-store')
   })
   it.each([testHandler])('exige token de dispositivo para la prueba', async (handler) => {
     const res=response(); await handler({method:'POST',headers:{},body:{}},res); expect(res.statusCode).toBe(401)
   })
   it('rechaza un evento grande antes de autenticar o guardar', async () => {
-    const res=response(); await eventsHandler({method:'POST',headers:{'content-length':'9000'},body:{}},res); expect(res.statusCode).toBe(413)
+    const res=response(); await shortcutHandler({method:'POST',headers:{'content-length':'9000'},body:{},query:{operation:'events'}},res); expect(res.statusCode).toBe(413)
   })
   it('rechaza eventos estructuralmente falsos', async () => {
-    const res=response(); await eventsHandler({method:'POST',headers:{},body:{user_id:'otro'}},res); expect(res.statusCode).toBe(400)
+    const res=response(); await shortcutHandler({method:'POST',headers:{},body:{user_id:'otro'},query:{operation:'events'}},res); expect(res.statusCode).toBe(400)
   })
   it('no canjea tickets mal formados', async () => {
-    const res=response(); await pairHandler({method:'POST',headers:{},body:{ticket:'corto',template_version:'1'}},res); expect(res.statusCode).toBe(400)
+    const res=response(); await shortcutHandler({method:'POST',headers:{},body:{ticket:'corto',template_version:'1'},query:{operation:'pair'}},res); expect(res.statusCode).toBe(400)
   })
 })
