@@ -35,3 +35,14 @@ test('muestra instrucciones de Safari cuando no existe un aviso nativo', async (
   await expect(page.locator('#pwa-install-guide li')).toHaveCount(3)
   await expect(page.getByText('Abrir como app web')).toBeVisible()
 })
+
+test('ofrece la descarga de la APK en escritorio', async ({ page }) => {
+  test.skip(test.info().project.name !== 'desktop', 'La descarga Android se comprueba en la vista de escritorio.')
+  await page.goto('/')
+  await page.getByRole('button', { name: /probar con datos de ejemplo/i }).click()
+  await page.getByRole('link', { name: /ajustes/i }).first().click()
+
+  const apkLink = page.getByRole('link', { name: /descargar apk/i })
+  await expect(apkLink).toHaveAttribute('href', '/downloads/patawallet-android.apk')
+  await expect(apkLink).toHaveAttribute('download', 'PataWallet.apk')
+})

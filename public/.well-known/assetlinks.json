@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.patawallet.app",
+      "sha256_cert_fingerprints": [
+        "C2:60:DD:1F:F4:FD:BC:BF:92:FE:70:18:9C:0F:AB:44:44:8F:2A:39:18:37:DB:B1:C9:80:F0:D9:5F:FE:33:CE"
+      ]
+    }
+  }
+]
