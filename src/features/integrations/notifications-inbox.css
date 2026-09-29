@@ -1,21 +1,53 @@
+/* Keeps the inbox compact when empty and gives each pending alert a clear review affordance. */
 .notifications-inbox > .integration-card { max-width: 800px; min-width: 0; }
 .notifications-inbox__empty { display: grid; justify-items: start; gap: 12px; }
 .notifications-inbox__empty p { margin: 0; color: var(--text-2); }
+.notifications-inbox__panel { gap: 18px; padding: clamp(18px, 3vw, 26px); }
+.notifications-inbox__heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.notifications-inbox__heading-copy { min-width: 0; }
+.notifications-inbox__eyebrow { color: var(--accent); font-size: .68rem; font-weight: 780; letter-spacing: .1em; text-transform: uppercase; }
+.notifications-inbox__heading h2 { display: flex; align-items: center; gap: 9px; margin-top: 5px; }
+.notifications-inbox__heading-copy > p { margin-top: 4px; color: var(--text-2); font-size: .82rem; }
+.notifications-inbox__count { min-width: 25px; height: 25px; display: inline-grid; place-items: center; padding-inline: 6px; border: 1px solid color-mix(in srgb, var(--accent) 36%, var(--border)); border-radius: 9px; background: color-mix(in srgb, var(--accent-soft) 75%, var(--surface)); color: var(--accent); font-size: .72rem; font-variant-numeric: tabular-nums; }
+.notifications-inbox__refresh { min-height: 42px; flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding-inline: 13px; border-radius: 13px; color: var(--text-2); font-size: .76rem; }
+.notifications-inbox__refresh svg { width: 16px; height: 16px; color: var(--accent); }
+.notifications-inbox__refresh:disabled svg { animation: notifications-inbox-spin 1s linear infinite; }
 .notifications-inbox__list { display: grid; gap: 12px; }
-.notifications-inbox__item { min-width: 0; border: var(--glass-edge); border-radius: 16px; padding: 0 14px; overflow-wrap: anywhere; }
-.notifications-inbox__item > summary { min-height: 68px; display: flex; align-items: center; gap: 12px; list-style: none; cursor: pointer; }
+.notifications-inbox__item { min-width: 0; overflow: hidden; overflow-wrap: anywhere; border: 1px solid color-mix(in srgb, var(--accent) 20%, var(--border)); border-radius: 18px; background: linear-gradient(125deg, color-mix(in srgb, var(--accent-soft) 44%, var(--surface)), var(--surface) 72%); box-shadow: inset 0 1px 0 #ffffff09; transition: border-color 160ms ease, background 160ms ease; }
+.notifications-inbox__item:hover, .notifications-inbox__item[open] { border-color: color-mix(in srgb, var(--accent) 42%, var(--border)); }
+.notifications-inbox__item > summary { min-height: 82px; display: flex; align-items: center; gap: 13px; padding: 12px 16px; list-style: none; cursor: pointer; }
 .notifications-inbox__item > summary::-webkit-details-marker { display: none; }
-.notifications-inbox__item[open] > summary { margin-bottom: 12px; }
-.notifications-inbox__icon { width: 40px; height: 40px; flex: 0 0 40px; display: grid; place-items: center; border-radius: 50%; background: var(--surface-muted); color: var(--accent); }
-.notifications-inbox__icon svg { width: 19px; }
-.notifications-inbox__summary { display: grid; gap: 4px; flex: 1; min-width: 0; }
+.notifications-inbox__item > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; border-radius: 18px; }
+.notifications-inbox__icon { width: 42px; height: 42px; flex: 0 0 42px; display: grid; place-items: center; border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent); border-radius: 14px; background: color-mix(in srgb, var(--accent-soft) 82%, var(--surface)); color: var(--accent); }
+.notifications-inbox__icon svg { width: 18px; height: 18px; }
+.notifications-inbox__summary { display: grid; gap: 5px; flex: 1; min-width: 0; }
 .notifications-inbox__summary strong, .notifications-inbox__summary small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.notifications-inbox__summary small, .notifications-inbox__date { color: var(--text-2); font-size: .82rem; }
-.notifications-inbox__amount { flex: 0 0 auto; color: var(--text); font-size: .84rem; font-weight: 750; text-align: right; }
-.notifications-inbox__date { margin: 0; }
+.notifications-inbox__summary strong { font-size: .9rem; font-weight: 720; }
+.notifications-inbox__summary small, .notifications-inbox__date { color: var(--text-2); font-size: .78rem; }
+.notifications-inbox__trailing { display: inline-flex; align-items: center; gap: 10px; flex: 0 0 auto; }
+.notifications-inbox__amount { color: var(--text); font-size: .86rem; font-variant-numeric: tabular-nums; font-weight: 760; text-align: right; }
+.notifications-inbox__chevron { width: 17px; height: 17px; color: var(--text-2); transition: transform 160ms ease; }
+.notifications-inbox__item[open] .notifications-inbox__chevron { color: var(--accent); transform: rotate(180deg); }
+.notifications-inbox__date { margin: 0 16px 12px 71px; }
 .notifications-inbox__error { display: grid; gap: 8px; }
-@media (max-width: 420px) {
-  .notifications-inbox__item { padding-inline: 10px; }
-  .notifications-inbox__item > summary { gap: 8px; }
+.notifications-inbox__pagination { display: flex; align-items: center; justify-content: center; gap: 12px; padding-top: 2px; }
+.notifications-inbox__pagination > span { color: var(--text-2); font-size: .78rem; font-variant-numeric: tabular-nums; }
+.notifications-inbox__pagination .button { min-height: 40px; padding-inline: 13px; font-size: .76rem; }
+@keyframes notifications-inbox-spin { to { transform: rotate(360deg); } }
+@media (max-width: 480px) {
+  .notifications-inbox__panel { gap: 15px; }
+  .notifications-inbox__heading { align-items: flex-start; }
+  .notifications-inbox__refresh { width: 42px; min-width: 42px; padding: 0; }
+  .notifications-inbox__refresh span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .notifications-inbox__item > summary { min-height: 76px; gap: 10px; padding: 10px 11px; }
+  .notifications-inbox__icon { width: 38px; height: 38px; flex-basis: 38px; border-radius: 13px; }
+  .notifications-inbox__summary strong { font-size: .82rem; }
+  .notifications-inbox__summary small { font-size: .72rem; }
+  .notifications-inbox__trailing { gap: 5px; }
   .notifications-inbox__amount { max-width: 105px; font-size: .76rem; }
+  .notifications-inbox__date { margin-left: 59px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .notifications-inbox__refresh:disabled svg { animation: none; }
+  .notifications-inbox__item, .notifications-inbox__chevron { transition: none; }
 }

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Bell, CheckCircle2, RefreshCw } from 'lucide-react'
+import { Bell, CheckCircle2, ChevronDown, RefreshCw } from 'lucide-react'
 import { useApp } from '../../app/AppContext.jsx'
 import { formatMinor } from '../../domain/money.js'
 import { bankEmailRequest, resolveBankEmail } from '../../services/bank-email/bankEmailClient.js'
@@ -58,17 +58,38 @@ function NotificationsInbox({ app }) {
 
   return <div className="route-stack notifications-inbox">
     <PageHeader title="Notificaciones" subtitle="Movimientos detectados para revisar. Nada cambia tus saldos hasta que confirmes." />
-    {isDemo || !user?.id ? <section className="integration-card notifications-inbox__empty"><NightIcon icon={Bell} className="integration-icon" tone="sky" /><p>Los avisos de correo bancario aparecerán aquí cuando uses tu cuenta.</p></section> : <section className="integration-card" aria-busy={loading}>
-      <div className="section-heading"><div><h2>Por revisar</h2><p>{data.events.length} {data.events.length === 1 ? 'aviso pendiente' : 'avisos pendientes'}</p></div><button type="button" className="icon-button--small" aria-label="Actualizar avisos" disabled={loading} onClick={refresh}><RefreshCw /></button></div>
+    {isDemo || !user?.id ? <section className="integration-card notifications-inbox__empty"><NightIcon icon={Bell} className="integration-icon" tone="sky" /><p>Los avisos de correo bancario aparecerán aquí cuando uses tu cuenta.</p></section> : <section className="integration-card notifications-inbox__panel" aria-busy={loading}>
+      <div className="notifications-inbox__heading">
+        <div className="notifications-inbox__heading-copy">
+          <span className="notifications-inbox__eyebrow">Avisos bancarios</span>
+          <h2>Por revisar <span className="notifications-inbox__count">{data.events.length}</span></h2>
+          <p>{data.events.length === 1 ? 'Un movimiento espera tu confirmación' : 'Movimientos que esperan tu confirmación'}</p>
+        </div>
+        <button type="button" className="button button--secondary notifications-inbox__refresh" aria-label="Actualizar avisos" disabled={loading} onClick={refresh}><RefreshCw aria-hidden="true" /><span>Actualizar</span></button>
+      </div>
       {error && <div className="notifications-inbox__error" role="alert"><p>{error}</p><button type="button" className="button button--secondary" onClick={refresh}>Reintentar</button></div>}
       {!error && loading && <p role="status">Cargando avisos…</p>}
       {!error && !loading && !data.events.length && <div className="empty-inline"><CheckCircle2 aria-hidden="true" /><span>No tienes movimientos pendientes por revisar.</span></div>}
       <div className="notifications-inbox__list">{data.events.map((item) => <details className="calm-details notifications-inbox__item" key={item.id}>
-        <summary><span className="notifications-inbox__icon"><Bell aria-hidden="true" /></span><span className="notifications-inbox__summary"><strong>{item.candidate.counterparty || item.bank}</strong><small>{item.bank} · {item.candidate.direction === 'incoming' ? 'Recibiste dinero' : item.candidate.direction === 'outgoing' ? 'Enviaste dinero' : 'Movimiento por verificar'}</small></span><span className="notifications-inbox__amount">{item.candidate.amount_minor ? formatMinor(item.candidate.amount_minor, 'COP', settings.hiddenAmounts) : 'Monto por confirmar'}</span></summary>
+        <summary>
+          <span className="notifications-inbox__icon"><Bell aria-hidden="true" /></span>
+          <span className="notifications-inbox__summary">
+            <strong>{item.candidate.counterparty || item.bank}</strong>
+            <small>{item.bank} <span aria-hidden="true">·</span> {item.candidate.direction === 'incoming' ? 'Recibiste dinero' : item.candidate.direction === 'outgoing' ? 'Enviaste dinero' : 'Movimiento por verificar'}</small>
+          </span>
+          <span className="notifications-inbox__trailing">
+            <span className="notifications-inbox__amount">{item.candidate.amount_minor ? formatMinor(item.candidate.amount_minor, 'COP', settings.hiddenAmounts) : 'Monto por confirmar'}</span>
+            <ChevronDown className="notifications-inbox__chevron" aria-hidden="true" />
+          </span>
+        </summary>
         <p className="notifications-inbox__date">{item.candidate.occurred_at ? new Date(item.candidate.occurred_at).toLocaleString('es-CO', { timeZone: 'America/Bogota' }) : 'Fecha por confirmar'}</p>
         <BankEmailReview item={item} accounts={accounts} categories={categories} transactions={transactions} hidden={settings.hiddenAmounts} resolve={resolve} />
       </details>)}</div>
-      {!error && data.events.length > 0 && <div className="notification-actions"><button type="button" className="button button--secondary" disabled={!page || loading} onClick={() => setPage(page - 1)}>Anterior</button><span>Página {page + 1}</span><button type="button" className="button button--secondary" disabled={!data.has_more || loading} onClick={() => setPage(page + 1)}>Siguiente</button></div>}
+      {!error && (page > 0 || data.has_more) && <nav className="notifications-inbox__pagination" aria-label="Paginación de avisos">
+        <button type="button" className="button button--secondary" disabled={!page || loading} onClick={() => setPage(page - 1)}>Anterior</button>
+        <span>Página {page + 1}</span>
+        <button type="button" className="button button--secondary" disabled={!data.has_more || loading} onClick={() => setPage(page + 1)}>Siguiente</button>
+      </nav>}
     </section>}
   </div>
 }
