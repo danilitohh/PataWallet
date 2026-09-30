@@ -1,5 +1,10 @@
 # Estado de implementación
 
+## Confirmación de pagos fijos · 30 de septiembre
+
+- El selector «¿Con qué pagaste?» ofrece solo cuentas activas con dinero disponible. Desde el mismo diálogo se pueden crear categorías de gasto; la nueva categoría queda seleccionada automáticamente.
+- Verificado: `npm run lint`, `npm run build`, 196 pruebas unitarias y la E2E del flujo en Chromium a 375×812, 390×844 y 1440×900. Los pagos se registran como gastos desde dinero disponible. WebKit móvil no inició en este entorno; no se probó en un iPhone físico.
+
 ## Edición de deudas · 30 de septiembre
 
 - El editor permite cambiar el tipo de deuda y su saldo pendiente. Cambiar el saldo agrega un ajuste explícito y conserva pagos y compras anteriores. Dejar el campo vacío mantiene el saldo; «Marcar como pagada» fija $0, y la lista resalta toda la tarjeta en verde, cambia la barra de avance a menta y muestra el chulito «Pagado». El plan de cuotas sigue siendo opcional.
