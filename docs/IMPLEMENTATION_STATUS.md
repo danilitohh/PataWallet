@@ -2,7 +2,7 @@
 
 ## Edición de deudas · 30 de septiembre
 
-- El editor permite cambiar el tipo de deuda y su saldo pendiente. Cambiar el saldo agrega un ajuste explícito y conserva pagos y compras anteriores. Dejar el campo vacío mantiene el saldo; «Marcar como pagada» fija $0, y la lista muestra el estado verde «Pagado» con un chulito y quita la acción de pago. El plan de cuotas sigue siendo opcional.
+- El editor permite cambiar el tipo de deuda y su saldo pendiente. Cambiar el saldo agrega un ajuste explícito y conserva pagos y compras anteriores. Dejar el campo vacío mantiene el saldo; «Marcar como pagada» fija $0, y la lista resalta toda la tarjeta en verde, cambia la barra de avance a menta y muestra el chulito «Pagado». El plan de cuotas sigue siendo opcional.
 - Verificado: `npm run lint`, `npm run build`, las 196 pruebas unitarias y la E2E en Chromium con 375×812, 390×844 y 1440×900. WebKit no inició en este entorno, así que Safari/iPhone sigue sin verificarse.
 
 ## Corrección de Web Push · 28 de septiembre

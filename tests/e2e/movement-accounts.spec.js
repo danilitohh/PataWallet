@@ -82,7 +82,14 @@ test('edita el tipo y saldo pendiente de una deuda', async ({ page }) => {
   await expect(paidStatus).toHaveText('Pagado')
   await expect(paidStatus).toHaveClass(/account-row__paid-status/)
   await expect(paidStatus.locator('svg')).toBeVisible()
+  await expect(row.locator('.progress > span')).toHaveCSS('background-color', 'rgb(146, 224, 196)')
   await expect(row.getByRole('button', { name: 'Registrar pago' })).toHaveCount(0)
+  // Confirma el resaltado y que la tarjeta no cause desbordamiento en móvil y escritorio.
+  for (const viewport of [{ width: 390, height: 844 }, { width: 375, height: 812 }, { width: 1440, height: 900 }]) {
+    await page.setViewportSize(viewport)
+    await expect(row.getByRole('status')).toHaveText('Pagado')
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+  }
   await page.reload()
   await expect(page.locator('.account-row').filter({ hasText: 'Tarjeta de ejemplo' })).toContainText('0')
   await expect(page.locator('.account-row').filter({ hasText: 'Tarjeta de ejemplo' }).getByRole('status')).toHaveText('Pagado')

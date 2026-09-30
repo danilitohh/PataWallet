@@ -7,7 +7,9 @@
 .calm-app .accounts-ledger__pane-heading { display: none; }
 .calm-app .account-list { display: grid; gap: 12px; }
 .calm-app .account-row { padding: 18px 14px 28px; border: var(--glass-edge); border-radius: 22px; background: var(--glass-panel); box-shadow: var(--glass-shadow); gap: 10px; }
-.calm-app .account-row--paid { border-color: color-mix(in srgb, var(--success) 55%, var(--glass-panel)); background: color-mix(in srgb, var(--glass-panel) 86%, var(--success-soft)); }
+.calm-app .account-row--paid { border-color: color-mix(in srgb, var(--success) 65%, transparent); background: linear-gradient(135deg, color-mix(in srgb, var(--success-soft) 88%, var(--surface)), color-mix(in srgb, var(--success-soft) 64%, var(--surface))); box-shadow: inset 0 1px 0 color-mix(in srgb, var(--success) 18%, transparent), 0 12px 30px color-mix(in srgb, var(--success-soft) 45%, transparent); }
+.calm-app .account-row--paid .progress { background: color-mix(in srgb, var(--success-soft) 72%, var(--surface)); border-color: color-mix(in srgb, var(--success) 24%, transparent); }
+.calm-app .account-row--paid .progress span { background: var(--success); box-shadow: inset 0 1px 1px #fff8; }
 .calm-app .account-row > strong { max-width: 130px; font-size: .91rem; }
 .account-row__options { right: 6px; }
 .calm-app .account-row__progress { grid-column: 1/-1; display: grid; gap: 10px; margin-top: 10px; }
