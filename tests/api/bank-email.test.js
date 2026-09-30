@@ -28,6 +28,24 @@ describe('candidatos de correos bancarios (sin efectos financieros)', () => {
     expect(result.review_reasons).toContain('transaction_type_required')
   })
 
+  it.each([
+    ['EL COMERCIO EJEMPLO', '128,500.00', '7:07 p.m.', 12850000, '2026-09-30T00:07:00.000Z'],
+    ['MERCADO DE PRUEBA', '32,500.00', '7:19 p.m.', 3250000, '2026-09-30T00:19:00.000Z'],
+  ])('extrae una compra Lulo con tarjeta sin persistir datos de cuenta o comprobante', (merchant, rawAmount, time, amount, occurredAt) => {
+    const text = `Realizaste una compra en ${merchant} por $${rawAmount} Origen tarjeta débito • 1234 Lulo bank 300 000 0000 No. comprobante 123456 Operación sin costo Fecha 29 de septiembre de 2026 Hora ${time}`
+    const result = parse('lulo', text, 'Compra realizada')
+
+    expect(result).toMatchObject({ bank: 'lulo', direction: 'outgoing', notice_kind: 'card_purchase_notice', amount_minor: amount, occurred_at: occurredAt, counterparty: merchant, status: 'needs_review' })
+    expect(result.transaction_type).toBeNull()
+    expect(result.review_reasons).toContain('transaction_type_required')
+    expect(JSON.stringify(result)).not.toMatch(/300 000 0000|123456/)
+  })
+
+  it('toma la fecha del bloque de compra y no una fecha anterior ajena al movimiento', () => {
+    const text = `Mensaje de seguridad enviado el 30 de septiembre de 2026 a las 9:30 p.m. Realizaste una compra en COMERCIO EJEMPLO por $128,500.00 Origen tarjeta débito • 1234 Fecha 29 de septiembre de 2026 Hora 7:07 p.m.`
+    expect(parse('lulo', text, 'Compra realizada').occurred_at).toBe('2026-09-30T00:07:00.000Z')
+  })
+
   it('conserva centavos y reconoce COP solamente si es explícito', () => {
     expect(parse('nequi', payment.replace('706.750', '706.750,25') + ' COP')).toMatchObject({ amount_minor: 70675025, currency: 'COP' })
     expect(parse('bancolombia', 'Transferiste $60,000.25 desde tu cuenta 1234 a la cuenta *9999 el 27/10/2025 a las 15:07.')).toMatchObject({ amount_minor: 6000025 })

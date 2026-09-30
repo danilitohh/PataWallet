@@ -21,6 +21,8 @@ const MONTHS = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 
 const PATTERNS = {
   lulo: [
     { direction: 'outgoing', kind: 'transfer_notice', pattern: /Realizaste una transferencia a (?<party>[^\n]{1,160}?) por\s*\$(?<amount>[\d.,]+)(?=\s|$)/gi },
+    // Plantilla conocida de compra; no captura los datos impresos de tarjeta, cuenta o comprobante.
+    { direction: 'outgoing', kind: 'card_purchase_notice', pattern: /Realizaste una compra en (?<party>[^\n]{1,160}?) por\s*\$(?<amount>[\d.,]+)(?=\s|$)/gi },
   ],
   bancolombia: [
     { direction: 'outgoing', kind: 'transfer_notice', pattern: /Transferiste\s*\$(?<amount>[\d.,]+) desde tu cuenta (?<account>\d{4}) a la cuenta \*?\d{4,20}(?=\s|$)/gi },
@@ -45,11 +47,15 @@ function readAmount(value, bank) {
 }
 
 // Usa la fecha de operación del texto, nunca la recepción del correo ni la fecha del dispositivo.
-function readDate(text, bank) {
+function readDate(text, bank, noticeKind) {
+  // En compras Lulo, limita fecha y hora al bloque rotulado para evitar datos ajenos al movimiento.
+  const source = bank === 'lulo' && noticeKind === 'card_purchase_notice'
+    ? text.match(/\bFecha\s+\d{1,2} de \p{L}+ de \d{4}\s+Hora:?\s*\d{1,2}:\d{2}(?:\s*[ap]\.\s*m\.?)?/iu)?.[0] || ''
+    : text
   const date = bank === 'bancolombia'
-    ? text.match(/\b(\d{2})\/(\d{2})\/(\d{4})\b/)
-    : text.match(/\b(\d{1,2}) de (\p{L}+) de (\d{4})\b/iu)
-  const time = text.match(/(?:\bHora:?|\ba las)\s*(\d{1,2}):(\d{2})(?:\s*([ap])\.?\s*m\.?)?/i)
+    ? source.match(/\b(\d{2})\/(\d{2})\/(\d{4})\b/)
+    : source.match(/\b(\d{1,2}) de (\p{L}+) de (\d{4})\b/iu)
+  const time = source.match(/(?:\bHora:?|\ba las)\s*(\d{1,2}):(\d{2})(?:\s*([ap])\.?\s*m\.?)?/i)
   if (!date || !time) return null
   const day = Number(date[1])
   const month = bank === 'bancolombia' ? Number(date[2]) : MONTHS.indexOf(date[2].toLowerCase()) + 1
@@ -96,7 +102,7 @@ export function parseBankEmail(input) {
   result.direction = match.direction
   result.notice_kind = match.kind
   result.amount_minor = readAmount(match.amount, bank)
-  result.occurred_at = readDate(text, bank)
+  result.occurred_at = readDate(text, bank, match.kind)
   result.counterparty = match.party?.trim() || null
   result.account_last4 = match.account || text.match(/Origen cuenta\s*[•·:]\s*(\d{4})\b/i)?.[1] || null
   result.bank_reference = text.match(/(?:ID\. transacción\s*[•·:]|CUS:)\s*(\d{4,40})\b/i)?.[1] || null

@@ -40,6 +40,12 @@ Actualizado: 2026-09-29. Fase actual: **ingesta automática Gmail configurada en
 - Corregido el destino del push bancario: al tocarlo abre `/notificaciones` con el evento exacto expandido y su formulario Registrar / Ya existe / Descartar visible. Usa únicamente el UUID del evento en la URL; no incluye monto, comercio ni contenido del correo. Si el ID del aviso no tiene el formato esperado, abre la bandeja general.
 - Verificado: lint, build, 183 pruebas unitarias y 6 E2E del flujo en escritorio, 375×812 y 390×844. La notificación real ya llega al teléfono según la prueba del usuario; el clic físico aún requiere confirmación después del despliegue.
 
+## Compras con tarjeta Lulo por correo · 29 de septiembre
+
+- El parser reconoce el formato «Realizaste una compra en … por $…» y extrae comercio, importe, dirección de salida y fecha/hora de Colombia. No crea ni confirma movimientos: sigue requiriendo la decisión del usuario.
+- Los números de cuenta y comprobante no se guardan. La moneda permanece sin confirmar si el correo no incluye un código explícito; la UI pide revisar el importe antes de registrar.
+- Regresión con dos fixtures sintéticos basada en el formato compartido y un caso con fecha ajena previa: 28 pruebas del parser y 186 pruebas unitarias pasan; lint y build pasan. La autenticidad bancaria del remitente no queda certificada por este parser: el usuario debe comprobar el movimiento en Lulo antes de confirmarlo. Aún no probado en producción.
+
 ## Tutorial de automatización en video · 29 de septiembre
 
 - Corregido el fallback de navegación del service worker para que no sustituya recursos de `/assets/` por el HTML de la SPA; el MP4 ya abre en el reproductor del navegador.
