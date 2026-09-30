@@ -77,11 +77,15 @@ test('edita el tipo y saldo pendiente de una deuda', async ({ page }) => {
   await expect(editor).toBeHidden()
   await expect(page.getByText('Deuda marcada como pagada')).toBeVisible()
   await expect(row).toContainText('100% pagado según registros')
-  await expect(row).toContainText('Deuda saldada')
+  const paidStatus = row.getByRole('status')
+  await expect(row).toHaveClass(/account-row--paid/)
+  await expect(paidStatus).toHaveText('Pagado')
+  await expect(paidStatus).toHaveClass(/account-row__paid-status/)
+  await expect(paidStatus.locator('svg')).toBeVisible()
   await expect(row.getByRole('button', { name: 'Registrar pago' })).toHaveCount(0)
   await page.reload()
   await expect(page.locator('.account-row').filter({ hasText: 'Tarjeta de ejemplo' })).toContainText('0')
-  await expect(page.locator('.account-row').filter({ hasText: 'Tarjeta de ejemplo' })).toContainText('Deuda saldada')
+  await expect(page.locator('.account-row').filter({ hasText: 'Tarjeta de ejemplo' }).getByRole('status')).toHaveText('Pagado')
 
   transactions = await page.evaluate(async () => {
     const { db } = await import('/src/data/db.js')

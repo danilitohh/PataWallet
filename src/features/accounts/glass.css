@@ -7,10 +7,13 @@
 .calm-app .accounts-ledger__pane-heading { display: none; }
 .calm-app .account-list { display: grid; gap: 12px; }
 .calm-app .account-row { padding: 18px 14px 28px; border: var(--glass-edge); border-radius: 22px; background: var(--glass-panel); box-shadow: var(--glass-shadow); gap: 10px; }
+.calm-app .account-row--paid { border-color: color-mix(in srgb, var(--success) 55%, var(--glass-panel)); background: color-mix(in srgb, var(--glass-panel) 86%, var(--success-soft)); }
 .calm-app .account-row > strong { max-width: 130px; font-size: .91rem; }
 .account-row__options { right: 6px; }
 .calm-app .account-row__progress { grid-column: 1/-1; display: grid; gap: 10px; margin-top: 10px; }
 .account-row__progress small { color: var(--text-2); font-size: .72rem; }
+.calm-app .account-row__paid-status { display: inline-flex; align-items: center; gap: 6px; justify-self: start; width: fit-content; padding: 6px 10px; border: 1px solid color-mix(in srgb, var(--success) 35%, transparent); border-radius: 999px; color: var(--success); background: var(--success-soft); font-size: .78rem; font-weight: 750; }
+.calm-app .account-row__paid-status svg { width: 16px; height: 16px; stroke-width: 2.5; }
 .calm-app .account-row__progress .progress-meta { display: flex; font-size: .73rem; }
 .calm-app .account-row__progress .button { width: 100%; min-height: 44px; }
 .calm-app .account-row:has(.account-row__progress) .account-row__options { bottom: auto; top: 0; }

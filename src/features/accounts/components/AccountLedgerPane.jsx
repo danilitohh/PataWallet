@@ -1,4 +1,4 @@
-import { Banknote, CreditCard, Landmark, Pencil, Plus, Trash2, Wallet } from 'lucide-react'
+import { Banknote, Check, CreditCard, Landmark, Pencil, Plus, Trash2, Wallet } from 'lucide-react'
 import { useApp } from '../../../app/AppContext.jsx'
 import { debtScheduleLabel } from '../../../domain/debtSchedule.js'
 import { formatMinor, safeAdd } from '../../../domain/money.js'
@@ -53,16 +53,17 @@ function AccountRow({ account, kind, balance, hidden, onEdit, onArchive, paid, o
   const schedule = kind === 'liability' ? debtScheduleLabel(account, (value) => formatMinor(value, 'COP', hidden)) : null
   // Progreso de solo lectura: usa la misma regla de Parejas y los abonos ya registrados.
   const progress = debtProgress({ ...account, balance_minor: balance, debt_paid_minor: paid })
-  // Una deuda saldada deja de ofrecer otro pago y muestra un estado claro en la lista.
-  const settledLabel = balance < 0 ? 'Saldo a favor' : paid > 0 ? 'Deuda saldada' : 'Sin saldo pendiente'
-  return <article className="account-row">
+  // Solo confirma el pago cuando hay abonos y el saldo quedó exactamente en cero.
+  const isPaid = balance === 0 && paid > 0
+  const settledLabel = balance < 0 ? 'Saldo a favor' : 'Sin saldo pendiente'
+  return <article className={`account-row${isPaid ? ' account-row--paid' : ''}`}>
     <NightIcon icon={Icon} className="account-row__icon" tone={kind === 'asset' ? 'sky' : 'violet'} />
     <div><h3>{account.name}</h3><p>{accountTypeLabel(account)}</p>{schedule && <small className="account-row__schedule">{schedule}</small>}</div>
     <strong>{formatMinor(balance, 'COP', hidden)}</strong>
     <details className="account-row__options"><summary aria-label={`Opciones de ${account.name}`}>···</summary><div><button type="button" className="icon-button icon-button--small account-row__action--edit" aria-label={`Editar ${account.name}`} onClick={() => onEdit(account)}><Pencil aria-hidden="true" /></button><button type="button" className="icon-button icon-button--small account-row__action--archive" aria-label={`Archivar ${account.name}`} onClick={() => onArchive(account)}><Trash2 aria-hidden="true" /></button></div></details>
     {kind === 'liability' && <section className="account-row__progress">
       {hidden ? <small>Avance oculto</small> : progress ? <><Progress value={progress.percent} label={`${progress.percent}% pagado según registros`} /><small>{formatMinor(progress.paid)} abonados · {formatMinor(progress.remaining)} pendientes</small></> : <small>Sin abonos ni deuda pendiente registrados.</small>}
-      {balance > 0 ? <button className="button button--secondary" type="button" onClick={onPayment}>Registrar pago</button> : <small>{settledLabel}</small>}
+      {balance > 0 ? <button className="button button--secondary" type="button" onClick={onPayment}>Registrar pago</button> : isPaid ? <span className="account-row__paid-status" role="status"><Check aria-hidden="true" /> Pagado</span> : <small>{settledLabel}</small>}
     </section>}
   </article>
 }
