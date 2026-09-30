@@ -25,7 +25,11 @@ async function validateEventHandler(req, res) {
   try {
     assertBodySize(req, 8_000)
     const parsed = shortcutEventSchema.safeParse(req.body)
-    if (!parsed.success) return json(res, 400, { error: 'El evento no cumple el contrato de PataWallet.' })
+    if (!parsed.success) return json(res, 400, {
+      error: 'El evento no cumple el contrato de PataWallet.',
+      code: 'INVALID_EVENT_CONTRACT',
+      validation_errors: shortcutEventValidationErrors(parsed.error.issues),
+    })
     await authorizedShortcut(req, 'validate')
     const event = normalizeShortcutEvent(parsed.data)
     const missingFields = [
@@ -45,6 +49,50 @@ async function validateEventHandler(req, res) {
       },
     })
   } catch (error) { const safe = shortcutError(error); return json(res, safe.status, { error: safe.message }) }
+}
+
+// Devuelve pistas seguras del esquema sin repetir claves desconocidas ni valores recibidos.
+function shortcutEventValidationErrors(issues) {
+  const allowedFields = new Set([
+    'schema_version', 'event_id', 'occurred_at', 'amount_minor', 'amount', 'currency',
+    'merchant_name', 'card_alias', 'source', 'mode', 'template_version',
+  ])
+  const expectedByField = {
+    schema_version: 'Número 1',
+    event_id: 'Texto con un UUID válido',
+    occurred_at: 'Texto, fecha ISO 8601 o null',
+    amount_minor: 'Entero positivo como número o texto numérico',
+    amount: 'Número o texto decimal simple',
+    currency: 'Texto corto o null',
+    merchant_name: 'Texto de hasta 120 caracteres o null',
+    card_alias: 'Texto de hasta 80 caracteres o null',
+    source: 'Texto exacto ios_shortcuts',
+    mode: 'Texto exacto capture',
+    template_version: 'Texto corto o null',
+  }
+  const problemByCode = {
+    invalid_type: 'tipo_incorrecto',
+    invalid_format: 'formato_incorrecto',
+    invalid_value: 'valor_incorrecto',
+    too_big: 'fuera_de_limites',
+    too_small: 'fuera_de_limites',
+    unrecognized_keys: 'campo_no_permitido',
+  }
+  const details = new Map()
+
+  for (const issue of issues) {
+    const isExtraField = issue.code === 'unrecognized_keys'
+    const candidate = issue.path[0]
+    const field = isExtraField ? 'campos_adicionales' : allowedFields.has(candidate) ? candidate : 'evento'
+    if (details.has(field)) continue
+    details.set(field, {
+      field,
+      problem: problemByCode[issue.code] || 'valor_invalido',
+      expected: expectedByField[field] || (isExtraField ? 'Quita las claves no incluidas en el contrato' : 'Revisa el formato del evento'),
+    })
+  }
+
+  return [...details.values()]
 }
 
 // Devuelve el estado privado de los dispositivos y reglas del usuario autenticado.

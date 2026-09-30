@@ -59,12 +59,22 @@ describe('validación segura de eventos de Atajos', () => {
     expect(admin.rpc).not.toHaveBeenCalled()
   })
 
-  it('rejects invalid payloads before authorization', async () => {
+  it('reports safe field hints for invalid payloads before authorization', async () => {
     const res = response()
+    const invalidEvent = { ...validEvent, schema_version: '1', unexpected: 'do-not-echo' }
 
-    await shortcutHandler({ method: 'POST', headers: {}, body: { ...validEvent, unexpected: 'data' }, query: { operation: 'events-validate' } }, res)
+    await shortcutHandler({ method: 'POST', headers: {}, body: invalidEvent, query: { operation: 'events-validate' } }, res)
 
     expect(res.statusCode).toBe(400)
+    expect(res.payload).toMatchObject({
+      code: 'INVALID_EVENT_CONTRACT',
+      validation_errors: [
+        { field: 'schema_version', problem: 'valor_incorrecto', expected: 'Número 1' },
+        { field: 'campos_adicionales', problem: 'campo_no_permitido' },
+      ],
+    })
+    expect(JSON.stringify(res.payload)).not.toContain('do-not-echo')
+    expect(JSON.stringify(res.payload)).not.toContain('unexpected')
     expect(authorize).not.toHaveBeenCalled()
     expect(admin.rpc).not.toHaveBeenCalled()
   })
