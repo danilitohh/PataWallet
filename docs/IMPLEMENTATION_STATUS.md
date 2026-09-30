@@ -421,3 +421,8 @@ La app está desplegada en Vercel y las migraciones de las fases 1–4, punto de
 ## Decisión
 
 **BLOQUEADA PARA USO REAL.** La demo y las comprobaciones locales son revisables, pero falta verificar aislamiento, persistencia y recuperación sobre PostgreSQL real. No usar todavía PataWallet como único registro personal.
+
+## Ajuste de captura Wallet · 29 de septiembre de 2026
+
+- El receptor de Atajos ahora acepta el campo `amount` que prepara la automatización de Wallet como pesos decimales inequívocos y lo convierte a centavos. Si el monto llega localizado/ambiguo, no lo adivina y conserva el evento para revisión.
+- Verificación local: `tests/api/shortcut-contract.test.js` cubre monto numérico y texto ambiguo. Pendiente de compra real en iPhone: confirmar que la plantilla instalada envía la petición y verificar que el evento llega a PataWallet. Esta corrección del contrato no prueba ni repara un disparador que no se ejecute en iOS.

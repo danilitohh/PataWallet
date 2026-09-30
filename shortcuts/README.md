@@ -39,6 +39,8 @@ La primera acción recibe Texto. Convertirlo a diccionario y leer `mode`.
 5. POST a `<ORIGEN_FIJO>/api/shortcuts/events` con `Authorization: Bearer <token>`.
 6. Interpretar `recorded`, `recorded_needs_category`, `needs_review`, `duplicate` y `conflict`. No repetir automáticamente con un UUID nuevo. Sin una cola local probada, un fallo de red muestra que el evento no fue guardado.
 
+Compatibilidad: el receptor también acepta `amount` como pesos decimales (por ejemplo `32500` o `32500.50`) y lo convierte a unidades menores. `amount_minor` sigue siendo el contrato preferido. Texto con separadores localizados ambiguos o dos campos de monto contradictorios no se interpretan y quedan para revisión.
+
 ## Producir el artefacto real
 
 1. Crear la plantilla anterior en un iPhone o Mac dedicado al proyecto y verificar cada acción con una base aislada.

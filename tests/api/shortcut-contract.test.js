@@ -18,6 +18,26 @@ describe('contrato de eventos de Atajos', () => {
     expect(normalized.review_reasons).toEqual([])
   })
 
+  it('acepta la cantidad en pesos que entrega la automatización y la convierte a centavos', () => {
+    const normalized = normalizeShortcutEvent({ ...event, amount_minor: undefined, amount: 32500 })
+    expect(normalized.amount_minor).toBe(3250000)
+    expect(normalized.review_reasons).toEqual([])
+  })
+
+  it('deja el evento en revisión si la cantidad de Wallet llega localizada o ambigua', () => {
+    const normalized = normalizeShortcutEvent({ ...event, amount_minor: undefined, amount: '32.500,00' })
+    expect(normalized.amount_minor).toBeNull()
+    expect(normalized.review_reasons).toContain('amount_missing_or_ambiguous')
+  })
+
+  it('no confirma importes contradictorios y detecta cambios del alias en un reintento', () => {
+    const first = normalizeShortcutEvent({ ...event, amount_minor: '3250000', amount: 32500 })
+    const conflicting = normalizeShortcutEvent({ ...event, amount_minor: '3250000', amount: 32500.5 })
+    expect(conflicting.amount_minor).toBeNull()
+    expect(conflicting.review_reasons).toContain('amount_conflict')
+    expect(canonicalEventHash(first)).not.toBe(canonicalEventHash(conflicting))
+  })
+
   it('manda formatos ambiguos, moneda y fecha inválida a revisión sin inventarlos', () => {
     const normalized = normalizeShortcutEvent({ ...event, amount_minor: '85.000,00', currency: 'USD', occurred_at: 'hoy' })
     expect(normalized.amount_minor).toBeNull()

@@ -23,6 +23,7 @@ export const shortcutEventSchema = z.object({
   schema_version: z.literal(1), event_id: z.string().uuid(),
   occurred_at: z.union([z.string().max(50), z.null()]).optional(),
   amount_minor: z.union([z.string().max(40), z.null()]).optional(),
+  amount: z.union([z.string().max(40), z.number().finite()]).nullable().optional(),
   currency: z.union([z.string().trim().max(8), z.null()]).optional(),
   merchant_name: z.union([shortText(120), z.null()]).optional(),
   card_alias: z.union([shortText(80), z.null()]).optional(),
@@ -34,12 +35,27 @@ export function normalizeLabel(value) {
   return value.normalize('NFKC').trim().replace(/\s+/g, ' ').toLocaleLowerCase('es-CO')
 }
 
+// Convierte solo cantidades decimales inequívocas de Wallet (pesos) a unidades menores.
+function walletAmountToMinor(value) {
+  const raw = typeof value === 'number' && Number.isFinite(value) ? String(value) : typeof value === 'string' ? value.trim() : ''
+  if (!/^(?:0|[1-9]\d{0,9})(?:\.\d{1,2})?$/.test(raw)) return null
+  const [whole, fraction = ''] = raw.split('.')
+  const minor = Number(whole) * 100 + Number(fraction.padEnd(2, '0'))
+  return Number.isSafeInteger(minor) && minor > 0 && minor <= 999_999_999_999 ? minor : null
+}
+
 export function normalizeShortcutEvent(input) {
   const parsed = shortcutEventSchema.parse(input)
   const reasons = []
-  const amountMinor = typeof parsed.amount_minor === 'string' && /^[1-9]\d{0,11}$/.test(parsed.amount_minor)
-    ? Number(parsed.amount_minor) : null
-  if (parsed.amount_minor != null && amountMinor === null) reasons.push('amount_missing_or_ambiguous')
+  const declaredMinor = typeof parsed.amount_minor === 'string'
+    ? (/^[1-9]\d{0,11}$/.test(parsed.amount_minor) ? Number(parsed.amount_minor) : null)
+    : null
+  const walletMinor = walletAmountToMinor(parsed.amount)
+  const hasConflictingAmountFields = parsed.amount_minor != null && parsed.amount != null
+    && (declaredMinor === null || walletMinor === null || declaredMinor !== walletMinor)
+  const amountMinor = hasConflictingAmountFields ? null : parsed.amount_minor != null ? declaredMinor : walletMinor
+  if (hasConflictingAmountFields) reasons.push('amount_conflict')
+  if (!hasConflictingAmountFields && (parsed.amount_minor != null || parsed.amount != null) && amountMinor === null) reasons.push('amount_missing_or_ambiguous')
   const currency = typeof parsed.currency === 'string' && /^[A-Z]{3}$/.test(parsed.currency) ? parsed.currency : null
   if (parsed.currency != null && currency === null) reasons.push('currency_missing_or_unsupported')
   const occurredAt = typeof parsed.occurred_at === 'string' && !Number.isNaN(Date.parse(parsed.occurred_at)) && /(Z|[+-]\d{2}:\d{2})$/.test(parsed.occurred_at)
@@ -56,7 +72,7 @@ export function normalizeShortcutEvent(input) {
 }
 
 export function canonicalEventHash(event) {
-  const keys = ['schema_version','event_id','occurred_at','amount_minor','currency','merchant_name','normalized_merchant','card_alias','normalized_card_alias','source','mode','template_version']
+  const keys = ['schema_version','event_id','occurred_at','amount_minor','amount','currency','merchant_name','normalized_merchant','card_alias','normalized_card_alias','source','mode','template_version']
   return sha256(JSON.stringify(Object.fromEntries(keys.map((key) => [key, event[key] ?? null]))))
 }
 
