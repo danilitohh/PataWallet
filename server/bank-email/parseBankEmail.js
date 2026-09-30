@@ -21,6 +21,7 @@ const MONTHS = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 
 const PATTERNS = {
   lulo: [
     { direction: 'outgoing', kind: 'transfer_notice', pattern: /Realizaste una transferencia a (?<party>[^\n]{1,160}?) por\s*\$(?<amount>[\d.,]+)(?=\s|$)/gi },
+    { direction: 'incoming', kind: 'transfer_notice', pattern: /Recibiste\s*\$(?<amount>[\d.,]+)\s+de\s+(?<party>[^\n]{1,160}?)(?=\s+Origen cuenta\b)/gi },
     // Plantilla conocida de compra; no captura los datos impresos de tarjeta, cuenta o comprobante.
     { direction: 'outgoing', kind: 'card_purchase_notice', pattern: /Realizaste una compra en (?<party>[^\n]{1,160}?) por\s*\$(?<amount>[\d.,]+)(?=\s|$)/gi },
   ],
@@ -104,7 +105,11 @@ export function parseBankEmail(input) {
   result.amount_minor = readAmount(match.amount, bank)
   result.occurred_at = readDate(text, bank, match.kind)
   result.counterparty = match.party?.trim() || null
-  result.account_last4 = match.account || text.match(/Origen cuenta\s*[•·:]\s*(\d{4})\b/i)?.[1] || null
+  // Bre-B identifica la cuenta receptora en «Destino ahorro»; no exponer la cuenta de origen.
+  const accountPattern = bank === 'lulo' && match.direction === 'incoming'
+    ? /Destino\s+(?:ahorro|cuenta)\s*[•·:]\s*(\d{4})\b/i
+    : /Origen cuenta\s*[•·:]\s*(\d{4})\b/i
+  result.account_last4 = match.account || text.match(accountPattern)?.[1] || null
   result.bank_reference = text.match(/(?:ID\. transacción\s*[•·:]|CUS:)\s*(\d{4,40})\b/i)?.[1] || null
   // «$» solo no determina moneda. Confirmarla evita registrar dólares como pesos.
   if (/\bCOP\b/.test(text) && !/\b(?:USD|EUR)\b/.test(text)) result.currency = 'COP'

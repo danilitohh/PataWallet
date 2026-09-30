@@ -28,6 +28,23 @@ describe('candidatos de correos bancarios (sin efectos financieros)', () => {
     expect(result.review_reasons).toContain('transaction_type_required')
   })
 
+  it('reconoce transferencias entrantes Lulo por Bre-B sin asignar tipo ni cuenta automáticamente', () => {
+    const result = parseBankEmail({
+      sender: senders.lulo,
+      subject: '¡Recibiste plata por Bre-B!',
+      text: 'Recibiste $1,000,000 de PERSONA EJEMPLO Origen cuenta • 1111 Destino ahorro • 2222 ID. transacción • 90000004 Fecha 30 de septiembre de 2026 Hora 10:18 a.m.',
+    })
+
+    expect(result).toMatchObject({
+      bank: 'lulo', direction: 'incoming', notice_kind: 'transfer_notice', amount_minor: 100000000,
+      occurred_at: '2026-09-30T15:18:00.000Z', counterparty: 'PERSONA EJEMPLO', account_last4: '2222',
+      bank_reference: '90000004', currency: null, transaction_type: null, status: 'needs_review',
+    })
+    expect(result.review_reasons).toContain('currency_confirmation_required')
+    expect(result.review_reasons).toContain('transaction_type_required')
+    expect(JSON.stringify(result)).not.toContain('1111')
+  })
+
   it.each([
     ['EL COMERCIO EJEMPLO', '128,500.00', '7:07 p.m.', 12850000, '2026-09-30T00:07:00.000Z'],
     ['MERCADO DE PRUEBA', '32,500.00', '7:19 p.m.', 3250000, '2026-09-30T00:19:00.000Z'],

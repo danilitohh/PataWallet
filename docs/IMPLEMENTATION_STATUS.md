@@ -1,5 +1,11 @@
 # Estado de implementación
 
+## Transferencia recibida Lulo por Bre-B · 30 de septiembre
+
+- El parser reconoce el aviso «Recibiste plata por Bre-B»: extrae contraparte, importe, fecha/hora de Colombia, referencia y últimos cuatro dígitos de la cuenta destino. La bandeja muestra «Recibiste dinero» y permite revisar el importe y la fecha. No selecciona ingreso/transferencia ni una cuenta, ni modifica saldos antes de confirmar; la moneda sigue pendiente si el correo solo usa «$».
+- El aviso que ya estaba guardado conserva los campos vacíos: la deduplicación no vuelve a interpretar mensajes existentes. Puede completarse desde su formulario de revisión; los avisos nuevos con esta plantilla sí se procesan con la extracción corregida.
+- Verificado: lint, build, 197 pruebas unitarias (incluida la regresión con fixture sintético) y 29 pruebas API de correo. Sin correo real ni movimiento financiero confirmado.
+
 ## Lista compacta de gastos fijos · 30 de septiembre
 
 - Los vencimientos se ordenan en «Atrasados» y secciones por mes, con cantidad y total. Atrasados y el mes actual empiezan abiertos; si el mes actual no tiene vencimientos, se abre el primer mes próximo. Las recurrencias del mismo gasto se agrupan y conservan una casilla por fecha; cada mes pagina seis gastos.

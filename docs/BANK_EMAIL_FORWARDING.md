@@ -8,7 +8,7 @@ Alternativa añadida el 28 de septiembre: [conexión directa Gmail/Outlook](MAIL
 
 - Ruta privada `/ajustes/correos-bancarios`, con consentimiento, dirección aleatoria individual, recepción desactivable y bandeja paginada de revisión.
 - Adaptador Resend Inbound: webhook firmado, consulta del mensaje por ID al proveedor y asociación al destinatario SMTP (`received_for`, con `to` como compatibilidad). No se acepta un usuario indicado en el cuerpo del correo.
-- Plantillas observadas en los ejemplos: salida Lulo, entrada/salida Bancolombia y entrada/salida/pago Nequi. Extrae importes enteros en unidades menores y fechas de operación de Colombia. Cambios de plantilla, moneda incierta o datos faltantes necesitan revisión, nunca se completan con dinero o fechas inventados.
+- Plantillas observadas en los ejemplos: entrada Bre-B y salida Lulo, entrada/salida Bancolombia y entrada/salida/pago Nequi. Extrae importes enteros en unidades menores y fechas de operación de Colombia. Cambios de plantilla, moneda incierta o datos faltantes necesitan revisión, nunca se completan con dinero o fechas inventados.
 - Cada correo queda pendiente. La persona decide registrar, vincular a un movimiento existente o descartar. Registrar reutiliza las validaciones y asientos de `private.apply_transaction_mutation`, de forma atómica con la resolución del correo.
 - Nequi → Lulo puede confirmarse como **entre mis cuentas**: salida de un activo y entrada a otro, sin ingreso/gasto. El nombre «Lulo» por sí solo no demuestra titularidad ni tipo de operación.
 - Se admiten también gasto, ingreso, pago de deuda y reembolso, confirmando las cuentas y categoría cuando corresponda. No se recuerdan reglas ni se utiliza IA en esta versión.
