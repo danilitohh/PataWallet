@@ -70,11 +70,10 @@ describe('validación segura de eventos de Atajos', () => {
       code: 'INVALID_EVENT_CONTRACT',
       validation_errors: [
         { field: 'schema_version', problem: 'valor_incorrecto', expected: 'Número 1' },
-        { field: 'campos_adicionales', problem: 'campo_no_permitido' },
+        { field: 'campos_adicionales', problem: 'campo_no_permitido', extra_fields: ['unexpected'] },
       ],
     })
     expect(JSON.stringify(res.payload)).not.toContain('do-not-echo')
-    expect(JSON.stringify(res.payload)).not.toContain('unexpected')
     expect(authorize).not.toHaveBeenCalled()
     expect(admin.rpc).not.toHaveBeenCalled()
   })

@@ -51,7 +51,7 @@ async function validateEventHandler(req, res) {
   } catch (error) { const safe = shortcutError(error); return json(res, safe.status, { error: safe.message }) }
 }
 
-// Devuelve pistas seguras del esquema sin repetir claves desconocidas ni valores recibidos.
+// Devuelve pistas seguras del esquema y nombres simples de claves extra, nunca sus valores.
 function shortcutEventValidationErrors(issues) {
   const allowedFields = new Set([
     'schema_version', 'event_id', 'occurred_at', 'amount_minor', 'amount', 'currency',
@@ -88,7 +88,10 @@ function shortcutEventValidationErrors(issues) {
     details.set(field, {
       field,
       problem: problemByCode[issue.code] || 'valor_invalido',
-      expected: expectedByField[field] || (isExtraField ? 'Quita las claves no incluidas en el contrato' : 'Revisa el formato del evento'),
+      expected: expectedByField[field] || (isExtraField ? 'Quita las claves indicadas en extra_fields' : 'Revisa el formato del evento'),
+      ...(isExtraField ? {
+        extra_fields: (issue.keys || []).slice(0, 8).map((key) => /^[a-z][a-z0-9_]{0,39}$/.test(key) ? key : 'clave_no_estandar'),
+      } : {}),
     })
   }
 
