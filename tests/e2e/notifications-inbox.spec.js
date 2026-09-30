@@ -19,8 +19,9 @@ test('la campana abre solo la bandeja de notificaciones', async ({ page }, testI
   await expect(page.getByText('Conecta tu correo', { exact: true })).toHaveCount(0)
 })
 
-// A pending alert opens the existing explicit financial-review form without changing balances.
-test('un aviso se expande para mostrar sus datos y las opciones de revisión', async ({ page }) => {
+// Un ingreso recibido y el pago posterior de una deuda son movimientos distintos.
+test('un aviso entrante sugiere ingreso y permite crear su categoría durante la revisión', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
   await page.route('**/src/services/bank-email/bankEmailClient.js', (route) => route.fulfill({ contentType: 'application/javascript', body: `
     export async function bankEmailRequest() { return structuredClone(window.inboxData); }
     export async function bankEmailSummary() { return { pending: 1 }; }
@@ -31,7 +32,7 @@ test('un aviso se expande para mostrar sus datos y las opciones de revisión', a
     <body><main id="root"></main><script type="module">
       import RefreshRuntime from '/@react-refresh';
       RefreshRuntime.injectIntoGlobalHook(window); window.$RefreshReg$ = () => {}; window.$RefreshSig$ = () => (type) => type; window.__vite_plugin_react_preamble_installed__ = true;
-      window.inboxData = { has_more: false, events: [{ id: '550e8400-e29b-41d4-a716-446655440000', bank: 'Lulo', candidate: { counterparty: 'Comercio de prueba', amount_minor: 70675000, occurred_at: '2026-04-30T01:33:00.000Z', direction: 'outgoing' } }] };
+      window.inboxData = { has_more: false, events: [{ id: '550e8400-e29b-41d4-a716-446655440000', bank: 'Lulo', candidate: { counterparty: 'Persona ejemplo', amount_minor: 100000000, occurred_at: '2026-09-30T15:18:00.000Z', direction: 'incoming' } }] };
       await import('/tests/e2e/fixtures/notifications-inbox-harness.jsx');
     </script></body></html>
   ` }))
@@ -41,7 +42,23 @@ test('un aviso se expande para mostrar sus datos y las opciones de revisión', a
   await expect(page.getByText('1 movimiento necesita tu confirmación')).toBeVisible()
   await expect(page.getByLabel('Qué hacer con este correo')).toBeVisible()
   await page.getByLabel('Qué hacer con este correo').selectOption('record')
-  await expect(page.getByLabel('Monto confirmado en COP')).toHaveValue('706.750')
+  const type = page.getByLabel('Tipo de movimiento')
+  await expect(type).toHaveValue('income')
+  await expect(type.locator('option[value="card_payment"]')).toHaveCount(0)
+  await expect(page.getByText(/Si luego lo usas para abonar una deuda/)).toBeVisible()
+  await expect(page.getByLabel('Monto confirmado en COP')).toHaveValue('1.000.000')
+  await page.getByRole('button', { name: 'Crear categoría' }).click()
+  const categoryDialog = page.getByRole('dialog', { name: 'Nueva categoría' })
+  await categoryDialog.getByLabel('Nombre').fill('Aporte de pareja')
+  await categoryDialog.getByRole('button', { name: 'Crear categoría' }).click()
+  await expect(categoryDialog).toBeHidden()
+  await expect(page.getByLabel('Categoría').locator('option:checked')).toHaveText('Aporte de pareja')
+  await page.getByLabel('Cuenta de destino').selectOption('lulo')
   await expect(page.getByRole('button', { name: 'Confirmar decisión' })).toBeDisabled()
+  await page.getByRole('checkbox', { name: 'Revisé el movimiento y confirmo esta decisión.' }).check()
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  await page.getByRole('button', { name: 'Confirmar decisión' }).click()
+  await expect.poll(() => page.evaluate(() => window.savedDecision?.[2])).toMatchObject({
+    type: 'income', amount_minor: 100000000, from_account_id: null, to_account_id: 'lulo', category_id: expect.any(String),
+  })
 })

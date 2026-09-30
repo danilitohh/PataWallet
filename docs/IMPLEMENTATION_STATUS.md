@@ -1,5 +1,11 @@
 # Estado de implementación
 
+## Ingresos recibidos desde notificaciones · 30 de septiembre
+
+- Para avisos identificados como entrada, la revisión propone «Ingreso» y oculta tipos de salida como «Pago de deuda». Desde el mismo formulario se puede crear una categoría y queda seleccionada; el texto aclara que el abono posterior a una deuda se registra como otro movimiento. «Entre mis cuentas» sigue disponible para transferencias propias.
+- Los avisos guardados sin dirección detectada conservan el selector completo, así que el movimiento existente se puede clasificar manualmente. Para el caso descrito: registrar primero el millón recibido en la cuenta donde entró y, al abonar la deuda, registrar el pago desde esa cuenta a la deuda.
+- Verificado: lint, build, 197 pruebas unitarias y E2E de revisión entrante en Chromium a 390×844. No se confirmó ningún movimiento real.
+
 ## Transferencia recibida Lulo por Bre-B · 30 de septiembre
 
 - El parser reconoce el aviso «Recibiste plata por Bre-B»: extrae contraparte, importe, fecha/hora de Colombia, referencia y últimos cuatro dígitos de la cuenta destino. La bandeja muestra «Recibiste dinero» y permite revisar el importe y la fecha. No selecciona ingreso/transferencia ni una cuenta, ni modifica saldos antes de confirmar; la moneda sigue pendiente si el correo solo usa «$».

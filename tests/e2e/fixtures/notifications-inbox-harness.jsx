@@ -7,14 +7,15 @@ import '../../../src/styles/calm.css'
 import '../../../src/styles/glass.css'
 
 // Renders the production inbox against a synthetic user and intercepted email API.
+const categories = []
 const app = {
   isDemo: false,
   user: { id: 'test' },
   accounts: [{ id: 'lulo', name: 'Cuenta Lulo', kind: 'asset' }],
-  categories: [],
+  categories,
   transactions: [],
   settings: { hiddenAmounts: false },
-  actions: { retrySync: async () => {} },
+  actions: { retrySync: async () => {}, createCategory: async (category) => categories.push(category) },
   notify: () => {},
 }
 
