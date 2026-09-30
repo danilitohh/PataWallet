@@ -19,6 +19,58 @@ test('corrige el origen al cambiar de compra con tarjeta a pago de deuda', async
   await expect(page.locator('.transaction').filter({ hasText: 'Pago de deuda' }).filter({ hasText: '50.000' })).toHaveCount(1)
 })
 
+// Editar el saldo de una deuda registra ajustes sin reescribir compras ni pagos anteriores.
+test('edita el tipo y saldo pendiente de una deuda', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: /probar con datos de ejemplo/i }).click()
+  await expect(page.getByRole('heading', { name: /Hola, Danilo/ })).toBeVisible()
+  await page.goto('/cuentas/deudas')
+
+  const row = page.locator('.account-row').filter({ hasText: 'Tarjeta de ejemplo' })
+  const originalTransactions = await page.evaluate(async () => {
+    const { db } = await import('/src/data/db.js')
+    return db.transactions.toArray()
+  })
+  const editButton = row.getByRole('button', { name: 'Editar Tarjeta de ejemplo' })
+  if (!await editButton.isVisible()) await row.locator('summary').click()
+  await editButton.click()
+
+  const editor = page.getByRole('dialog', { name: 'Editar deuda', exact: true })
+  await expect(editor.getByLabel('Saldo pendiente actual')).toHaveValue('185.000')
+  await editor.getByLabel('Tipo de deuda').selectOption('investment_loan')
+  await editor.getByLabel('Saldo pendiente actual').fill('220.000')
+  await editor.getByRole('button', { name: 'Guardar cambios' }).click()
+  await expect(editor).toBeHidden()
+  await expect(row).toContainText('Préstamo de libre inversión')
+  await expect(row).toContainText('220.000')
+
+  let transactions = await page.evaluate(async () => {
+    const { db } = await import('/src/data/db.js')
+    return db.transactions.toArray()
+  })
+  expect(transactions).toHaveLength(originalTransactions.length + 1)
+  expect(transactions.filter((item) => item.type === 'adjustment')).toMatchObject([
+    { amount_minor: 3500000, direction: 'increase', to_account_id: 'c044cc7e-d372-5f54-9c67-ff25257ed0df' },
+  ])
+  expect(transactions.filter((item) => item.type !== 'adjustment')).toEqual(originalTransactions)
+
+  if (!await editButton.isVisible()) await row.locator('summary').click()
+  await editButton.click()
+  await editor.getByLabel('Saldo pendiente actual').fill('0')
+  await editor.getByRole('button', { name: 'Guardar cambios' }).click()
+  await expect(editor).toBeHidden()
+  await expect(row).toContainText('0')
+  await page.reload()
+  await expect(page.locator('.account-row').filter({ hasText: 'Tarjeta de ejemplo' })).toContainText('0')
+
+  transactions = await page.evaluate(async () => {
+    const { db } = await import('/src/data/db.js')
+    return db.transactions.toArray()
+  })
+  expect(transactions).toHaveLength(originalTransactions.length + 2)
+  expect(transactions.filter((item) => item.type !== 'adjustment')).toEqual(originalTransactions)
+})
+
 // Prepara únicamente la demo aislada para reproducir un usuario con deudas y sin dinero registrado.
 test('crea el origen sin perder el borrador cuando solo hay deudas', async ({ page }, testInfo) => {
   // Incluye alta, cancelación, guardado y recarga; WebKit móvil necesita más que un flujo simple.

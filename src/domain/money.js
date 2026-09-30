@@ -8,7 +8,7 @@ export function assertMinor(value) {
   return amount
 }
 
-export function parseLocalizedAmount(input) {
+export function parseLocalizedAmount(input, { allowZero = false } = {}) {
   const raw = String(input).trim().replace(/\s/g, '')
   if (!raw || !/^\d{1,3}(?:\.\d{3})*(?:,\d{1,2})?$|^\d+(?:,\d{1,2})?$/.test(raw)) {
     throw new Error('Usa un monto como 85.000 o 85.000,50.')
@@ -17,7 +17,8 @@ export function parseLocalizedAmount(input) {
   const normalizedWhole = whole.replace(/\./g, '')
   const minor = Number(normalizedWhole) * 100 + Number(decimals.padEnd(2, '0'))
   assertMinor(minor)
-  if (minor <= 0) throw new Error('El monto debe ser mayor que cero.')
+  // El cero solo se admite en correcciones explícitas; los importes ordinarios siguen siendo positivos.
+  if (minor < 0 || (!allowZero && minor === 0)) throw new Error('El monto debe ser mayor que cero.')
   return minor
 }
 

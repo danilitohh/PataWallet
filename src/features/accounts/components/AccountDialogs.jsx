@@ -1,42 +1,127 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useApp } from '../../../app/AppContext.jsx'
 import { makeId } from '../../../shared/lib/id.js'
-import { formatInputAmount, parseLocalizedAmount, toInputAmount } from '../../../domain/money.js'
+import { calculateBalances } from '../../../domain/finance.js'
+import { assertMinor, formatInputAmount, formatMinor, parseLocalizedAmount, toInputAmount } from '../../../domain/money.js'
 import { DEBT_PAYMENT_FREQUENCIES, installmentsLimit, parseDebtSchedule, readDebtSchedule } from '../../../domain/debtSchedule.js'
 import { Field, SimpleDialog } from '../../../shared/components/Modal.jsx'
 import { today } from '../../../shared/lib/date.js'
 import { ACCOUNT_TYPE_OPTIONS, defaultAccountSubtype } from '../model/accountTypes.js'
 
 export function AccountEditDialog({ account, close }) {
-  const { notify, actions } = useApp()
+  const { accounts, transactions, settings, notify, actions } = useApp()
+  const currentBalanceMinor = account.kind === 'liability' ? calculateBalances(accounts, transactions)[account.id] || 0 : 0
   const [name, setName] = useState(account.name)
+  const [subtype, setSubtype] = useState(account.subtype || defaultAccountSubtype('liability'))
+  // Un campo vacío conserva el saldo y evita revelar montos cuando la privacidad visual está activa.
+  const [debtBalance, setDebtBalance] = useState(() => !settings.hiddenAmounts && currentBalanceMinor >= 0 ? toInputAmount(currentBalanceMinor) : '')
   const [schedule, setSchedule] = useState(scheduleValues(account))
   const [error, setError] = useState('')
+  const [balanceError, setBalanceError] = useState('')
   const [scheduleError, setScheduleError] = useState('')
+  const [formError, setFormError] = useState('')
+  const [saving, setSaving] = useState(false)
+  const savingRef = useRef(false)
+  // Guarda el saldo base y un ajuste pendiente para que un reintento no duplique una corrección.
+  const balanceEditRef = useRef({ currentMinor: currentBalanceMinor, pending: null })
+
+  // Refleja cambios sincronizados mientras no haya un ajuste local pendiente.
+  useEffect(() => {
+    const edit = balanceEditRef.current
+    if (!edit.pending) edit.currentMinor = currentBalanceMinor
+  }, [currentBalanceMinor])
+
+  // Valida el editor y registra cualquier corrección antes de guardar sus datos descriptivos.
+  const submit = async (event) => {
+    event.preventDefault()
+    if (savingRef.current) return
+    setError('')
+    setBalanceError('')
+    setScheduleError('')
+    setFormError('')
+    if (name.trim().length < 2) {
+      setError('Escribe un nombre de al menos dos caracteres.')
+      return
+    }
+
+    let debtSchedule
+    let targetBalanceMinor = null
+    try {
+      debtSchedule = account.kind === 'liability' ? parseDebtSchedule(schedule) : null
+    } catch (issue) {
+      setScheduleError(issue.message)
+      return
+    }
+    if (account.kind === 'liability' && debtBalance.trim()) {
+      try {
+        targetBalanceMinor = parseLocalizedAmount(debtBalance, { allowZero: true })
+      } catch (issue) {
+        setBalanceError(issue.message)
+        return
+      }
+    }
+
+    const balanceEdit = balanceEditRef.current
+    if (balanceEdit.pending && targetBalanceMinor !== balanceEdit.pending.targetMinor) {
+      setFormError('Vuelve a guardar el mismo saldo para completar el ajuste pendiente.')
+      return
+    }
+
+    savingRef.current = true
+    setSaving(true)
+    try {
+      if (account.kind === 'liability' && targetBalanceMinor !== null) {
+        if (targetBalanceMinor !== balanceEdit.currentMinor) {
+          // Registra la diferencia como ajuste para conservar las compras y los pagos históricos.
+          const delta = targetBalanceMinor - balanceEdit.currentMinor
+          const record = balanceEdit.pending?.record || {
+            id: makeId('transaction'),
+            type: 'adjustment',
+            amount_minor: assertMinor(Math.abs(delta)),
+            currency: account.currency || 'COP',
+            occurred_at: `${today()}T12:00:00-05:00`,
+            from_account_id: null,
+            to_account_id: account.id,
+            category_id: null,
+            merchant_name: null,
+            note: `Corrección de saldo: ${account.name}`,
+            source: 'manual',
+            status: 'recorded',
+            direction: delta < 0 ? 'decrease' : 'increase',
+          }
+          balanceEdit.pending = { record, targetMinor: targetBalanceMinor }
+          await actions.saveTransaction(record)
+          balanceEdit.currentMinor = targetBalanceMinor
+          balanceEdit.pending = null
+        }
+      }
+
+      const changes = { name: name.trim() }
+      if (account.kind === 'liability') Object.assign(changes, { subtype, ...debtSchedule })
+      await actions.updateAccount(account.id, changes)
+      notify(account.kind === 'liability' ? 'Deuda actualizada' : 'Cuenta actualizada')
+      close()
+    } catch (issue) {
+      setFormError(issue.message)
+    } finally {
+      savingRef.current = false
+      setSaving(false)
+    }
+  }
 
   return (
-    <SimpleDialog title="Editar cuenta" close={close}>
-      <form onSubmit={async (event) => {
-        event.preventDefault()
-        setError('')
-        setScheduleError('')
-        if (name.trim().length < 2) {
-          setError('Escribe un nombre de al menos dos caracteres.')
-          return
-        }
-        try {
-          const debtSchedule = account.kind === 'liability' ? parseDebtSchedule(schedule) : parseDebtSchedule({})
-          await actions.updateAccount(account.id, { name: name.trim(), ...(account.kind === 'liability' ? debtSchedule : {}) })
-          notify('Cuenta actualizada')
-          close()
-        } catch (issue) {
-          setScheduleError(issue.message)
-        }
-      }}>
+    <SimpleDialog title={account.kind === 'liability' ? 'Editar deuda' : 'Editar cuenta'} close={() => { if (!savingRef.current) close() }}>
+      <form onSubmit={submit}>
         <Field label="Nombre" error={error}><input value={name} onChange={(event) => setName(event.target.value)} /></Field>
-        {account.kind === 'liability' && <DebtScheduleFields values={schedule} onChange={setSchedule} error={scheduleError} />}
-        <p className="helper">Cambiar el nombre no modifica saldos ni movimientos.</p>
-        <button className="button button--primary" type="submit">Guardar cambios</button>
+        {account.kind === 'liability' && <>
+          <Field label="Tipo de deuda"><select value={subtype} onChange={(event) => setSubtype(event.target.value)}>{ACCOUNT_TYPE_OPTIONS.liability.map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}</select></Field>
+          <Field label="Saldo pendiente actual" optional error={balanceError}><input inputMode="decimal" value={debtBalance} onChange={(event) => setDebtBalance(formatInputAmount(event.target.value))} placeholder={settings.hiddenAmounts ? 'Dejar vacío para conservar' : '0'} /></Field>
+          <p className="helper">Si cambias el saldo, se registrará un ajuste sin modificar tus compras ni pagos anteriores.{currentBalanceMinor < 0 && !settings.hiddenAmounts && <> En este momento tienes un saldo a favor de {formatMinor(Math.abs(currentBalanceMinor), account.currency || 'COP')}.</>}</p>
+          <DebtScheduleFields values={schedule} onChange={setSchedule} error={scheduleError} />
+        </>}
+        {formError && <p className="form-error" role="alert">{formError}</p>}
+        {account.kind !== 'liability' && <p className="helper">Cambiar el nombre no modifica saldos ni movimientos.</p>}
+        <button className="button button--primary" type="submit" disabled={saving}>{saving ? 'Guardando…' : 'Guardar cambios'}</button>
       </form>
     </SimpleDialog>
   )

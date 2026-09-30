@@ -1,5 +1,10 @@
 # Estado de implementación
 
+## Edición de deudas · 30 de septiembre
+
+- El editor permite cambiar el tipo de deuda y su saldo pendiente. Cambiar el saldo agrega un ajuste explícito, mantiene intactos los pagos y compras anteriores y permite dejar la deuda en cero; el plan de cuotas sigue siendo opcional.
+- Verificado: `npm run lint`, `npm run build`, las 196 pruebas unitarias y la E2E del editor en escritorio. Las E2E de 375×812 y 390×844 quedaron sin verificar porque WebKit se cerró al iniciar en este entorno.
+
 ## Corrección de Web Push · 28 de septiembre
 
 - Corregido el estado falso «Falta la clave pública VAPID»: el cliente obtiene la clave pública desde `/api/push/config` y la clave privada continúa solo en Vercel. No se rotaron claves, suscripciones ni datos financieros.
@@ -11,7 +16,7 @@
 - Se explica el motivo, los tres pasos para instalar y luego conceder permiso, y se enlaza la guía oficial actual de Apple. Se quitó una nota interna de pruebas que no ayudaba al usuario.
 - Verificado: lint, build, 181 pruebas unitarias y 4 E2E en 390×844 y 375×812. No se hizo prueba física en iPhone.
 
-Actualizado: 2026-09-29. Fase actual: **ingesta automática Gmail configurada en infraestructura; falta verificar un correo nuevo de banco de extremo a extremo**.
+Actualizado: 2026-09-30. Fase actual: **ingesta automática Gmail configurada en infraestructura; falta verificar un correo nuevo de banco de extremo a extremo**.
 
 ## Diagnóstico de entregas automáticas Gmail · 29 de septiembre
 
