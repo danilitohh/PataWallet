@@ -1,5 +1,10 @@
 # Estado de implementación
 
+## Lista compacta de gastos fijos · 30 de septiembre
+
+- Los vencimientos se ordenan en «Atrasados» y secciones por mes, con cantidad y total. Atrasados y el mes actual empiezan abiertos; si el mes actual no tiene vencimientos, se abre el primer mes próximo. Las recurrencias del mismo gasto se agrupan y conservan una casilla por fecha; cada mes pagina seis gastos.
+- Verificado: `npm run lint`, `npm run build`, `npm test` (196 pruebas) y E2E de confirmar pagos y de una lista sintética de 30 gastos. La lista se comprobó en Chromium a 390×844, 375×812 y 1440×900. La E2E existente de Quincena falla antes de verificar ese flujo porque busca «Otras vistas de Inicio», control que la aplicación no monta actualmente. WebKit y un iPhone físico no se probaron.
+
 ## Confirmación de pagos fijos · 30 de septiembre
 
 - El selector «¿Con qué pagaste?» ofrece solo cuentas activas con dinero disponible. Desde el mismo diálogo se pueden crear categorías de gasto; la nueva categoría queda seleccionada automáticamente.

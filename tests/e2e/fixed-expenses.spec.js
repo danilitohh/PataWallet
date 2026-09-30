@@ -12,9 +12,13 @@ test('30 gastos se mantienen compactos, buscables y editables sin perder pagos',
   const originalTransactions = await page.evaluate(async () => {
     const { db } = await import('/src/data/db.js')
     const { calendarToday } = await import('/src/domain/recurringExpenses.js')
+    const today = calendarToday()
+    const [year, month] = today.split('-').map(Number)
+    const previousMonthStart = new Date(Date.UTC(year, month - 2, 1, 12)).toISOString().slice(0, 10)
+    const nextMonthStart = new Date(Date.UTC(year, month, 1, 12)).toISOString().slice(0, 10)
     await db.settings.put({ key: 'fixedExpenses', value: Array.from({ length: 30 }, (_, i) => ({
       id: `fixture-${i}`, name: `Servicio ${String(i + 1).padStart(2, '0')}`, amount_minor: 15000000,
-      frequency: 'monthly', next_due_date: calendarToday(), currency: 'COP', category_id: null,
+      frequency: i === 0 ? 'biweekly' : 'monthly', next_due_date: i === 0 ? previousMonthStart : i === 1 ? nextMonthStart : today, currency: 'COP', category_id: null,
       payment_history: [{ due_date: '2026-01-01', paid_at: '2026-01-01T12:00:00Z', status: 'paid' }],
     })) })
     return db.transactions.toArray()
@@ -23,7 +27,28 @@ test('30 gastos se mantienen compactos, buscables y editables sin perder pagos',
   const section = page.locator('.fixed-expenses-section')
   await expect(section.locator('.fixed-expense-summary')).toHaveCount(5)
   await expect(section.locator('form')).toHaveCount(0)
-  await expect(page.locator('.recurring-payment')).toHaveCount(6)
+  await page.goto('/cuentas/pagos')
+  const periods = page.locator('.recurring-payments__group')
+  expect(await periods.count()).toBeGreaterThanOrEqual(3)
+  await expect(periods.nth(0).locator(':scope > summary')).toContainText('Atrasados')
+  await expect(periods.nth(0)).toHaveAttribute('open', '')
+  const repeatedExpense = periods.nth(0).locator('.recurring-payment-series')
+  await expect(repeatedExpense.locator('summary')).toContainText('2 vencimientos')
+  await expect(repeatedExpense).not.toHaveAttribute('open', '')
+  await repeatedExpense.locator('summary').click()
+  await expect(repeatedExpense.locator('.recurring-payment--nested')).toHaveCount(2)
+  await repeatedExpense.locator('summary').click()
+  await expect(periods.nth(1)).toHaveAttribute('open', '')
+  await expect(periods.nth(2)).not.toHaveAttribute('open', '')
+  await expect(periods.nth(1).locator('.recurring-payment')).toHaveCount(6)
+  // Verifica que las secciones plegables sigan cabiendo en los tamaños móviles requeridos.
+  for (const viewport of [{ width: 390, height: 844 }, { width: 375, height: 812 }, { width: 1440, height: 900 }]) {
+    await page.setViewportSize(viewport)
+    await expect(periods.nth(1).locator(':scope > summary')).toBeVisible()
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+  }
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/cuentas/gastos-fijos')
   await expect(section.getByRole('navigation', { name: 'Páginas de gastos fijos' })).toContainText('1–5 de 30')
   await section.getByRole('button', { name: 'Gastos fijos: siguientes' }).click()
   await expect(section.getByRole('button', { name: 'Editar Servicio 06', exact: true })).toBeVisible()
@@ -76,9 +101,9 @@ test('30 gastos se mantienen compactos, buscables y editables sin perder pagos',
   await expect(section.locator('.fixed-expense-summary')).toHaveCount(5)
   await expect(section.getByRole('navigation', { name: 'Páginas de gastos fijos' })).toContainText('de 30')
   await page.goto('/cuentas/pagos')
-  await page.getByRole('button', { name: 'Pagos: siguientes' }).click()
-  await expect(page.getByRole('navigation', { name: 'Páginas de pagos' })).toContainText('7–12')
-  await page.getByRole('button', { name: 'Pagos: anteriores' }).click()
+  await page.getByRole('button', { name: /Gastos de .*: siguientes/ }).click()
+  await expect(page.getByRole('navigation', { name: /Páginas de gastos de/ })).toContainText('7–12')
+  await page.getByRole('button', { name: /Gastos de .*: anteriores/ }).click()
   await page.goto('/cuentas/gastos-fijos')
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
   await section.evaluate((el) => el.scrollIntoView({ block: 'start', behavior: 'instant' }))
