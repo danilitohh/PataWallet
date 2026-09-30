@@ -12,6 +12,10 @@ describe('protección HTTP de Atajos', () => {
   it.each([testHandler])('exige token de dispositivo para la prueba', async (handler) => {
     const res=response(); await handler({method:'POST',headers:{},body:{}},res); expect(res.statusCode).toBe(401)
   })
+  it('exige token de dispositivo para validar un evento sin guardarlo', async () => {
+    const res=response(); await shortcutHandler({method:'POST',headers:{},body:{schema_version:1,event_id:'550e8400-e29b-41d4-a716-446655440000',source:'ios_shortcuts',mode:'capture'},query:{operation:'events-validate'}},res)
+    expect(res.statusCode).toBe(401)
+  })
   it('rechaza un evento grande antes de autenticar o guardar', async () => {
     const res=response(); await shortcutHandler({method:'POST',headers:{'content-length':'9000'},body:{},query:{operation:'events'}},res); expect(res.statusCode).toBe(413)
   })

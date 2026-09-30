@@ -12,6 +12,7 @@
     { "source": "/api/shortcuts/pairing-tickets", "destination": "/api/shortcuts?operation=create-ticket" },
     { "source": "/api/shortcuts/mappings", "destination": "/api/shortcuts?operation=mappings" },
     { "source": "/api/shortcuts/rules", "destination": "/api/shortcuts?operation=rules" },
+    { "source": "/api/shortcuts/events/validate", "destination": "/api/shortcuts?operation=events-validate" },
     { "source": "/api/shortcuts/events", "destination": "/api/shortcuts?operation=events" },
     { "source": "/api/shortcuts/devices/:id", "destination": "/api/shortcuts?operation=device&id=:id" },
     { "source": "/api/shortcuts/review/:id", "destination": "/api/shortcuts?operation=review&id=:id" },

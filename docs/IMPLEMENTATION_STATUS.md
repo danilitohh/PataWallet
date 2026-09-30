@@ -426,3 +426,9 @@ La app está desplegada en Vercel y las migraciones de las fases 1–4, punto de
 
 - El receptor de Atajos ahora acepta el campo `amount` que prepara la automatización de Wallet como pesos decimales inequívocos y lo convierte a centavos. Si el monto llega localizado/ambiguo, no lo adivina y conserva el evento para revisión.
 - Verificación local: `tests/api/shortcut-contract.test.js` cubre monto numérico y texto ambiguo. Pendiente de compra real en iPhone: confirmar que la plantilla instalada envía la petición y verificar que el evento llega a PataWallet. Esta corrección del contrato no prueba ni repara un disparador que no se ejecute en iOS.
+
+## Diagnóstico seguro de Atajos · 30 de septiembre de 2026
+
+- Se agregó `POST /api/shortcuts/events/validate`: autentica la vinculación y comprueba contrato/normalización, informa campos faltantes, pero no llama a la IA ni a la función que registra eventos; responde explícitamente `event_persisted: false`, `financial_effect: false` y `notification_sent: false`. El control normal de frecuencia de solicitudes sigue aplicándose.
+- Para una prueba manual controlada, cambia temporalmente en la acción “Obtener contenido de URL” del atajo la ruta `/api/shortcuts/events` por `/api/shortcuts/events/validate`, conserva POST, JSON y el encabezado Bearer; ejecuta con datos ficticios y verifica `ok: true`, `payload_complete` y los campos de `event`. Luego restaura `/api/shortcuts/events` antes de capturar compras reales.
+- Esta prueba valida entrega del atajo, autenticación y lectura del payload; no simula una compra, no crea una notificación pendiente y no comprueba el registro real.

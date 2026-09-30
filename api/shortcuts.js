@@ -12,10 +12,39 @@ export default async function handler(req, res) {
   if (operation === 'pair' || operation === 'create-ticket') return operation === 'create-ticket' ? createPairingTicketHandler(req, res) : pairHandler(req, res)
   if (operation === 'mappings') return mappingsHandler(req, res)
   if (operation === 'rules') return categoryRuleHandler(req, res)
+  if (operation === 'events-validate') return validateEventHandler(req, res)
   if (operation === 'events') return eventsHandler(req, res)
   if (operation === 'device') return deviceHandler(req, res)
   if (operation === 'review') return reviewHandler(req, res)
   return json(res, 404, { error: 'Ruta de Atajos no encontrada.' })
+}
+
+// Valida autenticación, contrato y normalización sin registrar el evento ni enviar avisos.
+async function validateEventHandler(req, res) {
+  if (!allowMethod(req, res, ['POST'])) return
+  try {
+    assertBodySize(req, 8_000)
+    const parsed = shortcutEventSchema.safeParse(req.body)
+    if (!parsed.success) return json(res, 400, { error: 'El evento no cumple el contrato de PataWallet.' })
+    await authorizedShortcut(req, 'validate')
+    const event = normalizeShortcutEvent(parsed.data)
+    const missingFields = [
+      !Number.isSafeInteger(event.amount_minor) || event.amount_minor <= 0 ? 'amount' : null,
+      event.currency !== 'COP' ? 'currency' : null,
+      !event.occurred_at ? 'occurred_at' : null,
+      !event.merchant_name ? 'merchant_name' : null,
+      !event.card_alias ? 'card_alias' : null,
+    ].filter(Boolean)
+    return json(res, 200, {
+      ok: true, validation_only: true, event_persisted: false, financial_effect: false, notification_sent: false,
+      payload_complete: missingFields.length === 0, missing_fields: missingFields,
+      event: {
+        event_id: event.event_id, occurred_at: event.occurred_at, amount_minor: event.amount_minor,
+        currency: event.currency, merchant_name: event.merchant_name, card_alias: event.card_alias,
+        review_reasons: event.review_reasons,
+      },
+    })
+  } catch (error) { const safe = shortcutError(error); return json(res, safe.status, { error: safe.message }) }
 }
 
 // Devuelve el estado privado de los dispositivos y reglas del usuario autenticado.
