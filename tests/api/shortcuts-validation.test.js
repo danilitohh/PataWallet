@@ -17,7 +17,7 @@ const validEvent = {
   schema_version: 1,
   event_id: '550e8400-e29b-41d4-a716-446655440000',
   occurred_at: '2026-09-30T12:30:00-05:00',
-  amount: 32500,
+  amount_minor: 3250000,
   currency: 'COP',
   merchant_name: 'Comercio de prueba',
   card_alias: 'Tarjeta de prueba',

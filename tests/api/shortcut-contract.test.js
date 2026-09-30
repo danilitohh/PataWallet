@@ -24,6 +24,21 @@ describe('contrato de eventos de Atajos', () => {
     expect(normalized.review_reasons).toEqual([])
   })
 
+  it('acepta amount_minor numérico entero enviado por el JSON de Atajos', () => {
+    const normalized = normalizeShortcutEvent({ ...event, amount_minor: 3250000 })
+    expect(normalized.amount_minor).toBe(3250000)
+    expect(normalized.review_reasons).toEqual([])
+  })
+
+  it('no redondea amount_minor numérico fraccionario o fuera de rango', () => {
+    const fractional = normalizeShortcutEvent({ ...event, amount_minor: 3250000.5 })
+    const oversized = normalizeShortcutEvent({ ...event, amount_minor: 1_000_000_000_000 })
+    expect(fractional.amount_minor).toBeNull()
+    expect(oversized.amount_minor).toBeNull()
+    expect(fractional.review_reasons).toContain('amount_missing_or_ambiguous')
+    expect(oversized.review_reasons).toContain('amount_missing_or_ambiguous')
+  })
+
   it('deja el evento en revisión si la cantidad de Wallet llega localizada o ambigua', () => {
     const normalized = normalizeShortcutEvent({ ...event, amount_minor: undefined, amount: '32.500,00' })
     expect(normalized.amount_minor).toBeNull()

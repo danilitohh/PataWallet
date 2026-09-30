@@ -22,7 +22,7 @@ export const reviewSchema = z.object({
 export const shortcutEventSchema = z.object({
   schema_version: z.literal(1), event_id: z.string().uuid(),
   occurred_at: z.union([z.string().max(50), z.null()]).optional(),
-  amount_minor: z.union([z.string().max(40), z.null()]).optional(),
+  amount_minor: z.union([z.string().max(40), z.number().finite(), z.null()]).optional(),
   amount: z.union([z.string().max(40), z.number().finite()]).nullable().optional(),
   currency: z.union([z.string().trim().max(8), z.null()]).optional(),
   merchant_name: z.union([shortText(120), z.null()]).optional(),
@@ -49,7 +49,8 @@ export function normalizeShortcutEvent(input) {
   const reasons = []
   const declaredMinor = typeof parsed.amount_minor === 'string'
     ? (/^[1-9]\d{0,11}$/.test(parsed.amount_minor) ? Number(parsed.amount_minor) : null)
-    : null
+    : Number.isSafeInteger(parsed.amount_minor) && parsed.amount_minor > 0 && parsed.amount_minor <= 999_999_999_999
+      ? parsed.amount_minor : null
   const walletMinor = walletAmountToMinor(parsed.amount)
   const hasConflictingAmountFields = parsed.amount_minor != null && parsed.amount != null
     && (declaredMinor === null || walletMinor === null || declaredMinor !== walletMinor)
