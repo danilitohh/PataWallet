@@ -66,6 +66,7 @@ export function AccountEditDialog({ account, close }) {
       setFormError('Vuelve a guardar el mismo saldo para completar el ajuste pendiente.')
       return
     }
+    const balanceBeforeSave = balanceEdit.currentMinor
 
     savingRef.current = true
     setSaving(true)
@@ -99,7 +100,14 @@ export function AccountEditDialog({ account, close }) {
       const changes = { name: name.trim() }
       if (account.kind === 'liability') Object.assign(changes, { subtype, ...debtSchedule })
       await actions.updateAccount(account.id, changes)
-      notify(account.kind === 'liability' ? 'Deuda actualizada' : 'Cuenta actualizada')
+      const message = account.kind !== 'liability'
+        ? 'Cuenta actualizada'
+        : targetBalanceMinor === null && balanceBeforeSave > 0
+          ? 'Cambios guardados; saldo pendiente conservado'
+          : targetBalanceMinor === 0 && balanceBeforeSave > 0
+            ? 'Deuda marcada como pagada'
+            : 'Deuda actualizada'
+      notify(message)
       close()
     } catch (issue) {
       setFormError(issue.message)
@@ -115,8 +123,9 @@ export function AccountEditDialog({ account, close }) {
         <Field label="Nombre" error={error}><input value={name} onChange={(event) => setName(event.target.value)} /></Field>
         {account.kind === 'liability' && <>
           <Field label="Tipo de deuda"><select value={subtype} onChange={(event) => setSubtype(event.target.value)}>{ACCOUNT_TYPE_OPTIONS.liability.map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}</select></Field>
-          <Field label="Saldo pendiente actual" optional error={balanceError}><input inputMode="decimal" value={debtBalance} onChange={(event) => setDebtBalance(formatInputAmount(event.target.value))} placeholder={settings.hiddenAmounts ? 'Dejar vacío para conservar' : '0'} /></Field>
-          <p className="helper">Si cambias el saldo, se registrará un ajuste sin modificar tus compras ni pagos anteriores.{currentBalanceMinor < 0 && !settings.hiddenAmounts && <> En este momento tienes un saldo a favor de {formatMinor(Math.abs(currentBalanceMinor), account.currency || 'COP')}.</>}</p>
+          <Field label="Saldo pendiente actual" optional error={balanceError}><input inputMode="decimal" value={debtBalance} onChange={(event) => setDebtBalance(formatInputAmount(event.target.value))} placeholder="Vacío = conservar saldo" /></Field>
+          <p className="helper">Dejar el campo vacío conserva el saldo. Para marcarla como pagada, escribe 0 o usa el botón; al guardar se registra un ajuste que conserva los pagos anteriores.{currentBalanceMinor < 0 && !settings.hiddenAmounts && <> Actualmente tienes un saldo a favor de {formatMinor(Math.abs(currentBalanceMinor), account.currency || 'COP')}.</>}</p>
+          {currentBalanceMinor > 0 && <button className="button button--secondary" type="button" disabled={saving} onClick={() => { setDebtBalance('0'); setBalanceError('') }}>Marcar como pagada</button>}
           <DebtScheduleFields values={schedule} onChange={setSchedule} error={scheduleError} />
         </>}
         {formError && <p className="form-error" role="alert">{formError}</p>}

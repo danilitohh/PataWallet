@@ -53,11 +53,16 @@ function AccountRow({ account, kind, balance, hidden, onEdit, onArchive, paid, o
   const schedule = kind === 'liability' ? debtScheduleLabel(account, (value) => formatMinor(value, 'COP', hidden)) : null
   // Progreso de solo lectura: usa la misma regla de Parejas y los abonos ya registrados.
   const progress = debtProgress({ ...account, balance_minor: balance, debt_paid_minor: paid })
+  // Una deuda saldada deja de ofrecer otro pago y muestra un estado claro en la lista.
+  const settledLabel = balance < 0 ? 'Saldo a favor' : paid > 0 ? 'Deuda saldada' : 'Sin saldo pendiente'
   return <article className="account-row">
     <NightIcon icon={Icon} className="account-row__icon" tone={kind === 'asset' ? 'sky' : 'violet'} />
     <div><h3>{account.name}</h3><p>{accountTypeLabel(account)}</p>{schedule && <small className="account-row__schedule">{schedule}</small>}</div>
     <strong>{formatMinor(balance, 'COP', hidden)}</strong>
     <details className="account-row__options"><summary aria-label={`Opciones de ${account.name}`}>···</summary><div><button type="button" className="icon-button icon-button--small account-row__action--edit" aria-label={`Editar ${account.name}`} onClick={() => onEdit(account)}><Pencil aria-hidden="true" /></button><button type="button" className="icon-button icon-button--small account-row__action--archive" aria-label={`Archivar ${account.name}`} onClick={() => onArchive(account)}><Trash2 aria-hidden="true" /></button></div></details>
-    {kind === 'liability' && <section className="account-row__progress">{hidden ? <small>Avance oculto</small> : progress ? <><Progress value={progress.percent} label={`${progress.percent}% pagado según registros`} /><small>{formatMinor(progress.paid)} abonados · {formatMinor(progress.remaining)} pendientes</small></> : <small>Sin abonos ni deuda pendiente registrados.</small>}<button className="button button--secondary" type="button" onClick={onPayment}>Registrar pago</button></section>}
+    {kind === 'liability' && <section className="account-row__progress">
+      {hidden ? <small>Avance oculto</small> : progress ? <><Progress value={progress.percent} label={`${progress.percent}% pagado según registros`} /><small>{formatMinor(progress.paid)} abonados · {formatMinor(progress.remaining)} pendientes</small></> : <small>Sin abonos ni deuda pendiente registrados.</small>}
+      {balance > 0 ? <button className="button button--secondary" type="button" onClick={onPayment}>Registrar pago</button> : <small>{settledLabel}</small>}
+    </section>}
   </article>
 }

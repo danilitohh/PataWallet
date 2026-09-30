@@ -37,6 +37,13 @@ test('edita el tipo y saldo pendiente de una deuda', async ({ page }) => {
 
   const editor = page.getByRole('dialog', { name: 'Editar deuda', exact: true })
   await expect(editor.getByLabel('Saldo pendiente actual')).toHaveValue('185.000')
+  // Comprueba que el editor cabe en los tamaños móvil pedidos y en escritorio sin depender de WebKit.
+  for (const viewport of [{ width: 390, height: 844 }, { width: 375, height: 812 }, { width: 1440, height: 900 }]) {
+    await page.setViewportSize(viewport)
+    await expect(editor).toBeVisible()
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+  }
+  await page.setViewportSize({ width: 1440, height: 900 })
   await editor.getByLabel('Tipo de deuda').selectOption('investment_loan')
   await editor.getByLabel('Saldo pendiente actual').fill('220.000')
   await editor.getByRole('button', { name: 'Guardar cambios' }).click()
@@ -56,12 +63,25 @@ test('edita el tipo y saldo pendiente de una deuda', async ({ page }) => {
 
   if (!await editButton.isVisible()) await row.locator('summary').click()
   await editButton.click()
-  await editor.getByLabel('Saldo pendiente actual').fill('0')
+  await editor.getByLabel('Saldo pendiente actual').fill('')
   await editor.getByRole('button', { name: 'Guardar cambios' }).click()
   await expect(editor).toBeHidden()
-  await expect(row).toContainText('0')
+  await expect(page.getByText('Cambios guardados; saldo pendiente conservado')).toBeVisible()
+  await expect(row).toContainText('220.000')
+
+  if (!await editButton.isVisible()) await row.locator('summary').click()
+  await editButton.click()
+  await editor.getByRole('button', { name: 'Marcar como pagada' }).click()
+  await expect(editor.getByLabel('Saldo pendiente actual')).toHaveValue('0')
+  await editor.getByRole('button', { name: 'Guardar cambios' }).click()
+  await expect(editor).toBeHidden()
+  await expect(page.getByText('Deuda marcada como pagada')).toBeVisible()
+  await expect(row).toContainText('100% pagado según registros')
+  await expect(row).toContainText('Deuda saldada')
+  await expect(row.getByRole('button', { name: 'Registrar pago' })).toHaveCount(0)
   await page.reload()
   await expect(page.locator('.account-row').filter({ hasText: 'Tarjeta de ejemplo' })).toContainText('0')
+  await expect(page.locator('.account-row').filter({ hasText: 'Tarjeta de ejemplo' })).toContainText('Deuda saldada')
 
   transactions = await page.evaluate(async () => {
     const { db } = await import('/src/data/db.js')

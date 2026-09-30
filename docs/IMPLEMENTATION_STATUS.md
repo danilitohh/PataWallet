@@ -2,8 +2,8 @@
 
 ## Edición de deudas · 30 de septiembre
 
-- El editor permite cambiar el tipo de deuda y su saldo pendiente. Cambiar el saldo agrega un ajuste explícito, mantiene intactos los pagos y compras anteriores y permite dejar la deuda en cero; el plan de cuotas sigue siendo opcional.
-- Verificado: `npm run lint`, `npm run build`, las 196 pruebas unitarias y la E2E del editor en escritorio. Las E2E de 375×812 y 390×844 quedaron sin verificar porque WebKit se cerró al iniciar en este entorno.
+- El editor permite cambiar el tipo de deuda y su saldo pendiente. Cambiar el saldo agrega un ajuste explícito y conserva pagos y compras anteriores. Dejar el campo vacío mantiene el saldo; «Marcar como pagada» fija $0, y la lista muestra «Deuda saldada» y quita la acción de pago. El plan de cuotas sigue siendo opcional.
+- Verificado: `npm run lint`, `npm run build`, las 196 pruebas unitarias y la E2E en Chromium con 375×812, 390×844 y 1440×900. WebKit no inició en este entorno, así que Safari/iPhone sigue sin verificarse.
 
 ## Corrección de Web Push · 28 de septiembre
 
