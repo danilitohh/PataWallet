@@ -44,6 +44,7 @@ Actualizado: 2026-09-29. Fase actual: **ingesta automática Gmail configurada en
 
 - El parser reconoce el formato «Realizaste una compra en … por $…» y extrae comercio, importe, dirección de salida y fecha/hora de Colombia. No crea ni confirma movimientos: sigue requiriendo la decisión del usuario.
 - Los números de cuenta y comprobante no se guardan. La moneda permanece sin confirmar si el correo no incluye un código explícito; la UI pide revisar el importe antes de registrar.
+- Aplica a correos procesados desde el despliegue; los avisos ya guardados no se recalculan al sincronizar de nuevo, por la deduplicación idempotente.
 - Regresión con dos fixtures sintéticos basada en el formato compartido y un caso con fecha ajena previa: 28 pruebas del parser y 186 pruebas unitarias pasan; lint y build pasan. La autenticidad bancaria del remitente no queda certificada por este parser: el usuario debe comprobar el movimiento en Lulo antes de confirmarlo. Aún no probado en producción.
 
 ## Tutorial de automatización en video · 29 de septiembre
