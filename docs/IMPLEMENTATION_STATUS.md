@@ -1,5 +1,16 @@
 # Estado de implementación
 
+## Importes de gastos en Actividad · 1 de octubre de 2026
+
+- Los importes de gastos conservan el signo negativo y ahora usan el color rojo de estado de la app.
+- Verificado: `npm run lint` y `npm run build`. Sin prueba visual en iPhone real.
+
+## Selector mensual del presupuesto en Plan · 1 de octubre de 2026
+
+- Plan permite elegir un mes hasta el actual. El presupuesto y los gastos por categoría muestran el período elegido; las metas, el dinero disponible y las compras previstas conservan el estado actual. Las etiquetas del resumen indican el mes consultado.
+- Verificado: `npm run lint`, `npm run build` y `npm run test:e2e -- tests/e2e/plan-goals.spec.js --project=desktop --workers=1` (3/3). El flujo nuevo se recorrió en Chromium con viewports 390×844, 375×812 y 1440×900, sin desbordamiento horizontal.
+- No verificado en iPhone real. Los proyectos móviles de WebKit no pudieron iniciar en este entorno; los tres tamaños se comprobaron en Chromium.
+
 ## Pago variable de gasto fijo desde correo · 30 de septiembre
 
 - Al revisar un correo como gasto, se pueden vincular vencimientos fijos pendientes cercanos a la fecha del movimiento. El formulario compara el valor previsto con el real y explica la diferencia; al confirmar, guarda el importe real y marca solo ese vencimiento como pagado. El monto de las próximas recurrencias no cambia.
@@ -44,7 +55,7 @@
 - Se explica el motivo, los tres pasos para instalar y luego conceder permiso, y se enlaza la guía oficial actual de Apple. Se quitó una nota interna de pruebas que no ayudaba al usuario.
 - Verificado: lint, build, 181 pruebas unitarias y 4 E2E en 390×844 y 375×812. No se hizo prueba física en iPhone.
 
-Actualizado: 2026-09-30. Fase actual: **ingesta automática Gmail configurada en infraestructura; falta verificar un correo nuevo de banco de extremo a extremo**.
+Actualizado: 2026-10-01. Fase actual: **ingesta automática Gmail configurada en infraestructura; falta verificar un correo nuevo de banco de extremo a extremo**.
 
 ## Diagnóstico de entregas automáticas Gmail · 29 de septiembre
 

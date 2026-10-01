@@ -25,9 +25,11 @@ export function PlanPage() {
   const { accounts, categories, transactions, budgets, goals, allocations, plannedPurchases, settings, notify, actions, isDemo, guideOpen } = useApp()
   const location = useLocation()
   const showingBudget = location.pathname === '/plan/presupuesto'
-  const month = currentMonth()
+  const current = currentMonth()
+  const [month, setMonth] = useState(current)
   const monthLabel = formatPlanMonth(month)
   const summary = calculateSummary(accounts, transactions, month)
+  const currentSummary = month === current ? summary : calculateSummary(accounts, transactions, current)
   const income = incomeReference(settings, accounts)
   const cash = calculateRecordedMoney({
     fixedExpenses: readFixedExpenses(settings.fixedExpenses),
@@ -38,10 +40,12 @@ export function PlanPage() {
     nextPayDate: settings.nextPayDate || income.primary?.next_pay_date,
   })
   const budget = budgets.find((item) => item.month === month)
+  const currentBudget = budgets.find((item) => item.month === current)
   const activePurchases = plannedPurchases
     .filter((item) => item.status === 'planned')
     .sort((left, right) => left.target_date.localeCompare(right.target_date))
   const budgetLimitMinor = budget?.limit_minor || null
+  const currentBudgetLimitMinor = currentBudget?.limit_minor || null
   const budgetUsedPercent = budgetLimitMinor ? (summary.expenses / budgetLimitMinor) * 100 : 0
 
   const [budgetOpen, setBudgetOpen] = useState(false)
@@ -50,6 +54,12 @@ export function PlanPage() {
   const [celebration, setCelebration] = useState(false)
   const [plannedOpen, setPlannedOpen] = useState(null)
   const [expandedAssessment, setExpandedAssessment] = useState(null)
+
+  // Limita el selector al mes actual y mantiene separado el período de las metas y compras futuras.
+  const handleMonthChange = (event) => {
+    const selectedMonth = event.target.value
+    if (selectedMonth && selectedMonth <= current) setMonth(selectedMonth)
+  }
 
   // Elimina la meta con sus reservas usando la acción ya persistida por el contexto.
   const deleteGoal = async (goal) => {
@@ -82,6 +92,11 @@ export function PlanPage() {
         {!goals.length && <p className="helper">Aún no tienes metas. Crea la primera cuando quieras.</p>}
       </section>
 
+      <div className="plan-month-selector">
+        <label htmlFor="plan-budget-month">Mes del presupuesto</label>
+        <input id="plan-budget-month" type="month" value={month} max={current} onChange={handleMonthChange} />
+      </div>
+      <p className="plan-month-note">El mes elegido cambia el presupuesto y sus gastos. Las metas, el saldo disponible y las compras previstas muestran el estado actual.</p>
       <section className="plan-overview-grid" aria-label="Presupuesto y dinero libre">
         <BudgetOverview
           monthLabel={monthLabel}
@@ -93,7 +108,7 @@ export function PlanPage() {
           featured={showingBudget}
         />
       </section>
-      {showingBudget && <section className="glass-budget-categories"><h2>Gastos por categoría</h2><p className="helper">Distribución de compras del mes, antes de reembolsos. No son límites por categoría.</p>{expenseBreakdown(transactions, categories, month).map((item) => <article key={item.name}><NightIcon icon={ChartNoAxesColumn} /><div><h3>{item.name}</h3><strong>{formatMinor(item.amount, 'COP', settings.hiddenAmounts)}</strong>{!settings.hiddenAmounts && <Progress value={item.percent} label={`${item.percent}% de las compras del mes`} />}</div></article>)}</section>}
+      {showingBudget && <section className="glass-budget-categories"><h2>Gastos por categoría</h2><p className="helper">Distribución de compras de {monthLabel}, antes de reembolsos. No son límites por categoría.</p>{expenseBreakdown(transactions, categories, month).map((item) => <article key={item.name}><NightIcon icon={ChartNoAxesColumn} /><div><h3>{item.name}</h3><strong>{formatMinor(item.amount, 'COP', settings.hiddenAmounts)}</strong>{!settings.hiddenAmounts && <Progress value={item.percent} label={`${item.percent}% de las compras de ${monthLabel}`} />}</div></article>)}</section>}
 
       <details className="calm-details calm-planning-details" open={guideOpen || showingBudget}><summary>Compras previstas y margen disponible</summary>
       <AvailablePlanSummary cash={cash} hidden={settings.hiddenAmounts} />
@@ -106,8 +121,8 @@ export function PlanPage() {
           {activePurchases.map((purchase, index) => {
             const assessment = assessPlannedPurchase({
               amountMinor: purchase.amount_minor,
-              budgetLimitMinor,
-              monthlyExpensesMinor: summary.expenses,
+              budgetLimitMinor: currentBudgetLimitMinor,
+              monthlyExpensesMinor: currentSummary.expenses,
               liquidAssetsMinor: cash.hasAccount ? cash.balanceMinor : null,
               reservedMinor: safeAdd(safeAdd(cash.pendingFixedMinor, cash.pendingDebtMinor), cash.reservedMinor),
               nextPayDate: settings.nextPayDate || income.primary?.next_pay_date || null,
@@ -144,11 +159,11 @@ function BudgetOverview({ monthLabel, spentMinor, limitMinor, percent, hidden, o
   const remainingMinor = hasLimit ? limitMinor - spentMinor : null
 
   // El círculo representa el presupuesto global existente, nunca límites ficticios por categoría.
-  if (featured) return <div className="glass-budget-overview"><GlassHero><div className="glass-budget-top"><div className="glass-budget-ring" style={{ '--used': `${hidden ? 0 : Math.max(0, Math.min(100, percent))}%` }} aria-label={hidden ? 'Avance oculto' : `${Math.round(percent)}% del presupuesto`}><strong>{hidden ? '•••' : `${Math.round(percent)}%`}</strong></div><div><span>Gastado este mes</span><strong className="glass-amount">{formatMinor(spentMinor, 'COP', hidden)}</strong><p>{hasLimit ? `de ${formatMinor(limitMinor, 'COP', hidden)}` : 'Sin límite definido'}</p></div></div><p>{hasLimit ? remainingMinor < 0 ? `Superaste el límite por ${formatMinor(Math.abs(remainingMinor), 'COP', hidden)}` : `Quedan ${formatMinor(remainingMinor, 'COP', hidden)}` : 'Define tu presupuesto cuando quieras.'}</p></GlassHero><div className="glass-actions glass-actions--end"><OrbAction icon={Pencil} aria-label={hasLimit ? 'Editar presupuesto' : 'Definir presupuesto'} onClick={onEdit}>Editar</OrbAction></div></div>
+  if (featured) return <div className="glass-budget-overview"><GlassHero><div className="glass-budget-top"><div className="glass-budget-ring" style={{ '--used': `${hidden ? 0 : Math.max(0, Math.min(100, percent))}%` }} aria-label={hidden ? 'Avance oculto' : `${Math.round(percent)}% del presupuesto`}><strong>{hidden ? '•••' : `${Math.round(percent)}%`}</strong></div><div><span>Gastado en {monthLabel}</span><strong className="glass-amount">{formatMinor(spentMinor, 'COP', hidden)}</strong><p>{hasLimit ? `de ${formatMinor(limitMinor, 'COP', hidden)}` : 'Sin límite definido'}</p></div></div><p>{hasLimit ? remainingMinor < 0 ? `Superaste el límite por ${formatMinor(Math.abs(remainingMinor), 'COP', hidden)}` : `Quedan ${formatMinor(remainingMinor, 'COP', hidden)}` : 'Define tu presupuesto cuando quieras.'}</p></GlassHero><div className="glass-actions glass-actions--end"><OrbAction icon={Pencil} aria-label={hasLimit ? 'Editar presupuesto' : 'Definir presupuesto'} onClick={onEdit}>Editar</OrbAction></div></div>
 
   return <section className="plan-panel plan-budget" aria-labelledby="plan-budget-title">
     <div className="plan-panel__heading">
-      <div><span className="plan-eyebrow">Este mes · {monthLabel}</span><h2 id="plan-budget-title">Tu presupuesto</h2></div>
+      <div><span className="plan-eyebrow">Presupuesto · {monthLabel}</span><h2 id="plan-budget-title">Tu presupuesto</h2></div>
       <button className="icon-button" type="button" aria-label={hasLimit ? 'Editar presupuesto' : 'Definir presupuesto'} onClick={onEdit}><Pencil aria-hidden="true" /></button>
     </div>
     {hasLimit ? <>
@@ -158,7 +173,7 @@ function BudgetOverview({ monthLabel, spentMinor, limitMinor, percent, hidden, o
         {remainingMinor < 0 ? `Superaste el límite por ${formatMinor(Math.abs(remainingMinor), 'COP', hidden)}.` : `Te quedan ${formatMinor(remainingMinor, 'COP', hidden)} de presupuesto.`}
       </p>
       <button className="plan-text-action" type="button" onClick={onEdit}>Ajustar límite <Pencil aria-hidden="true" /></button>
-    </> : <div className="plan-budget__empty"><p>Este mes aún no tiene un límite.</p><button className="plan-text-action" type="button" onClick={onEdit}>Definir presupuesto <Plus aria-hidden="true" /></button></div>}
+    </> : <div className="plan-budget__empty"><p>{monthLabel} aún no tiene un límite.</p><button className="plan-text-action" type="button" onClick={onEdit}>Definir presupuesto <Plus aria-hidden="true" /></button></div>}
   </section>
 }
 

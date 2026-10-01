@@ -35,6 +35,7 @@ test('conecta las acciones de meta, presupuesto y compra con sus diálogos', asy
   await expect(allocationDialog).toBeVisible()
   await allocationDialog.getByRole('button', { name: 'Cerrar' }).click()
 
+  await page.getByLabel('Mes del presupuesto').fill('2026-09')
   await page.getByRole('button', { name: 'Editar presupuesto' }).click()
   const budgetDialog = page.getByRole('dialog', { name: 'Editar presupuesto' })
   await expect(budgetDialog).toBeVisible()
@@ -50,4 +51,22 @@ test('conecta las acciones de meta, presupuesto y compra con sus diálogos', asy
   const purchaseDialog = page.getByRole('dialog', { name: 'Agregar próxima compra' })
   await expect(purchaseDialog).toBeVisible()
   await purchaseDialog.getByRole('button', { name: 'Cerrar' }).click()
+})
+
+// Confirma que el presupuesto y sus categorías se consultan con el mes histórico elegido.
+test('permite consultar el presupuesto de un mes anterior', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: /probar con datos de ejemplo/i }).click()
+  await page.goto('/plan/presupuesto')
+
+  for (const viewport of [{ width: 390, height: 844 }, { width: 375, height: 812 }, { width: 1440, height: 900 }]) {
+    await page.setViewportSize(viewport)
+    const monthPicker = page.getByLabel('Mes del presupuesto')
+    await monthPicker.fill('2026-09')
+    await expect(monthPicker).toHaveValue('2026-09')
+    await expect(page.getByText('Gastado en septiembre de 2026')).toBeVisible()
+    await expect(page.locator('.glass-budget-overview')).toContainText('272.000')
+    await expect(page.locator('.glass-budget-categories')).toContainText('Mercado')
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true)
+  }
 })

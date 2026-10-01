@@ -54,7 +54,7 @@
 .activity-page .transaction__main small { overflow: hidden; font-size: .7rem; text-overflow: ellipsis; white-space: nowrap; }
 .activity-page .transaction__amount strong { font-size: .79rem; }
 .activity-page .transaction__amount small { font-size: .65rem; }
-.activity-page .transaction__amount.negative strong { color: var(--text); }
+.activity-page .transaction__amount.negative strong { color: var(--danger); }
 .activity-page .state-message { margin-top: 8px; }
 .activity-footnote { display: flex; align-items: center; gap: 9px; max-width: 70ch; margin: 0 auto; color: var(--text-2); font-size: .76rem; line-height: 1.5; text-align: center; }
 .activity-footnote svg { width: 18px; height: 18px; flex: 0 0 auto; color: var(--warm); }
