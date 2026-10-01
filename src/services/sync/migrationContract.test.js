@@ -10,6 +10,7 @@ const optionalNullSettings = fs.readFileSync(new URL('../../../supabase/migratio
 const incomeSources = fs.readFileSync(new URL('../../../supabase/migrations/20260913190000_income_sources.sql', import.meta.url), 'utf8')
 const optionalNullShape = fs.readFileSync(new URL('../../../supabase/migrations/20260914120000_fix_optional_user_settings_shape.sql', import.meta.url), 'utf8')
 const coupleReviewPermissions = fs.readFileSync(new URL('../../../supabase/migrations/20260926143000_restrict_couple_review.sql', import.meta.url), 'utf8')
+const bankEmailRecurringPayment = fs.readFileSync(new URL('../../../supabase/migrations/20260930160000_bank_email_recurring_payment.sql', import.meta.url), 'utf8')
 
 describe('contrato de seguridad PostgreSQL', () => {
   it('activa RLS y limita cada tabla expuesta al propietario autenticado', () => {
@@ -85,5 +86,15 @@ describe('contrato de seguridad PostgreSQL', () => {
     expect(incomeSources).toContain("'incomeSources'")
     expect(incomeSources).toContain('jsonb_array_length(value) <= 50')
     expect(incomeSources).toContain('value is not null')
+  })
+
+  it('registra un pago recurrente desde correo de forma atómica y con importe real', () => {
+    expect(bankEmailRecurringPayment).toContain('public.resolve_bank_email_recurring_payment')
+    expect(bankEmailRecurringPayment).toContain('or p_due_date is null')
+    expect(bankEmailRecurringPayment).toContain('for update;')
+    expect(bankEmailRecurringPayment).toContain("public.resolve_bank_email(p_id, 'record', p_payload, null, p_distinct)")
+    expect(bankEmailRecurringPayment).toContain("'paid_amount_minor', amount_value")
+    expect(bankEmailRecurringPayment).toContain("set value = updated_expenses, version = version + 1")
+    expect(bankEmailRecurringPayment).toContain('to authenticated;')
   })
 })

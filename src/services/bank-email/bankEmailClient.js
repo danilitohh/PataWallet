@@ -28,11 +28,13 @@ export async function bankEmailSummary() {
   return result
 }
 
-// PostgreSQL confirma el movimiento y resuelve el correo en una sola transacción con auth.uid().
-export async function resolveBankEmail(id, action, payload = {}, transactionId = null, distinct = false) {
-  const { data, error } = await supabase.rpc('resolve_bank_email', {
-    p_id: id, p_action: action, p_payload: payload, p_transaction_id: transactionId, p_distinct: distinct,
-  })
+// PostgreSQL resuelve el aviso; si corresponde, registra el movimiento y el vencimiento juntos.
+export async function resolveBankEmail(id, action, payload = {}, transactionId = null, distinct = false, recurringPayment = null) {
+  const rpc = recurringPayment ? 'resolve_bank_email_recurring_payment' : 'resolve_bank_email'
+  const params = recurringPayment
+    ? { p_id: id, p_payload: payload, p_fixed_expense_id: recurringPayment.expenseId, p_due_date: recurringPayment.dueDate, p_distinct: distinct }
+    : { p_id: id, p_action: action, p_payload: payload, p_transaction_id: transactionId, p_distinct: distinct }
+  const { data, error } = await supabase.rpc(rpc, params)
   if (error) throw new Error(error.code === 'PT409' ? error.message : 'No se pudo guardar. Comprueba los datos y vuelve a intentarlo.')
   return data
 }

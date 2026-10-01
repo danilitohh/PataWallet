@@ -91,4 +91,15 @@ describe('pagos recurrentes', () => {
     expect(() => recordRecurringExpensePayment(paid, occurrence, { ...transaction, id: 'otro-pago' })).toThrow(/ya fue marcado/)
     expect(recordRecurringExpensePayment(paid, occurrence, transaction)[0].payment_history).toHaveLength(1)
   })
+
+  it('guarda el monto real de mercado sin cambiar el previsto para la próxima quincena', () => {
+    const market = { id: 'market', name: 'Mercado', amount_minor: 40000000, frequency: 'biweekly', next_due_date: '2026-09-30', payment_history: [] }
+    const occurrence = getRecurringExpenseOccurrences([market], { from: '2026-09-30', to: '2026-10-15', today: '2026-09-30', includePaid: false })[0]
+    const transaction = { id: 'bank-email-event', type: 'expense', amount_minor: 55430000, category_id: 'market-category', status: 'recorded' }
+    const paid = recordRecurringExpensePayment([market], occurrence, transaction)[0]
+
+    expect(paid.amount_minor).toBe(40000000)
+    expect(paid.payment_history[0]).toMatchObject({ due_date: '2026-09-30', paid_amount_minor: 55430000, transaction_id: transaction.id })
+    expect(getRecurringExpenseOccurrences([paid], { from: '2026-09-30', to: '2026-10-15', today: '2026-09-30', includePaid: false }).map((item) => item.dueDate)).toEqual(['2026-10-15'])
+  })
 })

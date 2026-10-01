@@ -53,8 +53,8 @@ function NotificationsInbox({ app }) {
   }, [refresh])
 
   // Resolving an alert updates its pending badge and then syncs confirmed ledger changes.
-  const resolve = async (...args) => {
-    await resolveBankEmail(...args)
+  const resolve = async (id, action, payload, transactionId, distinct, recurringPayment) => {
+    await resolveBankEmail(id, action, payload, transactionId, distinct, recurringPayment)
     await refresh()
     try {
       await actions.retrySync()
@@ -62,7 +62,7 @@ function NotificationsInbox({ app }) {
       notify('Decisión guardada. Reintenta la sincronización para actualizar tus saldos.')
       return
     }
-    notify('Decisión guardada')
+    notify(recurringPayment ? `${recurringPayment.name} pagado y registrado` : 'Decisión guardada')
   }
 
   return <div className="route-stack notifications-inbox">
@@ -91,7 +91,7 @@ function NotificationsInbox({ app }) {
           </span>
         </summary>
         <p className="notifications-inbox__date">{item.candidate.occurred_at ? new Date(item.candidate.occurred_at).toLocaleString('es-CO', { timeZone: 'America/Bogota' }) : 'Fecha por confirmar'}</p>
-        <BankEmailReview item={item} accounts={accounts} categories={categories} transactions={transactions} hidden={settings.hiddenAmounts} resolve={resolve} />
+        <BankEmailReview item={item} accounts={accounts} categories={categories} transactions={transactions} hidden={settings.hiddenAmounts} fixedExpenses={settings.fixedExpenses} payFrequency={settings.payFrequency} nextPayDate={settings.nextPayDate} resolve={resolve} />
       </details>)}</div>
       {!error && (page > 0 || data.has_more) && <nav className="notifications-inbox__pagination" aria-label="Paginación de avisos">
         <button type="button" className="button button--secondary" disabled={!page || loading} onClick={() => setPage(page - 1)}>Anterior</button>

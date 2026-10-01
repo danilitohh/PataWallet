@@ -45,11 +45,11 @@ function BankEmailContent({ app }) {
     setBusy(true); setError('')
     try { await bankEmailRequest(method); await refresh() } catch (issue) { setError(issue.message) } finally { setBusy(false) }
   }
-  const resolve = async (...args) => {
-    await resolveBankEmail(...args)
+  const resolve = async (id, action, payload, transactionId, distinct, recurringPayment) => {
+    await resolveBankEmail(id, action, payload, transactionId, distinct, recurringPayment)
     await refresh()
     try { await actions.retrySync() } catch { notify('Decisión guardada. Reintenta la sincronización para actualizar tus saldos.'); return }
-    notify('Decisión guardada')
+    notify(recurringPayment ? `${recurringPayment.name} pagado y registrado` : 'Decisión guardada')
   }
   return <div className="route-stack bank-email-page">
     <IntegrationsHeader title="Correos bancarios" subtitle="Conecta tu correo o reenvía avisos bancarios. Revisa cada movimiento antes de registrarlo." />
@@ -84,7 +84,7 @@ function BankEmailContent({ app }) {
     {!isDemo && <section className="integration-card" aria-busy={loading}>
       <h2>Por revisar</h2><p>El envío y la recepción pueden describir una misma transferencia. Puedes vincular ambos al movimiento existente.</p>
       {!data.events.length && <p>{loading ? 'Cargando…' : 'No hay correos pendientes en esta página.'}</p>}
-      {data.events.map((item) => <details className="calm-details" key={item.id}><summary>{item.candidate.counterparty || item.bank} · {item.candidate.amount_minor ? formatMinor(item.candidate.amount_minor, 'COP', settings.hiddenAmounts) : 'Monto por confirmar'}</summary><p>Banco: {item.bank}. {item.candidate.direction === 'incoming' ? 'Aviso de entrada' : item.candidate.direction === 'outgoing' ? 'Aviso de salida' : 'Formato no reconocido'}. Moneda y cuentas por confirmar.</p><BankEmailReview item={item} accounts={accounts} categories={categories} transactions={transactions} hidden={settings.hiddenAmounts} resolve={resolve} /></details>)}
+      {data.events.map((item) => <details className="calm-details" key={item.id}><summary>{item.candidate.counterparty || item.bank} · {item.candidate.amount_minor ? formatMinor(item.candidate.amount_minor, 'COP', settings.hiddenAmounts) : 'Monto por confirmar'}</summary><p>Banco: {item.bank}. {item.candidate.direction === 'incoming' ? 'Aviso de entrada' : item.candidate.direction === 'outgoing' ? 'Aviso de salida' : 'Formato no reconocido'}. Moneda y cuentas por confirmar.</p><BankEmailReview item={item} accounts={accounts} categories={categories} transactions={transactions} hidden={settings.hiddenAmounts} fixedExpenses={settings.fixedExpenses} payFrequency={settings.payFrequency} nextPayDate={settings.nextPayDate} resolve={resolve} /></details>)}
       <div className="notification-actions"><button className="button button--secondary" disabled={!page || loading} onClick={() => setPage(page - 1)}>Anterior</button><span>Página {page + 1}</span><button className="button button--secondary" disabled={!data.has_more || loading} onClick={() => setPage(page + 1)}>Siguiente</button></div>
     </section>}
   </div>

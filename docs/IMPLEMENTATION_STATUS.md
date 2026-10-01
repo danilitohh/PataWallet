@@ -1,5 +1,11 @@
 # Estado de implementación
 
+## Pago variable de gasto fijo desde correo · 30 de septiembre
+
+- Al revisar un correo como gasto, se pueden vincular vencimientos fijos pendientes cercanos a la fecha del movimiento. El formulario compara el valor previsto con el real y explica la diferencia; al confirmar, guarda el importe real y marca solo ese vencimiento como pagado. El monto de las próximas recurrencias no cambia.
+- La confirmación está preparada como operación SQL atómica para evitar que el gasto se registre sin cerrar el vencimiento (o viceversa). **Pendiente aplicar** `supabase/migrations/20260930160000_bank_email_recurring_payment.sql` en Supabase antes de publicar/usar esta opción en producción; no se modificó la base de datos.
+- Verificado: `npm test` (199 pruebas), `npm run lint`, `npm run build` y la E2E del correo de Mercado a 390×844. La migración se revisó y tiene prueba de contrato, pero no se ejecutó contra PostgreSQL; producción y otros tamaños de pantalla no se verificaron.
+
 ## Ingresos recibidos desde notificaciones · 30 de septiembre
 
 - Para avisos identificados como entrada, la revisión propone «Ingreso» y oculta tipos de salida como «Pago de deuda». Desde el mismo formulario se puede crear una categoría y queda seleccionada; el texto aclara que el abono posterior a una deuda se registra como otro movimiento. «Entre mis cuentas» sigue disponible para transferencias propias.
