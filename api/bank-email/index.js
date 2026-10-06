@@ -38,13 +38,14 @@ export default async function handler(req, res) {
       return json(res, 200, { disabled: true })
     }
     const page = Math.max(0, Math.min(10000, Number.parseInt(req.query?.page || '0', 10) || 0))
-    const [inbox, events] = await Promise.all([
+    const [inbox, events, categoryRules] = await Promise.all([
       admin.from('bank_email_addresses').select('address,enabled,last_received_at,verification_code,verification_at').eq('user_id', user.id).maybeSingle(),
       admin.from('bank_email_events').select('id,bank,candidate,received_at,status,transaction_id').eq('user_id', user.id).eq('status', 'pending').order('received_at', { ascending: false }).order('id').range(page * 20, page * 20 + 20),
+      admin.from('category_rules').select('merchant_pattern,normalized_pattern,category_id,active,priority').eq('user_id', user.id).eq('active', true).eq('match_type', 'merchant_exact').order('priority'),
     ])
     if (inbox.error || events.error) throw inbox.error || events.error
     if (inbox.data && !(Date.parse(inbox.data.verification_at || '') > Date.now() - 3600000)) inbox.data.verification_code = null
-    return json(res, 200, { configured: configuration.enabled, inbox: inbox.data, events: events.data.slice(0, 20), has_more: events.data.length > 20 })
+    return json(res, 200, { configured: configuration.enabled, inbox: inbox.data, events: events.data.slice(0, 20), has_more: events.data.length > 20, category_rules: categoryRules.error ? [] : categoryRules.data || [] })
   } catch (error) {
     const status = [400, 401, 403, 413].includes(error.status) ? error.status : 503
     return json(res, status, { error: status < 500 ? error.message : 'La recepción de correos no está disponible. Revisa la configuración y migración.' })

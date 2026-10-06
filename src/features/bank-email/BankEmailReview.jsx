@@ -1,34 +1,53 @@
 import { useMemo, useState } from 'react'
-import { Plus } from 'lucide-react'
+import { ArrowDownLeft, ArrowLeftRight, Check, CreditCard, Ellipsis, Plus, RotateCcw, ShieldCheck, ShoppingBag } from 'lucide-react'
 import { formatMinor, parseLocalizedAmount, toInputAmount } from '../../domain/money.js'
 import { readFixedExpenses } from '../../domain/financialSetup.js'
+import { normalizeMerchantName, suggestMerchantCategory } from '../../domain/merchantCategory.js'
 import { addCalendarDays, calendarToday, getRecurringExpenseOccurrences } from '../../domain/recurringExpenses.js'
 import { CategoryDialog } from '../../shared/components/CategoryDialog.jsx'
+import './bank-email.css'
 
 const TYPES = { expense: 'Gasto', income: 'Ingreso', transfer: 'Entre mis cuentas', card_payment: 'Pago de deuda', refund: 'Reembolso' }
+const INTENTS = {
+  expense: { title: 'Gasto', description: 'Compra o consumo', icon: ShoppingBag },
+  income: { title: 'Ingreso', description: 'Dinero recibido', icon: ArrowDownLeft },
+  transfer: { title: 'Transferencia', description: 'Entre cuentas propias', icon: ArrowLeftRight },
+  card_payment: { title: 'Pago de deuda', description: 'Tarjeta o préstamo', icon: CreditCard },
+  refund: { title: 'Reembolso', description: 'Devolución de una compra', icon: RotateCcw },
+}
+const CONFIRM_LABELS = {
+  expense: 'Confirmar gasto',
+  income: 'Confirmar ingreso',
+  transfer: 'Confirmar transferencia',
+  card_payment: 'Confirmar pago de deuda',
+  refund: 'Confirmar reembolso',
+}
 const TYPES_BY_DIRECTION = {
   incoming: ['income', 'transfer', 'refund'],
   outgoing: ['expense', 'transfer', 'card_payment'],
 }
 
 // Formulario explícito: el nombre del banco o destinatario nunca elige cuenta ni tipo por sí solo.
-export function BankEmailReview({ item, accounts, categories, transactions, hidden, resolve, fixedExpenses = [], payFrequency, nextPayDate }) {
+export function BankEmailReview({ item, accounts, categories, transactions, hidden, resolve, fixedExpenses = [], payFrequency, nextPayDate, categoryRules = [] }) {
   const candidate = item.candidate
   const [action, setAction] = useState('')
-  const [type, setType] = useState(candidate.direction === 'incoming' ? 'income' : '')
-  const [amount, setAmount] = useState(candidate.amount_minor ? toInputAmount(candidate.amount_minor) : '')
+  const [type, setType] = useState('')
+  const [amount, setAmount] = useState(candidate.amount_minor !== null && candidate.amount_minor !== undefined ? toInputAmount(candidate.amount_minor) : '')
   const [date, setDate] = useState(candidate.occurred_at ? new Date(Date.parse(candidate.occurred_at) - 5 * 3600000).toISOString().slice(0, 16) : '')
   const [from, setFrom] = useState('')
   const [to, setTo] = useState('')
   const [category, setCategory] = useState('')
+  const [rememberCategory, setRememberCategory] = useState(false)
   const [recurringPaymentId, setRecurringPaymentId] = useState('')
   const [addingCategory, setAddingCategory] = useState(false)
   const [transaction, setTransaction] = useState('')
-  const [confirmed, setConfirmed] = useState(false)
   const [distinct, setDistinct] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const duplicateConflict = /movimiento similar|otro movimiento/i.test(error)
   const categoryType = type === 'income' ? 'income' : 'expense'
+  const categorySuggestion = suggestMerchantCategory(candidate.counterparty, categoryRules, categories, categoryType)
+  const matchingRule = categoryRules.find((rule) => rule.active !== false && rule.normalized_pattern === normalizeMerchantName(candidate.counterparty))
   const recurringExpenses = useMemo(() => readFixedExpenses(fixedExpenses), [fixedExpenses])
   const scheduleDate = date.slice(0, 10) || calendarToday()
   const nearbyPayments = useMemo(() => {
@@ -48,8 +67,21 @@ export function BankEmailReview({ item, accounts, categories, transactions, hidd
   const allowedTypes = TYPES_BY_DIRECTION[candidate.direction] || Object.keys(TYPES)
   const typeOptions = Object.entries(TYPES).filter(([key]) => allowedTypes.includes(key))
 
-  // Una alerta entrante propone ingreso, pero las transferencias propias siguen disponibles.
+  // Mantiene las opciones compatibles con la dirección detectada y exige que la persona elija.
   const categoryCreated = (id) => { setCategory(id); setError('') }
+
+  // Elegir cómo ocurrió el movimiento también inicia el registro; evita dos menús en serie.
+  const chooseMovementType = (nextType) => {
+    setAction('record')
+    setType(nextType)
+    setFrom('')
+    setTo('')
+    setCategory(suggestMerchantCategory(candidate.counterparty, categoryRules, categories, nextType === 'income' ? 'income' : 'expense'))
+    setRememberCategory(false)
+    setRecurringPaymentId('')
+    setDistinct(false)
+    setError('')
+  }
 
   // Vincula el gasto real a una ocurrencia sin cambiar el monto previsto para las siguientes fechas.
   const selectRecurringPayment = (id) => {
@@ -65,7 +97,7 @@ export function BankEmailReview({ item, accounts, categories, transactions, hidd
   // Conserva campos tras cualquier error; se refrescan saldos solo después de confirmación del servidor.
   const submit = async (event) => {
     event.preventDefault()
-    if (busy || !confirmed) return
+    if (busy) return
     setBusy(true); setError('')
     try {
       const payload = action === 'record' ? {
@@ -74,34 +106,62 @@ export function BankEmailReview({ item, accounts, categories, transactions, hidd
         category_id: needsCategory ? category : null, merchant_name: candidate.counterparty?.slice(0, 120) || null,
         note: 'Confirmado desde correo bancario',
       } : {}
+      const categoryRule = action === 'record' && type === 'expense' && rememberCategory && category && candidate.counterparty
+        ? { merchant_pattern: candidate.counterparty, category_id: category }
+        : null
       await resolve(item.id, action, payload, action === 'link' ? transaction : null, distinct,
-        action === 'record' && recurringPayment ? { expenseId: recurringPayment.expenseId, dueDate: recurringPayment.dueDate, name: recurringPayment.name } : null)
+        action === 'record' && recurringPayment ? { expenseId: recurringPayment.expenseId, dueDate: recurringPayment.dueDate, name: recurringPayment.name } : null,
+        categoryRule)
     } catch (issue) { setError(issue.message) } finally { setBusy(false) }
   }
   return <>
   <form className="review-form bank-email-review" onSubmit={submit}>
-    <p>El correo no certifica por sí solo el movimiento. Compruébalo en tu banco antes de confirmar. Nunca introduzcas claves ni números completos de cuenta.</p>
-    <label className="field"><span>Qué hacer con este correo</span><select required value={action} onChange={(event) => { setAction(event.target.value); setConfirmed(false) }}><option value="">Selecciona…</option><option value="record">Registrar un movimiento</option><option value="link">Ya existe: vincular sin duplicar</option><option value="dismiss">Descartar: no afecta mis saldos</option></select></label>
+    <div className="bank-review-trust"><ShieldCheck aria-hidden="true" /><p><strong>Revisa antes de registrar</strong><span>El correo no confirma por sí solo el movimiento. Compruébalo en tu banco; nunca ingreses claves ni números completos de cuenta.</span></p></div>
+    <fieldset className="bank-review-intents">
+      <legend>¿Cómo quieres registrarlo?</legend>
+      <div className={`bank-review-intents__grid bank-review-intents__grid--${typeOptions.length}`}>
+        {typeOptions.map(([key]) => { const IntentIcon = INTENTS[key].icon; return <button key={key} type="button" className={`bank-review-intent${action === 'record' && type === key ? ' is-selected' : ''}`} aria-pressed={action === 'record' && type === key} onClick={() => chooseMovementType(key)}>
+          <span className="bank-review-intent__icon"><IntentIcon aria-hidden="true" /></span><span className="bank-review-intent__copy"><strong>{INTENTS[key].title}</strong><small>{INTENTS[key].description}</small></span>{action === 'record' && type === key && <Check className="bank-review-intent__check" aria-hidden="true" />}
+        </button>})}
+      </div>
+    </fieldset>
+    <details className="bank-review-more">
+      <summary><Ellipsis aria-hidden="true" /><span>Más opciones</span></summary>
+      <div className="bank-review-more__choices">
+        <button type="button" className={action === 'link' ? 'is-selected' : ''} aria-pressed={action === 'link'} onClick={() => { setAction('link'); setError('') }}>Ya está registrado</button>
+        <button type="button" className={action === 'dismiss' ? 'is-selected' : ''} aria-pressed={action === 'dismiss'} onClick={() => { setAction('dismiss'); setError('') }}>Descartar aviso</button>
+      </div>
+    </details>
     {action === 'record' && <>
-      <label className="field"><span>Tipo de movimiento</span><select required value={type} onChange={(event) => { setType(event.target.value); setFrom(''); setTo(''); setCategory(''); setRecurringPaymentId('') }}><option value="">Selecciona…</option>{typeOptions.map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label>
-      {type === 'transfer' && <p>Sale de una cuenta tuya y entra en otra. No suma gastos ni ingresos.</p>}
-      {type === 'income' && <p className="info-note">Registra aquí el dinero que recibiste. Si luego lo usas para abonar una deuda, registra ese pago por separado desde Cuentas.</p>}
-      {hidden ? <p role="status">Desactiva «Ocultar montos» en Ajustes para revisar y registrar el importe.</p> : <label className="field"><span>Monto confirmado en COP</span><input required inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} /></label>}
-      <label className="field"><span>Fecha y hora de Colombia</span><input required type="datetime-local" value={date} onChange={(event) => { setDate(event.target.value); setRecurringPaymentId('') }} /></label>
+      {type === 'transfer' && <p className="bank-review-type-note">El traslado entre cuentas propias no suma ingresos ni gastos.</p>}
+      {type === 'income' && <p className="bank-review-type-note">Si luego abonas este dinero a una deuda, registra ese pago por separado desde Cuentas.</p>}
+      <section className="bank-review-entry" aria-label="Datos del movimiento">
+      {hidden ? <p role="status">Desactiva «Ocultar montos» en Ajustes para revisar y registrar el importe.</p> : <label className="bank-review-amount"><span className="bank-review-amount__label">Monto del movimiento <small>Detectado en el correo</small></span><span className="bank-review-amount__control"><span>COP</span><input required inputMode="decimal" aria-label="Monto detectado en COP" value={amount} onChange={(event) => { setAmount(event.target.value); setError(''); setDistinct(false) }} /></span></label>}
+      <label className="field bank-review-date"><span>Fecha y hora</span><input required type="datetime-local" value={date} onChange={(event) => { setDate(event.target.value); setRecurringPaymentId(''); setError(''); setDistinct(false) }} /></label>
       {type === 'expense' && recurringExpenses.length > 0 && <>
         <label className="field"><span>¿Corresponde a un gasto fijo?</span><select aria-label="Vincular gasto fijo (opcional)" value={recurringPayment?.id || ''} onChange={(event) => selectRecurringPayment(event.target.value)}><option value="">No, registrar solo como gasto</option>{nearbyPayments.map((payment) => <option key={payment.id} value={payment.id}>{payment.name} · {formatDueDate(payment.dueDate)} · previsto {formatMinor(payment.amount_minor, 'COP', hidden)}</option>)}</select></label>
         {!nearbyPayments.length && <p className="info-note">No hay vencimientos pendientes cerca de la fecha del correo.</p>}
         {recurringPayment && <div className="info-note" role="status"><p><strong>Previsto:</strong> {formatMinor(recurringPayment.amount_minor, 'COP', hidden)}. <strong>Real:</strong> {actualAmount === null ? 'Verifica el importe' : formatMinor(actualAmount, 'COP', hidden)}.</p><p>{formatAmountDifference(amountDifference, hidden)}</p><p>Al confirmar, se registrará el monto real y esta fecha quedará pagada. Las próximas fechas conservarán el monto previsto.</p></div>}
       </>}
-      {needsFrom && <AccountSelect label="Cuenta de origen" value={from} setValue={setFrom} accounts={activeAccounts.filter((account) => type === 'expense' || account.kind === 'asset')} />}
-      {needsTo && <AccountSelect label="Cuenta de destino" value={to} setValue={setTo} accounts={activeAccounts.filter((account) => account.id !== from && (type === 'refund' || account.kind === (type === 'card_payment' ? 'liability' : 'asset')))} />}
-      {needsCategory && <div className="field"><span>Categoría</span><div className="input-with-action"><select aria-label="Categoría" required value={category} onChange={(event) => setCategory(event.target.value)}><option value="">Selecciona…</option>{categories.filter((entry) => entry.type === categoryType).map((entry) => <option key={entry.id} value={entry.id}>{entry.name}</option>)}</select><button type="button" className="icon-button" aria-label="Crear categoría" disabled={busy} onClick={() => setAddingCategory(true)}><Plus aria-hidden="true" /></button></div></div>}
-      <label className="check-row"><input type="checkbox" checked={distinct} onChange={(event) => setDistinct(event.target.checked)} /> Si hay otro movimiento similar, confirmo que este es distinto.</label>
+      {type === 'transfer' ? <div className="bank-review-account-flow"><AccountSelect label="Sale de" value={from} setValue={setFrom} accounts={activeAccounts.filter((account) => account.kind === 'asset')} /><ArrowLeftRight className="bank-review-account-flow__arrow" aria-hidden="true" /><AccountSelect label="Llega a" value={to} setValue={setTo} accounts={activeAccounts.filter((account) => account.id !== from && account.kind === 'asset')} /></div> : <>
+        {needsFrom && <AccountSelect label="Cuenta de origen" value={from} setValue={setFrom} accounts={activeAccounts.filter((account) => type === 'expense' || account.kind === 'asset')} />}
+        {needsTo && <AccountSelect label="Cuenta de destino" value={to} setValue={setTo} accounts={activeAccounts.filter((account) => account.id !== from && (type === 'refund' || account.kind === (type === 'card_payment' ? 'liability' : 'asset')))} />}
+      </>}
+      {needsCategory && <>
+        <div className="field"><span>Categoría</span><div className="input-with-action"><select aria-label="Categoría" required value={category} onChange={(event) => setCategory(event.target.value)}><option value="">Selecciona…</option>{categories.filter((entry) => entry.type === categoryType).map((entry) => <option key={entry.id} value={entry.id}>{entry.name}</option>)}</select><button type="button" className="icon-button" aria-label="Crear categoría" disabled={busy} onClick={() => setAddingCategory(true)}><Plus aria-hidden="true" /></button></div></div>
+        {categorySuggestion && category === categorySuggestion && <p className="info-note">Sugerida por una regla exacta que confirmaste antes para este comercio.</p>}
+        {type === 'expense' && candidate.counterparty && candidate.counterparty.length <= 120 && category && matchingRule?.category_id !== category && <label className="check-row"><input type="checkbox" checked={rememberCategory} onChange={(event) => setRememberCategory(event.target.checked)} /> Recordar esta categoría para futuras compras de este comercio</label>}
+      </>}
+      {duplicateConflict && <>
+        <p className="info-note">Encontré un movimiento con el mismo monto y una hora cercana. Si es el mismo, elige «Ya está registrado». Si es distinto, confírmalo abajo.</p>
+        <label className="check-row"><input type="checkbox" checked={distinct} onChange={(event) => setDistinct(event.target.checked)} /> Es otro movimiento distinto; regístralo por separado.</label>
+      </>}
+      </section>
     </>}
     {action === 'link' && <label className="field"><span>Movimiento ya registrado</span><select required value={transaction} onChange={(event) => setTransaction(event.target.value)}><option value="">Selecciona…</option>{transactions.filter((entry) => entry.status === 'recorded').map((entry) => <option key={entry.id} value={entry.id}>{entry.occurred_at.slice(0, 10)} · {entry.merchant_name || TYPES[entry.type] || entry.type} · {formatMinor(entry.amount_minor, 'COP', hidden)}</option>)}</select></label>}
-    {action && <label className="check-row"><input required type="checkbox" checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} /> Revisé el movimiento y confirmo esta decisión.</label>}
+    {action === 'dismiss' && <p className="info-note">El aviso se quitará de “Por revisar”. No se creará ningún movimiento ni cambiarán tus saldos.</p>}
     {error && <p className="form-error" role="alert">{error}</p>}
-    <button className="button button--primary" disabled={busy || !action || !confirmed || (action === 'record' && hidden)}>{busy ? 'Confirmando…' : 'Confirmar decisión'}</button>
+    {action && <button className="button button--primary bank-review-submit" disabled={busy || (action === 'record' && (!type || hidden || (duplicateConflict && !distinct))) || (action === 'link' && !transaction)}>{busy ? 'Guardando…' : action === 'record' ? <><Check aria-hidden="true" />{CONFIRM_LABELS[type]}</> : action === 'link' ? 'Vincular al movimiento' : 'Descartar aviso'}</button>}
   </form>
   {addingCategory && <CategoryDialog type={categoryType} close={() => setAddingCategory(false)} onCreated={categoryCreated} />}
   </>

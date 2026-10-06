@@ -58,3 +58,9 @@
   .notifications-inbox__refresh:disabled svg { animation: none; }
   .notifications-inbox__item, .notifications-inbox__chevron { transition: none; }
 }
+/* Al revisar un aviso, libera la parte inferior de la pantalla; la barra vuelve al cerrarlo. */
+@media (max-width: 999px) {
+  .calm-app:has(.notifications-inbox__item[open]) .calm-navigation { display: none; }
+  .calm-app:has(.notifications-inbox__item[open]) .page { padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
+  .calm-app:has(.notifications-inbox__item[open]) .notifications-inbox__item .bank-email-review { padding-bottom: calc(18px + env(safe-area-inset-bottom)); }
+}

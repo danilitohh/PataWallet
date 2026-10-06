@@ -37,7 +37,7 @@ src/
 supabase/migrations/      # Esquema PostgreSQL y políticas RLS
 api/push/                 # Funciones Node de suscripción, prueba y outbox
 api/shortcuts/            # Vinculación, eventos, reglas, mapeos y revisión
-shortcuts/                # Blueprint y metadatos; no es un .shortcut importable
+shortcuts/                # Atajo firmado, contrato y metadatos de publicación
 ```
 
 Cada `feature` puede contener subcarpetas `components/` y `model/`. Las reglas monetarias permanecen fuera de React en `domain/`, y las pantallas no acceden a detalles de inicialización de la aplicación.
@@ -59,7 +59,7 @@ La documentación oficial de instrucciones de Codex se encuentra en `docs/07_FUE
 - `ABRIR_CATALOGO.html`, un catálogo local de los recursos incluidos. Es documentación visual, no un prototipo de la app.
 
 ## Qué NO incluye
-No hay personajes separados por capas, parpadeos dibujados, mallas de animación, Rive, Lottie, vídeos, credenciales, un enlace de iCloud publicado ni comprobaciones con un iPhone real. Las ilustraciones son **raster, estáticas y con fondo opaco**. No representan fielmente a las mascotas reales de Danilo porque no se aportaron sus fotografías.
+No hay personajes separados por capas, parpadeos dibujados, mallas de animación, Rive, Lottie, vídeos ni credenciales. El atajo oficial tiene un enlace iCloud publicado; aún no se ha confirmado desde el iPhone una captura completa de Wallet. Las ilustraciones son **raster, estáticas y con fondo opaco**. No representan fielmente a las mascotas reales de Danilo porque no se aportaron sus fotografías.
 
 El ZIP opcional de originales contiene las cuatro ilustraciones PNG, los tres mockups PNG y un póster adicional de inspiración. No es necesario para iniciar el desarrollo. Al descomprimirlo en el mismo lugar, añade `design/originals/` y `design/references-originals/`. No colocar estas carpetas en `public/`.
 

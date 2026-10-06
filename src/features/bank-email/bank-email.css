@@ -1,13 +1,83 @@
-/* Reutiliza superficies cristal y controles existentes; evita desbordes de direcciones privadas. */
+/* Formulario de revisión como una tarjeta guiada, con jerarquía visual para monto y decisión. */
 .bank-email-page .integration-card { min-width: 0; }
 .bank-email-page .integration-glass-hero p { grid-column: 1; }
 .bank-email-page .integration-card > p { line-height: 1.6; }
 .bank-email-page ol { padding-left: 1.5rem; display: grid; gap: 1rem; }
 .bank-email-page .calm-details { overflow-wrap: anywhere; }
 .bank-email-page .notification-actions { flex-wrap: wrap; align-items: center; }
-.bank-email-review { display: grid; gap: 1rem; padding: 1rem 0; }
+.bank-email-review { display: grid; gap: .95rem; padding: 1.1rem 0 .35rem; }
 .bank-email-review select, .bank-email-page input { width: 100%; min-width: 0; max-width: 100%; }
 .bank-email-page .check-row input { width: auto; flex: 0 0 auto; }
+.bank-review-trust { display: grid; grid-template-columns: 34px minmax(0, 1fr); align-items: start; gap: 10px; padding: 12px 14px; border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--border)); border-left: 3px solid var(--accent); border-radius: 15px; background: color-mix(in srgb, var(--accent-soft) 46%, var(--surface)); }
+.bank-review-trust > svg { width: 21px; height: 21px; margin-top: 2px; color: var(--accent); }
+.bank-review-trust p { display: grid; gap: 3px; margin: 0; color: var(--text-2); font-size: .75rem; line-height: 1.45; }
+.bank-review-trust strong { color: var(--text); font-size: .8rem; }
+.bank-review-intents { min-width: 0; margin: 0; padding: 0; border: 0; display: grid; gap: .7rem; }
+.bank-review-intents legend { margin-bottom: 0; padding: 0; color: var(--text); font-size: .94rem; font-weight: 760; }
+.bank-review-intents__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; }
+.bank-review-intents__grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.bank-review-intent { position: relative; min-width: 0; min-height: 70px; padding: 11px 12px; display: grid; grid-template-columns: 34px minmax(0, 1fr) 16px; align-items: center; gap: 9px; border: 1px solid var(--border); border-radius: 16px; background: color-mix(in srgb, var(--surface) 80%, transparent); color: var(--text); font: inherit; text-align: left; cursor: pointer; transition: border-color 150ms ease, background-color 150ms ease, transform 150ms ease; }
+.bank-review-intent__icon { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 12px; background: var(--surface-muted); color: var(--text-2); }
+.bank-review-intent__icon svg { width: 18px; height: 18px; }
+.bank-review-intent__copy { min-width: 0; display: grid; gap: 3px; }
+.bank-review-intent__copy strong { font-size: .8rem; line-height: 1.25; }
+.bank-review-intent__copy small { color: var(--text-2); font-size: .68rem; line-height: 1.3; }
+.bank-review-intent__check { width: 16px; height: 16px; color: var(--accent); }
+.bank-review-intent.is-selected { border-color: var(--accent); background: color-mix(in srgb, var(--accent-soft) 72%, var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 32%, transparent); }
+.bank-review-intent.is-selected .bank-review-intent__icon { background: color-mix(in srgb, var(--accent) 15%, var(--surface)); color: var(--accent); }
+.bank-review-intent:focus-visible, .bank-review-more summary:focus-visible, .bank-review-more__choices button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.bank-review-type-note { margin: 0; padding: 10px 12px; border-radius: 12px; background: var(--surface-muted); color: var(--text-2); font-size: .76rem; line-height: 1.45; }
+.bank-review-entry { min-width: 0; display: grid; gap: .85rem; padding: 14px; border: 1px solid color-mix(in srgb, var(--accent) 18%, var(--border)); border-radius: 20px; background: color-mix(in srgb, var(--surface) 88%, var(--accent-soft)); }
+.bank-review-amount { min-width: 0; display: grid; gap: 8px; }
+.bank-review-amount__label { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--text-2); font-size: .74rem; font-weight: 680; }
+.bank-review-amount__label small { padding: 4px 7px; border-radius: 999px; background: color-mix(in srgb, var(--accent-soft) 78%, var(--surface)); color: var(--accent); font-size: .62rem; font-weight: 700; white-space: nowrap; }
+.bank-review-amount__control { min-width: 0; min-height: 70px; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; padding: 8px 14px; border: 1px solid color-mix(in srgb, var(--accent) 36%, var(--border)); border-radius: 16px; background: var(--surface); box-shadow: inset 0 1px 0 #ffffff08; }
+.bank-review-amount__control > span { color: var(--text-2); font-size: .72rem; font-weight: 750; letter-spacing: .04em; }
+.bank-review-amount__control input { min-height: 48px; padding: 0; border: 0; background: transparent; box-shadow: none; color: var(--text); font-size: clamp(1.45rem, 6vw, 1.8rem); font-variant-numeric: tabular-nums; font-weight: 780; letter-spacing: -.035em; text-align: right; }
+.bank-review-amount__control input:focus { outline: none; }
+.bank-review-date { gap: 6px; }
+.bank-review-account-flow { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr); align-items: end; gap: 8px; }
+.bank-review-account-flow__arrow { width: 18px; height: 18px; justify-self: center; margin-bottom: 13px; color: var(--accent); }
+.bank-review-entry .field { min-width: 0; }
+.bank-review-entry .info-note { margin: 0; }
+.bank-review-entry .check-row { margin-top: 0; }
+.bank-review-more { border-top: 1px solid var(--border); padding-top: .7rem; }
+.bank-review-more summary { min-height: 38px; display: inline-flex; align-items: center; gap: 7px; list-style: none; color: var(--text-2); font-size: .76rem; font-weight: 650; cursor: pointer; }
+.bank-review-more summary::-webkit-details-marker { display: none; }
+.bank-review-more summary svg { width: 17px; height: 17px; color: var(--accent); }
+.bank-review-more[open] summary { margin-bottom: .5rem; color: var(--text); }
+.bank-review-more__choices { display: flex; flex-wrap: wrap; gap: 8px; }
+.bank-review-more__choices button { min-height: 40px; padding: 7px 11px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); color: var(--text-2); font: inherit; font-size: .74rem; cursor: pointer; }
+.bank-review-more__choices button.is-selected { border-color: var(--accent); background: var(--accent-soft); color: var(--text); }
+.bank-review-submit { min-height: 54px; margin-top: .05rem; display: inline-flex; align-items: center; justify-content: center; gap: 9px; border-radius: 16px; font-size: .9rem; font-weight: 750; }
+.bank-review-submit svg { width: 18px; height: 18px; }
+@media (min-width: 620px) {
+  .bank-review-intents__grid, .bank-review-intents__grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .bank-review-entry { padding: 18px; }
+}
+@media (max-width: 767px) {
+  .notifications-inbox__item .bank-email-review { padding-bottom: calc(128px + env(safe-area-inset-bottom)); }
+}
+@media (max-width: 390px) {
+  .bank-review-intents__grid { gap: 7px; }
+  .bank-review-intent { min-height: 66px; grid-template-columns: 30px minmax(0, 1fr) 14px; gap: 7px; padding: 9px; }
+  .bank-review-intent__icon { width: 30px; height: 30px; border-radius: 10px; }
+  .bank-review-intent__copy strong { font-size: .75rem; }
+  .bank-review-intent__copy small { font-size: .64rem; }
+  .bank-review-entry { padding: 11px; }
+  .bank-review-account-flow { grid-template-columns: minmax(0, 1fr) 18px minmax(0, 1fr); gap: 5px; }
+}
+@media (max-width: 619px) {
+  .bank-review-intents__grid--3 .bank-review-intent { min-height: 76px; grid-template-columns: minmax(0, 1fr); grid-template-rows: 28px minmax(0, 1fr); justify-items: center; gap: 4px; padding: 8px 4px; text-align: center; }
+  .bank-review-intents__grid--3 .bank-review-intent__icon { width: 28px; height: 28px; }
+  .bank-review-intents__grid--3 .bank-review-intent__copy { align-self: start; }
+  .bank-review-intents__grid--3 .bank-review-intent__copy strong { font-size: .67rem; line-height: 1.15; }
+  .bank-review-intents__grid--3 .bank-review-intent__copy small { display: none; }
+  .bank-review-intents__grid--3 .bank-review-intent__check { position: absolute; top: 5px; right: 5px; width: 13px; height: 13px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bank-review-intent { transition: none; }
+}
 
 /* Proveedores dentro del módulo existente; el estado nunca depende solo del color. */
 .mail-connections { display: grid; gap: 16px; }

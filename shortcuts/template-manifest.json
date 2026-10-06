@@ -1,10 +1,11 @@
 {
-  "artifact_type": "blueprint_not_importable",
-  "shortcutName": "PataWallet · Registrar compra",
-  "templateVersion": "1.0.0-blueprint",
-  "shortcutIcloudUrl": null,
+  "artifact_type": "signed_apple_shortcut",
+  "shortcutName": "PataWallet - Registrar compra",
+  "templateVersion": "1.0.0",
+  "shortcutIcloudUrl": "https://www.icloud.com/shortcuts/8062e3a7c10748a7aceaf47b9d0fdb19",
+  "signedArtifact": "artifacts/PataWallet-Registrar-compra.shortcut",
   "minSupportedVersionTested": null,
-  "availability": "pending",
+  "availability": "published_pending_iphone_validation",
   "modes": ["pair", "connection_test", "capture"],
   "retryPending": {
     "available": false,

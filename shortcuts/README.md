@@ -1,25 +1,27 @@
-# Blueprint de “PataWallet · Registrar compra”
+# Atajo “PataWallet - Registrar compra”
 
-Este directorio no contiene un `.shortcut` y `template-manifest.json` no es importable. En este equipo Windows no están disponibles la app Atajos, la firma de Apple ni un iPhone para verificar los nombres y tipos de las acciones. Por eso la app mantiene `availability: pending` y desactiva “Añadir atajo”. El usuario final no debe construir estas acciones: este documento es el procedimiento de producción para la persona responsable del proyecto.
+`artifacts/PataWallet-Registrar-compra.shortcut` es el artefacto Apple firmado y corregido localmente. El 5 de octubre de 2026 se publicó desde Atajos para macOS un enlace iCloud nuevo que contiene la clave HTTP exacta `Authorization`: https://www.icloud.com/shortcuts/8062e3a7c10748a7aceaf47b9d0fdb19. Production de Vercel entrega ese enlace con el nombre `PataWallet - Registrar compra` y versión `1.0.0`; el despliegue final es `HmRNaiiNBVTVXFZL2tabkqDHhcRN`. Ni el artefacto ni el enlace contienen ticket o token.
+
+El atajo publicado contiene versión `1.0.0` y conserva el nombre que selecciona la automatización personal. La corrección del encabezado se verificó en el editor de Atajos para macOS antes de crear el enlace nuevo, y la ficha de Apple carga con el nombre correcto. En el iPhone se comprobó que la automatización Wallet está activa para cualquiera de seis tarjetas/pases y que mapea tarjeta/pase, comercio y cantidad al atajo de captura. La plantilla ya está publicada en el enlace que sirve la microapp; falta instalar/actualizar esa versión en el iPhone y ejecutar una prueba de conexión sin efectos financieros. No se hizo un POST autenticado ni una compra de prueba.
 
 ## Contrato fijo
 
-- Nombre: `PataWallet · Registrar compra`.
-- Versión inicial de blueprint: `1.0.0-blueprint`.
+- Nombre: `PataWallet - Registrar compra`.
+- Versión observada en el atajo publicado: `1.0.0`.
 - Modos incluidos: `pair`, `connection_test` y `capture`.
 - `retry_pending` queda excluido. Si una solicitud falla, la plantilla debe mostrar “No se pudo enviar; este evento no quedó en cola”.
 - Origen API: constante HTTPS del despliegue autorizado. No se pregunta ni acepta un destino arbitrario.
 - Credencial: 32 bytes aleatorios emitidos una sola vez por `POST /api/shortcuts/pair`; se guarda localmente mediante acciones de Archivos. No afirmar que es Keychain. Elegir “En mi iPhone”, no iCloud Drive, y comprobar en el dispositivo si Atajos puede leer/escribir de forma persistente sin interacción. Si no puede, la vinculación no se considera exitosa.
 - Nunca incluir un token, ticket usado, correo, identificador de usuario ni datos de tarjeta en la plantilla que se comparte.
 
-## Acciones que debe construir el responsable en Apple Shortcuts
+## Contrato del atajo
 
 La primera acción recibe Texto. Convertirlo a diccionario y leer `mode`.
 
 ### `pair`
 
 1. Leer `ticket` del texto recibido mediante `shortcuts://run-shortcut`.
-2. Crear JSON `{ "ticket": <ticket>, "template_version": "1.0.0-blueprint" }`.
+2. Crear JSON `{ "ticket": <ticket>, "template_version": "1.0.0" }`.
 3. `Obtener contenido de URL`: POST a `<ORIGEN_FIJO>/api/shortcuts/pair`, cuerpo JSON.
 4. Exigir respuesta con `token`, `device_id`, `expires_at` y el mismo origen fijo. Un error termina con aviso; no guardar un estado parcial.
 5. Guardar un diccionario JSON con esos valores en una ubicación local privada de la app Atajos, reemplazando la configuración anterior solo después de verificar que el archivo nuevo puede releerse. Si el guardado o la relectura falla, no mostrar “vinculado”; el propietario debe revocar el dispositivo incompleto desde PataWallet.
@@ -41,13 +43,11 @@ La primera acción recibe Texto. Convertirlo a diccionario y leer `mode`.
 
 Compatibilidad: el receptor también acepta `amount` como pesos decimales (por ejemplo `32500` o `32500.50`) y lo convierte a unidades menores. `amount_minor` sigue siendo el contrato preferido. Texto con separadores localizados ambiguos o dos campos de monto contradictorios no se interpretan y quedan para revisión.
 
-## Producir el artefacto real
+## Publicación y validación
 
-1. Crear la plantilla anterior en un iPhone o Mac dedicado al proyecto y verificar cada acción con una base aislada.
-2. Exportar/compartir el atajo sin credenciales. Si se distribuye como archivo desde macOS, usar las herramientas oficiales disponibles allí para firmarlo; no renombrar JSON como `.shortcut`.
-3. Importarlo en un segundo dispositivo limpio y confirmar que no contiene token, ticket ni URL editable.
-4. Publicar desde Atajos mediante “Copiar enlace de iCloud”, abrir el enlace en un dispositivo sin la plantilla y confirmar nombre/versión/acciones.
-5. Solo después, configurar en el servidor `SHORTCUT_ICLOUD_URL`, `SHORTCUT_TEMPLATE_VERSION`, `SHORTCUT_NAME` y `SHORTCUT_MIN_IOS_TESTED`; desplegar requiere autorización separada.
-6. Ejecutar la hoja `docs/FASE_4_PRUEBAS_IPHONE.md`. Hasta completar toda la evidencia, no cambiar `availability` a disponible ni decir que Wallet está sincronizada.
+1. El enlace oficial corregido ya está publicado desde Atajos para macOS: https://www.icloud.com/shortcuts/8062e3a7c10748a7aceaf47b9d0fdb19. El enlace anterior de septiembre se reemplazó en Production porque su copia compartida tenía un espacio final en `Authorization`.
+2. La variable `SHORTCUT_ICLOUD_URL` en Production de Vercel ya apunta al enlace nuevo; `SHORTCUT_TEMPLATE_VERSION=1.0.0` y `SHORTCUT_NAME=PataWallet - Registrar compra` coinciden con la plantilla. El despliegue final quedó Ready en `https://pata-wallet.vercel.app`.
+3. Instalar/actualizar desde el enlace nuevo en el iPhone y confirmar que la automatización Wallet selecciona esa copia del atajo.
+4. Ejecutar `docs/FASE_4_PRUEBAS_IPHONE.md`: primero vinculación y prueba de conexión sin crear movimientos; después observar una compra habitual compatible. El simulador no valida pagos sin contacto reales; esa prueba requiere iPhone físico.
 
 Apple documenta que el disparador Transacción se activa al tocar una tarjeta seleccionada, que Atajos puede hacer solicitudes HTTP y que los atajos pueden compartirse por iCloud. Esas capacidades no garantizan el payload ni compras online, con tarjeta física o desde Apple Watch.

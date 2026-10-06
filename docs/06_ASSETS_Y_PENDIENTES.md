@@ -32,7 +32,7 @@ Antes de animación interna: elegir un personaje maestro, definir sus rasgos y a
 También faltan un logo aislado y los iconos técnicos PWA finales. Codex puede proponer un icono simple propio y un wordmark provisional, señalándolos para aprobación. No extraer logos de bancos ni distribuir fuentes de pago.
 
 ## Publicación del atajo
-No hay enlace iCloud ni `.shortcut` importable en este paquete. Se incluyen el flujo, blueprint y contrato para que el proyecto lo construya, valide y publique. No introducir un enlace inventado ni afirmar que el usuario ya tiene la automatización instalada.
+El atajo oficial está publicado en iCloud: `https://www.icloud.com/shortcuts/8062e3a7c10748a7aceaf47b9d0fdb19`. El paquete contiene además un `.shortcut` Apple firmado. La publicación está conectada a la microapp, pero falta instalar/actualizar en el iPhone y verificar la prueba de conexión y una captura real compatible; no afirmar que el usuario ya tiene la versión nueva instalada.
 
 ## Criterio de alcance
 La primera versión puede tener una experiencia muy cuidada con las cuatro escenas estáticas y microinteracciones. Esto no equivale a haber producido todo el sistema de mascotas animadas. Mantener esa distinción en la entrega de Codex.

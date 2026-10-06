@@ -2,7 +2,6 @@ import { assertBodySize, assertTrustedOrigin, allowMethod, json } from '../serve
 import { canonicalEventHash, mappingSchema, normalizeLabel, normalizeShortcutEvent, pairSchema, pairingTicketSchema, reviewSchema, randomSecret, sha256, shortcutEventSchema, templateMetadata } from '../server/api-lib/shortcut-contract.js'
 import { authorizedShortcut, shortcutError } from '../server/api-lib/shortcut-server.js'
 import { categoryRuleHandler } from '../server/api-lib/shortcut-rules.js'
-import { classifyMerchantCategory } from '../server/api-lib/shortcut-category-ai.js'
 import { adminClient, authenticatedUser } from '../server/api-lib/supabase-server.js'
 
 // Unifica las rutas de Atajos para respetar el límite de funciones del plan Hobby.
@@ -191,7 +190,6 @@ async function eventsHandler(req, res) {
     if (!structurallyValid.success) return json(res, 400, { error: 'El evento no cumple el contrato de PataWallet.' })
     const event = normalizeShortcutEvent(structurallyValid.data)
     const { admin, authorization } = await authorizedShortcut(req, 'event')
-    await saveAgreedCategoryRule(admin, authorization.user_id, event)
     const { data, error } = await admin.rpc('server_ingest_shortcut_event', {
       p_user_id: authorization.user_id, p_device_id: authorization.device_id, p_event_id: event.event_id, p_request_hash: canonicalEventHash(event),
       p_occurred_at: event.occurred_at, p_amount_minor: event.amount_minor, p_currency: event.currency, p_merchant_name: event.merchant_name,
@@ -200,39 +198,6 @@ async function eventsHandler(req, res) {
     if (error) throw error
     return json(res, data.status === 'conflict' ? 409 : 200, { ...data, financial_effect: Boolean(data.transaction_id) })
   } catch (error) { const safe = shortcutError(error); return json(res, safe.status, { error: safe.message }) }
-}
-
-// Recuerda una regla exacta solo cuando dos modelos acuerdan; cualquier fallo conserva el flujo actual.
-async function saveAgreedCategoryRule(admin, userId, event) {
-  try {
-    const apiKey = process.env.OPENAI_API_KEY?.trim()
-    if (!apiKey || !event.normalized_merchant || !event.card_alias || !event.amount_minor || event.currency !== 'COP' || !event.occurred_at) return
-    const [{ data: prior }, { data: mapping }, { data: rules }, { data: categoryRows }] = await Promise.all([
-      admin.from('incoming_events').select('id').eq('user_id', userId).eq('event_id', event.event_id).maybeSingle(),
-      admin.from('card_mappings').select('id').eq('user_id', userId).eq('normalized_alias', event.normalized_card_alias).eq('active', true).maybeSingle(),
-      admin.from('category_rules').select('id').eq('user_id', userId).eq('active', true).eq('normalized_pattern', event.normalized_merchant).limit(1),
-      admin.from('categories').select('id,name').eq('user_id', userId).eq('type', 'expense').neq('name', 'Sin categoría'),
-    ])
-    if (prior || !mapping || rules?.length || !categoryRows?.length) return
-    const names = [...new Set(categoryRows.map((category) => category.name))]
-    const name = await classifyMerchantCategory({
-      geminiApiKey: process.env.GEMINI_API_KEY?.trim(),
-      openAiApiKey: apiKey,
-      geminiModel: process.env.GEMINI_MODEL?.trim() || 'gemini-2.5-flash',
-      verifierModel: process.env.OPENAI_CATEGORY_MODEL?.trim() || 'gpt-4o-mini',
-      arbiterModel: process.env.OPENAI_CATEGORY_REVIEW_MODEL?.trim() || 'gpt-5-mini',
-      merchant: event.merchant_name,
-      categories: names,
-    })
-    const category = categoryRows.find((item) => item.name === name)
-    if (!category) return
-    await admin.from('category_rules').upsert({
-      user_id: userId, merchant_pattern: event.merchant_name, normalized_pattern: event.normalized_merchant,
-      category_id: category.id, priority: 100, active: true, updated_at: new Date().toISOString(),
-    }, { onConflict: 'user_id,match_type,normalized_pattern', ignoreDuplicates: true })
-  } catch {
-    // ponytail: no IA is a safe fallback; the existing review flow handles uncategorized events.
-  }
 }
 
 // Declara o revoca una automatización de un dispositivo propio.

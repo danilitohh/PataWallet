@@ -4,9 +4,11 @@ import { Bell, CheckCircle2, ChevronDown, RefreshCw } from 'lucide-react'
 import { useApp } from '../../app/AppContext.jsx'
 import { formatMinor } from '../../domain/money.js'
 import { bankEmailRequest, resolveBankEmail } from '../../services/bank-email/bankEmailClient.js'
+import { saveCategoryRule } from '../../services/shortcuts/shortcutClient.js'
 import { NightIcon } from '../../shared/components/NightIcon.jsx'
 import { PageHeader } from '../../shared/components/PageHeader.jsx'
 import { BankEmailReview } from '../bank-email/BankEmailReview.jsx'
+import { bankEmailParseIssue } from '../bank-email/parseReasons.js'
 import './notifications-inbox.css'
 
 // Presents pending bank-email alerts without mixing them with connection settings.
@@ -19,7 +21,7 @@ function NotificationsInbox({ app }) {
   const location = useLocation()
   const reviewId = new URLSearchParams(location.search).get('review')
   const { isDemo, user, accounts, categories, transactions, settings, actions, notify } = app
-  const [data, setData] = useState({ events: [], has_more: false })
+  const [data, setData] = useState({ events: [], has_more: false, category_rules: [] })
   const [page, setPage] = useState(0)
   const [loading, setLoading] = useState(!isDemo)
   const [error, setError] = useState('')
@@ -53,16 +55,20 @@ function NotificationsInbox({ app }) {
   }, [refresh])
 
   // Resolving an alert updates its pending badge and then syncs confirmed ledger changes.
-  const resolve = async (id, action, payload, transactionId, distinct, recurringPayment) => {
+  const resolve = async (id, action, payload, transactionId, distinct, recurringPayment, categoryRule) => {
     await resolveBankEmail(id, action, payload, transactionId, distinct, recurringPayment)
+    let categoryRuleSaved = true
+    if (categoryRule) {
+      try { await saveCategoryRule(categoryRule) } catch { categoryRuleSaved = false }
+    }
     await refresh()
     try {
       await actions.retrySync()
     } catch {
-      notify('Decisión guardada. Reintenta la sincronización para actualizar tus saldos.')
+      notify(categoryRule && !categoryRuleSaved ? 'Decisión guardada; no pude recordar la categoría. Reintenta la sincronización para actualizar tus saldos.' : 'Decisión guardada. Reintenta la sincronización para actualizar tus saldos.')
       return
     }
-    notify(recurringPayment ? `${recurringPayment.name} pagado y registrado` : 'Decisión guardada')
+    notify(categoryRule && !categoryRuleSaved ? 'Movimiento registrado, pero no pude recordar la categoría.' : recurringPayment ? `${recurringPayment.name} pagado y registrado` : categoryRule ? 'Decisión guardada; usaré esta categoría para futuras compras de este comercio.' : 'Decisión guardada')
   }
 
   return <div className="route-stack notifications-inbox">
@@ -91,7 +97,8 @@ function NotificationsInbox({ app }) {
           </span>
         </summary>
         <p className="notifications-inbox__date">{item.candidate.occurred_at ? new Date(item.candidate.occurred_at).toLocaleString('es-CO', { timeZone: 'America/Bogota' }) : 'Fecha por confirmar'}</p>
-        <BankEmailReview item={item} accounts={accounts} categories={categories} transactions={transactions} hidden={settings.hiddenAmounts} fixedExpenses={settings.fixedExpenses} payFrequency={settings.payFrequency} nextPayDate={settings.nextPayDate} resolve={resolve} />
+        {bankEmailParseIssue(item.candidate.review_reasons) && <p className="info-note" role="status">{bankEmailParseIssue(item.candidate.review_reasons)}</p>}
+        <BankEmailReview item={item} accounts={accounts} categories={categories} transactions={transactions} hidden={settings.hiddenAmounts} fixedExpenses={settings.fixedExpenses} payFrequency={settings.payFrequency} nextPayDate={settings.nextPayDate} resolve={resolve} categoryRules={data.category_rules} />
       </details>)}</div>
       {!error && (page > 0 || data.has_more) && <nav className="notifications-inbox__pagination" aria-label="Paginación de avisos">
         <button type="button" className="button button--secondary" disabled={!page || loading} onClick={() => setPage(page - 1)}>Anterior</button>

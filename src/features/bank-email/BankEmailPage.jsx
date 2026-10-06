@@ -5,9 +5,11 @@ import { IntegrationsHeader } from '../integrations/components/IntegrationsHeade
 import { GlassHero } from '../../shared/components/GlassHero.jsx'
 import { NightIcon } from '../../shared/components/NightIcon.jsx'
 import { formatMinor } from '../../domain/money.js'
+import { saveCategoryRule } from '../../services/shortcuts/shortcutClient.js'
 import { bankEmailRequest, resolveBankEmail } from '../../services/bank-email/bankEmailClient.js'
 import { BankEmailReview } from './BankEmailReview.jsx'
 import { MailConnections } from './MailConnections.jsx'
+import { bankEmailParseIssue } from './parseReasons.js'
 import './bank-email.css'
 
 // Aísla todo estado de recepción al cambiar de usuario y evita peticiones en la demo.
@@ -19,7 +21,7 @@ export function BankEmailPage() {
 // Bandeja de recepción, no de sincronización bancaria. Refresca al regresar y mediante acción explícita.
 function BankEmailContent({ app }) {
   const { isDemo, accounts, categories, transactions, settings, actions, notify } = app
-  const [data, setData] = useState({ configured: false, inbox: null, events: [], has_more: false })
+  const [data, setData] = useState({ configured: false, inbox: null, events: [], has_more: false, category_rules: [] })
   const [loading, setLoading] = useState(!isDemo)
   const [error, setError] = useState('')
   const [consent, setConsent] = useState(false)
@@ -45,11 +47,18 @@ function BankEmailContent({ app }) {
     setBusy(true); setError('')
     try { await bankEmailRequest(method); await refresh() } catch (issue) { setError(issue.message) } finally { setBusy(false) }
   }
-  const resolve = async (id, action, payload, transactionId, distinct, recurringPayment) => {
+  const resolve = async (id, action, payload, transactionId, distinct, recurringPayment, categoryRule) => {
     await resolveBankEmail(id, action, payload, transactionId, distinct, recurringPayment)
+    let categoryRuleSaved = true
+    if (categoryRule) {
+      try { await saveCategoryRule(categoryRule) } catch { categoryRuleSaved = false }
+    }
     await refresh()
-    try { await actions.retrySync() } catch { notify('Decisión guardada. Reintenta la sincronización para actualizar tus saldos.'); return }
-    notify(recurringPayment ? `${recurringPayment.name} pagado y registrado` : 'Decisión guardada')
+    try { await actions.retrySync() } catch {
+      notify(categoryRule && !categoryRuleSaved ? 'Decisión guardada; no pude recordar la categoría. Reintenta la sincronización para actualizar tus saldos.' : 'Decisión guardada. Reintenta la sincronización para actualizar tus saldos.')
+      return
+    }
+    notify(categoryRule && !categoryRuleSaved ? 'Movimiento registrado, pero no pude recordar la categoría.' : recurringPayment ? `${recurringPayment.name} pagado y registrado` : categoryRule ? 'Decisión guardada; usaré esta categoría para futuras compras de este comercio.' : 'Decisión guardada')
   }
   return <div className="route-stack bank-email-page">
     <IntegrationsHeader title="Correos bancarios" subtitle="Conecta tu correo o reenvía avisos bancarios. Revisa cada movimiento antes de registrarlo." />
@@ -84,7 +93,7 @@ function BankEmailContent({ app }) {
     {!isDemo && <section className="integration-card" aria-busy={loading}>
       <h2>Por revisar</h2><p>El envío y la recepción pueden describir una misma transferencia. Puedes vincular ambos al movimiento existente.</p>
       {!data.events.length && <p>{loading ? 'Cargando…' : 'No hay correos pendientes en esta página.'}</p>}
-      {data.events.map((item) => <details className="calm-details" key={item.id}><summary>{item.candidate.counterparty || item.bank} · {item.candidate.amount_minor ? formatMinor(item.candidate.amount_minor, 'COP', settings.hiddenAmounts) : 'Monto por confirmar'}</summary><p>Banco: {item.bank}. {item.candidate.direction === 'incoming' ? 'Aviso de entrada' : item.candidate.direction === 'outgoing' ? 'Aviso de salida' : 'Formato no reconocido'}. Moneda y cuentas por confirmar.</p><BankEmailReview item={item} accounts={accounts} categories={categories} transactions={transactions} hidden={settings.hiddenAmounts} fixedExpenses={settings.fixedExpenses} payFrequency={settings.payFrequency} nextPayDate={settings.nextPayDate} resolve={resolve} /></details>)}
+      {data.events.map((item) => <details className="calm-details" key={item.id}><summary>{item.candidate.counterparty || item.bank} · {item.candidate.amount_minor !== null && item.candidate.amount_minor !== undefined ? formatMinor(item.candidate.amount_minor, 'COP', settings.hiddenAmounts) : 'Monto por confirmar'}</summary><p>Banco: {item.bank}. {item.candidate.direction === 'incoming' ? 'Aviso de entrada' : item.candidate.direction === 'outgoing' ? 'Aviso de salida' : 'Formato no reconocido'}. Moneda y cuentas por confirmar.</p>{bankEmailParseIssue(item.candidate.review_reasons) && <p className="info-note" role="status">{bankEmailParseIssue(item.candidate.review_reasons)}</p>}<BankEmailReview item={item} accounts={accounts} categories={categories} transactions={transactions} hidden={settings.hiddenAmounts} fixedExpenses={settings.fixedExpenses} payFrequency={settings.payFrequency} nextPayDate={settings.nextPayDate} resolve={resolve} categoryRules={data.category_rules} /></details>)}
       <div className="notification-actions"><button className="button button--secondary" disabled={!page || loading} onClick={() => setPage(page - 1)}>Anterior</button><span>Página {page + 1}</span><button className="button button--secondary" disabled={!data.has_more || loading} onClick={() => setPage(page + 1)}>Siguiente</button></div>
     </section>}
   </div>

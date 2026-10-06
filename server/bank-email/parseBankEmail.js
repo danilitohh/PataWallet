@@ -23,7 +23,8 @@ const PATTERNS = {
     { direction: 'outgoing', kind: 'transfer_notice', pattern: /Realizaste una transferencia a (?<party>[^\n]{1,160}?) por\s*\$(?<amount>[\d.,]+)(?=\s|$)/gi },
     { direction: 'incoming', kind: 'transfer_notice', pattern: /Recibiste\s*\$(?<amount>[\d.,]+)\s+de\s+(?<party>[^\n]{1,160}?)(?=\s+Origen cuenta\b)/gi },
     // Plantilla conocida de compra; no captura los datos impresos de tarjeta, cuenta o comprobante.
-    { direction: 'outgoing', kind: 'card_purchase_notice', pattern: /Realizaste una compra en (?<party>[^\n]{1,160}?) por\s*\$(?<amount>[\d.,]+)(?=\s|$)/gi },
+    // El importe se captura aunque el comercio tenga saltos de línea, espacios extra o no se identifique.
+    { direction: 'outgoing', kind: 'card_purchase_notice', pattern: /Realizaste\s+una\s+compra\s+en(?:\s+(?<party>[\s\S]{1,160}?))?\s+por\s+\$\s*(?<amount>[\d.,]{1,20})(?=\s|$)/gi },
   ],
   bancolombia: [
     { direction: 'outgoing', kind: 'transfer_notice', pattern: /Transferiste\s*\$(?<amount>[\d.,]+) desde tu cuenta (?<account>\d{4}) a la cuenta \*?\d{4,20}(?=\s|$)/gi },
@@ -40,11 +41,28 @@ const PATTERNS = {
 function readAmount(value, bank) {
   try {
     if (bank === 'nequi') return parseLocalizedAmount(value)
-    if (!/^(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d{1,2})?$/.test(value)) return null
+    const internationalFormat = /^(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d{1,2})?$/.test(value)
+    const luloLocalFormat = bank === 'lulo' && /^(?:\d{1,3}(?:\.\d{3})+|\d+)(?:,\d{1,2})?$/.test(value)
+    if (luloLocalFormat) return parseLocalizedAmount(value)
+    if (!internationalFormat) return null
     return parseLocalizedAmount(value.replaceAll(',', '').replace('.', ','))
   } catch {
     return null
   }
+}
+
+// Si cambió la plantilla, rescata el monto solo cuando los valores marcados con $ son inequívocos.
+function readUniqueMarkedAmount(text, bank) {
+  const markedAmounts = [...text.matchAll(/\$\s*(?<amount>\d+(?:[.,]\d{3})*(?:[.,]\d{1,2})?)(?=\s|[^\d,]|$)/g)]
+  if (!markedAmounts.length) return null
+  const parsed = markedAmounts.map((match) => readAmount(match.groups.amount, bank))
+  if (parsed.some((amount) => amount === null)) return null
+  const unique = new Set(parsed)
+  return unique.size === 1 ? parsed[0] : null
+}
+
+function readCurrency(text) {
+  return /\bCOP\b/.test(text) && !/\b(?:USD|EUR)\b/.test(text) ? 'COP' : null
 }
 
 // Usa la fecha de operación del texto, nunca la recepción del correo ni la fecha del dispositivo.
@@ -98,11 +116,19 @@ export function parseBankEmail(input) {
   const matches = (PATTERNS[bank] || []).flatMap(({ pattern, ...type }) =>
     [...text.matchAll(pattern)].map((match) => ({ ...type, ...match.groups })),
   )
-  if (matches.length !== 1) return { ...result, review_reasons: [...result.review_reasons, matches.length ? 'multiple_operations' : 'unsupported_template'] }
+  if (matches.length !== 1) {
+    if (!matches.length) {
+      result.amount_minor = readUniqueMarkedAmount(text, bank)
+      result.currency = readCurrency(text)
+      if (!result.currency) result.review_reasons.push('currency_confirmation_required')
+      if (result.amount_minor === null) result.review_reasons.push('amount_missing_or_ambiguous')
+    }
+    return { ...result, review_reasons: [...result.review_reasons, matches.length ? 'multiple_operations' : 'unsupported_template'] }
+  }
   const match = matches[0]
   result.direction = match.direction
   result.notice_kind = match.kind
-  result.amount_minor = readAmount(match.amount, bank)
+  result.amount_minor = readAmount(match.amount, bank) ?? readUniqueMarkedAmount(text, bank)
   result.occurred_at = readDate(text, bank, match.kind)
   result.counterparty = match.party?.trim() || null
   // Bre-B identifica la cuenta receptora en «Destino ahorro»; no exponer la cuenta de origen.
@@ -112,8 +138,8 @@ export function parseBankEmail(input) {
   result.account_last4 = match.account || text.match(accountPattern)?.[1] || null
   result.bank_reference = text.match(/(?:ID\. transacción\s*[•·:]|CUS:)\s*(\d{4,40})\b/i)?.[1] || null
   // «$» solo no determina moneda. Confirmarla evita registrar dólares como pesos.
-  if (/\bCOP\b/.test(text) && !/\b(?:USD|EUR)\b/.test(text)) result.currency = 'COP'
-  else result.review_reasons.push('currency_confirmation_required')
+  result.currency = readCurrency(text)
+  if (!result.currency) result.review_reasons.push('currency_confirmation_required')
   if (result.amount_minor === null) result.review_reasons.push('amount_missing_or_ambiguous')
   if (!result.occurred_at) result.review_reasons.push('date_missing_or_invalid')
   return result
