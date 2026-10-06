@@ -29,7 +29,7 @@ const movementSchema = z.object({
   date: z.string().min(10),
 })
 
-export function MovementSheet({ transaction, initialFlow = 'expense', initialDebtId, onClose, preview = false }) {
+export function MovementSheet({ transaction, initialFlow = 'expense', initialDebtId, initialValues, onSaved, onClose, preview = false }) {
   const { accounts, categories, notify, actions } = useApp()
   const editing = Boolean(transaction)
   const startingFlow = transaction?.type === 'card_payment' ? 'debt' : transaction?.type || initialFlow
@@ -37,16 +37,16 @@ export function MovementSheet({ transaction, initialFlow = 'expense', initialDeb
   const type = flow === 'debt' ? 'transfer' : flow
   const assets = accounts.filter((item) => item.kind === 'asset' && !item.archived)
   const activeAccounts = accounts.filter((item) => !item.archived)
-  const [amount, setAmount] = useState(transaction ? toInputAmount(transaction.amount_minor) : '')
+  const [amount, setAmount] = useState(transaction ? toInputAmount(transaction.amount_minor) : Number.isSafeInteger(initialValues?.amountMinor) ? toInputAmount(initialValues.amountMinor) : '')
   const [account, setAccount] = useState(transaction?.from_account_id || assets[0]?.id || '')
   // Los accesos directos solo preseleccionan el formulario; no registran pagos automáticamente.
   const [destination, setDestination] = useState(transaction?.to_account_id || (initialFlow === 'debt' ? activeAccounts.find((item) => item.kind === 'liability' && (!initialDebtId || item.id === initialDebtId))?.id : assets[0]?.id) || '')
   const [category, setCategory] = useState(transaction?.category_id || '')
-  const [date, setDate] = useState(transaction?.occurred_at?.slice(0, 10) || today())
+  const [date, setDate] = useState(transaction?.occurred_at?.slice(0, 10) || initialValues?.date || today())
   const existingClock = transaction?.occurred_at ? new Date(transaction.occurred_at).toLocaleTimeString('en-GB', { timeZone: 'America/Bogota', hour: '2-digit', minute: '2-digit' }) : ''
-  const [time, setTime] = useState(existingClock === '12:00' ? '' : existingClock)
-  const [note, setNote] = useState(transaction?.note || transaction?.merchant_name || '')
-  const [showDetails, setShowDetails] = useState(editing)
+  const [time, setTime] = useState(transaction ? (existingClock === '12:00' ? '' : existingClock) : initialValues?.time || '')
+  const [note, setNote] = useState(transaction?.note || transaction?.merchant_name || initialValues?.note || '')
+  const [showDetails, setShowDetails] = useState(editing || Boolean(initialValues?.time))
   const [showTransfer, setShowTransfer] = useState(startingFlow === 'transfer')
   const existingReceipt = useApp().receipts?.find((item) => item.transaction_id === transaction?.id)
   const [receipt, setReceipt] = useState(existingReceipt?.data_url || '')
@@ -126,7 +126,7 @@ export function MovementSheet({ transaction, initialFlow = 'expense', initialDeb
       if ((type === 'expense' || type === 'income') && !category) throw new Error('Elige una categoría.')
       const storedType = flow === 'debt' ? 'card_payment' : type
       const record = {
-        id: transaction?.id || makeId('transaction'),
+        id: transaction?.id || initialValues?.transactionId || makeId('transaction'),
         type: storedType,
         amount_minor: minor,
         currency: 'COP',
@@ -148,6 +148,11 @@ export function MovementSheet({ transaction, initialFlow = 'expense', initialDeb
         notify('Movimiento deshecho')
       } : null)
       onClose()
+      if (onSaved) {
+        Promise.resolve().then(() => onSaved(record)).catch(() => {
+          notify('Movimiento guardado, pero el aviso sigue pendiente. Actualiza Notificaciones cuando tengas conexión.')
+        })
+      }
     } catch (issue) {
       setError(issue instanceof z.ZodError ? 'Completa los campos obligatorios.' : issue.message)
     } finally {

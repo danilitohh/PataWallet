@@ -19,13 +19,12 @@ test('la campana abre solo la bandeja de notificaciones', async ({ page }, testI
   await expect(page.getByText('Conecta tu correo', { exact: true })).toHaveCount(0)
 })
 
-// Un ingreso recibido y el pago posterior de una deuda son movimientos distintos.
-test('un aviso entrante sugiere ingreso y permite crear su categoría durante la revisión', async ({ page }) => {
+test('un correo entrante abre Nuevo movimiento precargado y asocia el aviso después de guardar', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.route('**/src/services/bank-email/bankEmailClient.js', (route) => route.fulfill({ contentType: 'application/javascript', body: `
     export async function bankEmailRequest() { return structuredClone(window.inboxData); }
-    export async function bankEmailSummary() { return { pending: 1 }; }
-    export async function resolveBankEmail(...args) { window.savedDecision = args; }
+    export async function bankEmailSummary() { return { pending: window.inboxData.events.length }; }
+    export async function resolveBankEmail(...args) { window.savedDecision = args; window.inboxData.events = []; }
   ` }))
   await page.route('**/__notifications-test**', (route) => route.fulfill({ contentType: 'text/html', body: `
     <html lang="es" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/src/styles/app.css"><link rel="stylesheet" href="/src/styles/night.css"></head>
@@ -36,66 +35,77 @@ test('un aviso entrante sugiere ingreso y permite crear su categoría durante la
       await import('/tests/e2e/fixtures/notifications-inbox-harness.jsx');
     </script></body></html>
   ` }))
-  await page.goto('/__notifications-test?review=550e8400-e29b-41d4-a716-446655440000')
-
-  await expect(page.getByRole('heading', { name: 'Notificaciones' })).toBeVisible()
+  await page.goto('/__notifications-test')
   await expect(page.getByText('1 movimiento necesita tu confirmación')).toBeVisible()
-  await expect(page.getByLabel('Qué hacer con este correo')).toBeVisible()
-  await page.getByLabel('Qué hacer con este correo').selectOption('record')
-  const type = page.getByLabel('Tipo de movimiento')
-  await expect(type).toHaveValue('income')
-  await expect(type.locator('option[value="card_payment"]')).toHaveCount(0)
-  await expect(page.getByText(/Si luego lo usas para abonar una deuda/)).toBeVisible()
-  await expect(page.getByLabel('Monto confirmado en COP')).toHaveValue('1.000.000')
-  await page.getByRole('button', { name: 'Crear categoría' }).click()
-  const categoryDialog = page.getByRole('dialog', { name: 'Nueva categoría' })
-  await categoryDialog.getByLabel('Nombre').fill('Aporte de pareja')
-  await categoryDialog.getByRole('button', { name: 'Crear categoría' }).click()
-  await expect(categoryDialog).toBeHidden()
-  await expect(page.getByLabel('Categoría').locator('option:checked')).toHaveText('Aporte de pareja')
-  await page.getByLabel('Cuenta de destino').selectOption('lulo')
-  await expect(page.getByRole('button', { name: 'Confirmar decisión' })).toBeDisabled()
-  await page.getByRole('checkbox', { name: 'Revisé el movimiento y confirmo esta decisión.' }).check()
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
-  await page.getByRole('button', { name: 'Confirmar decisión' }).click()
-  await expect.poll(() => page.evaluate(() => window.savedDecision?.[2])).toMatchObject({
-    type: 'income', amount_minor: 100000000, from_account_id: null, to_account_id: 'lulo', category_id: expect.any(String),
+  await page.getByRole('button', { name: 'Abrir registro de movimiento de Persona ejemplo' }).click()
+
+  const sheet = page.getByRole('dialog', { name: 'Nuevo movimiento' })
+  await expect(sheet).toBeVisible()
+  await expect(sheet.getByRole('button', { name: 'Recibí dinero' })).toHaveAttribute('aria-pressed', 'true')
+  await expect(sheet.getByLabel('Monto')).toHaveValue('1.000.000')
+  await expect(sheet.getByLabel('Comercio o nota')).toHaveValue('Persona ejemplo')
+  await expect(sheet.getByLabel('Fecha')).toHaveValue('2026-09-30')
+  await expect(sheet.getByLabel('Hora')).toHaveValue('10:18')
+  await expect(sheet.getByLabel('Categoría', { exact: true })).toHaveValue('')
+  await sheet.getByLabel('Categoría', { exact: true }).selectOption('income-category')
+  await sheet.getByLabel('¿Dónde lo recibiste?').selectOption('lulo')
+  await sheet.getByRole('button', { name: 'Guardar movimiento' }).click()
+  await expect(sheet).toBeHidden()
+
+  await expect.poll(() => page.evaluate(() => window.savedTransaction)).toMatchObject({
+    id: 'bank-email-550e8400-e29b-41d4-a716-446655440000',
+    type: 'income', amount_minor: 100000000, from_account_id: null, to_account_id: 'lulo',
+    category_id: 'income-category', merchant_name: 'Persona ejemplo', note: 'Persona ejemplo',
+    occurred_at: '2026-09-30T10:18:00-05:00',
   })
+  await expect.poll(() => page.evaluate(() => window.savedDecision?.slice(0, 2))).toEqual([
+    '550e8400-e29b-41d4-a716-446655440000', 'link',
+  ])
+  await expect.poll(() => page.evaluate(() => window.savedDecision?.[3])).toBe('bank-email-550e8400-e29b-41d4-a716-446655440000')
+  await expect(page.getByText('Todo al día')).toBeVisible()
 })
 
-// Un monto real distinto del previsto se registra una vez y cierra solo esa ocurrencia.
-test('un correo de mercado se vincula al vencimiento y conserva el monto previsto futuro', async ({ page }) => {
+test('un correo de compra abre el editor normal y deja la categoría para selección manual', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.route('**/src/services/bank-email/bankEmailClient.js', (route) => route.fulfill({ contentType: 'application/javascript', body: `
     export async function bankEmailRequest() { return structuredClone(window.inboxData); }
-    export async function bankEmailSummary() { return { pending: 1 }; }
-    export async function resolveBankEmail(...args) { window.savedDecision = args; }
+    export async function bankEmailSummary() { return { pending: window.inboxData.events.length }; }
+    export async function resolveBankEmail(...args) { window.savedDecision = args; window.inboxData.events = []; }
   ` }))
   await page.route('**/__notifications-test**', (route) => route.fulfill({ contentType: 'text/html', body: `
     <html lang="es" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/src/styles/app.css"><link rel="stylesheet" href="/src/styles/night.css"></head>
     <body><main id="root"></main><script type="module">
       import RefreshRuntime from '/@react-refresh';
       RefreshRuntime.injectIntoGlobalHook(window); window.$RefreshReg$ = () => {}; window.$RefreshSig$ = () => (type) => type; window.__vite_plugin_react_preamble_installed__ = true;
-      window.inboxData = { has_more: false, events: [{ id: '550e8400-e29b-41d4-a716-446655440001', bank: 'Lulo', candidate: { counterparty: 'MERCADO PAGO D1*DISAS', amount_minor: 55430000, occurred_at: '2026-09-30T22:54:00.000Z', direction: 'outgoing', notice_kind: 'transfer_notice' } }] };
+      window.inboxData = { has_more: false, events: [{ id: '550e8400-e29b-41d4-a716-446655440001', bank: 'Lulo', candidate: { counterparty: 'PRIMOR COLOMBIA ÉXITO', amount_minor: 11130000, occurred_at: '2026-10-03T23:24:00.000Z', direction: 'outgoing' } }] };
       await import('/tests/e2e/fixtures/notifications-inbox-harness.jsx');
     </script></body></html>
   ` }))
-  await page.goto('/__notifications-test?review=550e8400-e29b-41d4-a716-446655440001')
+  await page.goto('/__notifications-test')
+  await page.getByRole('button', { name: 'Abrir registro de movimiento de PRIMOR COLOMBIA ÉXITO' }).click()
 
-  await page.getByLabel('Qué hacer con este correo').selectOption('record')
-  await page.getByLabel('Tipo de movimiento').selectOption('expense')
-  await page.getByLabel('Vincular gasto fijo (opcional)').selectOption('market:2026-09-30')
-  await expect(page.getByLabel('Monto confirmado en COP')).toHaveValue('554.300')
-  await expect(page.getByText('154.300 por encima de lo previsto.')).toBeVisible()
-  await expect(page.getByLabel('Categoría').locator('option:checked')).toHaveText('Mercado')
-  await page.getByLabel('Cuenta de origen').selectOption('lulo')
-  await page.getByRole('checkbox', { name: 'Revisé el movimiento y confirmo esta decisión.' }).check()
-  await page.getByRole('button', { name: 'Confirmar decisión' }).click()
+  const sheet = page.getByRole('dialog', { name: 'Nuevo movimiento' })
+  await expect(sheet).toBeVisible()
+  await expect(sheet.getByRole('button', { name: 'Hice una compra' })).toHaveAttribute('aria-pressed', 'true')
+  await expect(sheet.getByLabel('Monto')).toHaveValue('111.300')
+  await expect(sheet.getByLabel('Comercio o nota')).toHaveValue('PRIMOR COLOMBIA ÉXITO')
+  await expect(sheet.getByLabel('Fecha')).toHaveValue('2026-10-03')
+  await expect(sheet.getByLabel('Hora')).toHaveValue('18:24')
+  await expect(sheet.getByLabel('Categoría', { exact: true })).toHaveValue('')
 
-  await expect.poll(() => page.evaluate(() => window.savedDecision?.[2])).toMatchObject({
-    type: 'expense', amount_minor: 55430000, from_account_id: 'lulo', category_id: 'market-category',
+  for (const viewport of [{ width: 390, height: 844 }, { width: 375, height: 812 }, { width: 1440, height: 900 }]) {
+    await page.setViewportSize(viewport)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  }
+  await page.setViewportSize({ width: 390, height: 844 })
+  await sheet.getByLabel('Categoría', { exact: true }).selectOption('market-category')
+  await sheet.getByLabel('¿Con qué pagaste?').selectOption('lulo')
+  await sheet.getByRole('button', { name: 'Guardar movimiento' }).click()
+
+  await expect.poll(() => page.evaluate(() => window.savedTransaction)).toMatchObject({
+    id: 'bank-email-550e8400-e29b-41d4-a716-446655440001',
+    type: 'expense', amount_minor: 11130000, from_account_id: 'lulo', category_id: 'market-category',
+    merchant_name: 'PRIMOR COLOMBIA ÉXITO', occurred_at: '2026-10-03T18:24:00-05:00',
   })
-  await expect.poll(() => page.evaluate(() => window.savedDecision?.[5])).toMatchObject({
-    expenseId: 'market', dueDate: '2026-09-30', name: 'Mercado',
-  })
+  await expect.poll(() => page.evaluate(() => window.savedDecision?.[1])).toBe('link')
 })

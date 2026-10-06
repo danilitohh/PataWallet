@@ -21,6 +21,7 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
   const toastTimer = useRef(null)
   const systemReduce = useReducedMotion()
   const reduceMotion = settingsMap.motion === 'off' || Boolean(systemReduce)
+  const prefilledSheet = sheet?.kind === 'prefilled' ? sheet : null
 
   useEffect(() => {
     const root = document.documentElement
@@ -66,7 +67,7 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
     <AppContext.Provider value={value}>
       <MotionConfig reducedMotion={reduceMotion ? 'always' : 'user'}>
         <AppShell><AppRoutes /></AppShell>
-        <AnimatePresence>{sheet && <MovementSheet transaction={typeof sheet === 'object' ? sheet : null} initialFlow={sheet === 'income' ? 'income' : typeof sheet === 'string' && sheet.startsWith('debt') ? 'debt' : 'expense'} initialDebtId={typeof sheet === 'string' && sheet.startsWith('debt:') ? sheet.slice(5) : undefined} onClose={() => setSheet(null)} />}</AnimatePresence>
+        <AnimatePresence>{sheet && <MovementSheet transaction={typeof sheet === 'object' && !prefilledSheet ? sheet : null} initialFlow={prefilledSheet?.initialFlow || (sheet === 'income' ? 'income' : typeof sheet === 'string' && sheet.startsWith('debt') ? 'debt' : 'expense')} initialDebtId={typeof sheet === 'string' && sheet.startsWith('debt:') ? sheet.slice(5) : undefined} initialValues={prefilledSheet?.initialValues} onSaved={prefilledSheet?.onSaved} onClose={() => setSheet(null)} />}</AnimatePresence>
         <AnimatePresence>{toast && <Toast toast={toast} close={dismissToast} />}</AnimatePresence>
         <PwaUpdatePrompt />
         {guideOpen && <FirstUseGuide tour={guideOpen} onFinish={finishGuide} />}

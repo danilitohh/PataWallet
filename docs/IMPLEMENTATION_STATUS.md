@@ -1,13 +1,19 @@
 # Estado de implementación
 
+## Registro de correos desde Nuevo movimiento · 5 de octubre de 2026
+
+- Tocar un aviso abre el mismo panel «Nuevo movimiento» usado en Inicio, Actividad y las demás secciones. Precarga el monto detectado, comercio/nota y fecha/hora en America/Bogota; la categoría queda para selección manual.
+- El movimiento se guarda mediante la acción habitual del libro. Usa un identificador ligado al aviso y, tras sincronizar el movimiento, marca el correo como vinculado; nunca vuelve a crear un segundo asiento desde el endpoint del correo. Si no se puede asociar por falta de conexión, el movimiento sigue guardado y el aviso queda pendiente.
+- La bandeja no cambia de ruta ni despliega campos propios de correo dentro de cada fila. El panel compartido gestiona su cierre y validaciones habituales.
+- Verificado: lint, build y `notifications-inbox.spec.js` (9/9) en Chromium de escritorio y móvil emulado. El formulario se comprobó sin desbordamiento horizontal a 390×844, 375×812 y 1440×900; los avisos y transacciones de la prueba son sintéticos.
+- `npm test`: 198/200. Siguen fallando las dos expectativas preexistentes de `tests/api/bank-email.test.js` (`7,90.0` y separadores alternos de Lulo); esta edición no modifica el parser. No probado en iPhone real ni con una sesión bancaria real.
+
 ## Lectura y categoría sugerida de correos bancarios · 5 de octubre de 2026
 
 - El parser ya no depende de que coincida toda la plantilla para mostrar el monto: si identifica un banco y encuentra un único importe explícito con `$`, lo precarga aunque el texto del correo haya cambiado. Si hay importes distintos o formatos numéricos dudosos, no adivina y pide revisión. Para Lulo acepta tanto `$111,300.00` como `$111.300,00`.
 - El ejemplo de Lulo «Realizaste una compra en PRIMOR COLOMBIA ÉXITO por $111,300.00» se prepara para precargar COP 111.300 en el campo y el resumen. Comercio y categoría son independientes; la categoría puede elegirse manualmente.
-- La bandeja muestra ahora el motivo de lectura cuando el formato no coincide o el monto/fecha quedan ambiguos. No conserva ni vuelve a pedir el cuerpo del mensaje.
-- En cada aviso, los botones para elegir directamente gasto, ingreso, transferencia, deuda o reembolso reemplazan los menús consecutivos de acción y tipo. «Ya está registrado» y «Descartar aviso» quedan como rutas alternativas; el botón final nombra la decisión y funciona como confirmación explícita. La casilla para forzar el registro de un posible duplicado aparece solo si el servidor detecta una coincidencia. Se deja espacio de desplazamiento al pie para que la navegación inferior no tape los últimos controles en móvil.
-- Rediseñada visualmente la revisión: aviso de confianza compacto, opciones de movimiento con iconos y selección marcada, importe destacado, origen/destino en una fila para transferencias, y rutas de vincular o descartar agrupadas bajo «Más opciones». En móvil las opciones caben en una fila cuando son tres; la navegación inferior se oculta solo mientras el aviso está abierto y vuelve al cerrarlo. La decisión financiera y los campos obligatorios siguen requiriendo confirmación explícita. Falta revisar la composición en iPhone real.
-- Los avisos reutilizan reglas de comercio exactas creadas y confirmadas desde Atajos. En la revisión de un correo, la categoría se propone pero sigue bajo confirmación; la persona puede pedir recordar su selección para compras futuras del mismo comercio.
+- No se conserva ni se vuelve a pedir el cuerpo del mensaje. Si un aviso no trae un monto usable, el renglón dice «Monto por confirmar» y el campo del editor queda vacío para completar.
+- El registro desde la bandeja reutiliza el editor habitual: permite gasto o ingreso según la dirección detectada y deja la categoría bajo decisión manual. La lista muestra fecha, comercio, monto detectado o «Monto por confirmar».
 - No se usa IA ni se cambia el registro automático. Los avisos pendientes nuevos muestran el monto extraído aunque el formato no esté soportado; los avisos antiguos sin monto no se pueden recalcular porque el cuerpo no se conserva. `eslint .` y `vite build` pasan localmente con Node 24.19.0; el proyecto declara Node 22.x. No ejecuté pruebas automatizadas. Revisé visualmente el aviso y la transferencia en la PWA publicada con navegador integrado; falta probar medidas exactas de 390×844 y 375×812, escritorio y iPhone real.
 - Desplegado a Production en Vercel como `dpl_9m6fbVXEDoiopYoLJWTXYyacti4n`, Ready y con alias `https://pata-wallet.vercel.app`. No se alteró ni confirmó ningún movimiento durante la revisión. El escaneo de logs de errores de la última hora no encontró registros.
 
