@@ -23,24 +23,16 @@
 .wallet-card-picker h1, .wallet-entry h1 { font-size: clamp(1.7rem, 7vw, 2.35rem); letter-spacing: -.055em; line-height: 1.1; }
 .wallet-card-picker__intro { max-width: 38ch; margin: 10px auto 4px; color: #b8c2d4; font-size: .9rem; line-height: 1.5; }
 .wallet-card-picker__carousel { width: 100%; display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; align-items: center; gap: 3px; margin-top: 11px; }
-.wallet-card-picker__art { width: min(100%, 285px); height: min(38svh, 325px); min-height: 230px; justify-self: center; display: grid; place-items: center; }
-.wallet-card-picker__art img { display: block; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 19px 30px #0008); animation: wallet-card-arrive 220ms ease-out both; }
+.wallet-card-picker__art { position: relative; width: min(100%, 285px); height: min(38svh, 325px); min-height: 230px; justify-self: center; display: grid; place-items: start center; overflow: visible; outline-offset: 5px; touch-action: pan-y; cursor: grab; -webkit-tap-highlight-color: transparent; }
+.wallet-card-picker__art:active { cursor: grabbing; }
+.wallet-card-picker__art::after { content: ''; position: absolute; z-index: 0; right: 12%; bottom: 1px; left: 12%; height: 19px; border-radius: 50%; background: radial-gradient(ellipse at center, #000b 0%, #0007 42%, transparent 76%); box-shadow: 0 6px 15px color-mix(in srgb, var(--wallet-accent) 28%, transparent); filter: blur(5px); pointer-events: none; }
+.wallet-card-picker__art img { position: relative; z-index: 1; display: block; width: 100%; height: calc(100% - 14px); object-fit: contain; filter: drop-shadow(0 15px 24px #0007); animation: wallet-card-slide-next 260ms cubic-bezier(.2,.75,.25,1) both; }
+.wallet-card-picker__art img[data-direction="previous"] { animation-name: wallet-card-slide-previous; }
 .wallet-card-picker__arrow { width: 44px; height: 44px; display: grid; place-items: center; border: 1px solid #ffffff21; border-radius: 50%; background: #ffffff08; color: #e9e3ff; }
 .wallet-card-picker__arrow svg { width: 19px; height: 19px; }
 .wallet-card-picker__selected { min-height: 45px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 9px; color: #bec8da; font-size: .74rem; }
 .wallet-card-picker__selected strong { color: #fff; font-size: .95rem; }
 .wallet-card-picker__selected small { color: #8794aa; font-size: .68rem; }
-.wallet-card-picker__choices { width: min(100%, 410px); display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; margin: 4px 0 16px; }
-.wallet-card-picker__choices button { grid-column: span 2; }
-.wallet-card-picker__choices button:nth-child(4) { grid-column: 2 / span 2; }
-.wallet-card-picker__choices button:nth-child(5) { grid-column: 4 / span 2; }
-.wallet-card-picker__choices button { min-width: 0; min-height: 46px; display: flex; align-items: center; justify-content: center; gap: 7px; padding: 5px 8px; border: 1px solid #ffffff18; border-radius: 14px; background: #121e32; color: #c4ccda; font-size: .72rem; font-weight: 660; transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease; }
-.wallet-card-picker__choices button[aria-pressed="true"] { border-color: color-mix(in srgb, var(--wallet-accent) 65%, #ffffff); background: color-mix(in srgb, var(--wallet-accent) 12%, #121e32); color: #fff; box-shadow: 0 0 0 2px color-mix(in srgb, var(--wallet-accent) 15%, transparent); }
-.wallet-card-picker__swatch { width: 13px; height: 13px; flex: 0 0 13px; border: 1px solid #ffffff5c; border-radius: 50%; background: #21b8b2; }
-.wallet-card-picker__swatch--cats { background: #754ad1; }
-.wallet-card-picker__swatch--dogs { background: #d57932; }
-.wallet-card-picker__swatch--rabbits { background: #d6a5e8; }
-.wallet-card-picker__swatch--otters { background: #c49e59; }
 .wallet-card-flow__actions { width: min(100%, 380px); display: grid; gap: 9px; }
 .wallet-card-flow__actions .button { min-height: 52px; border-radius: 16px; background: var(--wallet-accent); color: #11182a; font-size: .9rem; font-weight: 780; box-shadow: 0 8px 24px color-mix(in srgb, var(--wallet-accent) 23%, transparent); }
 .wallet-card-flow__actions .button:disabled { opacity: .65; }
@@ -54,22 +46,21 @@
 .wallet-entry__card:active { transform: scale(.975); }
 .wallet-entry__hint { margin: 12px 0 6px; color: #d2d8e4; font-size: .88rem; }
 .wallet-entry__content > .wallet-card-flow__cancel { margin-top: 8px; }
-.wallet-card-flow button:focus-visible { outline: 3px solid var(--wallet-accent); outline-offset: 3px; }
-@keyframes wallet-card-arrive { from { opacity: .65; transform: translateY(5px) scale(.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.wallet-card-flow button:focus-visible, .wallet-card-picker__art:focus-visible { outline: 3px solid var(--wallet-accent); outline-offset: 3px; }
+@keyframes wallet-card-slide-next { from { opacity: .55; transform: translateX(28px) scale(.985); } to { opacity: 1; transform: translateX(0) scale(1); } }
+@keyframes wallet-card-slide-previous { from { opacity: .55; transform: translateX(-28px) scale(.985); } to { opacity: 1; transform: translateX(0) scale(1); } }
 @media (max-height: 740px) {
   .wallet-card-flow { padding-block: max(12px, env(safe-area-inset-top)) max(15px, env(safe-area-inset-bottom)); }
   .wallet-card-flow__eyebrow { margin-top: 7px; }
   .wallet-card-picker__intro { margin-block: 7px 0; font-size: .82rem; }
   .wallet-card-picker__art { height: min(33svh, 250px); min-height: 190px; }
-  .wallet-card-picker__choices { margin-bottom: 10px; }
   .wallet-entry__card { max-height: min(47svh, 340px); }
 }
 @media (prefers-reduced-motion: reduce) {
   .wallet-card-picker__art img { animation: none; }
-  .wallet-card-picker__choices button, .wallet-entry__card { transition: none; }
+  .wallet-entry__card { transition: none; }
   .wallet-entry__card:active { transform: none; }
 }
 html[data-motion="off"] .wallet-card-picker__art img { animation: none; }
-html[data-motion="off"] .wallet-card-picker__choices button,
 html[data-motion="off"] .wallet-entry__card { transition: none; }
 html[data-motion="off"] .wallet-entry__card:active { transform: none; }

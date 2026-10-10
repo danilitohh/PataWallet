@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight, PawPrint } from 'lucide-react'
 import { WALLET_CARDS, walletCardById } from './walletCardModel.js'
 
@@ -6,12 +6,35 @@ export function WalletCardPicker({ currentStyle, required = false, onSelect, onC
   const [selected, setSelected] = useState(walletCardById(currentStyle)?.id || WALLET_CARDS[0].id)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const [direction, setDirection] = useState(1)
+  const swipeStartX = useRef(null)
   const card = walletCardById(selected) || WALLET_CARDS[0]
   const index = WALLET_CARDS.findIndex(({ id }) => id === card.id)
 
   const move = (offset) => {
     const next = (index + offset + WALLET_CARDS.length) % WALLET_CARDS.length
+    setDirection(offset)
     setSelected(WALLET_CARDS[next].id)
+  }
+
+  const handleKeyDown = (event) => {
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+      event.preventDefault()
+      move(event.key === 'ArrowRight' ? 1 : -1)
+    }
+  }
+
+  const handlePointerDown = (event) => {
+    if (event.pointerType === 'mouse' && event.button !== 0) return
+    swipeStartX.current = event.clientX
+    event.currentTarget.setPointerCapture(event.pointerId)
+  }
+
+  const handlePointerUp = (event) => {
+    if (swipeStartX.current === null) return
+    const distance = event.clientX - swipeStartX.current
+    swipeStartX.current = null
+    if (Math.abs(distance) >= 44) move(distance < 0 ? 1 : -1)
   }
 
   const save = async () => {
@@ -32,25 +55,28 @@ export function WalletCardPicker({ currentStyle, required = false, onSelect, onC
       <section className="wallet-card-picker" aria-labelledby="wallet-card-title">
         <p className="wallet-card-flow__eyebrow">Tu billetera, a tu manera</p>
         <h1 id="wallet-card-title">Elige tu tarjeta</h1>
-        <p className="wallet-card-picker__intro">Escoge la portada que te acompañará al abrir PataWallet. Puedes cambiarla después.</p>
+        <p className="wallet-card-picker__intro">Desliza la tarjeta o usa las flechas para ver las cinco portadas. Puedes cambiarla después.</p>
 
-        <div className="wallet-card-picker__carousel" aria-live="polite">
+        <div className="wallet-card-picker__carousel" role="group" aria-label="Diseños de tarjeta">
           <button className="wallet-card-picker__arrow" type="button" onClick={() => move(-1)} aria-label="Ver diseño anterior" disabled={busy}><ChevronLeft aria-hidden="true" /></button>
-          <div className="wallet-card-picker__art">
-            <img key={card.id} src={card.image} alt={card.alt} width="640" height="800" fetchPriority="high" decoding="async" />
+          <div
+            className="wallet-card-picker__art"
+            role="group"
+            aria-roledescription="diapositiva"
+            aria-label={`Tarjeta ${card.name}, ${index + 1} de ${WALLET_CARDS.length}`}
+            aria-live="polite"
+            tabIndex={0}
+            onKeyDown={handleKeyDown}
+            onPointerDown={handlePointerDown}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={() => { swipeStartX.current = null }}
+          >
+            <img key={card.id} data-direction={direction > 0 ? 'next' : 'previous'} src={card.image} alt={card.alt} width="640" height="800" fetchPriority="high" decoding="async" draggable="false" />
           </div>
           <button className="wallet-card-picker__arrow" type="button" onClick={() => move(1)} aria-label="Ver diseño siguiente" disabled={busy}><ChevronRight aria-hidden="true" /></button>
         </div>
 
         <div className="wallet-card-picker__selected"><strong>{card.name}</strong><span>{card.description}</span><small>{index + 1} de {WALLET_CARDS.length}</small></div>
-        <div className="wallet-card-picker__choices" role="group" aria-label="Diseños de tarjeta">
-          {WALLET_CARDS.map((option) => (
-            <button key={option.id} type="button" aria-pressed={selected === option.id} onClick={() => setSelected(option.id)} disabled={busy}>
-              <span className={`wallet-card-picker__swatch wallet-card-picker__swatch--${option.id}`} aria-hidden="true" />
-              <span>{option.name}</span>
-            </button>
-          ))}
-        </div>
 
         {error && <p className="wallet-card-flow__error" role="alert">{error}</p>}
         <div className="wallet-card-flow__actions">
@@ -75,7 +101,7 @@ export function WalletEntry({ cardStyle, onOpen, onChange }) {
         <p className="wallet-card-flow__eyebrow">Tu espacio financiero</p>
         <h1 id="wallet-entry-title">Tu billetera está lista</h1>
         <button className="wallet-entry__card" type="button" onClick={onOpen} aria-label={`Abrir PataWallet con la tarjeta ${card.name}`}>
-          <img src={card.image} alt={card.alt} width="640" height="800" fetchPriority="high" decoding="async" />
+          <img src={card.image} alt={card.alt} width="640" height="800" fetchPriority="high" decoding="async" draggable="false" />
         </button>
         <p className="wallet-entry__hint">Toca la tarjeta para abrir</p>
         <button className="wallet-card-flow__cancel" type="button" onClick={onChange}>Cambiar diseño</button>
