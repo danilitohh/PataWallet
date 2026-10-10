@@ -6,11 +6,12 @@ import { SettingLink, SettingRow, Switch } from './components/SettingsControls.j
 import { DataTransfer } from './components/DataTransfer.jsx'
 import { PwaInstallControl } from '../pwa/PwaInstallControl.jsx'
 import { GUIDE_TOURS } from '../onboarding/guideSteps.js'
+import { walletCardById } from '../onboarding/walletCardModel.js'
 import { GlassHero } from '../../shared/components/GlassHero.jsx'
 
 // Presenta Ajustes como grupos abiertos, conservando las rutas y acciones de cada tipo de cuenta.
 export function SettingsPage() {
-  const { settings, syncState, notify, actions, isDemo, user, signOut, accounts, categories, transactions, budgets, goals, allocations, plannedPurchases, startGuide } = useApp()
+  const { settings, walletCardStyle, openWalletCardPicker, syncState, notify, actions, isDemo, user, signOut, accounts, categories, transactions, budgets, goals, allocations, plannedPurchases, startGuide } = useApp()
   const navigate = useNavigate()
   const location = useLocation()
   const setSetting = (key, value) => actions.setSetting(key, value)
@@ -42,6 +43,7 @@ export function SettingsPage() {
       </SettingsSection>
 
       <SettingsSection id="settings-appearance-heading" title="Preferencias" className="settings-group--appearance">
+        <SettingRow icon={CreditCard} tone="peach" title="Tarjeta de inicio" detail={`Diseño ${walletCardById(walletCardStyle)?.name || 'sin elegir'}. Solo cambia la portada visual.`}><button className="compact-action" type="button" onClick={openWalletCardPicker}>Cambiar</button></SettingRow>
         <SettingRow icon={settings.hiddenAmounts ? EyeOff : Eye} tone="sky" title="Ocultar montos" detail="Privacidad visual; no reemplaza la autenticación"><Switch checked={Boolean(settings.hiddenAmounts)} label="Ocultar montos" onChange={(value) => setSetting('hiddenAmounts', value)} /></SettingRow>
         <SettingRow icon={Moon} tone="violet" title="Apariencia"><span className="setting-static-value">Oscuro</span></SettingRow>
         <SettingRow icon={SlidersHorizontal} tone="mint" title="Animaciones"><select aria-label="Movimiento" value={settings.motion || 'system'} onChange={(event) => setSetting('motion', event.target.value)}><option value="system">Sistema</option><option value="soft">Suave</option><option value="off">Desactivado</option></select></SettingRow>

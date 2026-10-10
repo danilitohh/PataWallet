@@ -17,6 +17,10 @@ Las variantes WebP se exportaron de los PNG presentes en esta conversación. Man
 
 Los originales opcionales: cuatro escenas PNG, tres referencias de interfaz PNG y un póster PNG de inspiración con textos incrustados. El póster no es un recurso de UI de producción. Ni originales ni referencias deben servirse o precachearse por defecto en la app.
 
+## Portadas de tarjeta aportadas por Danilo · 10 de octubre de 2026
+
+Se agregaron tres portadas derivadas proporcionalmente de las imágenes RGBA de 1122×1402 px entregadas: `card-night.png`, `card-ivory.png` y `card-terracotta.png`. Las versiones de producción son RGBA de 640×800 px, mantienen transparencia y proporción, pesan menos de 700 KB cada una y caben en la precarga offline de la PWA. Conservan el grupo de mascotas y los acabados azul noche, marfil y terracota. Se usan en la elección inicial, la portada de entrada y Ajustes; no son tarjetas de pago ni recursos de una integración bancaria. No se reutilizaron como reemplazo de las cuatro escenas WebP del paquete.
+
 ## Integración correcta
 Leer rutas y variantes del manifiesto. En el proyecto Vite, `public/assets/...` se sirve desde `/assets/...`; no escribir URLs de `/mnt/data/` ni `sandbox:`. Usar `srcset`/`sizes`, width/height y carga diferida cuando corresponda. Evitar recortes destructivos y filtros que alteren colores.
 

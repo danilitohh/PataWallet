@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, MotionConfig, useReducedMotion } from 'motion/react'
+import { useLocation } from 'react-router-dom'
 import { AppContext } from './AppContext.jsx'
 import { AppRoutes } from './routes/AppRoutes.jsx'
 import { AppShell } from './AppShell.jsx'
 import { WelcomePage } from '../features/onboarding/WelcomePage.jsx'
+import { WalletCardPicker, WalletEntry } from '../features/onboarding/WalletCardFlow.jsx'
+import { hasOpenedWallet, markWalletOpened, readWalletCardStyle, saveWalletCardStyle } from '../features/onboarding/walletCardModel.js'
 import { FirstUseGuide } from '../features/onboarding/FirstUseGuide.jsx'
 import { MovementSheet } from '../features/transactions/components/MovementSheet.jsx'
 import { LoadingScreen, Toast } from '../shared/components/Feedback.jsx'
@@ -11,9 +14,14 @@ import { PwaUpdatePrompt } from '../features/pwa/PwaUpdatePrompt.jsx'
 
 // Comparte datos y preferencias de la cuenta, manteniendo Noche como identidad única y respetando accesibilidad.
 export function Workspace({ data, actions, syncState = null, isDemo, user, signOut }) {
+  const location = useLocation()
   const { accounts, categories, transactions, budgets, goals, allocations, plannedPurchases = [], receipts = [], settingsRows } = data
   const rawSettingsMap = useMemo(() => Object.fromEntries(settingsRows.map((row) => [row.key, row.value])), [settingsRows])
   const settingsMap = useMemo(() => ({ ...rawSettingsMap, theme: 'dark' }), [rawSettingsMap])
+  const ownerId = isDemo ? 'demo' : user?.id
+  const [walletCardStyle, setWalletCardStyle] = useState(() => readWalletCardStyle(ownerId))
+  const [cardPickerOpen, setCardPickerOpen] = useState(false)
+  const [walletOpenedThisSession, setWalletOpenedThisSession] = useState(() => location.pathname !== '/' || hasOpenedWallet(ownerId))
   const [sheet, setSheet] = useState(null)
   // La demo ya tiene una bienvenida propia; las cuentas reales reciben la guía al entrar por primera vez.
   const [guideOpen, setGuideOpen] = useState(() => !isDemo && !settingsMap.financialOnboardingComplete ? 'general' : null)
@@ -58,19 +66,36 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
       return false
     }
   }
-  const value = { accounts, categories, transactions, budgets, goals, allocations, plannedPurchases, receipts, settings: settingsMap, syncState, reduceMotion, setSheet, guideOpen, startGuide: (tour = 'general') => setGuideOpen(typeof tour === 'string' ? tour : 'general'), notify, actions, isDemo, user, signOut }
+  const selectWalletCard = async (cardId) => {
+    saveWalletCardStyle(ownerId, cardId)
+    setWalletCardStyle(cardId)
+    setCardPickerOpen(false)
+  }
+  const openWallet = () => {
+    markWalletOpened(ownerId)
+    setWalletOpenedThisSession(true)
+  }
+  const openCardPicker = () => setCardPickerOpen(true)
+  const value = { accounts, categories, transactions, budgets, goals, allocations, plannedPurchases, receipts, settings: settingsMap, walletCardStyle, openWalletCardPicker: openCardPicker, syncState, reduceMotion, setSheet, guideOpen, startGuide: (tour = 'general') => setGuideOpen(typeof tour === 'string' ? tour : 'general'), notify, actions, isDemo, user, signOut }
 
   if (!settingsRows.length) return <LoadingScreen />
   if (isDemo && !settingsMap.entered) return <AppContext.Provider value={value}><WelcomePage /></AppContext.Provider>
+  if (!walletCardStyle || cardPickerOpen) {
+    return <AppContext.Provider value={value}><WalletCardPicker currentStyle={walletCardStyle} required={!walletCardStyle} onSelect={selectWalletCard} onCancel={() => setCardPickerOpen(false)} /></AppContext.Provider>
+  }
+
+  const showWalletEntry = location.pathname === '/' && !walletOpenedThisSession
 
   return (
     <AppContext.Provider value={value}>
       <MotionConfig reducedMotion={reduceMotion ? 'always' : 'user'}>
-        <AppShell><AppRoutes /></AppShell>
-        <AnimatePresence>{sheet && <MovementSheet transaction={typeof sheet === 'object' && !prefilledSheet ? sheet : null} initialFlow={prefilledSheet?.initialFlow || (sheet === 'income' ? 'income' : typeof sheet === 'string' && sheet.startsWith('debt') ? 'debt' : 'expense')} initialDebtId={typeof sheet === 'string' && sheet.startsWith('debt:') ? sheet.slice(5) : undefined} initialValues={prefilledSheet?.initialValues} onSaved={prefilledSheet?.onSaved} onClose={() => setSheet(null)} />}</AnimatePresence>
-        <AnimatePresence>{toast && <Toast toast={toast} close={dismissToast} />}</AnimatePresence>
-        <PwaUpdatePrompt />
-        {guideOpen && <FirstUseGuide tour={guideOpen} onFinish={finishGuide} />}
+        {showWalletEntry ? <WalletEntry cardStyle={walletCardStyle} onOpen={openWallet} onChange={openCardPicker} /> : <>
+          <AppShell><AppRoutes /></AppShell>
+          <AnimatePresence>{sheet && <MovementSheet transaction={typeof sheet === 'object' && !prefilledSheet ? sheet : null} initialFlow={prefilledSheet?.initialFlow || (sheet === 'income' ? 'income' : typeof sheet === 'string' && sheet.startsWith('debt') ? 'debt' : 'expense')} initialDebtId={typeof sheet === 'string' && sheet.startsWith('debt:') ? sheet.slice(5) : undefined} initialValues={prefilledSheet?.initialValues} onSaved={prefilledSheet?.onSaved} onClose={() => setSheet(null)} />}</AnimatePresence>
+          <AnimatePresence>{toast && <Toast toast={toast} close={dismissToast} />}</AnimatePresence>
+          <PwaUpdatePrompt />
+          {guideOpen && <FirstUseGuide tour={guideOpen} onFinish={finishGuide} />}
+        </>}
       </MotionConfig>
     </AppContext.Provider>
   )

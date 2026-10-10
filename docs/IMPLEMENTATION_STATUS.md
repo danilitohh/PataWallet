@@ -1,5 +1,14 @@
 # Estado de implementación
 
+## Portada de billetera configurable · 10 de octubre de 2026
+
+- Al primer acceso al espacio, la persona elige una de las tres portadas adjuntas: Noche, Marfil o Terracota. En las siguientes aperturas de la ruta Inicio durante una sesión nueva, aparece esa tarjeta; tocarla abre el Inicio existente. Las rutas profundas de notificación no quedan bloqueadas por la portada.
+- La selección se guarda en `localStorage` bajo una clave separada por usuario o demo. Se puede cambiar desde Ajustes. No cambia cuentas, saldos ni movimientos y se identifica como una portada visual, no como una tarjeta de pago.
+- Persistencia actual por navegador/dispositivo; no se sincroniza a otros dispositivos ni se incluye en la copia de seguridad financiera. No requiere ni altera el esquema de Supabase.
+- Portadas RGBA reducidas proporcionalmente a 640×800 px; cada PNG pesa menos de 700 KB y entra en la precarga offline PWA. Mantienen transparencia y proporción.
+- Verificación: `npm run lint` pasó; `npm run build` y la prueba unitaria dirigida del modelo pasaron; `tests/e2e/wallet-cards.spec.js` pasó 3/3 proyectos Chromium (390×844, 375×812 y 1440×900). Revisión visual de las capturas sin desbordamiento horizontal.
+- Suite completa: 201/203; siguen fallando dos expectativas preexistentes de `tests/api/bank-email.test.js` (`7,90.0` y separadores alternos de Lulo), sin cambios en el parser. Pendiente comprobar visualmente en iPhone real.
+
 ## Registro de correos desde Nuevo movimiento · 5 de octubre de 2026
 
 - Tocar un aviso abre el mismo panel «Nuevo movimiento» usado en Inicio, Actividad y las demás secciones. Precarga el monto detectado, comercio/nota y fecha/hora en America/Bogota; la categoría queda para selección manual.

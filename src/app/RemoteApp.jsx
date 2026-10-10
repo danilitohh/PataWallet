@@ -52,5 +52,5 @@ export function RemoteApp({ user, signOut }) {
   }, [controller, signOut, user.id])
   if (error) return <StateMessage title="No pudimos abrir tu espacio" body={`${error} Verifica que la migración de Supabase esté aplicada.`} action={() => location.reload()} actionLabel="Reintentar" />
   if (!data) return <LoadingScreen />
-  return <Workspace data={data} actions={actions} syncState={syncState} isDemo={false} user={user} signOut={guardedSignOut} />
+  return <Workspace key={user.id} data={data} actions={actions} syncState={syncState} isDemo={false} user={user} signOut={guardedSignOut} />
 }

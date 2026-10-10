@@ -13,5 +13,5 @@ export function DemoApp() {
   const plannedPurchases = useLiveQuery(() => db.planned_purchases.toArray(), [], [])
   const receipts = useLiveQuery(() => db.receipts.toArray(), [], [])
   const settingsRows = useLiveQuery(() => db.settings.toArray(), [], [])
-  return <Workspace data={{ accounts, categories, transactions, budgets, goals, allocations, plannedPurchases, receipts, settingsRows }} actions={localActions} isDemo user={null} />
+  return <Workspace key="demo" data={{ accounts, categories, transactions, budgets, goals, allocations, plannedPurchases, receipts, settingsRows }} actions={localActions} isDemo user={null} />
 }
