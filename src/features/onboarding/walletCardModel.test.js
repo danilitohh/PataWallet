@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { hasOpenedWallet, isWalletCardStyle, markWalletOpened, readWalletCardStyle, saveWalletCardStyle, walletCardById } from './walletCardModel.js'
+import { hasOpenedWallet, isWalletCardStyle, markWalletOpened, readWalletCardStyle, saveWalletCardStyle, walletCardById, WALLET_CARDS } from './walletCardModel.js'
 
 function memoryStorage() {
   const values = new Map()
@@ -12,17 +12,18 @@ function memoryStorage() {
 describe('preferencia local de tarjeta', () => {
   it('guarda una opción válida separada por espacio de usuario', () => {
     const storage = memoryStorage()
-    expect(saveWalletCardStyle('user-a', 'ivory', storage)).toBe('ivory')
-    expect(readWalletCardStyle('user-a', storage)).toBe('ivory')
+    expect(saveWalletCardStyle('user-a', 'cats', storage)).toBe('cats')
+    expect(readWalletCardStyle('user-a', storage)).toBe('cats')
     expect(readWalletCardStyle('user-b', storage)).toBeNull()
   })
 
-  it('ignora opciones desconocidas y entrega los datos de las tres portadas', () => {
+  it('ignora opciones antiguas o desconocidas y entrega los datos de las cinco portadas', () => {
     const storage = memoryStorage()
-    storage.setItem('patawallet:wallet-card:user-a', 'unknown')
+    storage.setItem('patawallet:wallet-card:user-a', 'night')
     expect(readWalletCardStyle('user-a', storage)).toBeNull()
-    expect(isWalletCardStyle('terracotta')).toBe(true)
-    expect(walletCardById('night').image).toBe('/assets/wallet-cards/card-night.png')
+    expect(WALLET_CARDS).toHaveLength(5)
+    expect(isWalletCardStyle('dogs')).toBe(true)
+    expect(walletCardById('macaws').image).toBe('/assets/wallet-cards/macaws.png')
     expect(walletCardById('unknown')).toBeNull()
     expect(() => saveWalletCardStyle('user-a', 'unknown', storage)).toThrow('Elige uno de los diseños disponibles.')
   })
