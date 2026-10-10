@@ -6,14 +6,12 @@ export function WalletCardPicker({ currentStyle, required = false, onSelect, onC
   const [selected, setSelected] = useState(walletCardById(currentStyle)?.id || WALLET_CARDS[0].id)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
-  const [direction, setDirection] = useState(1)
   const swipeStartX = useRef(null)
   const card = walletCardById(selected) || WALLET_CARDS[0]
   const index = WALLET_CARDS.findIndex(({ id }) => id === card.id)
 
   const move = (offset) => {
     const next = (index + offset + WALLET_CARDS.length) % WALLET_CARDS.length
-    setDirection(offset)
     setSelected(WALLET_CARDS[next].id)
   }
 
@@ -71,7 +69,17 @@ export function WalletCardPicker({ currentStyle, required = false, onSelect, onC
             onPointerUp={handlePointerUp}
             onPointerCancel={() => { swipeStartX.current = null }}
           >
-            <img key={card.id} data-direction={direction > 0 ? 'next' : 'previous'} src={card.image} alt={card.alt} width="640" height="800" fetchPriority="high" decoding="async" draggable="false" />
+            {WALLET_CARDS.map((option, optionIndex) => {
+              const relativeIndex = ((optionIndex - index + WALLET_CARDS.length + Math.floor(WALLET_CARDS.length / 2)) % WALLET_CARDS.length) - Math.floor(WALLET_CARDS.length / 2)
+              const position = relativeIndex === 0 ? 'current' : relativeIndex === 1 ? 'next' : relativeIndex === -1 ? 'previous' : relativeIndex > 0 ? 'far-next' : 'far-previous'
+              const isCurrent = position === 'current'
+
+              return (
+                <div className={`wallet-card-picker__card wallet-card-picker__card--${position}`} key={option.id} aria-hidden={!isCurrent}>
+                  <img src={option.image} alt={isCurrent ? option.alt : ''} width="640" height="800" fetchPriority={isCurrent ? 'high' : 'auto'} decoding="async" draggable="false" />
+                </div>
+              )
+            })}
           </div>
           <button className="wallet-card-picker__arrow" type="button" onClick={() => move(1)} aria-label="Ver diseño siguiente" disabled={busy}><ChevronRight aria-hidden="true" /></button>
         </div>

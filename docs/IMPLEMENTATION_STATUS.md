@@ -3,11 +3,11 @@
 ## Portada de billetera configurable · 10 de octubre de 2026
 
 - Al primer acceso al espacio, la persona elige una de las cinco portadas: Guacamayas, Gatos, Perros, Conejos o Nutrias. En las siguientes aperturas de la ruta Inicio durante una sesión nueva, aparece esa tarjeta; tocarla abre el Inicio existente. Las rutas profundas de notificación no quedan bloqueadas por la portada.
-- El selector recorre las portadas en un carrusel con gesto horizontal, flechas y teclado; ya no muestra botones de elección debajo. Una sombra elíptica bajo la imagen da el efecto flotante.
+- El selector recorre las portadas en un carrusel con gesto horizontal, flechas y teclado; ya no muestra botones de elección debajo. Las tarjetas vecinas quedan visibles detrás de la principal y cambian de posición con una transición suave; las flechas permanecen accesibles delante de la pila. Una sombra elíptica bajo la imagen da el efecto flotante.
 - La selección se guarda en `localStorage` bajo una clave separada por usuario o demo. Se puede cambiar desde Ajustes. No cambia cuentas, saldos ni movimientos y se identifica como una portada visual, no como una tarjeta de pago.
 - Persistencia actual por navegador/dispositivo; no se sincroniza a otros dispositivos ni se incluye en la copia de seguridad financiera. No requiere ni altera el esquema de Supabase.
 - Portadas RGBA reducidas proporcionalmente a 640×800 px; cada PNG pesa menos de 1 MB y entra en la precarga offline PWA. Mantienen transparencia y proporción.
-- Verificación: `npm run lint` y `npm run build` pasaron; prueba unitaria dirigida 3/3 y `tests/e2e/wallet-cards.spec.js` 3/3 proyectos Chromium, incluyendo swipe, teclado y flechas. Se revisaron capturas a 390×844, 375×812 y 1440×900; el build precarga las imágenes en la PWA.
+- Verificación inicial del selector: `npm run lint` y `npm run build` pasaron; prueba unitaria dirigida 3/3 y `tests/e2e/wallet-cards.spec.js` 3/3 proyectos Chromium, incluyendo swipe, teclado y flechas. Para la pila nueva, `npm run lint` y `npm run build` pasaron y se revisaron capturas a 390×844, 375×812 y 1440×900 sin desbordamiento; no se volvió a ejecutar E2E. El build precarga las imágenes en la PWA.
 - La suite completa no se repitió en esta actualización. La corrida completa anterior dio 201/203; permanecen dos expectativas preexistentes del parser en `tests/api/bank-email.test.js` (`7,90.0` y separadores alternos de Lulo). Pendiente comprobar visualmente en iPhone real.
 
 ## Registro de correos desde Nuevo movimiento · 5 de octubre de 2026
