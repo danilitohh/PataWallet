@@ -51,6 +51,8 @@
 .wallet-entry__card:active { transform: scale(.975); }
 .wallet-entry__hint { margin: 12px 0 6px; color: #d2d8e4; font-size: .88rem; }
 .wallet-entry__content > .wallet-card-flow__cancel { margin-top: 8px; }
+.wallet-entry__content > :not(.wallet-entry__card) { transition: opacity 240ms ease, transform 280ms ease; }
+.wallet-entry--opening .wallet-entry__content > :not(.wallet-entry__card) { opacity: 0; transform: translateY(-14px); }
 .wallet-card-flow button:focus-visible, .wallet-card-picker__art:focus-visible { outline: 3px solid var(--wallet-accent); outline-offset: 3px; }
 @media (max-height: 740px) {
   .wallet-card-flow { padding-block: max(12px, env(safe-area-inset-top)) max(15px, env(safe-area-inset-bottom)); }
@@ -61,9 +63,11 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .wallet-card-picker__card { transition: none; }
+  .wallet-entry__content > :not(.wallet-entry__card) { transition: none; }
   .wallet-entry__card { transition: none; }
   .wallet-entry__card:active { transform: none; }
 }
 html[data-motion="off"] .wallet-card-picker__card { transition: none; }
+html[data-motion="off"] .wallet-entry__content > :not(.wallet-entry__card) { transition: none; }
 html[data-motion="off"] .wallet-entry__card { transition: none; }
 html[data-motion="off"] .wallet-entry__card:active { transform: none; }

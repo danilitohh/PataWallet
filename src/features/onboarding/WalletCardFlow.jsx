@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight, PawPrint } from 'lucide-react'
+import { motion } from 'motion/react'
 import { WALLET_CARDS, walletCardById } from './walletCardModel.js'
 
 export function WalletCardPicker({ currentStyle, required = false, onSelect, onCancel }) {
@@ -99,20 +100,30 @@ export function WalletCardPicker({ currentStyle, required = false, onSelect, onC
   )
 }
 
-export function WalletEntry({ cardStyle, onOpen, onChange }) {
+export function WalletEntry({ cardStyle, onOpen, onChange, reduceMotion = false }) {
+  const [isOpening, setIsOpening] = useState(false)
   const card = walletCardById(cardStyle) || WALLET_CARDS[0]
 
   return (
-    <main className="wallet-card-flow wallet-entry" data-card-style={card.id}>
+    <main className={`wallet-card-flow wallet-entry${isOpening ? ' wallet-entry--opening' : ''}`} data-card-style={card.id}>
       <header className="wallet-card-flow__brand"><PawPrint aria-hidden="true" /><span>PataWallet</span></header>
       <section className="wallet-entry__content" aria-labelledby="wallet-entry-title">
         <p className="wallet-card-flow__eyebrow">Tu espacio financiero</p>
         <h1 id="wallet-entry-title">Tu billetera está lista</h1>
-        <button className="wallet-entry__card" type="button" onClick={onOpen} aria-label={`Abrir PataWallet con la tarjeta ${card.name}`}>
+        <motion.button
+          className="wallet-entry__card"
+          type="button"
+          onClick={() => { if (reduceMotion) onOpen(); else setIsOpening(true) }}
+          disabled={isOpening}
+          aria-label={isOpening ? 'Abriendo PataWallet' : `Abrir PataWallet con la tarjeta ${card.name}`}
+          animate={isOpening ? { y: '-70vh', scale: 0.92, opacity: 0 } : { y: 0, scale: 1, opacity: 1 }}
+          transition={{ duration: 0.66, ease: [0.45, 0, 0.55, 1] }}
+          onAnimationComplete={() => { if (isOpening) onOpen() }}
+        >
           <img src={card.image} alt={card.alt} width="640" height="800" fetchPriority="high" decoding="async" draggable="false" />
-        </button>
-        <p className="wallet-entry__hint">Toca la tarjeta para abrir</p>
-        <button className="wallet-card-flow__cancel" type="button" onClick={onChange}>Cambiar diseño</button>
+        </motion.button>
+        <p className="wallet-entry__hint" aria-live="polite">{isOpening ? 'Abriendo PataWallet…' : 'Toca la tarjeta para abrir'}</p>
+        {!isOpening && <button className="wallet-card-flow__cancel" type="button" onClick={onChange}>Cambiar diseño</button>}
       </section>
     </main>
   )
