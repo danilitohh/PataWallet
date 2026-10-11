@@ -1,9 +1,15 @@
 # Estado de implementación
 
+## Inicio simplificado y sin acceso punteado · 11 de octubre de 2026
+
+- La cabecera muestra «Balance» junto al selector de mes; el selector conserva el campo mensual y actualiza los resúmenes existentes. El saldo queda como cifra principal, con su etiqueta, moneda y control para ocultarlo debajo.
+- Ingresos y gastos usan tarjetas compactas. Se retiró el botón punteado «Agregar»; el botón flotante móvil y «Nuevo movimiento» del menú de escritorio siguen abriendo el formulario, con sus tipos actuales.
+- Ambos temas conservan la misma composición y aplican su propia paleta. Verificado con `npm run lint`, `npm run build` y revisión local en Chromium a 390×844 (tema nocturno y claro), 375×812 y 1440×900 (tema claro): no hubo errores de página ni desbordamiento horizontal; el selector cambió a septiembre de 2026 y el botón flotante abrió el formulario con compra, ingreso, pago de deuda y transferencia. No probado en iPhone físico.
+
 ## Mismo diseño de Inicio en ambos temas · 11 de octubre de 2026
 
-- Inicio claro y nocturno comparten título, saldo, selector de mes, totales, accesos para agregar, movimientos recientes y próximos pagos. Cambian los colores según el tema.
-- Compra, ingreso y pago de deuda siguen disponibles desde el formulario «Agregar». Cambio implementado; aún no se ha verificado visualmente.
+- Inicio claro y nocturno comparten título, saldo, selector de mes, totales, movimientos recientes y próximos pagos. Cambian los colores según el tema.
+- El botón punteado descrito en la primera iteración se retiró en la sección más reciente. El botón flotante móvil y el menú de escritorio conservan el acceso al formulario. Compra, ingreso, pago de deuda y transferencia siguen disponibles allí.
 
 ## Inicio nocturno sin GlassHero · 11 de octubre de 2026
 
