@@ -3,14 +3,14 @@
 ## Iconos 3D en la selección de moneda · 11 de octubre de 2026
 
 - Los símbolos de COP, GTQ, USD, EUR, MXN y GBP ahora aparecen en monedas CSS con canto estriado, bisel metálico y relieve. Cada divisa tiene acabado propio y la selección, búsqueda y navegación de teclado mantienen su comportamiento.
-- Verificado: `npm run lint` y `npm run build`. Sin captura nueva de esta variante ni prueba en iPhone físico.
+- Verificado: `npm run lint` y `npm run build`; Vercel Production quedó `READY` para `196b089`. Sin captura nueva de esta variante ni prueba en iPhone físico.
 
 ## Moneda base elegible durante el registro · 11 de octubre de 2026
 
 - El paso «Tu moneda» ya ofrece COP, GTQ, USD, EUR, MXN y GBP en una lista buscable y accesible por teclado. El presupuesto inicial, sus campos y las etiquetas monetarias muestran el código elegido.
 - La moneda queda en las preferencias iniciales de Auth y se persiste en `profiles.currency` al crear el perfil. Un perfil existente conserva la moneda guardada aunque aún tenga metadatos antiguos de registro. Ajustes muestra la moneda base; las cuentas, movimientos nuevos, presupuestos, metas, compras previstas, pagos fijos y resúmenes la usan. Cada movimiento histórico conserva su moneda y no hay conversión automática.
 - Las copias de seguridad guardan y validan la moneda base, y se rechaza importar datos con una moneda distinta. Correo bancario y Atajos de iPhone siguen reportando COP; el registro muestra una explicación al elegir otra moneda y el servidor rechaza eventos cuya moneda no coincide con el perfil.
-- Aplicada a Supabase `gzsuhlkvaiinphlcqelt` el 11 de octubre de 2026: amplía las restricciones a las seis opciones y ajusta las operaciones del servidor para validar la moneda base sin reescribir datos existentes. La verificación confirmó las seis restricciones y que no había filas con monedas fuera de las admitidas. El proyecto no tiene `supabase_migrations.schema_migrations`; se aplicó solo este SQL y no se reprodujo la cola histórica sin registrar. El código se envió a `main` en el commit `2883f8d`; el despliegue automático aún no se ha verificado.
+- Aplicada a Supabase `gzsuhlkvaiinphlcqelt` el 11 de octubre de 2026: amplía las restricciones a las seis opciones y ajusta las operaciones del servidor para validar la moneda base sin reescribir datos existentes. La verificación confirmó las seis restricciones y que no había filas con monedas fuera de las admitidas. El proyecto no tiene `supabase_migrations.schema_migrations`; se aplicó solo este SQL y no se reprodujo la cola histórica sin registrar. El código se envió a `main` y el despliegue de producción se verificó `READY` en `196b089`.
 - Verificado: lint y build; pruebas dirigidas de moneda, contexto del asistente, migración y respaldo (29/29); suite completa (211 pasaron, 2 fallaron en expectativas previas del parser bancario: `7,90.0` y separadores alternos de Lulo). Playwright de portada pasó 3/3 y revisó 390×844, 375×812 y 1440×900. Una prueba antigua de `app.spec.js` falló en los tres proyectos porque espera el Inicio directamente, pero la app abre el selector de portada requerido antes del Inicio; el recorrido de esa prueba no refleja el flujo actual. No se probó en iPhone físico.
 
 ## Video con chroma en la bienvenida · 10 de octubre de 2026
