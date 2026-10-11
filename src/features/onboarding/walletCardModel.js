@@ -51,10 +51,12 @@ export function walletCardThemeVariables(cardStyle, { lightSurface = false } = {
   const theme = WALLET_CARD_THEMES[cardStyle] || defaultWalletTheme
   const surface = lightSurface ? '#fafafa' : theme.surface
   const surfaceMuted = lightSurface ? '#e5e5e8' : theme.surfaceMuted
+  const accent = lightSurface ? `color-mix(in srgb, ${theme.accent} 68%, #202027)` : theme.accent
+  const secondary = lightSurface ? `color-mix(in srgb, ${theme.secondary} 68%, #202027)` : theme.secondary
   const border = lightSurface
     ? `color-mix(in srgb, ${theme.accent} 18%, #d9d9dd)`
     : theme.border
-  const accentSoft = `color-mix(in srgb, ${theme.accent} 15%, ${surface})`
+  const accentSoft = `color-mix(in srgb, ${accent} 15%, ${surface})`
   const accentSoftLight = `color-mix(in srgb, ${theme.accent} 12%, #ffffff)`
 
   return {
@@ -62,22 +64,31 @@ export function walletCardThemeVariables(cardStyle, { lightSurface = false } = {
     '--surface': surface,
     '--surface-muted': surfaceMuted,
     '--border': border,
-    '--accent': theme.accent,
-    '--accent-deep': `color-mix(in srgb, ${theme.accent} 43%, ${theme.bg})`,
-    '--accent-secondary': theme.secondary,
+    '--text': lightSurface ? '#202027' : '#f6f3ff',
+    '--text-2': lightSurface ? '#666872' : '#b9bde0',
+    '--accent': accent,
+    '--accent-deep': lightSurface
+      ? `color-mix(in srgb, ${theme.accent} 55%, #ffffff)`
+      : `color-mix(in srgb, ${theme.accent} 43%, ${theme.bg})`,
+    '--accent-secondary': secondary,
     '--accent-soft': lightSurface ? accentSoftLight : accentSoft,
     '--accent-soft-light': accentSoftLight,
     '--primary': theme.accent,
     '--on-primary': theme.onAccent,
     '--focus': theme.accent,
-    '--coral': theme.secondary,
-    '--warm': theme.secondary,
+    '--coral': secondary,
+    '--warm': secondary,
+    '--success': lightSurface ? '#187653' : '#92e0c4',
+    '--success-soft': lightSurface ? '#e5f3eb' : '#193b3c',
+    '--danger': lightSurface ? '#b83d58' : '#ffadbd',
     '--sky': `color-mix(in srgb, ${theme.secondary} 28%, ${surface})`,
     '--peach': `color-mix(in srgb, ${theme.accent} 18%, ${surface})`,
     '--button-fill': `linear-gradient(130deg, ${theme.accent}, ${theme.secondary})`,
     '--button-shadow': `0 7px 22px color-mix(in srgb, ${theme.accent} 25%, transparent)`,
-    '--theme-glow': `color-mix(in srgb, ${theme.accent} 18%, transparent)`,
-    '--panel-fill': `linear-gradient(145deg, color-mix(in srgb, ${surface} 91%, ${theme.accent}), color-mix(in srgb, ${surface} 94%, ${theme.secondary}))`,
+    '--theme-glow': `color-mix(in srgb, ${theme.accent} ${lightSurface ? 7 : 18}%, transparent)`,
+    '--panel-fill': lightSurface
+      ? `linear-gradient(145deg, color-mix(in srgb, #ffffff 94%, ${theme.accent}), color-mix(in srgb, #f6f6f7 96%, ${theme.secondary}))`
+      : `linear-gradient(145deg, color-mix(in srgb, ${surface} 91%, ${theme.accent}), color-mix(in srgb, ${surface} 94%, ${theme.secondary}))`,
     '--glass-panel': lightSurface
       ? `linear-gradient(145deg, color-mix(in srgb, #ffffff 93%, ${theme.accent}), color-mix(in srgb, #f8f8f9 96%, ${theme.secondary}))`
       : `linear-gradient(135deg, color-mix(in srgb, ${surfaceMuted} 72%, ${theme.accent}), color-mix(in srgb, ${surface} 94%, ${theme.secondary}) 68%, color-mix(in srgb, ${surface} 88%, ${theme.accent}))`,
@@ -85,7 +96,9 @@ export function walletCardThemeVariables(cardStyle, { lightSurface = false } = {
     '--glass-shadow': lightSurface
       ? `inset 0 1px 1px #ffffffa8, 0 9px 26px color-mix(in srgb, ${theme.accent} 10%, #20212a0c)`
       : `inset 0 1px 1px color-mix(in srgb, ${theme.accent} 13%, #ffffff22), 0 12px 30px color-mix(in srgb, ${theme.accent} 8%, #020817)`,
-    '--shadow': `0 12px 36px color-mix(in srgb, ${theme.accent} 8%, #02061530)`,
+    '--shadow': lightSurface
+      ? `0 12px 36px color-mix(in srgb, ${theme.accent} 7%, #20212a16)`
+      : `0 12px 36px color-mix(in srgb, ${theme.accent} 8%, #02061530)`,
   }
 }
 

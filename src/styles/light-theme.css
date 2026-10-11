@@ -1,0 +1,220 @@
+/* Tema claro compartido: se carga al final para cubrir los estilos locales de cada sección. */
+html[data-theme="light"] {
+  color-scheme: light;
+  background: var(--bg);
+}
+
+html[data-theme="light"] body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.app-shell[data-app-design="light"] {
+  color: var(--text);
+  background: radial-gradient(ellipse at 60% 0, var(--theme-glow), transparent 540px), var(--bg);
+  color-scheme: light;
+}
+
+.app-shell[data-app-design="light"] .mobile-top {
+  color: var(--text);
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 16%, var(--border));
+  background: color-mix(in srgb, var(--bg) 94%, var(--accent));
+}
+
+.app-shell[data-app-design="light"] .mobile-top .wordmark,
+.app-shell[data-app-design="light"] .side-nav .wordmark { color: var(--text); }
+.app-shell[data-app-design="light"] .mobile-top .wordmark svg { color: var(--accent); fill: none; }
+.app-shell[data-app-design="light"] .mobile-top__actions .night-icon { color: var(--accent); }
+.app-shell[data-app-design="light"] .side-nav {
+  color: var(--text);
+  background: color-mix(in srgb, #f6f6f7 95%, var(--accent));
+  border-right: 1px solid var(--border);
+}
+.app-shell[data-app-design="light"] .side-nav nav a,
+.app-shell[data-app-design="light"] .side-nav > a { color: var(--text-2); }
+.app-shell[data-app-design="light"] .side-nav nav a.active,
+.app-shell[data-app-design="light"] .side-nav > a.active {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+.app-shell[data-app-design="light"] .side-nav__note,
+.app-shell[data-app-design="light"] .side-nav__demo { color: var(--text-2); }
+.app-shell[data-app-design="light"] .calm-navigation {
+  border-color: color-mix(in srgb, var(--accent) 24%, #ffffff);
+  background: color-mix(in srgb, #f8f8f9 95%, var(--accent));
+  box-shadow: 0 7px 26px color-mix(in srgb, var(--accent) 9%, #20212a1c);
+}
+.app-shell[data-app-design="light"] .calm-navigation a { color: var(--text-2); }
+.app-shell[data-app-design="light"] .calm-navigation a.active { color: var(--accent); }
+.app-shell[data-app-design="light"] .calm-navigation a.active svg {
+  color: var(--on-primary);
+  background: var(--button-fill);
+  box-shadow: 0 3px 12px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.app-shell[data-app-design="light"] .local-status {
+  color: var(--text);
+  background: var(--surface);
+  border: var(--glass-edge);
+  border-radius: 14px;
+}
+
+/* Inicio y resumen: los datos siguen usando el mismo saldo y los mismos movimientos. */
+.app-shell[data-app-design="light"] .dashboard-view-picker {
+  border-color: var(--border);
+  background: var(--surface);
+  box-shadow: var(--glass-shadow);
+}
+.app-shell[data-app-design="light"] .dashboard-view-picker button { color: var(--text-2); }
+.app-shell[data-app-design="light"] .dashboard-view-picker button[aria-pressed="true"] {
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--border));
+  background: var(--accent-soft);
+  color: var(--text);
+  box-shadow: inset 0 1px 0 #ffffffb3, 0 2px 6px #20212a12;
+}
+.app-shell[data-app-design="light"] .dashboard-view-link,
+.app-shell[data-app-design="light"] .dashboard-available-hero .dashboard-payday-chip {
+  border-color: var(--border);
+  background: color-mix(in srgb, #ffffff 86%, var(--accent));
+  color: var(--text);
+}
+.app-shell[data-app-design="light"] .dashboard-view-link svg { color: var(--success); }
+.app-shell[data-app-design="light"] .dashboard-payday-hero {
+  border-color: var(--border);
+  background: radial-gradient(ellipse at 98% 12%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 36%), var(--glass-panel);
+  box-shadow: var(--glass-shadow);
+}
+.app-shell[data-app-design="light"] .dashboard-payday-hero h2,
+.app-shell[data-app-design="light"] .dashboard-payday-hero > strong { color: var(--text); }
+.app-shell[data-app-design="light"] .dashboard-payday-hero > p { color: var(--text-2); }
+.app-shell[data-app-design="light"] .dashboard-payday-icon {
+  border-color: var(--border);
+  background: var(--accent-soft);
+  color: var(--accent);
+  box-shadow: none;
+}
+.app-shell[data-app-design="light"] .dashboard-payday-icon svg { color: var(--accent); }
+.app-shell[data-app-design="light"] .dashboard-payday-count,
+.app-shell[data-app-design="light"] .dashboard-payments__count {
+  border-color: color-mix(in srgb, var(--success) 28%, var(--border));
+  background: var(--success-soft);
+  color: var(--success);
+}
+.app-shell[data-app-design="light"] .dashboard-payments__group > h3,
+.app-shell[data-app-design="light"] .dashboard-payments__total { color: var(--text-2); }
+.app-shell[data-app-design="light"] .dashboard-payment { border-color: var(--border); }
+.app-shell[data-app-design="light"] .dashboard-payment__check {
+  border-color: var(--border);
+  background: var(--surface);
+}
+.app-shell[data-app-design="light"] .dashboard-payment > input:checked + .dashboard-payment__check {
+  border-color: var(--success);
+  background: var(--success-soft);
+  color: var(--success);
+}
+.app-shell[data-app-design="light"] .dashboard-payment__copy small,
+.app-shell[data-app-design="light"] .dashboard-payment--paid .dashboard-payment__copy strong,
+.app-shell[data-app-design="light"] .dashboard-payment--paid .dashboard-payment__amount { color: var(--text-2); }
+.app-shell[data-app-design="light"] .dashboard-payment--paid .dashboard-payment__copy strong { text-decoration-color: var(--text-2); }
+.app-shell[data-app-design="light"] .dashboard-payments__total { border-color: var(--border); }
+.app-shell[data-app-design="light"] .dashboard-payments__total strong { color: var(--warm); }
+.app-shell[data-app-design="light"] .dashboard-activity-balance,
+.app-shell[data-app-design="light"] .dashboard-activity-spent {
+  border-color: var(--border);
+  background: var(--glass-panel);
+  box-shadow: var(--glass-shadow);
+}
+.app-shell[data-app-design="light"] .dashboard-activity-balance > span,
+.app-shell[data-app-design="light"] .dashboard-activity-spent > span:nth-child(2),
+.app-shell[data-app-design="light"] .dashboard-activity-balance > small,
+.app-shell[data-app-design="light"] .dashboard-activity-spent > small { color: var(--text-2); }
+.app-shell[data-app-design="light"] .dashboard-activity-spent > strong { color: var(--danger); }
+.app-shell[data-app-design="light"] .dashboard-activity-icon,
+.app-shell[data-app-design="light"] .dashboard-panel-icon {
+  border-color: color-mix(in srgb, var(--accent) 25%, var(--border));
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.app-shell[data-app-design="light"] .dashboard-category-row__label { color: var(--text); }
+.app-shell[data-app-design="light"] .dashboard-category-row__label > small { color: var(--text-2); }
+.app-shell[data-app-design="light"] .dashboard-category-track { background: var(--surface-muted); }
+.app-shell[data-app-design="light"] .balance-hero {
+  border-color: var(--border);
+  background: var(--glass-panel);
+  box-shadow: var(--glass-shadow);
+  color: var(--text);
+}
+.app-shell[data-app-design="light"] .balance-hero :is(strong, small, span) { color: var(--text); }
+
+/* Actividad y Cuentas tienen algunos paneles propios con colores del tema nocturno. */
+.app-shell[data-app-design="light"] .activity-month-summary__footer { border-color: var(--border); }
+.app-shell[data-app-design="light"] .activity-month-summary > .glass-hero__content { color: var(--text); }
+.app-shell[data-app-design="light"] .activity-month-summary > .glass-hero__content :is(h2,h3,strong,p,small,span,label) { color: inherit; }
+.app-shell[data-app-design="light"] .activity-month-summary > .glass-hero__content p { color: var(--text-2); }
+.app-shell[data-app-design="light"] .transaction { border-color: var(--border); }
+.app-shell[data-app-design="light"] .activity-groups { border-color: color-mix(in srgb, var(--accent) 34%, var(--border)); }
+.app-shell[data-app-design="light"] .accounts-ledger__summary,
+.app-shell[data-app-design="light"] .accounts-ledger__pane,
+.app-shell[data-app-design="light"] .accounts-ledger__commitments .account-section-toggle-row {
+  border-color: var(--border);
+  background: var(--glass-panel);
+  box-shadow: var(--glass-shadow);
+}
+.app-shell[data-app-design="light"] .accounts-ledger__balance > small { color: var(--text-2); }
+.app-shell[data-app-design="light"] .accounts-ledger__metric,
+.app-shell[data-app-design="light"] .accounts-ledger__pane .account-row {
+  border-color: var(--border);
+  background: color-mix(in srgb, #ffffff 82%, var(--accent));
+}
+.app-shell[data-app-design="light"] .accounts-ledger__metric--debt > strong,
+.app-shell[data-app-design="light"] .accounts-ledger__pane--debt .accounts-ledger__pane-heading > strong { color: var(--danger); }
+.app-shell[data-app-design="light"] .accounts-ledger__metric--net > strong,
+.app-shell[data-app-design="light"] .accounts-ledger__pane:not(.accounts-ledger__pane--debt) .accounts-ledger__pane-heading > strong { color: var(--success); }
+.app-shell[data-app-design="light"] .accounts-ledger__commitments .settings-repeatable__item,
+.app-shell[data-app-design="light"] .accounts-ledger__commitments .recurring-payments { background: var(--surface); }
+.app-shell[data-app-design="light"] .accounts-ledger__commitments .recurring-payment { background: var(--glass-panel); }
+.app-shell[data-app-design="light"] .accounts-ledger__inline-add:hover { border-color: var(--border); background: var(--accent-soft); }
+
+/* Parejas, preferencias, bandejas e integraciones. */
+.app-shell[data-app-design="light"] .couples-serena .shared-account-card {
+  border-color: var(--border);
+  background: var(--glass-panel);
+}
+.app-shell[data-app-design="light"] .settings-profile-hero .setting-static-value,
+.app-shell[data-app-design="light"] .settings-profile-hero .setting-row p { color: #263352; }
+.app-shell[data-app-design="light"] .settings-page__logout {
+  border-color: color-mix(in srgb, var(--danger) 35%, var(--border));
+  color: var(--danger);
+}
+.app-shell[data-app-design="light"] .notifications-inbox__date { color: var(--text-2); }
+.app-shell[data-app-design="light"] .notifications-inbox__item,
+.app-shell[data-app-design="light"] .notifications-inbox__item:last-child { border-color: var(--border); }
+.app-shell[data-app-design="light"] .integration-glass-hero .status-label { color: #263352; }
+
+/* El selector del mes nativo y el editor de movimiento siguen el esquema del dispositivo. */
+.app-shell[data-app-design="light"] :is(input, select, textarea) { color-scheme: light; }
+.app-shell[data-app-design="light"] .plan-month-selector input { color-scheme: light; }
+html[data-theme="light"] .sheet-backdrop .sheet,
+html[data-theme="light"] .sheet-backdrop .dialog {
+  color: var(--text);
+  border-color: var(--border);
+  background: radial-gradient(ellipse at 0 0, var(--theme-glow), transparent 320px), var(--surface);
+  box-shadow: var(--glass-shadow), 0 -8px 50px #20212a20;
+}
+html[data-theme="light"] .sheet-backdrop :is(input, select, textarea) { color-scheme: light; }
+html[data-theme="light"] .sheet-backdrop .movement-choices__grid button { color: var(--text-2); }
+html[data-theme="light"] .sheet-backdrop .movement-choices__grid button.active { color: var(--text); }
+html[data-theme="light"] .sheet-backdrop .movement-choices__grid button.active .night-icon { outline-color: var(--accent); }
+html[data-theme="light"] .sheet-backdrop .night-icon:not(.night-icon--category) {
+  border-color: color-mix(in srgb, var(--accent) 25%, var(--border));
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 12%, #ffffff), #ffffff);
+  box-shadow: 0 4px 12px #20212a12;
+  color: var(--accent);
+}
+html[data-theme="light"] .sheet-backdrop .night-icon__glyph { filter: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .app-shell[data-app-design="light"] *,
+  .app-shell[data-app-design="light"] *::before,
+  .app-shell[data-app-design="light"] *::after,
+  html[data-theme="light"] .sheet-backdrop * { scroll-behavior: auto; }
+}

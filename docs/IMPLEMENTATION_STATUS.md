@@ -615,5 +615,12 @@ La app está desplegada en Vercel y las migraciones de las fases 1–4, punto de
 - Inicio vuelve al diseño nocturno original por defecto y permite cambiar al diseño claro desde Ajustes. La preferencia usa el ajuste de apariencia ya persistido; no añade columnas ni migraciones.
 - Ambas variantes conservan los mismos datos, saldo, movimientos, presupuesto, pagos, control de montos y acciones reales para compra, ingreso y pago de deuda. La tarjeta elegida sigue determinando los acentos de la app.
 - El menú lateral de escritorio adapta su superficie y texto al diseño nocturno, en línea con el resto del Inicio.
-- Verificación local: `npm run lint` y `npm run build` pasaron. `tests/e2e/home-design.spec.js` pasó 3/3 en 390×844, 375×812 y 1440×900: selección clara/nocturna persiste tras recargar, el resto de rutas se mantiene nocturno, conserva los acentos de la tarjeta y abre los tres formularios existentes sin errores de página ni desbordamiento horizontal.
+- La verificación inicial cubrió dos composiciones de Inicio; en esa iteración las demás rutas aún permanecían nocturnas. El cambio descrito abajo extiende el tema claro a toda la aplicación.
 - `npm test`: 211 de 213 pruebas pasaron; quedan 2 fallos en `tests/api/bank-email.test.js` por análisis de formatos Lulo/Nequi, fuera de este cambio. No se modificó Supabase ni se desplegó.
+
+## Tema claro global · 11 de octubre de 2026
+
+- Ajustes ahora lo presenta como “Tema de la app”. Claro y Nocturno se aplican a Inicio, Actividad, Plan, Cuentas, Parejas, Ajustes, Notificaciones y a la bandeja de movimientos por revisar.
+- Los colores de acento siguen la tarjeta elegida; los tonos de texto, éxito y error se adaptan para mantener legibilidad sobre fondos claros. Se aclaran las superficies particulares de Cuentas, Inicio, Parejas, navegación y el panel de nuevo movimiento.
+- La preferencia existente continúa guardándose con la misma clave de usuario; no hay cambios de esquema ni de operaciones financieras.
+- Verificación de esta iteración: `npm run lint` y `npm run build` pasaron. `npx playwright test tests/e2e/home-design.spec.js --workers=1` pasó **3/3** en 390×844, 375×812 y 1440×900; recorrió las siete secciones, comprobó persistencia, movimientos, tema/acento y ausencia de errores de página o desbordamiento horizontal. Se generaron capturas por ruta y viewport; se revisaron ejemplos de Inicio, Actividad, Cuentas, Ajustes, Parejas, Notificaciones y el panel de movimiento. `npm test`: **211/213**; siguen los dos fallos conocidos del parser de correos Lulo/Nequi en `tests/api/bank-email.test.js`, ajenos al tema. No equivale a prueba en iPhone físico. Sin cambios en Supabase ni despliegue.

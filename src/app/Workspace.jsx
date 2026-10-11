@@ -14,7 +14,7 @@ import { MovementSheet } from '../features/transactions/components/MovementSheet
 import { LoadingScreen, Toast } from '../shared/components/Feedback.jsx'
 import { PwaUpdatePrompt } from '../features/pwa/PwaUpdatePrompt.jsx'
 
-// Comparte datos y preferencias: las rutas internas siguen en Noche y el Inicio admite la variante clara.
+// Comparte datos, preferencias y el tema seleccionado entre todas las rutas y paneles.
 export function Workspace({ data, actions, syncState = null, isDemo, user, signOut }) {
   const location = useLocation()
   const { accounts, categories, transactions, budgets, goals, allocations, plannedPurchases = [], receipts = [], settingsRows } = data
@@ -22,7 +22,7 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
   const settingsMap = useMemo(() => ({
     ...rawSettingsMap,
     currency: rawSettingsMap.currency || 'COP',
-    // Oscuro conserva el Inicio original; claro activa la variante nueva solo en Inicio.
+    // El modo claro se aplica a todas las rutas de la app.
     theme: rawSettingsMap.theme === 'light' ? 'light' : 'dark',
   }), [rawSettingsMap])
   const currency = settingsMap.currency
@@ -81,7 +81,7 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
 
   useLayoutEffect(() => {
     const root = document.documentElement
-    const variables = walletCardThemeVariables(walletCardStyle)
+    const variables = walletCardThemeVariables(walletCardStyle, { lightSurface: settingsMap.theme === 'light' })
     const previous = Object.fromEntries(Object.keys(variables).map((name) => [name, root.style.getPropertyValue(name)]))
     const previousTheme = root.dataset.walletTheme
     Object.entries(variables).forEach(([name, value]) => root.style.setProperty(name, value))
@@ -93,16 +93,27 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
       if (previousTheme) root.dataset.walletTheme = previousTheme
       else delete root.dataset.walletTheme
     }
-  }, [walletCardStyle])
+  }, [walletCardStyle, settingsMap.theme])
 
   useEffect(() => {
     const root = document.documentElement
-    // Las rutas financieras siguen en noche; únicamente el Inicio puede usar la variante clara.
-    root.dataset.theme = 'dark'
-    const isLightHome = location.pathname === '/' && settingsMap.theme === 'light'
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', isLightHome ? '#ededee' : walletCardThemeById(walletCardStyle).bg)
+    const previousTheme = root.dataset.theme
+    const previousMotion = root.dataset.motion
+    const themeColor = document.querySelector('meta[name="theme-color"]')
+    const previousThemeColor = themeColor?.getAttribute('content')
+    root.dataset.theme = settingsMap.theme
+    themeColor?.setAttribute('content', settingsMap.theme === 'light' ? '#ededee' : walletCardThemeById(walletCardStyle).bg)
     root.dataset.motion = settingsMap.motion || 'system'
-  }, [location.pathname, settingsMap.motion, settingsMap.theme, walletCardStyle])
+
+    return () => {
+      if (previousTheme) root.dataset.theme = previousTheme
+      else delete root.dataset.theme
+      if (previousMotion) root.dataset.motion = previousMotion
+      else delete root.dataset.motion
+      if (previousThemeColor === null) themeColor?.removeAttribute('content')
+      else themeColor?.setAttribute('content', previousThemeColor)
+    }
+  }, [settingsMap.motion, settingsMap.theme, walletCardStyle])
 
   useEffect(() => () => window.clearTimeout(toastTimer.current), [])
 

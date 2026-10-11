@@ -26,7 +26,7 @@ export function AppShell({ children }) {
   const location = useLocation()
   const isHome = location.pathname === '/'
   const homeDesign = settings.theme === 'light' ? 'light' : 'night'
-  const themeStyle = useMemo(() => walletCardThemeVariables(walletCardStyle, { lightSurface: isHome && homeDesign === 'light' }), [walletCardStyle, isHome, homeDesign])
+  const themeStyle = useMemo(() => walletCardThemeVariables(walletCardStyle, { lightSurface: homeDesign === 'light' }), [walletCardStyle, homeDesign])
   const mainRef = useRef(null)
   const [pendingReviewCount, setPendingReviewCount] = useState(0)
 
@@ -65,7 +65,7 @@ export function AppShell({ children }) {
   }, [location.pathname, location.state?.guideFocus])
 
   return (
-    <div className={`app-shell calm-app ${isHome ? 'app-shell--home' : ''}`} data-wallet-theme={walletCardStyle || 'cats'} data-home-design={isHome ? homeDesign : undefined} style={themeStyle}>
+    <div className={`app-shell calm-app ${isHome ? 'app-shell--home' : ''}`} data-wallet-theme={walletCardStyle || 'cats'} data-app-design={homeDesign} data-home-design={isHome ? homeDesign : undefined} style={themeStyle}>
       <aside className="side-nav" aria-label="Navegación principal">
         <div className="wordmark wordmark--small"><PawPrint /> <span>PataWallet</span></div>
         <nav>{items.map(([to, Icon, label]) => <NavLink key={to} to={to} end={to === '/'}><NavigationIcon icon={Icon} to={to} /><span>{label}</span></NavLink>)}</nav>
