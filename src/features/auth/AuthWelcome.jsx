@@ -37,8 +37,8 @@ export function AuthWelcome({ onCreateAccount, onLogin }) {
           >
             {showAnimation ? <picture>
               <source srcSet="/assets/illustrations/welcome-pets-chroma.webp" type="image/webp" />
-              <img className="auth-welcome__media" src="/assets/illustrations/welcome-pets-poster.png" alt="Gatos y cachorros jugando alrededor de una huella de PataWallet" width="480" height="233" fetchPriority="high" />
-            </picture> : <img className="auth-welcome__media" src="/assets/illustrations/welcome-pets-poster.png" alt="Gatos y cachorros jugando alrededor de una huella de PataWallet" width="480" height="233" fetchPriority="high" />}
+              <img className="auth-welcome__media" src="/assets/illustrations/welcome-pets-poster.png" alt="Gatos y cachorros jugando alrededor de una huella de PataWallet" width="480" height="232" fetchPriority="high" />
+            </picture> : <img className="auth-welcome__media" src="/assets/illustrations/welcome-pets-poster.png" alt="Gatos y cachorros jugando alrededor de una huella de PataWallet" width="480" height="232" fetchPriority="high" />}
           </motion.div>
         </div>
 

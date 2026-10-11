@@ -14,7 +14,7 @@ No se ha usado una imagen duplicada como una ilustración extra. El archivo gen�
 
 ## Clip de bienvenida aportado por Danilo · 10 de octubre de 2026
 
-El clip de 6 segundos se recortó para el encuadre de bienvenida, se retiró el verde mediante chroma key y se exportó como WebP animado con transparencia real: 480×232 px, 72 cuadros a 12 fps, 1.988.308 bytes y reproducción en bucle. No contiene audio. El PNG estático de respaldo mide 480×232 px y pesa 168.610 bytes; se usa con movimiento reducido y como alternativa del navegador. Ambos recursos entran en la caché offline de la PWA.
+El clip de 6 segundos se recortó para el encuadre de bienvenida, se retiró el verde mediante chroma key y se exportó como WebP animado con transparencia real: 480×232 px, 72 cuadros a 12 fps, 1.139.174 bytes y reproducción en bucle. No contiene audio. La tolerancia se ajustó el 10 de octubre para conservar las manchas del cachorro tricolor y las rayas del gato gris, que la clave anterior confundía con el fondo. El PNG estático de respaldo usa el mismo ajuste, mide 480×232 px y pesa 155.410 bytes; se usa con movimiento reducido y como alternativa del navegador. Ambos recursos entran en la caché offline de la PWA.
 
 La conversión conserva el clip aportado por el responsable de la app como fuente; no acredita por sí sola derechos de terceros ni crea capas anatómicas. No se probó en un iPhone físico.
 
