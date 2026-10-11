@@ -40,5 +40,5 @@ export function categoryVisual(category, type) {
 
 export function CategoryIcon({ category, type = category?.type, className = '', size = 'row' }) {
   const { Icon, tone } = categoryVisual(category, type)
-  return <NightIcon icon={Icon} tone={tone} variant="tile" className={`category-icon-3d category-icon-3d--${size} ${className}`.trim()} />
+  return <NightIcon icon={Icon} tone={tone} variant="category" className={`category-icon-3d category-icon-3d--${size} ${className}`.trim()} />
 }

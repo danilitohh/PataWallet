@@ -1,8 +1,13 @@
 # Estado de implementación
 
+## Iconos de categoría sin placa · 11 de octubre de 2026
+
+- Los pictogramas conservan sus tonos y volumen con luz y sombra, pero ya no aparecen dentro de un recuadro. Aplicado al presupuesto inicial y al historial de movimientos, incluidas categorías personalizadas.
+- Verificado: `npm run lint` y `npm run build`. No se probó en iPhone físico.
+
 ## Iconos tridimensionales de categorías · 11 de octubre de 2026
 
-- Los iconos del paso de presupuesto y los de Actividad comparten ahora insignias esmaltadas con bisel, volumen, sombra y tonos por categoría. Categorías existentes y nuevas usan la misma pieza visual; los nombres reconocibles reciben un pictograma adecuado y los nombres personalizados usan un símbolo general según el tipo de movimiento.
+- Se creó un componente compartido para el presupuesto inicial y el historial de movimientos. Los nombres reconocibles reciben un pictograma adecuado; los personalizados usan un símbolo general según el tipo de movimiento, y ambos conservan el mismo tratamiento visual.
 - Verificado: `npm run lint` y `npm run build`. No se probó en iPhone físico.
 
 ## Iconos 3D en la selección de moneda · 11 de octubre de 2026
