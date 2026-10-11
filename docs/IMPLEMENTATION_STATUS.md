@@ -1,5 +1,10 @@
 # Estado de implementación
 
+## Acceso alineado con la bienvenida nueva · 11 de octubre de 2026
+
+- «Ya tengo cuenta» sigue abriendo el inicio de sesión funcional; actualicé su presentación para que comparta el fondo nocturno, los acentos turquesa y lavanda y el tratamiento de panel de la bienvenida actual. Correo, Google cuando está habilitado, recuperación de contraseña y volver al inicio conservan sus acciones.
+- Verificado con `npm run lint` y `npm run build`. Revisé el recorrido de bienvenida a acceso en local, además de 390×844, 375×812 y 1440×900; sin desbordamiento horizontal. No envié el formulario ni probé credenciales, Google o recuperación; no probé en iPhone físico.
+
 ## Activación de correo y notificaciones durante el primer acceso · 11 de octubre de 2026
 
 - La selección de correo y notificaciones del registro ahora abre, inmediatamente después de iniciar sesión, una pantalla de configuración interactiva con los controles ya existentes de Gmail/Outlook y Web Push; aparece antes de elegir la portada si todavía falta.

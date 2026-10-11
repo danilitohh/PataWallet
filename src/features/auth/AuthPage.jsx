@@ -114,7 +114,7 @@ export function AuthPage() {
   const title = mode === 'forgot' ? 'Recupera tu acceso' : mode === 'update' ? 'Nueva contraseña' : 'Qué bueno verte'
 
   return (
-    <main className="auth-layout">
+    <main className={`auth-layout auth-layout--modern auth-layout--${mode}`}>
       <section className="auth-art" aria-label="Bienvenida a PataWallet">
         <div className="wordmark"><PawPrint /> PataWallet</div>
         <div><p className="eyebrow">Tu hogar financiero</p><h1>Tu dinero,<br />tu paz, tu manada.</h1><p>Buenas finanzas. Más espacio para lo que quieres.</p></div>
