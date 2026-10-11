@@ -23,6 +23,17 @@ export const DEFAULT_STARTER_CATEGORY_IDS = [
 const allowedCategories = new Set(STARTER_CATEGORIES.map(({ id }) => id))
 const allowedCardStyles = new Set(['macaws', 'cats', 'dogs', 'rabbits', 'otters'])
 
+// Solo guarda las conexiones que la persona eligió configurar; la activación sucede después del acceso.
+export function normalizeIntegrationSetup(value) {
+  if (!value || typeof value !== 'object') return null
+  const setup = {
+    shortcut: value.shortcut === true,
+    bankEmail: value.bankEmail === true,
+    notifications: value.notifications === true,
+  }
+  return Object.values(setup).some(Boolean) ? setup : null
+}
+
 // El metadata de Auth solo sirve como preferencia inicial: se valida de nuevo antes de tocar datos remotos.
 export function normalizeSignupSetup(value) {
   if (!value || typeof value !== 'object' || value.version !== 1) return null

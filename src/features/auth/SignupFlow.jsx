@@ -2,15 +2,16 @@ import { useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import {
   ArrowLeft, ArrowRight, Bell, BriefcaseBusiness, CarFront, Check, ChevronLeft, ChevronRight,
-  Circle, CircleDollarSign, CreditCard, HeartPulse, House, LockKeyhole, PawPrint, ShoppingBasket,
-  Sparkles, Utensils, Eye, EyeOff, Zap,
+  Circle, CircleDollarSign, CreditCard, ExternalLink, HeartPulse, House, LockKeyhole, Mail,
+  PawPrint, Play, ShoppingBasket, Sparkles, Utensils, Eye, EyeOff, Zap,
 } from 'lucide-react'
 import { formatInputAmount, parseLocalizedAmount } from '../../domain/money.js'
-import { STARTER_CATEGORIES, DEFAULT_STARTER_CATEGORY_IDS } from '../../domain/registration.js'
+import { STARTER_CATEGORIES, DEFAULT_STARTER_CATEGORY_IDS, normalizeIntegrationSetup } from '../../domain/registration.js'
 import { currentMonth } from '../../shared/lib/date.js'
 import { WALLET_CARDS } from '../onboarding/walletCardModel.js'
+import shortcutManifest from '../../../shortcuts/template-manifest.json'
 
-const stepLabels = ['Inicio', 'Nombre', 'Portada', 'Moneda', 'Presupuesto', 'Atajos', 'Cuenta']
+const stepLabels = ['Nombre', 'Portada', 'Moneda', 'Presupuesto', 'Atajos', 'Cuenta']
 const categoryIcons = {
   briefcase: BriefcaseBusiness,
   basket: ShoppingBasket,
@@ -44,6 +45,7 @@ export function SignupFlow({ onLogin, onCreateAccount, onGoogle, googleEnabled, 
   const [cardIndex, setCardIndex] = useState(0)
   const [categories, setCategories] = useState(DEFAULT_STARTER_CATEGORY_IDS)
   const [budgetAmount, setBudgetAmount] = useState('')
+  const [integrationSetup, setIntegrationSetup] = useState({ shortcut: false, bankEmail: false, notifications: false })
   const [stepError, setStepError] = useState('')
   const [direction, setDirection] = useState(1)
   const reduceMotion = useReducedMotion()
@@ -65,8 +67,8 @@ export function SignupFlow({ onLogin, onCreateAccount, onGoogle, googleEnabled, 
   const continueFlow = () => {
     setStepError('')
     try {
-      if (step === 1 && name.trim().length < 2) throw new Error('Escribe tu nombre para continuar.')
-      if (step === 4) {
+      if (step === 0 && name.trim().length < 2) throw new Error('Escribe tu nombre para continuar.')
+      if (step === 3) {
         if (categories.length < 1) throw new Error('Elige al menos una categoría para empezar.')
         if (budgetAmount.trim()) parseLocalizedAmount(budgetAmount)
       }
@@ -81,7 +83,7 @@ export function SignupFlow({ onLogin, onCreateAccount, onGoogle, googleEnabled, 
     setStepError('')
     try {
       const setup = signupValues(categories, card.id, budgetAmount)
-      onCreateAccount({ name: name.trim(), email: email.trim(), password, setup })
+      onCreateAccount({ name: name.trim(), email: email.trim(), password, setup, integrations: normalizeIntegrationSetup(integrationSetup) })
     } catch (issue) {
       setStepError(issue.message)
     }
@@ -89,7 +91,7 @@ export function SignupFlow({ onLogin, onCreateAccount, onGoogle, googleEnabled, 
 
   const startGoogle = () => {
     try {
-      onGoogle(signupValues(categories, card.id, budgetAmount), name.trim())
+      onGoogle(signupValues(categories, card.id, budgetAmount), name.trim(), normalizeIntegrationSetup(integrationSetup))
     } catch (issue) {
       setStepError(issue.message)
     }
@@ -115,17 +117,6 @@ export function SignupFlow({ onLogin, onCreateAccount, onGoogle, googleEnabled, 
 
   const renderStep = () => {
     if (step === 0) return <>
-      <p className="signup-flow__eyebrow">Finanzas a tu manera</p>
-      <h1>Tu dinero,<br />en buenas patas.</h1>
-      <p className="signup-flow__lede">Prepara tu billetera con lo que necesitas y abre PataWallet a tu ritmo.</p>
-      <div className="signup-flow__welcome-art" aria-hidden="true">
-        <div className="signup-flow__shadow" />
-        <motion.img src={card.image} alt="" width="640" height="800" fetchPriority="high" initial={reduceMotion ? false : { opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: reduceMotion ? 0 : 0.42, ease: 'easeOut' }} />
-      </div>
-      <div className="signup-flow__welcome-note"><PawPrint aria-hidden="true" /><span>Privada, clara y hecha para ti.</span></div>
-    </>
-
-    if (step === 1) return <>
       <p className="signup-flow__eyebrow">Primero, un saludo</p>
       <h1>¿Cómo te llamamos?</h1>
       <p className="signup-flow__lede">Usaremos tu nombre para personalizar tu espacio.</p>
@@ -133,7 +124,7 @@ export function SignupFlow({ onLogin, onCreateAccount, onGoogle, googleEnabled, 
       <p className="signup-flow__fine">Solo se muestra dentro de tu cuenta.</p>
     </>
 
-    if (step === 2) return <>
+    if (step === 1) return <>
       <p className="signup-flow__eyebrow">Tu billetera, a tu manera</p>
       <h1>Elige una portada</h1>
       <p className="signup-flow__lede">Desliza para ver los diseños. Puedes cambiarla después.</p>
@@ -152,7 +143,7 @@ export function SignupFlow({ onLogin, onCreateAccount, onGoogle, googleEnabled, 
       <p className="signup-flow__fine">La portada es visual; no representa una tarjeta bancaria.</p>
     </>
 
-    if (step === 3) return <>
+    if (step === 2) return <>
       <p className="signup-flow__eyebrow">Una base clara</p>
       <h1>Tu moneda</h1>
       <p className="signup-flow__lede">Así verás los saldos y movimientos en toda la app.</p>
@@ -164,7 +155,7 @@ export function SignupFlow({ onLogin, onCreateAccount, onGoogle, googleEnabled, 
       <p className="signup-flow__fine">PataWallet guarda los importes en pesos colombianos (COP).</p>
     </>
 
-    if (step === 4) return <>
+    if (step === 3) return <>
       <p className="signup-flow__eyebrow">Un comienzo útil</p>
       <h1>Arma tu presupuesto</h1>
       <p className="signup-flow__lede">Elige categorías para tenerlas listas y, si quieres, define un límite total del mes.</p>
@@ -181,16 +172,31 @@ export function SignupFlow({ onLogin, onCreateAccount, onGoogle, googleEnabled, 
       <p className="signup-flow__fine">Es un límite general para gastos del mes, no por categoría. Puedes crear presupuestos más detallados después.</p>
     </>
 
-    if (step === 5) return <>
-      <p className="signup-flow__eyebrow">Menos pasos al registrar</p>
-      <h1>¿Pagas con tarjeta?</h1>
-      <p className="signup-flow__lede">Puedes conectar el atajo oficial de PataWallet para enviar los pagos compatibles desde Atajos de iPhone.</p>
-      <article className="signup-flow__shortcut-card">
-        <span className="signup-flow__shortcut-icon"><CreditCard aria-hidden="true" /></span>
-        <div><strong>Pagos con tarjeta desde Atajos</strong><p>Al crear la cuenta encontrarás los pasos en Ajustes → Pagos con tarjeta. La instalación y los permisos se confirman en tu iPhone.</p></div>
-      </article>
-      <article className="signup-flow__shortcut-note"><Bell aria-hidden="true" /><p>También puedes registrar cada movimiento manualmente. No configuraremos automatizaciones ni leeremos Wallet por ti.</p></article>
-      <p className="signup-flow__fine">Este paso es informativo; podrás configurarlo después de entrar.</p>
+    if (step === 4) return <>
+      <p className="signup-flow__eyebrow">Conecta solo lo que quieras</p>
+      <h1>Deja todo a tu ritmo</h1>
+      <p className="signup-flow__lede">Puedes instalar el atajo ahora. El correo y las notificaciones se conectan después de crear tu cuenta.</p>
+      <div className="signup-flow__integrations">
+        <article className="signup-flow__integration-card">
+          <div className="signup-flow__integration-heading"><span className="signup-flow__shortcut-icon"><CreditCard aria-hidden="true" /></span><div><strong>Pagos con tarjeta</strong><p>Instala el atajo oficial; al entrar podrás vincularlo y elegir el video guía.</p></div></div>
+          <div className="signup-flow__integration-actions">
+            <a className="button button--secondary" href={shortcutManifest.shortcutIcloudUrl} target="_blank" rel="noreferrer" onClick={() => setIntegrationSetup((current) => ({ ...current, shortcut: true }))}><ExternalLink aria-hidden="true" /> Añadir atajo</a>
+            <a className="signup-flow__video-link" href="/assets/integrations/tutorial-patawallet-paso-a-paso.mp4" target="_blank" rel="noopener noreferrer" onClick={() => setIntegrationSetup((current) => ({ ...current, shortcut: true }))}><Play aria-hidden="true" /> Ver video <ExternalLink aria-hidden="true" /></a>
+          </div>
+          <label className="signup-flow__integration-choice"><input type="checkbox" checked={integrationSetup.shortcut} onChange={(event) => setIntegrationSetup((current) => ({ ...current, shortcut: event.target.checked }))} /><span>Muéstrame cómo vincularlo al entrar</span></label>
+        </article>
+
+        <article className="signup-flow__integration-card">
+          <div className="signup-flow__integration-heading"><span className="signup-flow__shortcut-icon"><Mail aria-hidden="true" /></span><div><strong>Transferencias por correo</strong><p>Conectarás Gmail u Outlook y elegirás los bancos. Nunca pediremos tu contraseña de correo.</p></div></div>
+          <label className="signup-flow__integration-choice"><input type="checkbox" checked={integrationSetup.bankEmail} onChange={(event) => setIntegrationSetup((current) => ({ ...current, bankEmail: event.target.checked }))} /><span>Quiero conectar mi correo después de crear la cuenta</span></label>
+        </article>
+
+        <article className="signup-flow__integration-card">
+          <div className="signup-flow__integration-heading"><span className="signup-flow__shortcut-icon"><Bell aria-hidden="true" /></span><div><strong>Notificaciones</strong><p>Actívalas desde el dispositivo. En iPhone, primero agrega PataWallet a Inicio.</p></div></div>
+          <label className="signup-flow__integration-choice"><input type="checkbox" checked={integrationSetup.notifications} onChange={(event) => setIntegrationSetup((current) => ({ ...current, notifications: event.target.checked }))} /><span>Quiero activar avisos de PataWallet</span></label>
+        </article>
+      </div>
+      <p className="signup-flow__fine">Tu selección solo prepara una guía al entrar; no instala ni activa nada por sí sola.</p>
     </>
 
     return <>
@@ -239,12 +245,11 @@ export function SignupFlow({ onLogin, onCreateAccount, onGoogle, googleEnabled, 
         </AnimatePresence>
       </div>
 
-      <footer className={`signup-flow__footer${isAccount ? ' signup-flow__footer--account' : ''}${step === 0 ? ' signup-flow__footer--welcome' : ''}`}>
+      <footer className={`signup-flow__footer${isAccount ? ' signup-flow__footer--account' : ''}`}>
         {step > 0 && <button className="signup-flow__back" type="button" onClick={() => go(step - 1)} disabled={busy}><ArrowLeft aria-hidden="true" /> Atrás</button>}
         {!isAccount && <button className="button button--primary signup-flow__next" type="button" onClick={continueFlow}>
-          {step === 0 ? 'Crear cuenta' : step === stepLabels.length - 2 ? 'Crear mi cuenta' : 'Continuar'} <ArrowRight aria-hidden="true" />
+          {step === stepLabels.length - 2 ? 'Crear mi cuenta' : 'Continuar'} <ArrowRight aria-hidden="true" />
         </button>}
-        {step === 0 && <button className="signup-flow__login" type="button" onClick={onLogin}>Ya tengo cuenta</button>}
         {isAccount && <p className="signup-flow__terms">Usamos tu correo para iniciar sesión y confirmar el registro. Tus importes se guardan en COP.</p>}
       </footer>
     </main>

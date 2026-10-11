@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { supabase } from '../../lib/supabase/client.js'
 import { AuthContext } from './AuthContext.jsx'
 import { observeAuth } from './observeAuth.js'
-import { normalizeSignupSetup } from '../../domain/registration.js'
+import { normalizeIntegrationSetup, normalizeSignupSetup } from '../../domain/registration.js'
 
 const signupDraftKey = 'patawallet:signup-setup:v1'
 
@@ -32,6 +32,7 @@ export function AuthProvider({ children }) {
       let draft
       try { draft = JSON.parse(sessionStorage.getItem(signupDraftKey) || 'null') } catch { draft = null }
       const setup = normalizeSignupSetup(draft?.setup)
+      const integrationSetup = normalizeIntegrationSetup(draft?.integrations)
       const name = typeof draft?.name === 'string' ? draft.name.trim().slice(0, 80) : ''
       if (!setup || name.length < 2) {
         if (draft) {
@@ -46,7 +47,7 @@ export function AuthProvider({ children }) {
       try {
         let task = setupPromise.current
         if (!task || task.userId !== observedUser.id) {
-          const request = supabase.auth.updateUser({ data: { ...observedUser.user_metadata, display_name: name, full_name: name, patawallet_onboarding_v1: setup } })
+          const request = supabase.auth.updateUser({ data: { ...observedUser.user_metadata, display_name: name, full_name: name, patawallet_onboarding_v1: setup, ...(integrationSetup ? { patawallet_integration_setup_v1: integrationSetup } : {}) } })
             .then(({ data, error }) => {
               if (error) throw error
               return data.user

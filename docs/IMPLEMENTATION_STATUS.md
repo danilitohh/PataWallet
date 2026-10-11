@@ -1,5 +1,14 @@
 # Estado de implementación
 
+## Bienvenida y conexiones durante el registro · 10 de octubre de 2026
+
+- El acceso ahora empieza con una bienvenida propia de PataWallet y permite elegir entre crear cuenta o iniciar sesión. El acceso existente por correo, Google y recuperación de contraseña se conserva.
+- El registro ofrece una selección opcional para pagos con tarjeta, lectura de transferencias por correo y notificaciones. La persona puede abrir el enlace oficial de Atajos o ver el tutorial; correo y notificaciones se configuran después de crear la cuenta. Las selecciones son preferencias, no permisos concedidos.
+- Las preferencias se guardan en los metadatos de Auth tanto para el registro por correo como para la continuación OAuth de Google. Tras abrir la portada por primera vez, la app presenta una guía con accesos a Ajustes → Pagos con tarjeta, Correos bancarios y Notificaciones. La guía puede cerrarse y el ajuste de cierre se guarda en el navegador por usuario; los accesos siguen en Ajustes.
+- Correo y notificaciones mantienen sus autorizaciones explícitas en las pantallas existentes. En iPhone, para solicitar avisos primero hay que instalar PataWallet en Inicio. Instalar el atajo y reproducir el video tampoco activan por sí solos una automatización personal. No se conectaron cuentas de correo ni se solicitaron permisos reales.
+- Verificado: `npm run lint` y `npm run build`; pruebas dirigidas de preferencias y guía 5/5. Revisión visual a 390×844, 375×812 y 1440×900 sin desbordamiento horizontal. La suite completa dio 206 pasaron y 2 fallaron (208 totales): ambas expectativas ya conocidas del parser en `tests/api/bank-email.test.js` para `7,90.0` y separadores alternos de Lulo. No se probó OAuth, el permiso de notificaciones ni la instalación/ejecución del atajo en un iPhone real.
+- No se desplegó la aplicación ni se modificaron servicios externos o registros financieros.
+
 ## Portada de billetera configurable · 10 de octubre de 2026
 
 - Al primer acceso al espacio, la persona elige una de las cinco portadas: Guacamayas, Gatos, Perros, Conejos o Nutrias. En las siguientes aperturas de la ruta Inicio durante una sesión nueva, aparece esa tarjeta; tocarla abre el Inicio existente. Las rutas profundas de notificación no quedan bloqueadas por la portada.
@@ -528,3 +537,11 @@ La app está desplegada en Vercel y las migraciones de las fases 1–4, punto de
 - La app informa que COP es la moneda disponible. El paso de Atajos explica dónde configurarlo después y aclara que no se instala ni activa durante el registro.
 - Verificación local: `npm run lint` y `npm run build` pasaron. Revisión visual con viewport 390×844, 375×812 y 1440×900 sin errores de consola ni fallos de página.
 - Pendiente: alta real en Supabase, confirmación de correo, retorno OAuth, persistencia remota de las preferencias con una cuenta de prueba y revisión en iPhone físico. No se modificó la base de datos ni se desplegó.
+
+## Bienvenida y acceso inicial · 10 de octubre de 2026
+
+- La primera pantalla de acceso muestra la portada de PataWallet, una sombra para elevarla visualmente y dos acciones: crear una cuenta o iniciar sesión. El login, Google y recuperación siguen disponibles desde “Ya tengo cuenta”.
+- “Crear cuenta” abre el registro guiado en el paso del nombre, sin repetir la pantalla de bienvenida.
+- Verificación local: `npm run lint` y `npm run build` pasaron. Revisión Playwright en 390×844, 375×812 y 1440×900; sin desbordamiento horizontal, error de página ni solapamiento entre la portada y el botón. Se recorrieron las dos acciones y los seis pasos del registro sin crear una cuenta real.
+- `npm test`: 37 archivos y 201 pruebas pasaron; 2 pruebas fallaron en `tests/api/bank-email.test.js` al analizar importes de correo Lulo/Nequi. Este cambio no modifica el lector ni su parser.
+- Pendiente: probar la autenticación real y el flujo en iPhone físico. No se modificó Supabase ni se desplegó.

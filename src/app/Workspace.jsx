@@ -5,9 +5,11 @@ import { AppContext } from './AppContext.jsx'
 import { AppRoutes } from './routes/AppRoutes.jsx'
 import { AppShell } from './AppShell.jsx'
 import { WelcomePage } from '../features/onboarding/WelcomePage.jsx'
+import { IntegrationSetup } from '../features/onboarding/IntegrationSetup.jsx'
 import { WalletCardPicker, WalletEntry } from '../features/onboarding/WalletCardFlow.jsx'
 import { hasOpenedWallet, isWalletCardStyle, markWalletOpened, readWalletCardStyle, saveWalletCardStyle } from '../features/onboarding/walletCardModel.js'
 import { FirstUseGuide } from '../features/onboarding/FirstUseGuide.jsx'
+import { normalizeIntegrationSetup } from '../domain/registration.js'
 import { MovementSheet } from '../features/transactions/components/MovementSheet.jsx'
 import { LoadingScreen, Toast } from '../shared/components/Feedback.jsx'
 import { PwaUpdatePrompt } from '../features/pwa/PwaUpdatePrompt.jsx'
@@ -19,6 +21,12 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
   const rawSettingsMap = useMemo(() => Object.fromEntries(settingsRows.map((row) => [row.key, row.value])), [settingsRows])
   const settingsMap = useMemo(() => ({ ...rawSettingsMap, theme: 'dark' }), [rawSettingsMap])
   const ownerId = isDemo ? 'demo' : user?.id
+  const integrationPreferences = normalizeIntegrationSetup(user?.user_metadata?.patawallet_integration_setup_v1)
+  const integrationSetupStorageKey = `patawallet:integration-setup:v1:${ownerId}`
+  const [integrationSetupOpen, setIntegrationSetupOpen] = useState(() => {
+    if (isDemo || !ownerId || !integrationPreferences) return false
+    try { return localStorage.getItem(integrationSetupStorageKey) !== 'done' } catch { return true }
+  })
   const [walletCardStyle, setWalletCardStyle] = useState(() => {
     const saved = readWalletCardStyle(ownerId)
     const signupChoice = user?.user_metadata?.patawallet_onboarding_v1?.cardStyle
@@ -70,6 +78,10 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
       return false
     }
   }
+  const finishIntegrationSetup = () => {
+    try { localStorage.setItem(integrationSetupStorageKey, 'done') } catch { /* La guía puede cerrarse aunque el navegador no permita guardar la preferencia. */ }
+    setIntegrationSetupOpen(false)
+  }
   const selectWalletCard = async (cardId) => {
     saveWalletCardStyle(ownerId, cardId)
     setWalletCardStyle(cardId)
@@ -93,7 +105,7 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
   return (
     <AppContext.Provider value={value}>
       <MotionConfig reducedMotion={reduceMotion ? 'always' : 'user'}>
-        {showWalletEntry ? <WalletEntry cardStyle={walletCardStyle} onOpen={openWallet} onChange={openCardPicker} reduceMotion={reduceMotion} /> : <>
+          {showWalletEntry ? <WalletEntry cardStyle={walletCardStyle} onOpen={openWallet} onChange={openCardPicker} reduceMotion={reduceMotion} /> : integrationSetupOpen && integrationPreferences && location.pathname === '/' ? <IntegrationSetup preferences={integrationPreferences} onFinish={finishIntegrationSetup} /> : <>
           <AppShell><AppRoutes /></AppShell>
           <AnimatePresence>{sheet && <MovementSheet transaction={typeof sheet === 'object' && !prefilledSheet ? sheet : null} initialFlow={prefilledSheet?.initialFlow || (sheet === 'income' ? 'income' : typeof sheet === 'string' && sheet.startsWith('debt') ? 'debt' : 'expense')} initialDebtId={typeof sheet === 'string' && sheet.startsWith('debt:') ? sheet.slice(5) : undefined} initialValues={prefilledSheet?.initialValues} onSaved={prefilledSheet?.onSaved} onClose={() => setSheet(null)} />}</AnimatePresence>
           <AnimatePresence>{toast && <Toast toast={toast} close={dismissToast} />}</AnimatePresence>

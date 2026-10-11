@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react'
 import { ArrowLeft, Eye, EyeOff, LogIn, PawPrint } from 'lucide-react'
 import { PetScene } from '../../components/PetScene.jsx'
 import { NightScene } from '../../components/NightScene.jsx'
+import { normalizeIntegrationSetup } from '../../domain/registration.js'
 import { supabase } from '../../lib/supabase/client.js'
+import { AuthWelcome } from './AuthWelcome.jsx'
 import { SignupFlow } from './SignupFlow.jsx'
 
 const signupDraftKey = 'patawallet:signup-setup:v1'
@@ -23,7 +25,7 @@ function friendlyError(error) {
 // Presenta acceso, registro y recuperación reales con la misma identidad nocturna.
 export function AuthPage() {
   const recovery = new URLSearchParams(location.search).has('recovery')
-  const [mode, setMode] = useState(recovery ? 'update' : 'login')
+  const [mode, setMode] = useState(recovery ? 'update' : 'welcome')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [visible, setVisible] = useState(false)
@@ -41,15 +43,21 @@ export function AuthPage() {
     try { return await callback() } catch (issue) { setError(friendlyError(issue)) } finally { setBusy(false) }
   }
 
-  const createAccount = ({ name, email: signupEmail, password: signupPassword, setup }) => run(async () => {
+  const createAccount = ({ name, email: signupEmail, password: signupPassword, setup, integrations }) => run(async () => {
     const cleanName = name.trim()
+    const integrationSetup = normalizeIntegrationSetup(integrations)
     if (cleanName.length < 2) throw new Error('Escribe tu nombre.')
     if (signupPassword.length < 8) throw new Error('La contraseña debe tener al menos 8 caracteres.')
     const { data, error: issue } = await supabase.auth.signUp({
       email: signupEmail,
       password: signupPassword,
       options: {
-        data: { display_name: cleanName, full_name: cleanName, patawallet_onboarding_v1: setup },
+        data: {
+          display_name: cleanName,
+          full_name: cleanName,
+          patawallet_onboarding_v1: setup,
+          ...(integrationSetup ? { patawallet_integration_setup_v1: integrationSetup } : {}),
+        },
         emailRedirectTo: location.origin,
       },
     })
@@ -81,9 +89,9 @@ export function AuthPage() {
     })
   }
 
-  const google = (setup = null, name = '') => run(async () => {
+  const google = (setup = null, name = '', integrations = null) => run(async () => {
     if (setup) {
-      try { sessionStorage.setItem(signupDraftKey, JSON.stringify({ name, setup })) } catch {
+      try { sessionStorage.setItem(signupDraftKey, JSON.stringify({ name, setup, integrations: normalizeIntegrationSetup(integrations) })) } catch {
         throw new Error('No pudimos conservar tus preferencias para continuar con Google. Usa el registro con correo.')
       }
     }
@@ -101,6 +109,7 @@ export function AuthPage() {
     setMode(next); setError(''); setNotice(''); setPassword('')
   }
   if (mode === 'register') return <SignupFlow onLogin={() => changeMode('login')} onCreateAccount={createAccount} onGoogle={google} googleEnabled={googleEnabled} busy={busy} error={error} notice={notice} />
+  if (mode === 'welcome') return <AuthWelcome onCreateAccount={() => changeMode('register')} onLogin={() => changeMode('login')} />
 
   const title = mode === 'forgot' ? 'Recupera tu acceso' : mode === 'update' ? 'Nueva contraseña' : 'Qué bueno verte'
 
@@ -115,7 +124,7 @@ export function AuthPage() {
       <section className="auth-panel">
         <div className="wordmark auth-mobile-brand"><PawPrint /> PataWallet</div>
         <div className="auth-card">
-          {(mode === 'forgot' || mode === 'update') && <button className="auth-back" type="button" onClick={() => changeMode('login')}><ArrowLeft /> Volver</button>}
+          {(mode === 'forgot' || mode === 'update' || mode === 'login') && <button className="auth-back" type="button" onClick={() => changeMode(mode === 'login' ? 'welcome' : 'login')}><ArrowLeft /> {mode === 'login' ? 'Inicio' : 'Volver'}</button>}
           <p className="eyebrow">Acceso seguro</p>
           <h2>{title}</h2>
           <p>{mode === 'forgot' ? 'Te enviaremos un enlace seguro a tu correo.' : mode === 'update' ? 'Elige una contraseña que no uses en otros sitios.' : 'Inicia sesión para ver únicamente tus datos.'}</p>

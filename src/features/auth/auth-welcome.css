@@ -1,0 +1,62 @@
+.auth-welcome {
+  --welcome-accent: #63d4c9;
+  position: relative;
+  isolation: isolate;
+  min-height: 100svh;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: clamp(12px, 3vh, 28px);
+  overflow-x: hidden;
+  padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+  color: #f7f5ff;
+  background:
+    radial-gradient(ellipse at 50% 38%, #293454 0%, #111d33 34%, transparent 69%),
+    radial-gradient(ellipse at 13% 13%, #262c4b 0%, transparent 42%),
+    #0b1425;
+}
+.auth-welcome__header,
+.auth-welcome__hero { width: min(100%, 520px); margin-inline: auto; }
+.auth-welcome__header { min-height: 40px; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.auth-welcome__brand { display: inline-flex; align-items: center; gap: 9px; color: #fbf9ff; font-size: 1.1rem; font-weight: 820; letter-spacing: -.045em; }
+.auth-welcome__brand svg { width: 27px; height: 27px; color: var(--welcome-accent); fill: color-mix(in srgb, var(--welcome-accent) 16%, transparent); }
+.auth-welcome__tag { color: #aeb9ce; font-size: .69rem; font-weight: 650; letter-spacing: .035em; }
+.auth-welcome__hero { min-height: 0; display: grid; align-content: center; justify-items: center; gap: clamp(8px, 2.2vh, 20px); text-align: center; }
+.auth-welcome__copy { display: grid; justify-items: center; gap: 8px; }
+.auth-welcome__eyebrow { color: var(--welcome-accent); font-size: .69rem; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
+.auth-welcome__copy h1 { color: #f8f6ff; font-size: clamp(2.1rem, 8.6vw, 2.8rem); line-height: 1.02; letter-spacing: -.06em; text-wrap: balance; }
+.auth-welcome__description { max-width: 34ch; color: #b9c4d9; font-size: .91rem; line-height: 1.45; text-wrap: balance; }
+.auth-welcome__art { position: relative; isolation: isolate; width: min(76vw, 290px); height: clamp(220px, 35svh, 310px); min-height: 0; }
+.auth-welcome__art img { position: absolute; z-index: 1; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 20px 25px #030713a8); pointer-events: none; }
+.auth-welcome__shadow { position: absolute; z-index: 0; right: 12%; bottom: 3%; left: 12%; height: 17px; border-radius: 50%; background: radial-gradient(ellipse, #000e 0%, #050914a8 39%, transparent 76%); filter: blur(6px); }
+.auth-welcome__actions { position: relative; z-index: 1; width: min(100%, 390px); display: grid; gap: 10px; }
+.auth-welcome__actions .button { width: 100%; min-height: 52px; border-radius: 17px; font-size: .94rem; }
+.auth-welcome__create { gap: 9px; color: #092328; background: linear-gradient(105deg, #62d7cc, #a9a0ff); box-shadow: 0 10px 30px #59d3c52e; }
+.auth-welcome__create svg { width: 18px; height: 18px; transition: transform .2s ease; }
+.auth-welcome__create:hover svg { transform: translateX(3px); }
+.auth-welcome__login { color: #f1edff; border: 1px solid #56617d; background: #17243a; }
+.auth-welcome__note { display: flex; align-items: center; justify-content: center; gap: 7px; padding-top: 3px; color: #8e9bb4; font-size: .7rem; }
+.auth-welcome__note svg { width: 14px; height: 14px; color: #c5b4ff; }
+.auth-welcome button:focus-visible { outline: 3px solid #e3c8ff; outline-offset: 4px; }
+
+@media (min-width: 700px) {
+  .auth-welcome { gap: 22px; padding-inline: 36px; }
+  .auth-welcome__header,
+  .auth-welcome__hero { width: min(100%, 590px); }
+  .auth-welcome__copy h1 { font-size: clamp(2.8rem, 5.5vw, 3.7rem); }
+  .auth-welcome__art { width: min(42vw, 350px); height: min(39svh, 355px); }
+  .auth-welcome__actions { width: min(100%, 420px); }
+}
+@media (max-height: 700px) and (max-width: 699px) {
+  .auth-welcome { gap: 6px; padding-block: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-bottom)); }
+  .auth-welcome__hero { gap: 7px; }
+  .auth-welcome__copy { gap: 5px; }
+  .auth-welcome__copy h1 { font-size: clamp(1.8rem, 7.6vw, 2.25rem); }
+  .auth-welcome__description { font-size: .82rem; }
+  .auth-welcome__art { height: 26svh; min-height: 165px; }
+  .auth-welcome__actions .button { min-height: 46px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .auth-welcome__create svg { transition: none; }
+}
+html[data-motion="off"] .auth-welcome__create svg { transition: none; }
