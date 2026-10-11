@@ -68,3 +68,15 @@
   .app-shell--home .calm-navigation,
   .app-shell--home .mobile-top { background: var(--bg); backdrop-filter: none; -webkit-backdrop-filter: none; }
 }
+
+/* Aplana los iconos de Inicio sin cambiar los botones, sus placas ni las tarjetas. */
+.app-shell--home .night-icon,
+.app-shell--home .night-icon__spark,
+.app-shell--home .calm-navigation a.active svg {
+  box-shadow: none !important;
+}
+
+.app-shell--home .night-icon__glyph,
+.app-shell--home .calm-navigation svg {
+  filter: none !important;
+}

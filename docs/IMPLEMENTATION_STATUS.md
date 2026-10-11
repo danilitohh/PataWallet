@@ -647,3 +647,8 @@ La app está desplegada en Vercel y las migraciones de las fases 1–4, punto de
 - Los colores de acento siguen la tarjeta elegida; los tonos de texto, éxito y error se adaptan para mantener legibilidad sobre fondos claros. Se aclaran las superficies particulares de Cuentas, Inicio, Parejas, navegación y el panel de nuevo movimiento.
 - La preferencia existente continúa guardándose con la misma clave de usuario; no hay cambios de esquema ni de operaciones financieras.
 - Verificación de esta iteración: `npm run lint` y `npm run build` pasaron. `npx playwright test tests/e2e/home-design.spec.js --workers=1` pasó **3/3** en 390×844, 375×812 y 1440×900; recorrió las siete secciones, comprobó persistencia, movimientos, tema/acento y ausencia de errores de página o desbordamiento horizontal. Se generaron capturas por ruta y viewport; se revisaron ejemplos de Inicio, Actividad, Cuentas, Ajustes, Parejas, Notificaciones y el panel de movimiento. `npm test`: **211/213**; siguen los dos fallos conocidos del parser de correos Lulo/Nequi en `tests/api/bank-email.test.js`, ajenos al tema. No equivale a prueba en iPhone físico. Sin cambios en Supabase ni despliegue.
+
+## Iconos planos en Inicio · 11 de octubre de 2026
+
+- Se quitaron las sombras exteriores y los filtros de relieve de los iconos en Inicio y de los iconos de la navegación inferior. Se conservaron sus fondos, colores y botones.
+- Verificación local: `npm run lint` y `npm run build` pasaron. No se ejecutaron pruebas automatizadas ni se revisó en un iPhone físico.
