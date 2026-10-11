@@ -224,6 +224,17 @@ async function reviewHandler(req, res) {
     assertTrustedOrigin(req); assertBodySize(req, 3_000); const user = await authenticatedUser(req); const parsed = reviewSchema.safeParse(req.body)
     if (!parsed.success) return json(res, 400, { error: 'Resolución inválida o incompleta.' })
     const value = parsed.data; const admin = adminClient()
+    if (value.action === 'dismiss') {
+      const { data, error } = await admin.from('incoming_events')
+        .update({ resolved_at: new Date().toISOString(), version: value.expected_version + 1 })
+        .eq('id', req.query.id).eq('user_id', user.id).eq('version', value.expected_version)
+        .is('resolved_at', null).is('transaction_id', null)
+        .in('result_status', ['needs_review', 'duplicate', 'conflict'])
+        .select('id,version').maybeSingle()
+      if (error) throw error
+      if (!data) return json(res, 409, { error: 'Este evento ya cambió, fue resuelto o tiene un movimiento asociado.' })
+      return json(res, 200, { status: 'dismissed', incoming_id: data.id, version: data.version })
+    }
     if (value.remember_card_mapping) {
       const { data: item, error: itemError } = await admin.from('incoming_events').select('card_alias,normalized_card_alias').eq('id', req.query.id).eq('user_id', user.id).maybeSingle()
       if (itemError) throw itemError

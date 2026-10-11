@@ -25,12 +25,21 @@ function ReviewForm({ item, accounts, categories, transactions, close, onResolve
   const [transactionId, setTransactionId] = useState('')
   const [createRule, setCreateRule] = useState(false)
   const [rememberCardMapping, setRememberCardMapping] = useState(item.review_reasons.includes('card_not_mapped'))
+  const [discardRequested, setDiscardRequested] = useState(false)
   const [busy, setBusy] = useState(false)
   const submit = async (event) => {
     event.preventDefault(); setBusy(true)
     try {
       await onResolve(item.id, { expected_version: item.version, action, account_id: action === 'record' ? accountId : undefined, category_id: action === 'associate' ? undefined : categoryId, amount_minor: action === 'record' ? amount : undefined, occurred_at: action === 'record' ? new Date(occurredAt).toISOString() : undefined, transaction_id: action === 'associate' ? transactionId : undefined, create_rule: createRule, remember_card_mapping: action === 'record' && rememberCardMapping })
       notify('Evento resuelto sin duplicar movimientos'); close()
+    } catch (error) { notify(error.message) } finally { setBusy(false) }
+  }
+  const discard = async () => {
+    setBusy(true)
+    try {
+      await onResolve(item.id, { expected_version: item.version, action: 'dismiss' })
+      notify('Aviso descartado. No se creó ningún movimiento.')
+      close()
     } catch (error) { notify(error.message) } finally { setBusy(false) }
   }
   return <form className="review-form" onSubmit={submit}>
@@ -41,6 +50,7 @@ function ReviewForm({ item, accounts, categories, transactions, close, onResolve
       <label className="field"><span>Categoría</span><select value={categoryId} onChange={(event) => setCategoryId(event.target.value)} required>{categories.filter((category) => category.type === 'expense' && category.name !== 'Sin categoría').map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></label>
       {item.merchant_name && <label className="check-row"><input type="checkbox" checked={createRule} onChange={(event) => setCreateRule(event.target.checked)} /> Usar esta categoría para futuras coincidencias exactas</label>}
     </>}
-    <div className="notification-actions"><button type="button" className="button button--secondary" onClick={close}>Cancelar</button><button className="button button--primary" disabled={busy}>{busy ? 'Guardando…' : 'Confirmar'}</button></div>
+    <div className="notification-actions"><button type="button" className="button button--secondary" onClick={close}>Cancelar</button>{!item.transaction_id && <button type="button" className="button button--quiet" onClick={() => setDiscardRequested(true)} disabled={busy}>Descartar aviso</button>}<button className="button button--primary" disabled={busy}>{busy ? 'Guardando…' : 'Confirmar'}</button></div>
+    {discardRequested && <div className="review-discard-confirm" role="group" aria-label="Confirmar descarte del evento"><p className="info-note">El aviso saldrá de «Por revisar». No se creará ningún gasto ni cambiarán tus saldos.</p><div className="notification-actions"><button type="button" className="button button--secondary" onClick={() => setDiscardRequested(false)} disabled={busy}>Volver</button><button type="button" className="button button--danger" onClick={discard} disabled={busy}>{busy ? 'Descartando…' : 'Sí, descartar'}</button></div></div>}
   </form>
 }

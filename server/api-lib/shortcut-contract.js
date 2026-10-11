@@ -9,7 +9,7 @@ export const pairSchema = z.object({ ticket: z.string().min(40).max(100), templa
 export const mappingSchema = z.object({ card_alias: shortText(80).min(1), account_id: shortText(180).min(1) }).strict()
 export const ruleSchema = z.object({ merchant_pattern: shortText(120).min(1), category_id: shortText(180).min(1), priority: z.number().int().min(1).max(1000).default(100) }).strict()
 export const reviewSchema = z.object({
-  expected_version: z.number().int().positive(), action: z.enum(['record', 'categorize', 'associate']),
+  expected_version: z.number().int().positive(), action: z.enum(['record', 'categorize', 'associate', 'dismiss']),
   account_id: shortText(180).min(1).optional(), category_id: shortText(180).min(1).optional(),
   amount_minor: z.string().regex(/^[1-9]\d{0,11}$/).optional(), occurred_at: z.string().datetime({ offset: true }).optional(),
   transaction_id: shortText(180).min(1).optional(), create_rule: z.boolean().default(false), remember_card_mapping: z.boolean().default(false),

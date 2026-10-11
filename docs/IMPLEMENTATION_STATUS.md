@@ -1,5 +1,12 @@
 # Estado de implementación
 
+## Descartar eventos de Atajos no reconocidos · 11 de octubre de 2026
+
+- Los eventos de Atajos pendientes sin movimiento asociado pueden descartarse desde «Revisar ahora». La app pide confirmación, los saca de «Por revisar» y no crea gastos ni cambia saldos; conserva el registro de forma cerrada para idempotencia y auditoría.
+- Los eventos que ya generaron un movimiento no muestran esta acción. El endpoint valida usuario, versión, estado pendiente y ausencia de movimiento asociado antes de cerrar el aviso.
+- El cierre usa los campos existentes de resolución y versión de `incoming_events`; no requiere una migración de esquema.
+- Verificado con `npm run lint` y `npm run build`. No se probaron eventos reales.
+
 ## Iconos de notificaciones y ajustes sin sombra · 11 de octubre de 2026
 
 - Se quitó la sombra exterior de los iconos de notificaciones y Ajustes en la barra superior; se mantienen su contorno, fondo y color.
