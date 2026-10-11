@@ -44,7 +44,7 @@
 .app-shell--home[data-home-design="night"] .dashboard-home-balance__label > small { color: var(--on-primary); font-size: .65rem; }
 .app-shell--home[data-home-design="night"] .dashboard-home-balance__label .icon-button { width: 42px; height: 42px; margin-left: 0; border: 1px solid color-mix(in srgb, var(--on-primary) 16%, transparent); border-radius: 15px; background: color-mix(in srgb, var(--on-primary) 8%, transparent); color: var(--on-primary); }
 .app-shell--home[data-home-design="night"] .dashboard-home-balance__label .icon-button svg { width: 19px; height: 19px; }
-.app-shell--home[data-home-design="night"] .dashboard-home-balance--night > strong { max-width: 100%; color: var(--on-primary); font-size: clamp(2.5rem, 11vw, 3.5rem); font-weight: 790; line-height: 1.03; letter-spacing: -.055em; overflow-wrap: anywhere; }
+.app-shell--home[data-home-design="night"] .dashboard-home-balance--night > strong { max-width: 100%; color: #fff; font-size: clamp(2.5rem, 11vw, 3.5rem); font-weight: 790; line-height: 1.03; letter-spacing: -.055em; overflow-wrap: anywhere; }
 .app-shell--home[data-home-design="night"] .dashboard-home-balance--night > small { color: color-mix(in srgb, var(--on-primary) 82%, transparent); font-size: .72rem; line-height: 1.45; }
 .app-shell--home[data-home-design="night"] .dashboard-home-balance--night .dashboard-available-hero__empty { font-size: clamp(1.6rem, 8vw, 2.2rem); }
 .app-shell--home[data-home-design="night"] .dashboard-home-balance--night .dashboard-view-link { width: fit-content; min-height: 40px; padding: 0 12px; border: 1px solid color-mix(in srgb, var(--on-primary) 22%, transparent); background: color-mix(in srgb, var(--on-primary) 8%, transparent); color: var(--on-primary); font-size: .76rem; }
