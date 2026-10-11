@@ -652,3 +652,8 @@ La app está desplegada en Vercel y las migraciones de las fases 1–4, punto de
 
 - Se quitaron las sombras exteriores y los filtros de relieve de los iconos en Inicio y de los iconos de la navegación inferior. Se conservaron sus fondos, colores y botones.
 - Verificación local: `npm run lint` y `npm run build` pasaron. No se ejecutaron pruebas automatizadas ni se revisó en un iPhone físico.
+
+## Perfil e iconos de Ajustes · 11 de octubre de 2026
+
+- Se alinearon los iconos de las filas de Ajustes con un tamaño común y se simplificó su relieve. La tarjeta de perfil usa una franja oscura translúcida para que el nombre y el correo blancos tengan contraste; conserva el acento de la portada elegida.
+- Verificación local: `npm run lint` y `npm run build` pasaron. No se ejecutaron pruebas automatizadas ni se revisó en un iPhone físico.
