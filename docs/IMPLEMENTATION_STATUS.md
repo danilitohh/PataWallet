@@ -4,7 +4,7 @@
 
 - Las cinco portadas tienen una paleta compartida. La elección aplicada al registro también define fondos, superficies, bordes, acentos, botones principales, navegación, controles, iconos, focos y la tarjeta de saldo; cambiarla desde Ajustes actualiza la app en el momento.
 - La misma paleta se usa en el registro, el selector y la entrada con tarjeta y la configuración opcional de correo/notificaciones. Inicio conserva su superficie clara, con sus acentos, acciones y superficies teñidos por la portada. La opción de Ajustes ahora explica este alcance.
-- Verificado con `npm run lint` y `npm run build`. Revisé manualmente la demo local en 390×844 (Inicio y entrada de tarjeta), 375×812 (Ajustes) y 1440×900 (Actividad); cambié la portada desde Ajustes y confirmé que la paleta activa pasó a Nutrias. Sin errores de página ni desbordamiento horizontal. No ejecuté la suite automatizada, no probé un iPhone físico y no desplegué el cambio.
+- Verificado con `npm run lint` y `npm run build`. Revisé manualmente la demo local en 390×844 (Inicio y entrada de tarjeta), 375×812 (Ajustes) y 1440×900 (Actividad); cambié la portada desde Ajustes y confirmé que la paleta activa pasó a Nutrias. Sin errores de página ni desbordamiento horizontal. No ejecuté la suite automatizada ni probé un iPhone físico. El código se envió a `main`; no confirmé si Vercel ejecutó el despliegue automático.
 
 ## Inicio ligero inspirado en la referencia · 11 de octubre de 2026
 
