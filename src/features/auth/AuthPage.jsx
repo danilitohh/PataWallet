@@ -109,7 +109,25 @@ export function AuthPage() {
     setMode(next); setError(''); setNotice(''); setPassword('')
   }
   if (mode === 'register') return <SignupFlow onLogin={() => changeMode('login')} onCreateAccount={createAccount} onGoogle={google} googleEnabled={googleEnabled} busy={busy} error={error} notice={notice} />
-  if (mode === 'welcome') return <AuthWelcome onCreateAccount={() => changeMode('register')} onLogin={() => changeMode('login')} />
+  if (mode === 'welcome' || mode === 'login' || mode === 'forgot') return <AuthWelcome
+    mode={mode}
+    onCreateAccount={() => changeMode('register')}
+    onLogin={() => changeMode('login')}
+    onBackToWelcome={() => changeMode('welcome')}
+    onForgotPassword={() => changeMode('forgot')}
+    onGoogle={() => google()}
+    googleEnabled={googleEnabled}
+    email={email}
+    onEmailChange={(event) => setEmail(event.target.value)}
+    password={password}
+    onPasswordChange={(event) => setPassword(event.target.value)}
+    visible={visible}
+    onTogglePassword={() => setVisible(!visible)}
+    onSubmit={submit}
+    busy={busy}
+    error={error}
+    notice={notice}
+  />
 
   const title = mode === 'forgot' ? 'Recupera tu acceso' : mode === 'update' ? 'Nueva contraseña' : 'Qué bueno verte'
 

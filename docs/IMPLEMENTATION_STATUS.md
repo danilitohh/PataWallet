@@ -1,9 +1,9 @@
 # Estado de implementación
 
-## Acceso alineado con la bienvenida nueva · 11 de octubre de 2026
+## Inicio de sesión dentro de la bienvenida · 11 de octubre de 2026
 
-- «Ya tengo cuenta» sigue abriendo el inicio de sesión funcional; actualicé su presentación para que comparta el fondo nocturno, los acentos turquesa y lavanda y el tratamiento de panel de la bienvenida actual. Correo, Google cuando está habilitado, recuperación de contraseña y volver al inicio conservan sus acciones.
-- Verificado con `npm run lint` y `npm run build`. Revisé el recorrido de bienvenida a acceso en local, además de 390×844, 375×812 y 1440×900; sin desbordamiento horizontal. No envié el formulario ni probé credenciales, Google o recuperación; no probé en iPhone físico.
+- «Ya tengo cuenta» reemplaza los botones por el acceso en el espacio de la bienvenida; el encabezado, el mensaje y la ilustración permanecen. Incluye correo, contraseña con control para mostrarla, Google cuando está habilitado, recuperación y regreso al inicio. La recuperación también se muestra dentro de la bienvenida.
+- Verifiqué el cambio de vista y regreso en local; revisé 375×812, 390×844 y 1440×900, sin desbordamiento horizontal y con el contenido visible. `npm run lint` y `npm run build` pasan. No envié el formulario ni inicié OAuth o recuperación; no probé en iPhone físico.
 
 ## Activación de correo y notificaciones durante el primer acceso · 11 de octubre de 2026
 
