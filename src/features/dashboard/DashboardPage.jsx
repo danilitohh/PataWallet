@@ -9,9 +9,9 @@ import { incomeReference } from '../settings/model/incomeSources.js'
 import { nextIncomeDate } from './model/dashboardViews.js'
 import { AvailableView } from './views/AvailableView.jsx'
 
-// Usa un único Inicio; las preferencias antiguas de vista no alteran ni reescriben datos.
+// Mantiene los mismos datos y acciones para los dos diseños disponibles de Inicio.
 export function DashboardPage() {
-  const { accounts, transactions, budgets, goals, allocations, plannedPurchases, settings, setSheet, actions, isDemo } = useApp()
+  const { accounts, transactions, budgets, goals, allocations, plannedPurchases, settings, setSheet, actions, isDemo, user } = useApp()
   const [month, setMonth] = useState(currentMonth())
   const summary = useMemo(() => calculateSummary(accounts, transactions, month), [accounts, transactions, month])
   const income = useMemo(() => incomeReference(settings, accounts), [settings, accounts])
@@ -30,8 +30,10 @@ export function DashboardPage() {
   const accountCount = accounts.filter((item) => !item.archived).length
   const hidden = Boolean(settings.hiddenAmounts)
   const nextPayDate = nextIncomeDate({ frequency: payFrequency, nextPayDate: payDate, today: calendarToday() })
+  const greeting = String(user?.user_metadata?.display_name || user?.user_metadata?.full_name || (isDemo ? 'Danilo' : '')).trim()
   const viewProps = {
     summary, cash, budget, remaining, used, recent, nextPayDate, hidden, currency: settings.currency || 'COP',
+    homeDesign: settings.theme === 'light' ? 'light' : 'night', greeting,
     legacyIncomeConfigured: income.salaryMinor !== null,
     goals: activeGoals, goalCount: goals.length, allocations, planned, plannedCount,
     accounts: activeAccounts, accountCount, balances: summary.balances,

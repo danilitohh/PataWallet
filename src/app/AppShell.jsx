@@ -22,10 +22,11 @@ function NavigationIcon({ icon: Icon, to }) {
 
 // Adapta las rutas compartidas a dock móvil y barra lateral sin modificar acciones financieras.
 export function AppShell({ children }) {
-  const { setSheet, isDemo, user, syncState, actions, walletCardStyle } = useApp()
+  const { setSheet, isDemo, user, syncState, actions, walletCardStyle, settings } = useApp()
   const location = useLocation()
   const isHome = location.pathname === '/'
-  const themeStyle = useMemo(() => walletCardThemeVariables(walletCardStyle, { lightSurface: isHome }), [walletCardStyle, isHome])
+  const homeDesign = settings.theme === 'light' ? 'light' : 'night'
+  const themeStyle = useMemo(() => walletCardThemeVariables(walletCardStyle, { lightSurface: isHome && homeDesign === 'light' }), [walletCardStyle, isHome, homeDesign])
   const mainRef = useRef(null)
   const [pendingReviewCount, setPendingReviewCount] = useState(0)
 
@@ -64,7 +65,7 @@ export function AppShell({ children }) {
   }, [location.pathname, location.state?.guideFocus])
 
   return (
-    <div className={`app-shell calm-app ${isHome ? 'app-shell--home' : ''}`} data-wallet-theme={walletCardStyle || 'cats'} style={themeStyle}>
+    <div className={`app-shell calm-app ${isHome ? 'app-shell--home' : ''}`} data-wallet-theme={walletCardStyle || 'cats'} data-home-design={isHome ? homeDesign : undefined} style={themeStyle}>
       <aside className="side-nav" aria-label="Navegación principal">
         <div className="wordmark wordmark--small"><PawPrint /> <span>PataWallet</span></div>
         <nav>{items.map(([to, Icon, label]) => <NavLink key={to} to={to} end={to === '/'}><NavigationIcon icon={Icon} to={to} /><span>{label}</span></NavLink>)}</nav>

@@ -14,12 +14,17 @@ import { MovementSheet } from '../features/transactions/components/MovementSheet
 import { LoadingScreen, Toast } from '../shared/components/Feedback.jsx'
 import { PwaUpdatePrompt } from '../features/pwa/PwaUpdatePrompt.jsx'
 
-// Comparte datos y preferencias de la cuenta, manteniendo Noche como identidad única y respetando accesibilidad.
+// Comparte datos y preferencias: las rutas internas siguen en Noche y el Inicio admite la variante clara.
 export function Workspace({ data, actions, syncState = null, isDemo, user, signOut }) {
   const location = useLocation()
   const { accounts, categories, transactions, budgets, goals, allocations, plannedPurchases = [], receipts = [], settingsRows } = data
   const rawSettingsMap = useMemo(() => Object.fromEntries(settingsRows.map((row) => [row.key, row.value])), [settingsRows])
-  const settingsMap = useMemo(() => ({ ...rawSettingsMap, currency: rawSettingsMap.currency || 'COP', theme: 'dark' }), [rawSettingsMap])
+  const settingsMap = useMemo(() => ({
+    ...rawSettingsMap,
+    currency: rawSettingsMap.currency || 'COP',
+    // Oscuro conserva el Inicio original; claro activa la variante nueva solo en Inicio.
+    theme: rawSettingsMap.theme === 'light' ? 'light' : 'dark',
+  }), [rawSettingsMap])
   const currency = settingsMap.currency
   const currencyActions = useMemo(() => {
     const currencyForTransaction = (record) => {
@@ -79,31 +84,25 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
     const variables = walletCardThemeVariables(walletCardStyle)
     const previous = Object.fromEntries(Object.keys(variables).map((name) => [name, root.style.getPropertyValue(name)]))
     const previousTheme = root.dataset.walletTheme
-    const previousThemeColor = document.querySelector('meta[name="theme-color"]')?.getAttribute('content')
     Object.entries(variables).forEach(([name, value]) => root.style.setProperty(name, value))
     if (walletCardStyle) root.dataset.walletTheme = walletCardStyle
     else delete root.dataset.walletTheme
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', walletCardThemeById(walletCardStyle).bg)
 
     return () => {
       Object.entries(previous).forEach(([name, value]) => value ? root.style.setProperty(name, value) : root.style.removeProperty(name))
       if (previousTheme) root.dataset.walletTheme = previousTheme
       else delete root.dataset.walletTheme
-      if (previousThemeColor) document.querySelector('meta[name="theme-color"]')?.setAttribute('content', previousThemeColor)
     }
   }, [walletCardStyle])
 
   useEffect(() => {
     const root = document.documentElement
-    // La interfaz es siempre oscura; las preferencias antiguas se normalizan para no reintroducir el tema claro.
+    // Las rutas financieras siguen en noche; únicamente el Inicio puede usar la variante clara.
     root.dataset.theme = 'dark'
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', walletCardThemeById(walletCardStyle).bg)
+    const isLightHome = location.pathname === '/' && settingsMap.theme === 'light'
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', isLightHome ? '#ededee' : walletCardThemeById(walletCardStyle).bg)
     root.dataset.motion = settingsMap.motion || 'system'
-    if (settingsRows.length && rawSettingsMap.theme !== 'dark') {
-      // La interfaz permanece oscura aunque la normalización de una preferencia antigua falle temporalmente.
-      void Promise.resolve(actions.setSetting('theme', 'dark')).catch(() => {})
-    }
-  }, [actions, rawSettingsMap.theme, settingsMap.motion, settingsRows.length, walletCardStyle])
+  }, [location.pathname, settingsMap.motion, settingsMap.theme, walletCardStyle])
 
   useEffect(() => () => window.clearTimeout(toastTimer.current), [])
 

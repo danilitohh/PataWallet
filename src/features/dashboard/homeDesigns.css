@@ -1,0 +1,103 @@
+/* El modo claro conserva la composición vigente y aclara también el detalle desplegable. */
+.app-shell--home[data-home-design="light"] .dashboard-money-details { background: color-mix(in srgb, #ffffff 94%, var(--accent)); border-color: color-mix(in srgb, var(--accent) 18%, #d9d9dd); box-shadow: 0 7px 22px color-mix(in srgb, var(--accent) 5%, #20212a09); }
+.app-shell--home[data-home-design="light"] .dashboard-money-details > summary { color: #515359; }
+.app-shell--home[data-home-design="light"] .dashboard-money-details__body { border-color: color-mix(in srgb, var(--accent) 16%, #d9d9dd); }
+.app-shell--home[data-home-design="light"] .dashboard-money-details .feature-panel { color: #27282c; border-color: color-mix(in srgb, var(--accent) 17%, #d9d9dd); background: #ffffffc9; box-shadow: 0 4px 14px #24222a0a; }
+.app-shell--home[data-home-design="light"] .dashboard-money-details .feature-panel :is(h2,p,small,strong,span) { color: inherit; }
+.app-shell--home[data-home-design="light"] .dashboard-money-details .feature-panel .section-heading a { color: var(--accent); }
+.app-shell--home[data-home-design="light"] .dashboard-money-details .dashboard-list-row,
+.app-shell--home[data-home-design="light"] .dashboard-money-details .available-money-card__breakdown span { border-color: color-mix(in srgb, var(--accent) 14%, #dedee2); }
+
+/* Inicio nocturno original: tarjeta de saldo protagonista y acciones rápidas flotantes. */
+.app-shell--home[data-home-design="night"] {
+  --text: #f6f3ff;
+  --text-2: #b9bde0;
+  color: var(--text);
+  background: radial-gradient(ellipse at 58% 8%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 48%), var(--bg);
+}
+.app-shell--home[data-home-design="night"] .mobile-top { background: color-mix(in srgb, var(--bg) 94%, transparent); border-bottom: 1px solid color-mix(in srgb, var(--accent) 12%, transparent); }
+.app-shell--home[data-home-design="night"] .mobile-top .wordmark { color: var(--text); }
+.app-shell--home[data-home-design="night"] .mobile-top .wordmark svg { color: var(--accent); fill: var(--accent); stroke-width: 1.2; }
+.app-shell--home[data-home-design="night"] .mobile-top__actions a { border: 0; background: transparent; }
+.app-shell--home[data-home-design="night"] .mobile-top__actions .night-icon { color: var(--accent); }
+.app-shell--home[data-home-design="night"] .side-nav { color: var(--text); background: color-mix(in srgb, var(--bg) 94%, var(--accent)); border-right: 1px solid color-mix(in srgb, var(--accent) 18%, var(--border)); }
+.app-shell--home[data-home-design="night"] .side-nav .wordmark { color: var(--text); }
+.app-shell--home[data-home-design="night"] .side-nav nav a,
+.app-shell--home[data-home-design="night"] .side-nav > a { color: var(--text-2); }
+.app-shell--home[data-home-design="night"] .side-nav nav a.active { color: var(--accent); background: var(--glass-panel); box-shadow: var(--glass-shadow); }
+.app-shell--home[data-home-design="night"] .side-nav__note,
+.app-shell--home[data-home-design="night"] .side-nav__demo { color: var(--text-2); }
+.app-shell--home[data-home-design="night"] .page { max-width: 760px; padding-top: calc(91px + env(safe-area-inset-top)); padding-bottom: calc(154px + env(safe-area-inset-bottom)); }
+.app-shell--home[data-home-design="night"] .calm-navigation { border: var(--glass-edge); background: var(--glass-panel); box-shadow: var(--glass-shadow); }
+.app-shell--home[data-home-design="night"] .calm-navigation a { color: var(--text-2); }
+.app-shell--home[data-home-design="night"] .calm-navigation a.active { color: var(--accent); }
+.app-shell--home[data-home-design="night"] .calm-navigation a.active svg { color: var(--on-primary); background: var(--button-fill); box-shadow: 0 3px 12px color-mix(in srgb, var(--accent) 22%, transparent); }
+.app-shell--home[data-home-design="night"] .calm-navigation a.active .lucide-house { fill: var(--on-primary); }
+.app-shell--home[data-home-design="night"] .local-status { color: var(--text); background: var(--surface); box-shadow: var(--glass-shadow); }
+.app-shell--home[data-home-design="night"] .dashboard--minimal .dashboard-view--available { gap: 14px; }
+.app-shell--home[data-home-design="night"] .dashboard-home-heading { min-height: 44px; justify-content: flex-start; gap: 10px; }
+.app-shell--home[data-home-design="night"] .dashboard-home-heading h1 { margin: 0; color: var(--text); font-size: clamp(1.65rem, 6vw, 2rem); font-weight: 760; letter-spacing: -.045em; }
+.app-shell--home[data-home-design="night"] .dashboard-home-heading .calm-demo { max-width: 48%; border-color: color-mix(in srgb, var(--accent) 32%, var(--border)); color: var(--text-2); font-size: .58rem; white-space: normal; text-align: right; }
+.app-shell--home[data-home-design="night"] .dashboard-home-balance--hero { min-height: 210px; }
+.app-shell--home[data-home-design="night"] .dashboard-home-balance--hero > .glass-hero__content { min-height: 210px; align-content: start; gap: 9px; padding: 36px 23px 44px; }
+.app-shell--home[data-home-design="night"] .dashboard-home-balance__label { width: 100%; display: flex; align-items: center; justify-content: flex-start; gap: 9px; color: var(--on-primary); font-size: .78rem; }
+.app-shell--home[data-home-design="night"] .dashboard-home-balance__label > span { margin-right: auto; }
+.app-shell--home[data-home-design="night"] .dashboard-home-balance__label > small { color: var(--on-primary); font-size: .65rem; }
+.app-shell--home[data-home-design="night"] .dashboard-home-balance__label .icon-button { width: 42px; height: 42px; margin-left: 0; border-radius: 15px; }
+.app-shell--home[data-home-design="night"] .dashboard-home-balance__label .icon-button svg { width: 19px; height: 19px; }
+.app-shell--home[data-home-design="night"] .dashboard-home-balance--hero > .glass-hero__content > strong { max-width: 100%; color: var(--on-primary); font-size: clamp(2.5rem, 11vw, 3.5rem); font-weight: 790; line-height: 1.03; letter-spacing: -.055em; overflow-wrap: anywhere; }
+.app-shell--home[data-home-design="night"] .dashboard-home-balance--hero > .glass-hero__content > small { color: color-mix(in srgb, var(--on-primary) 82%, transparent); font-size: .72rem; line-height: 1.45; }
+.app-shell--home[data-home-design="night"] .dashboard-home-balance--hero .dashboard-available-hero__empty { font-size: clamp(1.6rem, 8vw, 2.2rem); }
+.app-shell--home[data-home-design="night"] .dashboard-home-balance--hero .dashboard-view-link { width: fit-content; min-height: 40px; padding: 0 12px; border: 1px solid color-mix(in srgb, var(--on-primary) 22%, transparent); background: color-mix(in srgb, var(--on-primary) 8%, transparent); color: var(--on-primary); font-size: .76rem; }
+.app-shell--home[data-home-design="night"] .dashboard-home-actions { margin-top: -62px; }
+.app-shell--home[data-home-design="night"] .glass-action .night-icon--orb { width: 74px; height: 74px; }
+.app-shell--home[data-home-design="night"] .glass-action .night-icon--orb .night-icon__glyph { width: 32px; height: 32px; }
+.app-shell--home[data-home-design="night"] .dashboard-home-actions .glass-action { color: var(--text-2); font-size: .77rem; }
+.app-shell--home[data-home-design="night"] .dashboard-home-month-summary { display: grid; gap: 10px; padding-top: 4px; }
+.app-shell--home[data-home-design="night"] .dashboard-home-month-summary__heading { display: flex; align-items: center; justify-content: flex-end; gap: 7px; color: var(--text-2); font-size: .76rem; }
+.app-shell--home[data-home-design="night"] .dashboard-home-month-summary__heading label { display: inline-flex; }
+.app-shell--home[data-home-design="night"] .dashboard-home-month-summary__heading input { width: 165px; min-height: 36px; padding-inline: 6px; border: 0; border-radius: 10px; background: transparent; color: var(--text-2); font-size: .78rem; text-align: right; color-scheme: dark; }
+.app-shell--home[data-home-design="night"] .dashboard-home-totals { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
+.app-shell--home[data-home-design="night"] .dashboard-home-totals article { min-width: 0; display: flex; align-items: center; gap: 9px; padding: 11px 10px; border: var(--glass-edge); border-radius: 20px; background: var(--glass-panel); color: var(--text); box-shadow: var(--glass-shadow); }
+.app-shell--home[data-home-design="night"] .dashboard-home-totals article > svg { width: 34px; height: 34px; padding: 6px; border: 1px solid color-mix(in srgb, var(--accent) 36%, var(--border)); border-radius: 50%; background: var(--accent-soft); color: var(--accent); }
+.app-shell--home[data-home-design="night"] .dashboard-home-totals article:nth-child(2) > svg { color: var(--accent-secondary); }
+.app-shell--home[data-home-design="night"] .dashboard-home-totals article > span { min-width: 0; display: grid; gap: 3px; color: var(--text-2); font-size: .67rem; }
+.app-shell--home[data-home-design="night"] .dashboard-home-totals article strong { color: var(--text); font-size: clamp(.9rem, 3.7vw, 1.2rem); overflow-wrap: anywhere; }
+.app-shell--home[data-home-design="night"] .dashboard-home-empty { max-width: 34ch; justify-self: center; color: var(--text-2); text-align: center; }
+.app-shell--home[data-home-design="night"] .dashboard-home-empty strong { color: var(--text); }
+.app-shell--home[data-home-design="night"] .dashboard--minimal .calm-upcoming,
+.app-shell--home[data-home-design="night"] .dashboard--minimal .dashboard-recent { background: var(--glass-panel); border: var(--glass-edge); box-shadow: var(--glass-shadow); }
+.app-shell--home[data-home-design="night"] .dashboard--minimal .section-heading h2 { color: var(--text); }
+.app-shell--home[data-home-design="night"] .dashboard--minimal .section-heading a { color: var(--accent); }
+.app-shell--home[data-home-design="night"] .dashboard--minimal .calm-payment-row { border-color: color-mix(in srgb, var(--accent) 18%, var(--border)); }
+.app-shell--home[data-home-design="night"] .dashboard--minimal .calm-payment-row > .night-icon { color: var(--accent); }
+.app-shell--home[data-home-design="night"] .dashboard--minimal .calm-payment-row small,
+.app-shell--home[data-home-design="night"] .dashboard--minimal .helper { color: var(--text-2); }
+.app-shell--home[data-home-design="night"] .dashboard--minimal .calm-payment-row > strong { color: var(--text); }
+.app-shell--home[data-home-design="night"] .dashboard--minimal .dashboard-home-fab,
+.app-shell--home[data-home-design="night"] .dashboard--minimal .dashboard-home-add { display: none; }
+.app-shell--home[data-home-design="night"] .dashboard--minimal .calm-details { border-color: var(--border); }
+.app-shell--home[data-home-design="night"] .dashboard--minimal .calm-details > summary { color: var(--text-2); }
+
+@media (min-width: 700px) {
+  .app-shell--home[data-home-design="night"] .dashboard--minimal .dashboard-view--available { grid-template-columns: repeat(2,minmax(0,1fr)); align-items: start; gap: 20px 24px; }
+  .app-shell--home[data-home-design="night"] .dashboard--minimal .dashboard-home-heading,
+  .app-shell--home[data-home-design="night"] .dashboard--minimal .dashboard-home-balance,
+  .app-shell--home[data-home-design="night"] .dashboard--minimal .dashboard-home-actions,
+  .app-shell--home[data-home-design="night"] .dashboard--minimal .dashboard-home-month-summary,
+  .app-shell--home[data-home-design="night"] .dashboard--minimal .dashboard-home-empty,
+  .app-shell--home[data-home-design="night"] .dashboard--minimal .dashboard-money-details { grid-column: 1 / -1; }
+  .app-shell--home[data-home-design="night"] .dashboard--minimal .dashboard-home-actions { width: min(100%, 560px); justify-self: center; }
+  .app-shell--home[data-home-design="night"] .dashboard--minimal .dashboard-recent { grid-column: 1; }
+  .app-shell--home[data-home-design="night"] .dashboard--minimal .calm-upcoming { grid-column: 2; }
+}
+@media (min-width: 1000px) {
+  .app-shell--home[data-home-design="night"] .dashboard--minimal .dashboard-home-fab { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-shell--home[data-home-design="night"] .glass-action .night-icon { transition: none; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .app-shell--home .calm-navigation,
+  .app-shell--home .mobile-top { background: var(--bg); backdrop-filter: none; -webkit-backdrop-filter: none; }
+}

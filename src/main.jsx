@@ -22,6 +22,7 @@ import './styles/night-icons.css'
 import './shared/components/dock.css'
 import './styles/calm.css'
 import './styles/glass.css'
+import './features/dashboard/homeDesigns.css'
 
 // Ajusta el viewport antes de montar la interfaz para evitar zoom accidental en la PWA.
 configureStandaloneViewport()

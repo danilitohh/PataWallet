@@ -445,7 +445,7 @@ Actualizado: 2026-10-01. Fase actual: **ingesta automática Gmail configurada en
 - Revisión de Inicio, Actividad, Plan, Cuentas, ingresos, gastos fijos/checklist, Ajustes, acceso, onboarding, formularios, Asistente, notificaciones y Atajos. Parejas recibe controles/superficies compartidos; no se verificaron sus operaciones autenticadas reales.
 - Estilos nuevos separados por módulo; botones con brillo al interactuar, fondo ambiental CSS pausado en segundo plano y reducido por preferencia. No se añadieron paquetes ni se modificaron cálculos o esquemas de servidor.
 - Controles compartidos con profundidad 3D sutil: luz superior, sombra desplazada, elevación al pasar el cursor y hundimiento al pulsar para botones, navegación, iconos de actividad, cuentas, metas y ajustes. El movimiento se desactiva con la preferencia del sistema o “Sin movimiento”.
-- Tema oscuro único: la opción Claro/Sistema ya no se muestra y las preferencias antiguas se normalizan a Noche al abrir el espacio; el cambio del sistema operativo no altera la identidad visual.
+- La base nocturna fue inicialmente única; desde el 11 de octubre Inicio permite elegir también el diseño claro. Las demás rutas permanecen nocturnas y el color de la tarjeta elegida define los acentos globales.
 - Iconografía Noche: se incorporó una capa `NightIcon` reutilizable con insignias SVG de tonos lavanda, cielo, menta, durazno, rosa y dorado, halo suave y variantes ópticas para navegación, estadísticas, cuentas, movimientos, metas, ajustes e integraciones. Los iconos ya no dependen de trazos genéricos aislados y mantienen estados accesibles de foco, pulsación y movimiento reducido.
 - Dock móvil: se integró un componente magnético basado en React Bits/Motion con ampliación por proximidad, etiquetas flotantes, enlaces semánticos para las rutas y botón central de Nuevo movimiento. La navegación conserva el estado activo, funciona con teclado y vuelve al tamaño base con movimiento reducido; el menú lateral de escritorio permanece intacto.
 - Verificación: `npm run lint` aprobado; `npm run test` **100/100**; suite previa `npm run test:e2e` **58 aprobadas, 2 omitidas** (la captura adicional de Atajos en noche/movimiento reducido solo se ejecuta en mobile-390); nueva suite `night-design.spec.js` **9/9**; `npm run build` aprobado; `npm run test:pwa` **1/1**.
@@ -609,3 +609,11 @@ La app está desplegada en Vercel y las migraciones de las fases 1–4, punto de
 - Verificación local: `npm run lint` y `npm run build` pasaron. Revisión Playwright en 390×844, 375×812 y 1440×900; sin desbordamiento horizontal, error de página ni solapamiento entre la portada y el botón. Se recorrieron las dos acciones y los seis pasos del registro sin crear una cuenta real.
 - `npm test`: 37 archivos y 201 pruebas pasaron; 2 pruebas fallaron en `tests/api/bank-email.test.js` al analizar importes de correo Lulo/Nequi. Este cambio no modifica el lector ni su parser.
 - Pendiente: probar la autenticación real y el flujo en iPhone físico. No se modificó Supabase ni se desplegó.
+
+## Dos diseños para Inicio · 11 de octubre de 2026
+
+- Inicio vuelve al diseño nocturno original por defecto y permite cambiar al diseño claro desde Ajustes. La preferencia usa el ajuste de apariencia ya persistido; no añade columnas ni migraciones.
+- Ambas variantes conservan los mismos datos, saldo, movimientos, presupuesto, pagos, control de montos y acciones reales para compra, ingreso y pago de deuda. La tarjeta elegida sigue determinando los acentos de la app.
+- El menú lateral de escritorio adapta su superficie y texto al diseño nocturno, en línea con el resto del Inicio.
+- Verificación local: `npm run lint` y `npm run build` pasaron. `tests/e2e/home-design.spec.js` pasó 3/3 en 390×844, 375×812 y 1440×900: selección clara/nocturna persiste tras recargar, el resto de rutas se mantiene nocturno, conserva los acentos de la tarjeta y abre los tres formularios existentes sin errores de página ni desbordamiento horizontal.
+- `npm test`: 211 de 213 pruebas pasaron; quedan 2 fallos en `tests/api/bank-email.test.js` por análisis de formatos Lulo/Nequi, fuera de este cambio. No se modificó Supabase ni se desplegó.
