@@ -61,7 +61,7 @@ export function AppShell({ children }) {
   }, [location.pathname, location.state?.guideFocus])
 
   return (
-    <div className="app-shell calm-app">
+    <div className={`app-shell calm-app ${location.pathname === '/' ? 'app-shell--home' : ''}`}>
       <aside className="side-nav" aria-label="Navegación principal">
         <div className="wordmark wordmark--small"><PawPrint /> <span>PataWallet</span></div>
         <nav>{items.map(([to, Icon, label]) => <NavLink key={to} to={to} end={to === '/'}><NavigationIcon icon={Icon} to={to} /><span>{label}</span></NavLink>)}</nav>

@@ -1,5 +1,12 @@
 # Estado de implementación
 
+## Inicio ligero inspirado en la referencia · 11 de octubre de 2026
+
+- La pantalla Inicio adopta una composición gris clara y despejada: saldo en cuentas destacado, selector del mes, ingresos y gastos en indicadores compactos, acceso discontinuo «Agregar» y un botón flotante azul en móvil.
+- Ambos accesos de agregar abren el formulario actual, que conserva compra, ingreso, pago de deuda y transferencia. También siguen visibles los movimientos recientes y próximos pagos; el presupuesto, margen, metas, compras previstas y cuentas permanecen dentro del detalle desplegable.
+- Se conservan el cálculo real del saldo, moneda, ocultar montos, selección mensual, enlaces a las secciones y el aviso de datos de ejemplo locales. La adaptación visual clara se aplica al Inicio.
+- Verificado: `npm run lint` y `npm run build`. Revisé manualmente 375×812 y 390×844; el documento no presenta desbordamiento horizontal. En 1440×900 comprobé el ancho del contenido y del menú lateral. Confirmé en el formulario que siguen disponibles compra, ingreso, pago de deuda y transferencia. No guardé ningún movimiento. No probé en iPhone físico ni revisé visualmente aquí el estado vacío.
+
 ## Inicio de sesión dentro de la bienvenida · 11 de octubre de 2026
 
 - «Ya tengo cuenta» reemplaza los botones por el acceso en el espacio de la bienvenida; el encabezado, el mensaje y la ilustración permanecen. Incluye correo, contraseña con control para mostrarla, Google cuando está habilitado, recuperación y regreso al inicio. La recuperación también se muestra dentro de la bienvenida.
