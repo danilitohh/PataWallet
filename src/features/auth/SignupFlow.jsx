@@ -1,29 +1,17 @@
 import { useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import {
-  ArrowLeft, ArrowRight, Bell, BriefcaseBusiness, CarFront, Check, ChevronLeft, ChevronRight,
-  Circle, CreditCard, ExternalLink, HeartPulse, House, LockKeyhole, Mail,
-  PawPrint, Play, Search, ShoppingBasket, Sparkles, Utensils, Eye, EyeOff, Zap,
+  ArrowLeft, ArrowRight, Bell, Check, ChevronLeft, ChevronRight, CreditCard,
+  ExternalLink, LockKeyhole, Mail, PawPrint, Play, Search, Eye, EyeOff,
 } from 'lucide-react'
 import { formatInputAmount, parseLocalizedAmount } from '../../domain/money.js'
 import { STARTER_CATEGORIES, DEFAULT_STARTER_CATEGORY_IDS, normalizeIntegrationSetup, SUPPORTED_CURRENCIES } from '../../domain/registration.js'
 import { currentMonth } from '../../shared/lib/date.js'
+import { CategoryIcon } from '../../shared/components/CategoryIcon.jsx'
 import { WALLET_CARDS } from '../onboarding/walletCardModel.js'
 import shortcutManifest from '../../../shortcuts/template-manifest.json'
 
 const stepLabels = ['Nombre', 'Portada', 'Moneda', 'Presupuesto', 'Atajos', 'Cuenta']
-const categoryIcons = {
-  briefcase: BriefcaseBusiness,
-  basket: ShoppingBasket,
-  car: CarFront,
-  paw: PawPrint,
-  utensils: Utensils,
-  house: House,
-  heart: HeartPulse,
-  bolt: Zap,
-  sparkles: Sparkles,
-  circle: Circle,
-}
 
 function signupValues(categories, cardStyle, budgetAmount, currency) {
   return {
@@ -183,10 +171,9 @@ export function SignupFlow({ onLogin, onCreateAccount, onGoogle, googleEnabled, 
       <p className="signup-flow__lede">Elige categorías para tenerlas listas y, si quieres, define un límite total del mes.</p>
       <div className="signup-flow__category-grid" aria-label="Categorías iniciales">
         {STARTER_CATEGORIES.map((item) => {
-          const Icon = categoryIcons[item.icon] || Circle
           const checked = categories.includes(item.id)
           return <button key={item.id} className={`signup-flow__category${checked ? ' is-selected' : ''}`} type="button" aria-pressed={checked} onClick={() => toggleCategory(item.id)}>
-            <span className="signup-flow__category-icon"><Icon aria-hidden="true" /></span><span>{item.name}</span>{checked && <Check className="signup-flow__category-check" aria-hidden="true" />}
+            <CategoryIcon category={item} size="compact" className="signup-flow__category-icon" /><span>{item.name}</span>{checked && <Check className="signup-flow__category-check" aria-hidden="true" />}
           </button>
         })}
       </div>

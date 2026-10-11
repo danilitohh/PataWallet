@@ -1,5 +1,10 @@
 # Estado de implementación
 
+## Iconos tridimensionales de categorías · 11 de octubre de 2026
+
+- Los iconos del paso de presupuesto y los de Actividad comparten ahora insignias esmaltadas con bisel, volumen, sombra y tonos por categoría. Categorías existentes y nuevas usan la misma pieza visual; los nombres reconocibles reciben un pictograma adecuado y los nombres personalizados usan un símbolo general según el tipo de movimiento.
+- Verificado: `npm run lint` y `npm run build`. No se probó en iPhone físico.
+
 ## Iconos 3D en la selección de moneda · 11 de octubre de 2026
 
 - Los símbolos de COP, GTQ, USD, EUR, MXN y GBP ahora aparecen en monedas CSS con canto estriado, bisel metálico y relieve. Cada divisa tiene acabado propio y la selección, búsqueda y navegación de teclado mantienen su comportamiento.
