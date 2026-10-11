@@ -165,7 +165,9 @@ export function SignupFlow({ onLogin, onCreateAccount, onGoogle, googleEnabled, 
             setCurrency(nextCurrency.code)
             document.getElementById(`signup-currency-${nextCurrency.code}`)?.focus()
           }}>
-            <span className="signup-flow__currency-icon" aria-hidden="true">{item.symbol}</span>
+            <span className="signup-flow__currency-icon" data-currency={item.code} aria-hidden="true">
+              <span className="signup-flow__currency-face"><span className="signup-flow__currency-symbol">{item.symbol}</span></span>
+            </span>
             <span><strong>{item.name}</strong><small>{item.code} · {item.country}</small></span>
             {selected && <span className="signup-flow__currency-check"><Check aria-hidden="true" /></span>}
           </button>

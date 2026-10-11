@@ -1,5 +1,10 @@
 # Estado de implementación
 
+## Iconos 3D en la selección de moneda · 11 de octubre de 2026
+
+- Los símbolos de COP, GTQ, USD, EUR, MXN y GBP ahora aparecen en monedas CSS con canto estriado, bisel metálico y relieve. Cada divisa tiene acabado propio y la selección, búsqueda y navegación de teclado mantienen su comportamiento.
+- Verificado: `npm run lint` y `npm run build`. Sin captura nueva de esta variante ni prueba en iPhone físico.
+
 ## Moneda base elegible durante el registro · 11 de octubre de 2026
 
 - El paso «Tu moneda» ya ofrece COP, GTQ, USD, EUR, MXN y GBP en una lista buscable y accesible por teclado. El presupuesto inicial, sus campos y las etiquetas monetarias muestran el código elegido.
