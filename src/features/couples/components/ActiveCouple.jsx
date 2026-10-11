@@ -26,8 +26,12 @@ export function ActiveCouple({ couple, accounts, settings, user, busy, setBusy, 
   const ownAccounts = accounts.filter((account) => !account.archived)
   const debts = couple.shared_accounts.filter((item) => item.account.kind === 'liability')
   const money = couple.shared_accounts.filter((item) => item.account.kind === 'asset')
+  const moneyTotals = new Map()
+  for (const item of money) moneyTotals.set(item.account.currency || 'COP', safeAdd(moneyTotals.get(item.account.currency || 'COP') || 0, Number(item.account.balance_minor)))
+  const moneySummary = [...moneyTotals].map(([code, total]) => formatMinor(total, code, settings.hiddenAmounts)).join(' · ') || formatMinor(0, settings.currency || 'COP', settings.hiddenAmounts)
   const pending = couple.requests.filter((request) => request.status === 'pending')
   const selectedAccount = couple.shared_accounts.find((item) => accountKey(item) === requestAccount)?.account
+  const requestCurrency = selectedAccount?.currency || settings.currency || 'COP'
 
   // Captura también el foco por toque en Safari y prepara la selección desde el último estado remoto.
   const openPanel = (name, event) => {
@@ -107,7 +111,7 @@ export function ActiveCouple({ couple, accounts, settings, user, busy, setBusy, 
       </div>
     </header>
 
-    <GlassHero className="couples-glass-balance"><span>Dinero compartido</span><strong className="glass-amount">{formatMinor(money.reduce((total, item) => safeAdd(total, Number(item.account.balance_minor)), 0), settings.currency || 'COP', settings.hiddenAmounts)}</strong><p>Solo las cuentas que decidieron compartir.</p></GlassHero>
+    <GlassHero className="couples-glass-balance"><span>Dinero compartido</span><strong className="glass-amount">{moneySummary}</strong><p>Los saldos se muestran por separado según la moneda de cada cuenta.</p></GlassHero>
     <div className="glass-actions"><OrbAction icon={Wallet} aria-label="Qué compartimos" onClick={(event) => openPanel('sharing', event)} disabled={busy}>Compartir cuenta</OrbAction>{couple.shared_accounts.length > 0 && <OrbAction icon={Plus} aria-label="Proponer un cambio" disabled={busy} onClick={(event) => openPanel('proposal', event)}>Proponer</OrbAction>}</div>
 
     <div className="couples-serena__groups">
@@ -136,17 +140,17 @@ export function ActiveCouple({ couple, accounts, settings, user, busy, setBusy, 
           <label>Cuenta compartida<select disabled={busy} value={requestAccount} onChange={(event) => { setRequestAccount(event.target.value); setRequestType('account_adjustment') }}>{couple.shared_accounts.map((item) => <option key={accountKey(item)} value={accountKey(item)}>{item.account.name} · {item.owner_label}</option>)}</select></label>
           <label>Tipo de cambio<select disabled={busy} value={requestType} onChange={(event) => setRequestType(event.target.value)}><option value="account_adjustment">Ajustar saldo</option>{selectedAccount?.kind === 'liability' && <option value="account_update">Cambiar cuota mensual</option>}</select></label>
           {requestType === 'account_adjustment' ? <>
-            <label>Monto<input disabled={busy} inputMode="decimal" value={amount} onChange={(event) => setAmount(formatInputAmount(event.target.value))} placeholder="100.000" required /></label>
+            <label>Monto · {requestCurrency}<input disabled={busy} inputMode="decimal" value={amount} onChange={(event) => setAmount(formatInputAmount(event.target.value))} placeholder="100.000" required /></label>
             <label>Dirección<select disabled={busy} value={direction} onChange={(event) => setDirection(event.target.value)}><option value="increase">Aumenta el saldo</option><option value="decrease">Disminuye el saldo</option></select></label>
             <label>Nota (opcional)<input disabled={busy} value={note} onChange={(event) => setNote(event.target.value)} maxLength="160" placeholder="Motivo del ajuste" /></label>
-          </> : <label>Cuota mensual<input disabled={busy} inputMode="decimal" value={monthlyPayment} onChange={(event) => setMonthlyPayment(formatInputAmount(event.target.value))} placeholder="300.000" required /></label>}
+          </> : <label>Cuota mensual · {requestCurrency}<input disabled={busy} inputMode="decimal" value={monthlyPayment} onChange={(event) => setMonthlyPayment(formatInputAmount(event.target.value))} placeholder="300.000" required /></label>}
           <button className="button button--primary" disabled={busy || !selectedAccount}>{busy ? 'Enviando…' : 'Enviar para aprobación'}</button>
         </form>}
         {panel === 'requests' && <div ref={requestsRef} tabIndex="-1" className="couple-request-list couples-serena__request-list">
           <p>Los cambios necesitan la aprobación de la otra persona.</p>
           {couple.requests.length ? couple.requests.map((request) => <article key={request.id}>
             <div><strong>{request.change_type === 'account_update' ? 'Cambio de cuota' : request.payload.direction === 'increase' ? 'Ajuste al alza' : 'Ajuste a la baja'} · {request.account_name}</strong>
-              <span>{formatMinor(request.payload.amount_minor ?? request.payload.debt_monthly_payment_minor, settings.currency || 'COP', settings.hiddenAmounts)}</span>
+              <span>{formatMinor(request.payload.amount_minor ?? request.payload.debt_monthly_payment_minor, request.payload.currency || couple.shared_accounts.find((item) => accountKey(item) === accountKey(request))?.account.currency || settings.currency || 'COP', settings.hiddenAmounts)}</span>
               <small>{request.status === 'pending' ? request.proposer_id === user?.id ? 'Esperando a tu pareja' : 'Pendiente de tu revisión' : request.status === 'approved' ? 'Aprobada' : request.status === 'conflict' ? 'No se pudo aplicar: cambió la cuenta' : 'Rechazada'}</small>
             </div>
             {request.status === 'pending' && request.proposer_id !== user?.id && <div><button className="button button--secondary" disabled={busy} onClick={() => review(request.id, 'approve')}><Check aria-hidden="true" /> Aprobar</button><button className="button button--secondary" disabled={busy} onClick={() => review(request.id, 'reject')}><X aria-hidden="true" /> Rechazar</button></div>}

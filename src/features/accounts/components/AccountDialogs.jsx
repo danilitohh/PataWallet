@@ -126,7 +126,7 @@ export function AccountEditDialog({ account, close }) {
           <Field label="Saldo pendiente actual" optional error={balanceError}><input inputMode="decimal" value={debtBalance} onChange={(event) => setDebtBalance(formatInputAmount(event.target.value))} placeholder="Vacío = conservar saldo" /></Field>
           <p className="helper">Dejar el campo vacío conserva el saldo. Para marcarla como pagada, escribe 0 o usa el botón; al guardar se registra un ajuste que conserva los pagos anteriores.{currentBalanceMinor < 0 && !settings.hiddenAmounts && <> Actualmente tienes un saldo a favor de {formatMinor(Math.abs(currentBalanceMinor), account.currency || 'COP')}.</>}</p>
           {currentBalanceMinor > 0 && <button className="button button--secondary" type="button" disabled={saving} onClick={() => { setDebtBalance('0'); setBalanceError('') }}>Marcar como pagada</button>}
-          <DebtScheduleFields values={schedule} onChange={setSchedule} error={scheduleError} />
+          <DebtScheduleFields values={schedule} onChange={setSchedule} error={scheduleError} currency={account.currency || settings.currency || 'COP'} />
         </>}
         {formError && <p className="form-error" role="alert">{formError}</p>}
         {account.kind !== 'liability' && <p className="helper">Cambiar el nombre no modifica saldos ni movimientos.</p>}
@@ -138,7 +138,8 @@ export function AccountEditDialog({ account, close }) {
 
 // Reutiliza el alta desde movimientos; assetOnly restringe el origen a dinero disponible.
 export function AccountDialog({ close, initialKind = 'asset', initialAmount = null, assetOnly = false, onCreated }) {
-  const { notify, actions } = useApp()
+  const { notify, actions, settings } = useApp()
+  const currency = settings.currency || 'COP'
   const [name, setName] = useState('')
   const [kind, setKind] = useState(initialKind)
   const [subtype, setSubtype] = useState(() => defaultAccountSubtype(initialKind))
@@ -168,8 +169,8 @@ export function AccountDialog({ close, initialKind = 'asset', initialAmount = nu
         return
       }
       const id = makeId('account')
-      const accountRecord = { id, name: name.trim(), kind, subtype, currency: 'COP', archived: false, ...(kind === 'liability' ? debtSchedule : {}) }
-      const openingRecord = minor ? { id: makeId('transaction'), type: 'opening', amount_minor: minor, currency: 'COP', occurred_at: `${today()}T12:00:00-05:00`, from_account_id: null, to_account_id: id, category_id: null, merchant_name: null, note: 'Saldo inicial', source: 'manual', status: 'recorded' } : null
+      const accountRecord = { id, name: name.trim(), kind, subtype, currency, archived: false, ...(kind === 'liability' ? debtSchedule : {}) }
+      const openingRecord = minor ? { id: makeId('transaction'), type: 'opening', amount_minor: minor, currency, occurred_at: `${today()}T12:00:00-05:00`, from_account_id: null, to_account_id: id, category_id: null, merchant_name: null, note: 'Saldo inicial', source: 'manual', status: 'recorded' } : null
       await actions.createAccount(accountRecord, openingRecord)
       notify('Cuenta creada')
       onCreated?.(accountRecord)
@@ -190,10 +191,10 @@ export function AccountDialog({ close, initialKind = 'asset', initialAmount = nu
         <Field label={kind === 'asset' ? 'Tipo de cuenta' : 'Tipo de deuda'}><select value={subtype} onChange={(event) => setSubtype(event.target.value)}>{ACCOUNT_TYPE_OPTIONS[kind].map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}</select></Field>
         {/* Explica el efecto del tipo antes de pedir el saldo o la deuda inicial. */}
         <div className="account-type-guide" role="note"><strong>{kind === 'asset' ? 'Dinero que tienes' : 'Dinero que debes'}</strong><p>{kind === 'asset' ? 'Usa este tipo para efectivo, una cuenta bancaria o una billetera como Nequi. Una tarjeta débito pertenece a su cuenta bancaria.' : subtype === 'credit_card' ? 'Cada compra aumenta la deuda; pagarla reduce la deuda y el dinero de tu banco, sin duplicar el gasto.' : 'Registra aquí el capital que aún debes. Los pagos reducirán la deuda y el dinero de la cuenta desde la que pagues.'}</p></div>
-        <Field label={kind === 'asset' ? 'Saldo inicial' : 'Deuda inicial'} error={error}><input inputMode="decimal" value={amount} onChange={(event) => setAmount(formatInputAmount(event.target.value))} placeholder="0" /></Field>
+        <Field label={`${kind === 'asset' ? 'Saldo inicial' : 'Deuda inicial'} · ${currency}`} error={error}><input inputMode="decimal" value={amount} onChange={(event) => setAmount(formatInputAmount(event.target.value))} placeholder="0" /></Field>
         {initialAmount !== null && kind === 'asset' && <p className="info-note">Este monto viene de lo que escribiste antes como sueldo. Confirma o corrige el dinero que realmente tienes hoy antes de guardar; no registraremos un segundo ingreso.</p>}
         <p className="helper">El saldo inicial es lo que tienes hoy; no cuenta como un nuevo ingreso. Registra cada dinero que recibas después como movimiento.</p>
-        {kind === 'liability' && <DebtScheduleFields values={schedule} onChange={setSchedule} error={scheduleError} />}
+        {kind === 'liability' && <DebtScheduleFields values={schedule} onChange={setSchedule} error={scheduleError} currency={currency} />}
         <button className="button button--primary" type="submit" disabled={saving}>{saving ? 'Creando…' : 'Crear cuenta'}</button>
       </form>
     </SimpleDialog>
@@ -213,7 +214,7 @@ function scheduleValues(account) {
 }
 
 // Agrupa los campos opcionales que describen el calendario de una deuda sin generar pagos automáticos.
-function DebtScheduleFields({ values, onChange, error }) {
+function DebtScheduleFields({ values, onChange, error, currency = 'COP' }) {
   const update = (key) => (event) => onChange({ ...values, [key]: key === 'amount' ? formatInputAmount(event.target.value) : event.target.value })
   return <fieldset className="account-debt-schedule">
     <legend>Plan de pago <small>Opcional</small></legend>
@@ -221,7 +222,7 @@ function DebtScheduleFields({ values, onChange, error }) {
     <div className="form-grid">
       <Field label="Total de cuotas" error={error}><input type="number" inputMode="numeric" min="1" max={installmentsLimit()} step="1" value={values.total} onChange={update('total')} placeholder="12" /></Field>
       <Field label="Cuotas pagadas"><input type="number" inputMode="numeric" min="0" max={installmentsLimit()} step="1" value={values.paid} onChange={update('paid')} placeholder="0" /></Field>
-      <Field label="Valor de cada cuota"><input inputMode="decimal" value={values.amount} onChange={update('amount')} placeholder="250.000" /></Field>
+      <Field label={`Valor de cada cuota · ${currency}`}><input inputMode="decimal" value={values.amount} onChange={update('amount')} placeholder="250.000" /></Field>
       <Field label="Cada cuánto la pagas"><select value={values.frequency} onChange={update('frequency')}><option value="">Elige una frecuencia</option>{DEBT_PAYMENT_FREQUENCIES.map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}</select></Field>
     </div>
   </fieldset>

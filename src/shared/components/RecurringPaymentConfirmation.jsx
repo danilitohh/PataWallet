@@ -38,7 +38,7 @@ export function RecurringPaymentConfirmation({ payment, onCancel, onDone }) {
       if (!paymentAccounts.some((item) => item.id === accountId)) throw new Error('Elige la cuenta con la que pagaste.')
       const record = {
         id: `fixed-payment:${payment.id}`,
-        type: 'expense', amount_minor: amountMinor, currency: 'COP',
+        type: 'expense', amount_minor: amountMinor, currency: payment.currency || 'COP',
         occurred_at: `${today()}T12:00:00-05:00`,
         from_account_id: accountId, to_account_id: null, category_id: categoryId,
         merchant_name: payment.name, note: '', source: 'manual', status: 'recorded', updated_at: new Date().toISOString(),
@@ -58,7 +58,7 @@ export function RecurringPaymentConfirmation({ payment, onCancel, onDone }) {
     <form className="recurring-payment-confirmation" onSubmit={confirm}>
       <p>¿Ya pagaste <strong>{payment.name}</strong>? Se quitará de la checklist y aparecerá en Actividad.</p>
       <p className="helper">Vencimiento: {formatDueDate(payment.dueDate)}. Se registra con la fecha de hoy.</p>
-      <Field label="Monto pagado"><input inputMode="decimal" value={amount} onChange={(event) => setAmount(formatInputAmount(event.target.value))} /></Field>
+      <Field label={`Monto pagado · ${payment.currency || 'COP'}`}><input inputMode="decimal" value={amount} onChange={(event) => setAmount(formatInputAmount(event.target.value))} /></Field>
       <Field label="¿Con qué pagaste?"><select value={accountId} onChange={(event) => setAccountId(event.target.value)}>{!accountId && <option value="">Selecciona una cuenta</option>}{paymentAccounts.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></Field>
       {!paymentAccounts.some((item) => item.kind === 'asset') && <button className="button button--quiet" type="button" onClick={() => setAddingAccount(true)}>Agregar cuenta con dinero</button>}
       <div className="field"><span>Categoría</span><div className="input-with-action"><select aria-label="Categoría" value={categoryId} onChange={(event) => setCategoryId(event.target.value)}><option value="">Selecciona una categoría</option>{categoryOptions.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select><button type="button" className="icon-button" aria-label="Crear categoría" disabled={saving} onClick={() => setAddingCategory(true)}><Plus aria-hidden="true" /></button></div></div>

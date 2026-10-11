@@ -5,6 +5,7 @@ import { z } from 'zod'
 import { useApp } from '../../../app/AppContext.jsx'
 import { makeId } from '../../../shared/lib/id.js'
 import { formatInputAmount, parseLocalizedAmount, toInputAmount } from '../../../domain/money.js'
+import { SUPPORTED_CURRENCIES } from '../../../domain/registration.js'
 import { Field } from '../../../shared/components/Modal.jsx'
 import { useModalBehavior } from '../../../shared/hooks/useModalBehavior.js'
 import { today } from '../../../shared/lib/date.js'
@@ -30,7 +31,8 @@ const movementSchema = z.object({
 })
 
 export function MovementSheet({ transaction, initialFlow = 'expense', initialDebtId, initialValues, onSaved, onClose, preview = false }) {
-  const { accounts, categories, notify, actions } = useApp()
+  const { accounts, categories, settings, notify, actions } = useApp()
+  const currencyInfo = SUPPORTED_CURRENCIES.find((item) => item.code === settings.currency) || SUPPORTED_CURRENCIES[0]
   const editing = Boolean(transaction)
   const startingFlow = transaction?.type === 'card_payment' ? 'debt' : transaction?.type || initialFlow
   const [flow, setFlow] = useState(startingFlow)
@@ -167,7 +169,7 @@ export function MovementSheet({ transaction, initialFlow = 'expense', initialDeb
         <header><div><p className="eyebrow">{editing ? 'Editar' : 'Registrar'}</p><h2 id="movement-title">{editing ? 'Detalle del movimiento' : 'Nuevo movimiento'}</h2></div><button className="icon-button" aria-label="Cerrar" disabled={saving} onClick={close}><X /></button></header>
         <form onSubmit={submit}>
           <fieldset className="movement-choices"><legend>¿Qué pasó?</legend><div className={`movement-choices__grid${showTransfer ? ' movement-choices__grid--expanded' : ''}`}>{MOVEMENT_CHOICES.filter((item) => item.id !== 'transfer' || showTransfer).map((item) => <button type="button" key={item.id} data-guide={`movement-${item.id}`} disabled={saving} aria-label={item.label} aria-pressed={flow === item.id} className={`glass-action ${flow === item.id ? 'active' : ''}`} onClick={() => changeFlow(item.id)}><NightIcon icon={item.icon} variant="orb" /><span>{item.short}</span></button>)}</div>{!showTransfer && <button type="button" className="movement-choices__more" onClick={() => setShowTransfer(true)}>Más opciones: moví dinero</button>}</fieldset>
-          <GlassHero className="movement-amount-hero"><Field label="Monto"><div className="amount-input"><span>$</span><input autoFocus={!preview} inputMode="decimal" value={amount} onChange={(event) => setAmount(formatInputAmount(event.target.value))} placeholder="0" aria-describedby={error ? 'movement-error' : undefined} /><small>COP</small></div></Field></GlassHero>
+          <GlassHero className="movement-amount-hero"><Field label={`Monto · ${currencyInfo.code}`}><div className="amount-input"><span>{currencyInfo.symbol}</span><input autoFocus={!preview} inputMode="decimal" value={amount} onChange={(event) => setAmount(formatInputAmount(event.target.value))} placeholder="0" aria-describedby={error ? 'movement-error' : undefined} /><small>{currencyInfo.code}</small></div></Field></GlassHero>
           {error && <p className="form-error" id="movement-error" role="alert">{error}</p>}
           {flow !== 'income' && <>
             <Field label={flow === 'expense' ? '¿Con qué pagaste?' : '¿De dónde salió el dinero?'}><select aria-label={flow === 'expense' ? '¿Con qué pagaste?' : '¿De dónde salió el dinero?'} disabled={!sourceOptions.length || saving} value={sourceOptions.some((item) => item.id === account) ? account : ''} onChange={(event) => changeSource(event.target.value)}>{!sourceOptions.some((item) => item.id === account) && <option value="">{sourceOptions.length ? 'Selecciona una cuenta' : 'No hay cuentas disponibles'}</option>}{sourceOptions.map((item) => <option key={item.id} value={item.id}>{item.name}{flow === 'expense' && item.kind === 'liability' ? ' (crédito)' : ''}</option>)}</select></Field>

@@ -32,7 +32,7 @@ export function DashboardPage() {
   const hidden = Boolean(settings.hiddenAmounts)
   const nextPayDate = nextIncomeDate({ frequency: payFrequency, nextPayDate: payDate, today: calendarToday() })
   const viewProps = {
-    summary, cash, budget, remaining, used, recent, nextPayDate, hidden,
+    summary, cash, budget, remaining, used, recent, nextPayDate, hidden, currency: settings.currency || 'COP',
     legacyIncomeConfigured: income.salaryMinor !== null,
     goals: activeGoals, goalCount: goals.length, allocations, planned, plannedCount,
     accounts: activeAccounts, accountCount, balances: summary.balances,

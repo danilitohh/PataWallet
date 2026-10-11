@@ -10,7 +10,8 @@ import { calendarDaysBetween } from '../model/dashboardViews.js'
 
 // Organiza el Inicio por el tiempo al siguiente pago y los gastos fijos del periodo.
 export function PaydayView({ summary, cash, budget, remaining, used, recent, fixedExpenses, nextPayDate, payFrequency, payDate, hidden, goals, goalCount, allocations, planned, plannedCount, accounts, accountCount, balances }) {
-  const { transactions } = useApp()
+  const { transactions, settings } = useApp()
+  const currency = settings.currency || 'COP'
   const today = calendarToday()
   const daysUntilPay = nextPayDate ? calendarDaysBetween(today, nextPayDate) : null
   const payments = getRecurringExpenseOccurrences(fixedExpenses, {
@@ -34,10 +35,10 @@ export function PaydayView({ summary, cash, budget, remaining, used, recent, fix
       {!nextPayDate && <Link className="dashboard-view-link" to="/cuentas#ingresos">Configurar ingreso <span aria-hidden="true">↗</span></Link>}
     </section>
     <PaydayPayments payments={payments} fixedExpenses={fixedExpenses} nextPayDate={nextPayDate} hidden={hidden} />
-    <DashboardStats cash={cash} summary={summary} hidden={hidden} />
+    <DashboardStats cash={cash} summary={summary} hidden={hidden} currency={currency} />
     <DashboardRecent items={recent} />
-    <DashboardBudget summary={summary} budget={budget} remaining={remaining} used={used} hidden={hidden} />
-    <DashboardMoneyDetails summary={summary} cash={cash} goals={goals} goalCount={goalCount} allocations={allocations} planned={planned} plannedCount={plannedCount} accounts={accounts} accountCount={accountCount} balances={balances} hidden={hidden} />
+    <DashboardBudget summary={summary} budget={budget} remaining={remaining} used={used} hidden={hidden} currency={currency} />
+    <DashboardMoneyDetails summary={summary} cash={cash} goals={goals} goalCount={goalCount} allocations={allocations} planned={planned} plannedCount={plannedCount} accounts={accounts} accountCount={accountCount} balances={balances} hidden={hidden} currency={currency} />
   </div>
 }
 
@@ -62,7 +63,7 @@ function PaydayPayments({ payments, fixedExpenses, nextPayDate, hidden }) {
       {overdue.length > 0 && <section className="dashboard-payments__group" aria-label="Pagos atrasados"><h3>Atrasados</h3><div className="dashboard-payments__list">{overdue.map(renderPayment)}</div></section>}
       {upcoming.length > 0 && <section className="dashboard-payments__group" aria-label="Pagos actuales y próximos"><h3>{nextPayDate ? 'Antes del próximo pago' : 'Vencimiento actual y siguiente'}</h3><div className="dashboard-payments__list">{upcoming.map(renderPayment)}</div></section>}
     </div> : <p className="dashboard-empty__text"><CircleAlert aria-hidden="true" /> {emptyMessage}</p>}
-    {payments.length > 0 && <div className="dashboard-payments__total"><span><ListChecks aria-hidden="true" /> Falta pagar</span><strong>{formatMinor(pendingMinor, 'COP', hidden)}</strong></div>}
+    {payments.length > 0 && <div className="dashboard-payments__total"><span><ListChecks aria-hidden="true" /> Falta pagar</span><strong>{formatMinor(pendingMinor, payments[0]?.currency || 'COP', hidden)}</strong></div>}
     <p className="helper">Al confirmar, el pago se registra en Actividad y baja el saldo de la cuenta elegida.</p>
     </section>
   </>
@@ -75,6 +76,6 @@ function PaydayPaymentRow({ payment, hidden, onToggle }) {
     <input type="checkbox" checked={paid} aria-label={`Marcar ${payment.name} del ${formatDashboardDate(payment.dueDate)} como pagado`} onChange={() => onToggle(payment)} />
     <span className="dashboard-payment__check" aria-hidden="true"><Check /></span>
     <span className="dashboard-payment__copy"><strong>{payment.name}</strong><small>{payment.status === 'overdue' ? 'Atrasado' : 'Vence'} · {formatDashboardDate(payment.dueDate)} · {expenseFrequencyLabel(payment.frequency)}</small></span>
-    <strong className="dashboard-payment__amount">{formatMinor(payment.amount_minor, 'COP', hidden)}</strong>
+    <strong className="dashboard-payment__amount">{formatMinor(payment.amount_minor, payment.currency || 'COP', hidden)}</strong>
   </label>
 }

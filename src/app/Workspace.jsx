@@ -19,7 +19,38 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
   const location = useLocation()
   const { accounts, categories, transactions, budgets, goals, allocations, plannedPurchases = [], receipts = [], settingsRows } = data
   const rawSettingsMap = useMemo(() => Object.fromEntries(settingsRows.map((row) => [row.key, row.value])), [settingsRows])
-  const settingsMap = useMemo(() => ({ ...rawSettingsMap, theme: 'dark' }), [rawSettingsMap])
+  const settingsMap = useMemo(() => ({ ...rawSettingsMap, currency: rawSettingsMap.currency || 'COP', theme: 'dark' }), [rawSettingsMap])
+  const currency = settingsMap.currency
+  const currencyActions = useMemo(() => {
+    const currencyForTransaction = (record) => {
+      const existing = transactions.find((item) => item.id === record.id)
+      const external = record.source === 'import' || record.source === 'shortcut'
+      return { ...record, currency: existing?.currency || (external ? record.currency || currency : currency) }
+    }
+    return {
+      ...actions,
+      setSetting: (key, value) => actions.setSetting(key, key === 'fixedExpenses' && Array.isArray(value)
+        ? value.map((item) => ({ ...item, currency }))
+        : value),
+      saveTransaction: (record) => actions.saveTransaction(currencyForTransaction(record)),
+      recordRecurringPayment: (occurrence, record) => actions.recordRecurringPayment(occurrence, currencyForTransaction(record)),
+      createAccount: (account, opening) => actions.createAccount(
+        { ...account, currency },
+        opening ? currencyForTransaction(opening) : opening,
+      ),
+      saveBudget: (budget) => actions.saveBudget({ ...budget, currency }),
+      createGoal: (goal) => actions.createGoal({ ...goal, currency }),
+      savePlannedPurchase: (purchase) => actions.savePlannedPurchase({ ...purchase, currency }),
+      importBackup: (additions) => {
+        const importedCurrencies = [
+          ...(additions.accounts || []), ...(additions.transactions || []), ...(additions.budgets || []),
+          ...(additions.goals || []), ...(additions.plannedPurchases || []),
+        ].map((row) => row.currency).filter(Boolean)
+        if (importedCurrencies.some((code) => code !== currency)) throw new Error(`Este respaldo usa otra moneda. La moneda base de tu cuenta es ${currency}; no convertimos importes.`)
+        return actions.importBackup(additions)
+      },
+    }
+  }, [actions, currency, transactions])
   const ownerId = isDemo ? 'demo' : user?.id
   const integrationPreferences = normalizeIntegrationSetup(user?.user_metadata?.patawallet_integration_setup_v1)
   const integrationSetupStorageKey = `patawallet:integration-setup:v1:${ownerId}`
@@ -92,7 +123,7 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
     setWalletOpenedThisSession(true)
   }
   const openCardPicker = () => setCardPickerOpen(true)
-  const value = { accounts, categories, transactions, budgets, goals, allocations, plannedPurchases, receipts, settings: settingsMap, walletCardStyle, openWalletCardPicker: openCardPicker, syncState, reduceMotion, setSheet, guideOpen, startGuide: (tour = 'general') => setGuideOpen(typeof tour === 'string' ? tour : 'general'), notify, actions, isDemo, user, signOut }
+  const value = { accounts, categories, transactions, budgets, goals, allocations, plannedPurchases, receipts, settings: settingsMap, walletCardStyle, openWalletCardPicker: openCardPicker, syncState, reduceMotion, setSheet, guideOpen, startGuide: (tour = 'general') => setGuideOpen(typeof tour === 'string' ? tour : 'general'), notify, actions: currencyActions, isDemo, user, signOut }
 
   if (!settingsRows.length) return <LoadingScreen />
   if (isDemo && !settingsMap.entered) return <AppContext.Provider value={value}><WelcomePage /></AppContext.Provider>

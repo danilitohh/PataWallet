@@ -2,6 +2,7 @@ import { assertMinor } from '../../domain/money.js'
 import { readDebtSchedule } from '../../domain/debtSchedule.js'
 import { readFixedExpenses } from '../../domain/financialSetup.js'
 import { readIncomeSources } from '../../features/settings/model/incomeSources.js'
+import { SUPPORTED_CURRENCIES } from '../../domain/registration.js'
 import { z } from 'zod'
 
 export const BACKUP_FORMAT = 'patawallet-backup'
@@ -20,7 +21,7 @@ const collections = {
 
 const id = z.string().min(1).max(180)
 const minor = z.number().int().positive().max(999_999_999_999)
-const currency = z.literal('COP')
+const currency = z.enum(SUPPORTED_CURRENCIES.map(({ code }) => code))
 const backupDataSchema = z.object({
   accounts: z.array(z.object({
     id, name: z.string().min(2).max(80), kind: z.enum(['asset', 'liability']), subtype: z.enum(['bank', 'cash', 'credit_card', 'investment_loan', 'private_loan']), currency, archived: z.boolean(),
@@ -60,13 +61,14 @@ function withoutServerFields(row) {
 }
 
 export function createBackup(data, ownerId) {
+  const currencyCode = data.settingsRows?.find((row) => row.key === 'currency')?.value || 'COP'
   return {
     format: BACKUP_FORMAT,
     version: BACKUP_VERSION,
     owner_id: ownerId,
     exported_at: new Date().toISOString(),
-    currency: 'COP',
-    data: Object.fromEntries(Object.keys(collections).map((name) => [name, (data[name] || []).map(withoutServerFields)])),
+    currency: currency.safeParse(currencyCode).success ? currencyCode : 'COP',
+    data: Object.fromEntries(Object.keys(collections).map((name) => [name, (data[name] || []).filter((row) => !(name === 'settingsRows' && row.key === 'currency')).map(withoutServerFields)])),
   }
 }
 
@@ -78,6 +80,14 @@ export function parseBackup(text, expectedOwnerId) {
   const checked = backupSchema.safeParse(parsed)
   if (!checked.success) throw new Error(`El respaldo contiene datos inválidos: ${checked.error.issues[0]?.path.join('.') || 'estructura'}.`)
   parsed = checked.data
+  const storedCurrencies = [
+    ...parsed.data.accounts,
+    ...parsed.data.transactions,
+    ...parsed.data.budgets,
+    ...parsed.data.goals,
+    ...parsed.data.plannedPurchases,
+  ].map((row) => row.currency).filter(Boolean)
+  if (storedCurrencies.some((code) => code !== parsed.currency)) throw new Error('El respaldo mezcla monedas distintas de la moneda base. No se importaron los datos.')
   for (const row of parsed.data.transactions) assertMinor(row.amount_minor)
   for (const row of parsed.data.budgets) assertMinor(row.limit_minor)
   for (const row of parsed.data.goals) assertMinor(row.target_minor)

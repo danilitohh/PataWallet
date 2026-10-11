@@ -7,10 +7,10 @@ import { Field, SimpleDialog } from '../../../shared/components/Modal.jsx'
 import { currentMonth, today } from '../../../shared/lib/date.js'
 
 export function BudgetDialog({ budget, month, close }) {
-  const { notify, actions } = useApp()
+  const { notify, actions, settings } = useApp()
   return (
     <SimpleDialog title="Editar presupuesto" close={close}>
-      <MoneyAction initial={budget?.limit_minor} label="Límite mensual" button="Guardar límite" onSubmit={async (amount) => {
+      <MoneyAction initial={budget?.limit_minor} label={`Límite mensual · ${settings.currency || 'COP'}`} button="Guardar límite" onSubmit={async (amount) => {
         await actions.saveBudget({ month, limit_minor: amount })
         close()
         notify('Presupuesto actualizado')
@@ -26,7 +26,7 @@ function MoneyAction({ initial = 0, label, button, onSubmit }) {
 }
 
 export function GoalDialog({ close }) {
-  const { notify, actions } = useApp()
+  const { notify, actions, settings } = useApp()
   const [name, setName] = useState('')
   const [amount, setAmount] = useState('')
   const [error, setError] = useState('')
@@ -45,7 +45,7 @@ export function GoalDialog({ close }) {
         setSaving(true)
         try {
           if (name.trim().length < 2) throw new Error('Escribe un nombre para la meta.')
-          await actions.createGoal({ id: goalIdRef.current, name: name.trim(), target_minor: parseLocalizedAmount(amount), currency: 'COP', completed_seen: false })
+          await actions.createGoal({ id: goalIdRef.current, name: name.trim(), target_minor: parseLocalizedAmount(amount), currency: settings.currency || 'COP', completed_seen: false })
           notify('Meta creada')
           close()
         } catch (issue) {
@@ -55,7 +55,7 @@ export function GoalDialog({ close }) {
         }
       }}>
         <Field label="Nombre"><input value={name} onChange={(event) => setName(event.target.value)} /></Field>
-        <Field label="Monto objetivo" error={error}><input inputMode="decimal" value={amount} onChange={(event) => setAmount(formatInputAmount(event.target.value))} placeholder="2.000.000" /></Field>
+        <Field label={`Monto objetivo · ${settings.currency || 'COP'}`} error={error}><input inputMode="decimal" value={amount} onChange={(event) => setAmount(formatInputAmount(event.target.value))} placeholder="2.000.000" /></Field>
         <button className="button button--primary" type="submit" disabled={saving}>{saving ? 'Creando…' : 'Crear meta'}</button>
       </form>
     </SimpleDialog>

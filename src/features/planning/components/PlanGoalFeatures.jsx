@@ -8,6 +8,7 @@ const companionSources = '/assets/illustrations/night-companions'
 // Presenta una meta principal con su progreso real o una invitación útil cuando todavía no hay metas.
 export function PlanGoalFeature({ goal, progress, hidden, onReserve, onCreate, onDelete }) {
   const achieved = goal && progress.reserved >= Number(goal.target_minor)
+  const currency = goal?.currency || 'COP'
 
   return <section className="plan-featured-goal" aria-labelledby="plan-featured-goal-title">
     <div className="plan-featured-goal__copy">
@@ -19,8 +20,8 @@ export function PlanGoalFeature({ goal, progress, hidden, onReserve, onCreate, o
       <p>{goal ? 'Tu objetivo crece con pasos que puedes sostener.' : 'Elige un objetivo y dale su propio espacio.'}</p>
       {goal ? <>
         <div className="plan-featured-goal__saved">
-          <strong>{formatMinor(progress.reserved, 'COP', hidden)}</strong>
-          <span>de {formatMinor(goal.target_minor, 'COP', hidden)}</span>
+          <strong>{formatMinor(progress.reserved, currency, hidden)}</strong>
+          <span>de {formatMinor(goal.target_minor, currency, hidden)}</span>
           <small>{Math.round(progress.percent)}% del objetivo</small>
         </div>
         <Progress value={progress.percent} label={`${Math.round(progress.percent)}% completado`} />
@@ -52,11 +53,12 @@ export function PlanGoalFeature({ goal, progress, hidden, onReserve, onCreate, o
 
 // Resume una meta secundaria y mantiene accesibles sus acciones de reserva y eliminación.
 export function PlanGoalRow({ goal, progress, hidden, onReserve, onDelete }) {
+  const currency = goal.currency || 'COP'
   return <article className="plan-goal-row">
     <NightIcon className="plan-goal-row__icon" icon={Goal} />
     <div className="plan-goal-row__content">
       <strong>{goal.name}</strong>
-      <span>{formatMinor(progress.reserved, 'COP', hidden)} de {formatMinor(goal.target_minor, 'COP', hidden)}</span>
+      <span>{formatMinor(progress.reserved, currency, hidden)} de {formatMinor(goal.target_minor, currency, hidden)}</span>
       {hidden ? <small>Avance oculto</small> : <div className="calm-goal-progress"><Progress value={progress.percent} label={`${Math.round(progress.percent)}% completado`} /><small>{Math.round(progress.percent)} %</small></div>}
     </div>
     <div className="plan-goal-row__actions">

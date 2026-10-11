@@ -1,5 +1,13 @@
 # Estado de implementación
 
+## Moneda base elegible durante el registro · 11 de octubre de 2026
+
+- El paso «Tu moneda» ya ofrece COP, GTQ, USD, EUR, MXN y GBP en una lista buscable y accesible por teclado. El presupuesto inicial, sus campos y las etiquetas monetarias muestran el código elegido.
+- La moneda queda en las preferencias iniciales de Auth y se persiste en `profiles.currency` al crear el perfil. Un perfil existente conserva la moneda guardada aunque aún tenga metadatos antiguos de registro. Ajustes muestra la moneda base; las cuentas, movimientos nuevos, presupuestos, metas, compras previstas, pagos fijos y resúmenes la usan. Cada movimiento histórico conserva su moneda y no hay conversión automática.
+- Las copias de seguridad guardan y validan la moneda base, y se rechaza importar datos con una moneda distinta. Correo bancario y Atajos de iPhone siguen reportando COP; el registro muestra una explicación al elegir otra moneda y el servidor rechaza eventos cuya moneda no coincide con el perfil.
+- Preparada `supabase/migrations/20261011120000_profile_base_currencies.sql`: amplía las restricciones a las seis opciones y ajusta las operaciones del servidor para validar la moneda base sin reescribir datos existentes. **No se aplicó a Supabase ni se publicó la aplicación**; las instrucciones del proyecto exigen autorización antes de modificar una base existente. Sin esa migración, un perfil remoto nuevo que elija una moneda distinta de COP no podrá completar el guardado.
+- Verificado: lint y build; pruebas dirigidas de moneda, contexto del asistente, migración y respaldo (29/29); suite completa (211 pasaron, 2 fallaron en expectativas previas del parser bancario: `7,90.0` y separadores alternos de Lulo). Playwright de portada pasó 3/3 y revisó 390×844, 375×812 y 1440×900. Una prueba antigua de `app.spec.js` falló en los tres proyectos porque espera el Inicio directamente, pero la app abre el selector de portada requerido antes del Inicio; el recorrido de esa prueba no refleja el flujo actual. No se probó en iPhone físico.
+
 ## Video con chroma en la bienvenida · 10 de octubre de 2026
 
 - La portada de acceso muestra el clip aportado por Danilo en lugar de la tarjeta PNG. Se eliminó el verde por chroma key y se exportó WebP animado con alfa real (480×232, 72 cuadros a 12 fps, 1.139.174 bytes, en bucle, sin audio); el póster PNG de respaldo mide 480×232 y pesa 155.410 bytes.

@@ -49,14 +49,23 @@
 .signup-flow__card-caption { width: min(100%, 410px); min-height: 32px; display: flex; align-items: center; justify-content: center; gap: 9px; color: #bdc7da; font-size: .74rem; }
 .signup-flow__card-caption strong { color: #fff; font-size: .9rem; }
 .signup-flow__card-caption small { color: #8692a8; font-size: .68rem; }
-.signup-flow__currency { width: min(100%, 410px); min-height: 90px; display: grid; grid-template-columns: 52px 1fr 36px; align-items: center; gap: 14px; padding: 15px 17px; border: 1px solid color-mix(in srgb, var(--signup-accent) 48%, #394760); border-radius: 21px; background: linear-gradient(135deg, #1b2b43, #142137); box-shadow: 0 16px 34px #03071555, inset 0 1px 0 #ffffff10; text-align: left; }
-.signup-flow__currency-icon, .signup-flow__currency-check { display: grid; place-items: center; border-radius: 15px; }
-.signup-flow__currency-icon { width: 50px; height: 50px; background: color-mix(in srgb, var(--signup-accent) 16%, #172238); color: var(--signup-accent); }
-.signup-flow__currency-icon svg { width: 27px; height: 27px; }
-.signup-flow__currency > span:nth-child(2) { display: grid; gap: 4px; }
-.signup-flow__currency strong { color: #fbf8ff; font-size: .96rem; }
-.signup-flow__currency small { color: #aab6cc; font-size: .78rem; }
-.signup-flow__currency-check { width: 30px; height: 30px; background: var(--signup-accent); color: #152135; }
+.signup-flow__currency-search { width: min(100%, 410px); min-height: 44px; display: flex; align-items: center; gap: 10px; padding: 0 13px; border: 1px solid #394760; border-radius: 14px; background: #15243a; color: #9facc1; }
+.signup-flow__currency-search svg { flex: 0 0 17px; width: 17px; height: 17px; }
+.signup-flow__currency-search input { width: 100%; min-height: 40px; padding: 0; border: 0; outline: 0; background: transparent; color: #f6f2ff; font-size: .82rem; }
+.signup-flow__currency-search input:focus { outline: 0; }
+.signup-flow__currency-list { width: min(100%, 410px); display: grid; gap: 7px; }
+.signup-flow__currency { width: 100%; min-height: 66px; display: grid; grid-template-columns: 42px minmax(0, 1fr) 28px; align-items: center; gap: 12px; padding: 9px 12px; border: 1px solid #34425a; border-radius: 17px; background: linear-gradient(135deg, #1b2b43, #142137); color: inherit; text-align: left; transition: border-color 150ms ease, background 150ms ease, transform 150ms ease; }
+.signup-flow__currency:hover { transform: translateY(-1px); }
+.signup-flow__currency.is-selected { border-color: color-mix(in srgb, var(--signup-accent) 65%, #394760); background: color-mix(in srgb, var(--signup-accent) 11%, #142137); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--signup-accent) 18%, transparent); }
+.signup-flow__currency-icon, .signup-flow__currency-check { display: grid; place-items: center; border-radius: 13px; }
+.signup-flow__currency-icon { width: 42px; height: 42px; background: color-mix(in srgb, var(--signup-accent) 16%, #172238); color: var(--signup-accent); font-size: 1.02rem; font-weight: 800; letter-spacing: -.04em; }
+.signup-flow__currency > span:nth-child(2) { min-width: 0; display: grid; gap: 3px; }
+.signup-flow__currency strong { overflow: hidden; color: #fbf8ff; font-size: .86rem; text-overflow: ellipsis; white-space: nowrap; }
+.signup-flow__currency small { color: #aab6cc; font-size: .72rem; }
+.signup-flow__currency-check { width: 27px; height: 27px; background: var(--signup-accent); color: #152135; }
+.signup-flow__currency-check svg { width: 16px; height: 16px; }
+.signup-flow__currency-empty { padding: 12px; color: #aab6cc; font-size: .8rem; }
+.signup-flow__currency-integration-note { width: min(100%, 410px); padding: 10px 12px; border: 1px solid #394760; border-radius: 14px; background: #ffffff09; color: #bac5d8; font-size: .72rem; line-height: 1.45; text-align: left; }
 .signup-flow__currency-check svg { width: 17px; height: 17px; }
 .signup-flow__category-grid { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .signup-flow__category { min-height: 58px; display: grid; grid-template-columns: 34px minmax(0, 1fr) 18px; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid #35425b; border-radius: 16px; background: #142238; color: #dce2ef; text-align: left; font-size: .75rem; font-weight: 700; transition: border-color 160ms ease, background 160ms ease; }

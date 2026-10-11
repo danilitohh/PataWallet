@@ -93,6 +93,7 @@ export function getRecurringExpenseOccurrences(expenses = [], options = {}) {
         name: expense.name,
         categoryId: expense.category_id || null,
         amount_minor: Number(expense.amount_minor),
+        currency: expense.currency || 'COP',
         dueDate,
         status: payment ? 'paid' : dueDate < today ? 'overdue' : 'pending',
         paidAt: payment?.paid_at || null,

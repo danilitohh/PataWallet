@@ -22,6 +22,19 @@ describe('respaldo versionado', () => {
     expect(plan.additions.transactions[0].amount_minor).toBe(8500050)
   })
 
+  it('conserva la moneda base en la raíz del respaldo', () => {
+    const otherCurrencyData = {
+      ...data,
+      accounts: data.accounts.map((row) => ({ ...row, currency: 'USD' })),
+      transactions: data.transactions.map((row) => ({ ...row, currency: 'USD' })),
+      goals: data.goals.map((row) => ({ ...row, currency: 'USD' })),
+      settingsRows: [...data.settingsRows, { key: 'currency', value: 'USD' }],
+    }
+    const backup = parseBackup(JSON.stringify(createBackup(otherCurrencyData, owner)), owner)
+    expect(backup.currency).toBe('USD')
+    expect(backup.data.settingsRows).not.toContainEqual({ key: 'currency', value: 'USD' })
+  })
+
   it('rechaza otra cuenta y detecta contenido diferente antes de escribir', () => {
     const serialized = JSON.stringify(createBackup(data, owner))
     expect(() => parseBackup(serialized, '22222222-2222-4222-8222-222222222222')).toThrow(/otra cuenta/i)

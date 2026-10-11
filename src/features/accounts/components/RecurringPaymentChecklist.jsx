@@ -81,7 +81,7 @@ function OccurrenceGroup({ group, hidden, onToggle }) {
   return <details className="recurring-payments__group" open={isOpen} onToggle={(event) => setIsOpen(event.currentTarget.open)}>
     <summary className="recurring-payments__group-heading">
       <span><strong>{group.title}</strong><small>{group.occurrences.length} vencimiento{group.occurrences.length === 1 ? '' : 's'}</small></span>
-      <span className="recurring-payments__group-total"><strong>{formatMinor(total, 'COP', hidden)}</strong><ChevronDown aria-hidden="true" /></span>
+      <span className="recurring-payments__group-total"><strong>{formatMinor(total, group.occurrences[0]?.currency || 'COP', hidden)}</strong><ChevronDown aria-hidden="true" /></span>
     </summary>
     <div className="recurring-payments__content">
       <div className="recurring-payments__list">{visible.map((items) => <PaymentExpenseGroup key={items[0].expenseId} occurrences={items} hidden={hidden} onToggle={onToggle} />)}</div>
@@ -97,7 +97,7 @@ function PaymentExpenseGroup({ occurrences, hidden, onToggle }) {
   return <details className="recurring-payment-series">
     <summary>
       <span><strong>{occurrences[0].name}</strong><small>{occurrences.length} vencimientos</small></span>
-      <strong>{formatMinor(total, 'COP', hidden)}</strong>
+      <strong>{formatMinor(total, occurrences[0]?.currency || 'COP', hidden)}</strong>
       <ChevronDown aria-hidden="true" />
     </summary>
     <div className="recurring-payment-series__rows">{occurrences.map((occurrence) => <PaymentChecklistRow key={occurrence.id} occurrence={occurrence} hidden={hidden} onToggle={onToggle} compact />)}</div>
@@ -129,7 +129,7 @@ function PaymentChecklistRow({ occurrence, hidden, onToggle, compact = false }) 
   return <article className={`recurring-payment recurring-payment--${occurrence.status}${compact ? ' recurring-payment--nested' : ''}`}>
     <label className="recurring-payment__check"><input type="checkbox" checked={isPaid} aria-label={`Marcar ${occurrence.name} del ${dateLabel} como pagado`} onChange={() => onToggle(occurrence)} /><span aria-hidden="true"><Check /></span></label>
     <div className="recurring-payment__details"><strong>{compact ? statusLabel : occurrence.name}</strong><p>{compact ? expenseFrequencyLabel(occurrence.frequency) : `${statusLabel} · ${expenseFrequencyLabel(occurrence.frequency)}`}</p></div>
-    <strong className="recurring-payment__amount">{formatMinor(occurrence.amount_minor, 'COP', hidden)}</strong>
+    <strong className="recurring-payment__amount">{formatMinor(occurrence.amount_minor, occurrence.currency || 'COP', hidden)}</strong>
   </article>
 }
 

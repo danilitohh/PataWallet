@@ -37,7 +37,7 @@ export function FixedExpenseEditor({ expense, close }) {
       if (removing) {
         next = current.filter((item) => item.id !== row.id)
       } else {
-        const parsed = parseFixedExpenses([row])[0]
+        const parsed = parseFixedExpenses([row], { currency: settings.currency })[0]
         if (!parsed) throw new Error('Indica el nombre y el monto del gasto fijo.')
         if (!expense && current.length >= MAX_FIXED_EXPENSES) throw new Error(`Puedes registrar hasta ${MAX_FIXED_EXPENSES} gastos fijos.`)
         const updated = { ...parsed, payment_history: original?.payment_history || parsed.payment_history, category_id: original?.category_id || parsed.category_id }
@@ -57,7 +57,7 @@ export function FixedExpenseEditor({ expense, close }) {
     <form className="fixed-expense-editor" onSubmit={save} aria-describedby={error ? 'fixed-expense-error' : undefined} aria-busy={saving}>
       {removing ? <p>¿Eliminar «{expense.name}» y quitar sus vencimientos de la checklist? Los movimientos que ya registraste no se borrarán.</p> : <>
         <Field label="Nombre"><input required minLength={2} maxLength={80} value={row.name} onChange={update('name')} placeholder="Internet o mercado" disabled={saving} /></Field>
-        <Field label={row.frequency === 'monthly' ? 'Monto mensual' : 'Monto por pago'}><input required inputMode="decimal" value={row.amount} onChange={update('amount')} placeholder="150.000" disabled={saving} /></Field>
+        <Field label={`${row.frequency === 'monthly' ? 'Monto mensual' : 'Monto por pago'} · ${settings.currency}`}><input required inputMode="decimal" value={row.amount} onChange={update('amount')} placeholder="150.000" disabled={saving} /></Field>
         <Field label="¿Cada cuánto se hace este pago?"><select value={row.frequency} onChange={update('frequency')} disabled={saving}>{FIXED_EXPENSE_FREQUENCY_OPTIONS.map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}</select></Field>
         <Field label="Próxima fecha de pago"><input type="date" required={row.frequency !== 'monthly'} value={row.nextDueDate} onChange={update('nextDueDate')} disabled={saving} aria-describedby="fixed-expense-schedule" /></Field>
         <p id="fixed-expense-schedule" className="helper">{scheduleDescription(row.frequency)}</p>

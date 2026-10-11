@@ -37,7 +37,7 @@ export function FixedExpensesSection({ standalone = false, showChecklist = true 
   }
   const savedExpenses = readFixedExpenses(settings.fixedExpenses)
   const savedTotal = sumExpectedFixedExpenses(savedExpenses, { month: calendarToday().slice(0, 7), payFrequency: settings.payFrequency, nextPayDate: settings.nextPayDate })
-  const sectionSummary = savedExpenses.length ? `${savedExpenses.length} ${savedExpenses.length === 1 ? 'gasto' : 'gastos'} · ${formatMinor(savedTotal, 'COP', settings.hiddenAmounts)} al mes` : 'Sin gastos configurados'
+  const sectionSummary = savedExpenses.length ? `${savedExpenses.length} ${savedExpenses.length === 1 ? 'gasto' : 'gastos'} · ${formatMinor(savedTotal, settings.currency || 'COP', settings.hiddenAmounts)} al mes` : 'Sin gastos configurados'
   const filtered = savedExpenses.filter((expense) => expense.name.toLocaleLowerCase('es').includes(search.trim().toLocaleLowerCase('es')))
   const currentPage = Math.min(page, Math.max(0, Math.ceil(filtered.length / PAGE_SIZE) - 1))
   const visible = filtered.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE)
@@ -53,7 +53,7 @@ export function FixedExpensesSection({ standalone = false, showChecklist = true 
           <button className="fixed-expense-summary" type="button" aria-label={`Editar ${expense.name}`} onClick={(event) => openEditor(event, expense)}>
             <NightIcon icon={CalendarDays} />
             <span className="fixed-expense-summary__details"><strong>{expense.name}</strong><small>{expenseFrequencyLabel(expense.frequency)}</small></span>
-            <strong className="fixed-expense-summary__amount">{formatMinor(expense.amount_minor, 'COP', settings.hiddenAmounts)}</strong>
+            <strong className="fixed-expense-summary__amount">{formatMinor(expense.amount_minor, expense.currency || 'COP', settings.hiddenAmounts)}</strong>
             <Pencil aria-hidden="true" />
           </button>
         </li>)}

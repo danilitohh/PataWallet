@@ -1,5 +1,6 @@
 import { assertMinor, parseLocalizedAmount, safeAdd, toInputAmount } from './money.js'
 import { isCalendarDate, normalizeExpenseSchedule, readPaymentHistory } from './recurringExpenses.js'
+import { normalizeCurrency } from './registration.js'
 
 export const MAX_FIXED_EXPENSES = 50
 
@@ -18,7 +19,7 @@ export function readFixedExpenses(value) {
           id: String(item.id || `fixed-${index}`),
           name: name.slice(0, 80),
           amount_minor: amount,
-          currency: 'COP',
+          currency: normalizeCurrency(item?.currency),
           category_id: item?.category_id ? String(item.category_id) : null,
           frequency: schedule.frequency,
           next_due_date: schedule.nextDueDate,
@@ -33,7 +34,7 @@ export function readFixedExpenses(value) {
 }
 
 // Valida los campos repetibles del onboarding y devuelve solo datos persistibles.
-export function parseFixedExpenses(rows) {
+export function parseFixedExpenses(rows, { currency = 'COP' } = {}) {
   if (!Array.isArray(rows) || rows.length > MAX_FIXED_EXPENSES) throw new Error(`Puedes registrar hasta ${MAX_FIXED_EXPENSES} gastos fijos.`)
   const parsed = []
   for (const row of rows) {
@@ -51,7 +52,7 @@ export function parseFixedExpenses(rows) {
       id: String(row.id || `fixed-${parsed.length}`),
       name,
       amount_minor: parseLocalizedAmount(amountInput),
-      currency: 'COP',
+      currency: normalizeCurrency(currency),
       category_id: row?.categoryId ? String(row.categoryId) : null,
       frequency,
       next_due_date: nextDueDate || null,

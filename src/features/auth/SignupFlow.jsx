@@ -2,11 +2,11 @@ import { useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import {
   ArrowLeft, ArrowRight, Bell, BriefcaseBusiness, CarFront, Check, ChevronLeft, ChevronRight,
-  Circle, CircleDollarSign, CreditCard, ExternalLink, HeartPulse, House, LockKeyhole, Mail,
-  PawPrint, Play, ShoppingBasket, Sparkles, Utensils, Eye, EyeOff, Zap,
+  Circle, CreditCard, ExternalLink, HeartPulse, House, LockKeyhole, Mail,
+  PawPrint, Play, Search, ShoppingBasket, Sparkles, Utensils, Eye, EyeOff, Zap,
 } from 'lucide-react'
 import { formatInputAmount, parseLocalizedAmount } from '../../domain/money.js'
-import { STARTER_CATEGORIES, DEFAULT_STARTER_CATEGORY_IDS, normalizeIntegrationSetup } from '../../domain/registration.js'
+import { STARTER_CATEGORIES, DEFAULT_STARTER_CATEGORY_IDS, normalizeIntegrationSetup, SUPPORTED_CURRENCIES } from '../../domain/registration.js'
 import { currentMonth } from '../../shared/lib/date.js'
 import { WALLET_CARDS } from '../onboarding/walletCardModel.js'
 import shortcutManifest from '../../../shortcuts/template-manifest.json'
@@ -25,11 +25,11 @@ const categoryIcons = {
   circle: Circle,
 }
 
-function signupValues(categories, cardStyle, budgetAmount) {
+function signupValues(categories, cardStyle, budgetAmount, currency) {
   return {
     version: 1,
     cardStyle,
-    currency: 'COP',
+    currency,
     categories,
     monthlyBudgetMinor: budgetAmount.trim() ? parseLocalizedAmount(budgetAmount) : null,
     budgetMonth: currentMonth(),
@@ -43,6 +43,8 @@ export function SignupFlow({ onLogin, onCreateAccount, onGoogle, googleEnabled, 
   const [password, setPassword] = useState('')
   const [passwordVisible, setPasswordVisible] = useState(false)
   const [cardIndex, setCardIndex] = useState(0)
+  const [currency, setCurrency] = useState('COP')
+  const [currencySearch, setCurrencySearch] = useState('')
   const [categories, setCategories] = useState(DEFAULT_STARTER_CATEGORY_IDS)
   const [budgetAmount, setBudgetAmount] = useState('')
   const [integrationSetup, setIntegrationSetup] = useState({ shortcut: false, bankEmail: false, notifications: false })
@@ -51,6 +53,8 @@ export function SignupFlow({ onLogin, onCreateAccount, onGoogle, googleEnabled, 
   const reduceMotion = useReducedMotion()
   const swipeStartX = useRef(null)
   const card = WALLET_CARDS[cardIndex]
+  const selectedCurrency = SUPPORTED_CURRENCIES.find((item) => item.code === currency) || SUPPORTED_CURRENCIES[0]
+  const visibleCurrencies = SUPPORTED_CURRENCIES.filter((item) => `${item.name} ${item.code} ${item.country}`.toLocaleLowerCase('es').includes(currencySearch.trim().toLocaleLowerCase('es')))
 
   const moveCard = (offset) => setCardIndex((value) => (value + offset + WALLET_CARDS.length) % WALLET_CARDS.length)
   const toggleCategory = (id) => {
@@ -82,7 +86,7 @@ export function SignupFlow({ onLogin, onCreateAccount, onGoogle, googleEnabled, 
     event.preventDefault()
     setStepError('')
     try {
-      const setup = signupValues(categories, card.id, budgetAmount)
+      const setup = signupValues(categories, card.id, budgetAmount, currency)
       onCreateAccount({ name: name.trim(), email: email.trim(), password, setup, integrations: normalizeIntegrationSetup(integrationSetup) })
     } catch (issue) {
       setStepError(issue.message)
@@ -91,7 +95,7 @@ export function SignupFlow({ onLogin, onCreateAccount, onGoogle, googleEnabled, 
 
   const startGoogle = () => {
     try {
-      onGoogle(signupValues(categories, card.id, budgetAmount), name.trim(), normalizeIntegrationSetup(integrationSetup))
+      onGoogle(signupValues(categories, card.id, budgetAmount, currency), name.trim(), normalizeIntegrationSetup(integrationSetup))
     } catch (issue) {
       setStepError(issue.message)
     }
@@ -146,13 +150,29 @@ export function SignupFlow({ onLogin, onCreateAccount, onGoogle, googleEnabled, 
     if (step === 2) return <>
       <p className="signup-flow__eyebrow">Una base clara</p>
       <h1>Tu moneda</h1>
-      <p className="signup-flow__lede">Así verás los saldos y movimientos en toda la app.</p>
-      <div className="signup-flow__currency" aria-label="Moneda disponible">
-        <span className="signup-flow__currency-icon"><CircleDollarSign aria-hidden="true" /></span>
-        <span><strong>Peso colombiano</strong><small>COP · Colombia</small></span>
-        <span className="signup-flow__currency-check"><Check aria-hidden="true" /></span>
+      <p className="signup-flow__lede">Elige la moneda base para tus saldos, movimientos y presupuestos.</p>
+      <label className="signup-flow__currency-search"><Search aria-hidden="true" /><input type="search" value={currencySearch} onChange={(event) => setCurrencySearch(event.target.value)} placeholder="Busca tu moneda" aria-label="Buscar moneda" /></label>
+      <div className="signup-flow__currency-list" role="radiogroup" aria-label="Moneda base">
+        {visibleCurrencies.map((item, index) => {
+          const selected = currency === item.code
+          const hasVisibleSelection = visibleCurrencies.some((currencyOption) => currencyOption.code === currency)
+          return <button key={item.code} id={`signup-currency-${item.code}`} className={`signup-flow__currency${selected ? ' is-selected' : ''}`} type="button" role="radio" aria-checked={selected} tabIndex={selected || (!hasVisibleSelection && index === 0) ? 0 : -1} onClick={() => setCurrency(item.code)} onKeyDown={(event) => {
+            if (!['ArrowDown', 'ArrowRight', 'ArrowUp', 'ArrowLeft', 'Home', 'End'].includes(event.key)) return
+            event.preventDefault()
+            const currentIndex = visibleCurrencies.findIndex((currencyOption) => currencyOption.code === item.code)
+            const nextIndex = event.key === 'Home' ? 0 : event.key === 'End' ? visibleCurrencies.length - 1 : (currentIndex + (event.key === 'ArrowDown' || event.key === 'ArrowRight' ? 1 : -1) + visibleCurrencies.length) % visibleCurrencies.length
+            const nextCurrency = visibleCurrencies[nextIndex]
+            setCurrency(nextCurrency.code)
+            document.getElementById(`signup-currency-${nextCurrency.code}`)?.focus()
+          }}>
+            <span className="signup-flow__currency-icon" aria-hidden="true">{item.symbol}</span>
+            <span><strong>{item.name}</strong><small>{item.code} · {item.country}</small></span>
+            {selected && <span className="signup-flow__currency-check"><Check aria-hidden="true" /></span>}
+          </button>
+        })}
+        {!visibleCurrencies.length && <p className="signup-flow__currency-empty">No encontramos esa moneda.</p>}
       </div>
-      <p className="signup-flow__fine">PataWallet guarda los importes en pesos colombianos (COP).</p>
+      <p className="signup-flow__fine">Usaremos {selectedCurrency.code} para los nuevos registros. No convertimos automáticamente importes entre monedas.</p>
     </>
 
     if (step === 3) return <>
@@ -168,7 +188,7 @@ export function SignupFlow({ onLogin, onCreateAccount, onGoogle, googleEnabled, 
           </button>
         })}
       </div>
-      <label className="signup-flow__field signup-flow__budget-field"><span>Límite total mensual <small>Opcional</small></span><div className="signup-flow__amount"><span>$</span><input inputMode="decimal" autoComplete="off" value={budgetAmount} onChange={(event) => setBudgetAmount(formatInputAmount(event.target.value))} placeholder="1.500.000" aria-label="Límite total mensual en pesos colombianos" /></div></label>
+      <label className="signup-flow__field signup-flow__budget-field"><span>Límite total mensual <small>Opcional · {selectedCurrency.code}</small></span><div className="signup-flow__amount"><span>{selectedCurrency.symbol}</span><input inputMode="decimal" autoComplete="off" value={budgetAmount} onChange={(event) => setBudgetAmount(formatInputAmount(event.target.value))} placeholder="1.500" aria-label={`Límite total mensual en ${selectedCurrency.code}`} /></div></label>
       <p className="signup-flow__fine">Es un límite general para gastos del mes, no por categoría. Puedes crear presupuestos más detallados después.</p>
     </>
 
@@ -176,6 +196,7 @@ export function SignupFlow({ onLogin, onCreateAccount, onGoogle, googleEnabled, 
       <p className="signup-flow__eyebrow">Conecta solo lo que quieras</p>
       <h1>Deja todo a tu ritmo</h1>
       <p className="signup-flow__lede">Puedes instalar el atajo ahora. El correo y las notificaciones se conectan después de crear tu cuenta.</p>
+      {currency !== 'COP' && <p className="signup-flow__currency-integration-note">El lector de bancos colombianos y el atajo de pagos reportan importes en COP. Si eliges otra moneda base, esas notificaciones no se pueden registrar con seguridad sin conversión automática.</p>}
       <div className="signup-flow__integrations">
         <article className="signup-flow__integration-card">
           <div className="signup-flow__integration-heading"><span className="signup-flow__shortcut-icon"><CreditCard aria-hidden="true" /></span><div><strong>Pagos con tarjeta</strong><p>Instala el atajo oficial; al entrar podrás vincularlo y elegir el video guía.</p></div></div>
@@ -250,7 +271,7 @@ export function SignupFlow({ onLogin, onCreateAccount, onGoogle, googleEnabled, 
         {!isAccount && <button className="button button--primary signup-flow__next" type="button" onClick={continueFlow}>
           {step === stepLabels.length - 2 ? 'Crear mi cuenta' : 'Continuar'} <ArrowRight aria-hidden="true" />
         </button>}
-        {isAccount && <p className="signup-flow__terms">Usamos tu correo para iniciar sesión y confirmar el registro. Tus importes se guardan en COP.</p>}
+        {isAccount && <p className="signup-flow__terms">Usamos tu correo para iniciar sesión y confirmar el registro. Tu moneda base será {currency}.</p>}
       </footer>
     </main>
   )

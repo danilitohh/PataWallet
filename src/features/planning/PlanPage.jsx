@@ -85,7 +85,7 @@ export function PlanPage() {
       <PageHeader title="Plan" subtitle="Tus metas, paso a paso." action={isDemo && <span className="calm-demo">Datos de ejemplo</span>} />
       <nav className="calm-tabs" aria-label="Secciones de Plan"><NavLink to="/plan" end>Metas</NavLink><NavLink to="/plan/presupuesto">Presupuesto</NavLink></nav>
       <section className="calm-goals" hidden={showingBudget && !guideOpen}>
-        <GlassHero className="calm-goal-balance"><div className="calm-balance-label"><span>Reservado para tus metas</span><button className="icon-button" aria-label={settings.hiddenAmounts ? 'Mostrar montos' : 'Ocultar montos'} onClick={() => actions.setSetting('hiddenAmounts', !settings.hiddenAmounts)}>{settings.hiddenAmounts ? <EyeOff /> : <Eye />}</button></div><strong className="calm-balance">{formatMinor(cash.reservedMinor, 'COP', settings.hiddenAmounts)}</strong><p>{goals.length} {goals.length === 1 ? 'meta' : 'metas'} · Parte de tu saldo, no dinero adicional.</p></GlassHero>
+        <GlassHero className="calm-goal-balance"><div className="calm-balance-label"><span>Reservado para tus metas</span><button className="icon-button" aria-label={settings.hiddenAmounts ? 'Mostrar montos' : 'Ocultar montos'} onClick={() => actions.setSetting('hiddenAmounts', !settings.hiddenAmounts)}>{settings.hiddenAmounts ? <EyeOff /> : <Eye />}</button></div><strong className="calm-balance">{formatMinor(cash.reservedMinor, settings.currency || 'COP', settings.hiddenAmounts)}</strong><p>{goals.length} {goals.length === 1 ? 'meta' : 'metas'} · Parte de tu saldo, no dinero adicional.</p></GlassHero>
         <div className="glass-actions"><OrbAction className="plan-featured-goal__action" icon={Plus} aria-label="Crear meta" onClick={() => setGoalOpen(true)}>Nueva meta</OrbAction></div>
         <div className="section-heading"><h2>Metas activas</h2><span className="helper">{goals.length} {goals.length === 1 ? 'meta' : 'metas'}</span></div>
         <div className="plan-goal-list">{goals.map((goal) => <PlanGoalRow key={goal.id} goal={goal} progress={goalProgress(goal, allocations)} hidden={settings.hiddenAmounts} onReserve={() => setAllocationGoal(goal)} onDelete={deleteGoal} />)}</div>
@@ -104,14 +104,15 @@ export function PlanPage() {
           limitMinor={budgetLimitMinor}
           percent={budgetUsedPercent}
           hidden={settings.hiddenAmounts}
+          currency={settings.currency || 'COP'}
           onEdit={() => setBudgetOpen(true)}
           featured={showingBudget}
         />
       </section>
-      {showingBudget && <section className="glass-budget-categories"><h2>Gastos por categoría</h2><p className="helper">Distribución de compras de {monthLabel}, antes de reembolsos. No son límites por categoría.</p>{expenseBreakdown(transactions, categories, month).map((item) => <article key={item.name}><NightIcon icon={ChartNoAxesColumn} /><div><h3>{item.name}</h3><strong>{formatMinor(item.amount, 'COP', settings.hiddenAmounts)}</strong>{!settings.hiddenAmounts && <Progress value={item.percent} label={`${item.percent}% de las compras de ${monthLabel}`} />}</div></article>)}</section>}
+      {showingBudget && <section className="glass-budget-categories"><h2>Gastos por categoría</h2><p className="helper">Distribución de compras de {monthLabel}, antes de reembolsos. No son límites por categoría.</p>{expenseBreakdown(transactions, categories, month).map((item) => <article key={item.name}><NightIcon icon={ChartNoAxesColumn} /><div><h3>{item.name}</h3><strong>{formatMinor(item.amount, settings.currency || 'COP', settings.hiddenAmounts)}</strong>{!settings.hiddenAmounts && <Progress value={item.percent} label={`${item.percent}% de las compras de ${monthLabel}`} />}</div></article>)}</section>}
 
       <details className="calm-details calm-planning-details" open={guideOpen || showingBudget}><summary>Compras previstas y margen disponible</summary>
-      <AvailablePlanSummary cash={cash} hidden={settings.hiddenAmounts} />
+      <AvailablePlanSummary cash={cash} hidden={settings.hiddenAmounts} currency={settings.currency || 'COP'} />
       <section className="plan-purchases" aria-labelledby="plan-purchases-title">
         <div className="section-heading">
           <div><h2 id="plan-purchases-title">Próximas compras</h2><p>Revísalas antes de comprometer ese dinero.</p></div>
@@ -154,12 +155,12 @@ export function PlanPage() {
 }
 
 // Muestra avance presupuestal neto y mantiene visible el límite que el usuario puede editar.
-function BudgetOverview({ monthLabel, spentMinor, limitMinor, percent, hidden, onEdit, featured }) {
+function BudgetOverview({ monthLabel, spentMinor, limitMinor, percent, hidden, currency, onEdit, featured }) {
   const hasLimit = Number.isSafeInteger(Number(limitMinor)) && Number(limitMinor) > 0
   const remainingMinor = hasLimit ? limitMinor - spentMinor : null
 
   // El círculo representa el presupuesto global existente, nunca límites ficticios por categoría.
-  if (featured) return <div className="glass-budget-overview"><GlassHero><div className="glass-budget-top"><div className="glass-budget-ring" style={{ '--used': `${hidden ? 0 : Math.max(0, Math.min(100, percent))}%` }} aria-label={hidden ? 'Avance oculto' : `${Math.round(percent)}% del presupuesto`}><strong>{hidden ? '•••' : `${Math.round(percent)}%`}</strong></div><div><span>Gastado en {monthLabel}</span><strong className="glass-amount">{formatMinor(spentMinor, 'COP', hidden)}</strong><p>{hasLimit ? `de ${formatMinor(limitMinor, 'COP', hidden)}` : 'Sin límite definido'}</p></div></div><p>{hasLimit ? remainingMinor < 0 ? `Superaste el límite por ${formatMinor(Math.abs(remainingMinor), 'COP', hidden)}` : `Quedan ${formatMinor(remainingMinor, 'COP', hidden)}` : 'Define tu presupuesto cuando quieras.'}</p></GlassHero><div className="glass-actions glass-actions--end"><OrbAction icon={Pencil} aria-label={hasLimit ? 'Editar presupuesto' : 'Definir presupuesto'} onClick={onEdit}>Editar</OrbAction></div></div>
+  if (featured) return <div className="glass-budget-overview"><GlassHero><div className="glass-budget-top"><div className="glass-budget-ring" style={{ '--used': `${hidden ? 0 : Math.max(0, Math.min(100, percent))}%` }} aria-label={hidden ? 'Avance oculto' : `${Math.round(percent)}% del presupuesto`}><strong>{hidden ? '•••' : `${Math.round(percent)}%`}</strong></div><div><span>Gastado en {monthLabel}</span><strong className="glass-amount">{formatMinor(spentMinor, currency, hidden)}</strong><p>{hasLimit ? `de ${formatMinor(limitMinor, currency, hidden)}` : 'Sin límite definido'}</p></div></div><p>{hasLimit ? remainingMinor < 0 ? `Superaste el límite por ${formatMinor(Math.abs(remainingMinor), currency, hidden)}` : `Quedan ${formatMinor(remainingMinor, currency, hidden)}` : 'Define tu presupuesto cuando quieras.'}</p></GlassHero><div className="glass-actions glass-actions--end"><OrbAction icon={Pencil} aria-label={hasLimit ? 'Editar presupuesto' : 'Definir presupuesto'} onClick={onEdit}>Editar</OrbAction></div></div>
 
   return <section className="plan-panel plan-budget" aria-labelledby="plan-budget-title">
     <div className="plan-panel__heading">
@@ -168,9 +169,9 @@ function BudgetOverview({ monthLabel, spentMinor, limitMinor, percent, hidden, o
     </div>
     {hasLimit ? <>
       <Progress value={Math.max(0, percent)} label="Presupuesto usado" />
-      <div className="plan-budget__amounts"><span>{formatMinor(spentMinor, 'COP', hidden)} gasto neto</span><span>de {formatMinor(limitMinor, 'COP', hidden)}</span></div>
+      <div className="plan-budget__amounts"><span>{formatMinor(spentMinor, currency, hidden)} gasto neto</span><span>de {formatMinor(limitMinor, currency, hidden)}</span></div>
       <p className={`plan-budget__status ${remainingMinor < 0 ? 'plan-budget__status--over' : ''}`}>
-        {remainingMinor < 0 ? `Superaste el límite por ${formatMinor(Math.abs(remainingMinor), 'COP', hidden)}.` : `Te quedan ${formatMinor(remainingMinor, 'COP', hidden)} de presupuesto.`}
+        {remainingMinor < 0 ? `Superaste el límite por ${formatMinor(Math.abs(remainingMinor), currency, hidden)}.` : `Te quedan ${formatMinor(remainingMinor, currency, hidden)} de presupuesto.`}
       </p>
       <button className="plan-text-action" type="button" onClick={onEdit}>Ajustar límite <Pencil aria-hidden="true" /></button>
     </> : <div className="plan-budget__empty"><p>{monthLabel} aún no tiene un límite.</p><button className="plan-text-action" type="button" onClick={onEdit}>Definir presupuesto <Plus aria-hidden="true" /></button></div>}
@@ -178,7 +179,7 @@ function BudgetOverview({ monthLabel, spentMinor, limitMinor, percent, hidden, o
 }
 
 // Distingue el saldo registrado del margen después de compromisos aún pendientes.
-function AvailablePlanSummary({ cash, hidden }) {
+function AvailablePlanSummary({ cash, hidden, currency }) {
   if (!cash.hasAccount) return <section className="plan-panel plan-free plan-free--setup">
     <span className="plan-eyebrow">Dinero registrado</span>
     <h2>Agrega tu saldo actual</h2>
@@ -188,10 +189,10 @@ function AvailablePlanSummary({ cash, hidden }) {
   const isNegative = cash.spendableMinor < 0
   return <section className={`plan-panel plan-free ${isNegative ? 'plan-free--warning' : ''}`} aria-labelledby="plan-free-title">
     <span className="plan-eyebrow" id="plan-free-title">Margen tras pagos pendientes</span>
-    <strong className="plan-free__amount">{formatMinor(cash.spendableMinor, 'COP', hidden)}</strong>
+    <strong className="plan-free__amount">{formatMinor(cash.spendableMinor, currency, hidden)}</strong>
     <div className="plan-free__breakdown">
-      <p><ArrowDownRight aria-hidden="true" /><span>Dinero en cuentas</span><strong>{formatMinor(cash.balanceMinor, 'COP', hidden)}</strong></p>
-      <p><ArrowUpRight aria-hidden="true" /><span>Pagos y reservas pendientes</span><strong>{formatMinor(safeAdd(safeAdd(cash.pendingFixedMinor, cash.pendingDebtMinor), cash.reservedMinor), 'COP', hidden)}</strong></p>
+      <p><ArrowDownRight aria-hidden="true" /><span>Dinero en cuentas</span><strong>{formatMinor(cash.balanceMinor, currency, hidden)}</strong></p>
+      <p><ArrowUpRight aria-hidden="true" /><span>Pagos y reservas pendientes</span><strong>{formatMinor(safeAdd(safeAdd(cash.pendingFixedMinor, cash.pendingDebtMinor), cash.reservedMinor), currency, hidden)}</strong></p>
     </div>
     <small>El saldo en cuentas solo cambia al registrar un movimiento real. Los pagos pendientes se apartan para evaluar compras; aún no se han descontado.</small>
   </section>

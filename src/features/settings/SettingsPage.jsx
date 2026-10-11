@@ -57,7 +57,7 @@ export function SettingsPage() {
       </SettingsSection>
       <details className="calm-details"><summary>{isDemo ? 'Datos de demostración' : 'Exportar datos y sincronización'}</summary>
       <SettingsSection id="settings-data-heading" title={isDemo ? 'Datos de demostración' : 'Datos'} intro={isDemo ? 'Una moneda activa y datos locales separados.' : 'Moneda, sincronización y copias de seguridad.'} className="settings-group--data">
-        <SettingRow icon={CircleDollarSign} tone="gold" title="Moneda" detail="Una moneda activa en esta fase"><strong className="setting-static-value">COP</strong></SettingRow>
+        <SettingRow icon={CircleDollarSign} tone="gold" title="Moneda" detail="Moneda base de tus saldos y movimientos"><strong className="setting-static-value">{settings.currency || 'COP'}</strong></SettingRow>
         {!isDemo && <RemoteDataControls data={{ accounts, categories, transactions, budgets, goals, allocations, plannedPurchases, settingsRows: Object.entries(settings).map(([key, value]) => ({ key, value })) }} user={user} syncState={syncState} actions={actions} notify={notify} />}
         {isDemo && <button className="button button--danger settings-page__reset" type="button" onClick={resetDemo}>Restaurar datos de ejemplo</button>}
       </SettingsSection>

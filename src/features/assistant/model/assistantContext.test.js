@@ -16,7 +16,7 @@ describe('contexto del asistente', () => {
       month: '2026-09',
       settings: { monthlySalaryMinor: 320000000, payFrequency: 'monthly', internal_id: 'no-enviar' },
     })
-    expect(context.accounts).toEqual([{ name: 'Banco', kind: 'asset', subtype: 'bank', balance_formatted: '$ 0', debt_schedule: null }])
+    expect(context.accounts).toEqual([{ name: 'Banco', kind: 'asset', subtype: 'bank', currency: 'COP', balance_formatted: '$ 0', debt_schedule: null }])
     expect(context.budget).toEqual({ month: '2026-09', limit_formatted: '$ 100.000' })
     expect(context.income_reference).toBeUndefined()
     expect(context.summary).toEqual({ assets_formatted: '$ 0', debt_formatted: '$ 0', net_formatted: '$ 0', income_formatted: '$ 0', expenses_formatted: '$ 0' })
@@ -29,5 +29,16 @@ describe('contexto del asistente', () => {
     expect(context.recent_transactions[0].merchant_name).toHaveLength(120)
     expect(context.recent_transactions[0].note).toHaveLength(160)
     expect(context.recent_transactions[0].amount_formatted).toBe('$ 1')
+  })
+
+  it('formatea el contexto con la moneda base seleccionada', () => {
+    const context = buildAssistantContext({
+      accounts: [{ id: 'account-1', name: 'Cuenta', kind: 'asset', subtype: 'bank', currency: 'EUR', archived: false }],
+      transactions: [], budgets: [], goals: [], allocations: [], plannedPurchases: [], month: '2026-09',
+      settings: { currency: 'EUR' },
+    })
+    expect(context.currency).toBe('EUR')
+    expect(context.accounts[0].balance_formatted).toContain('EUR')
+    expect(context.summary.assets_formatted).toContain('EUR')
   })
 })

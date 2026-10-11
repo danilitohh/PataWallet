@@ -123,6 +123,7 @@ async function createChangeRequest(admin, user, input) {
     if (!Number.isSafeInteger(payload.amount_minor) || payload.amount_minor < 1 || payload.amount_minor > MAX_MINOR || !['increase', 'decrease'].includes(payload.direction)) publicError('El ajuste debe tener un monto y una dirección válidos.')
     payload = { amount_minor: payload.amount_minor, direction: payload.direction, note: typeof payload.note === 'string' ? payload.note.trim().slice(0, 160) : '' }
   }
+  payload = { ...payload, currency: account.currency || 'COP' }
   return ensure(await admin.from('couple_change_requests').insert({ couple_id: input.couple_id, proposer_id: user.id, owner_user_id: row.owner_user_id, account_id: input.account_id, change_type: input.change_type, payload, expected_version: input.change_type === 'account_update' ? account.version : null }).select('*').single())
 }
 

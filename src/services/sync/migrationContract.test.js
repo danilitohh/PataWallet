@@ -11,8 +11,19 @@ const incomeSources = fs.readFileSync(new URL('../../../supabase/migrations/2026
 const optionalNullShape = fs.readFileSync(new URL('../../../supabase/migrations/20260914120000_fix_optional_user_settings_shape.sql', import.meta.url), 'utf8')
 const coupleReviewPermissions = fs.readFileSync(new URL('../../../supabase/migrations/20260926143000_restrict_couple_review.sql', import.meta.url), 'utf8')
 const bankEmailRecurringPayment = fs.readFileSync(new URL('../../../supabase/migrations/20260930160000_bank_email_recurring_payment.sql', import.meta.url), 'utf8')
+const profileCurrencies = fs.readFileSync(new URL('../../../supabase/migrations/20261011120000_profile_base_currencies.sql', import.meta.url), 'utf8')
 
 describe('contrato de seguridad PostgreSQL', () => {
+  it('limita las monedas de perfil y exige coincidencia con integraciones entrantes', () => {
+    for (const table of ['profiles', 'accounts', 'transactions', 'budgets', 'goals', 'planned_purchases']) {
+      expect(profileCurrencies).toContain(`alter table public.${table} add constraint ${table}_currency_check check (currency in ('COP', 'GTQ', 'USD', 'EUR', 'MXN', 'GBP'))`)
+    }
+    expect(profileCurrencies).toContain('p_currency is distinct from (select currency from public.profiles where id = p_user_id)')
+    expect(profileCurrencies).toContain("coalesce(p_payload->>'currency', profile_currency) <> profile_currency")
+    expect(profileCurrencies).toContain('currency = (select currency from public.profiles where id = caller)')
+    expect(profileCurrencies).toContain('currency = profile_currency,')
+  })
+
   it('activa RLS y limita cada tabla expuesta al propietario autenticado', () => {
     const tables = ['profiles', 'accounts', 'categories', 'transactions', 'budgets', 'goals', 'goal_allocations', 'user_settings']
     for (const table of tables) {

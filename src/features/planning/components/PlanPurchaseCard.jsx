@@ -5,7 +5,8 @@ import { NightIcon } from '../../../shared/components/NightIcon.jsx'
 // Muestra una compra prevista con controles de edición y un análisis que el usuario puede desplegar.
 export function PlanPurchaseCard({ purchase, featured, hidden, assessment, expanded, onToggle, onEdit, onDelete }) {
   const className = `plan-purchase-card ${featured ? 'plan-purchase-card--featured' : 'plan-purchase-card--compact'}`
-  const advice = plannedPurchaseMessage(assessment, hidden)
+  const currency = purchase.currency || 'COP'
+  const advice = plannedPurchaseMessage(assessment, hidden, currency)
   const targetDate = formatPlannedPurchaseDate(purchase.target_date)
 
   return <article className={className}>
@@ -13,7 +14,7 @@ export function PlanPurchaseCard({ purchase, featured, hidden, assessment, expan
     <div className="plan-purchase-card__copy">
       <span className="plan-eyebrow">{featured ? 'Próxima compra' : 'También prevista'}</span>
       <h3>{purchase.name}</h3>
-      <p>{formatMinor(purchase.amount_minor, 'COP', hidden)} · para el {targetDate}</p>
+      <p>{formatMinor(purchase.amount_minor, currency, hidden)} · para el {targetDate}</p>
     </div>
     <div className="plan-purchase-card__actions">
       <button className="icon-button icon-button--small" type="button" aria-label={`Editar ${purchase.name}`} onClick={onEdit}><Pencil aria-hidden="true" /></button>
@@ -35,13 +36,13 @@ function formatPlannedPurchaseDate(value) {
 }
 
 // Explica el motivo concreto de una recomendación sin ocultar casos de saldo insuficiente o pago lejano.
-function plannedPurchaseMessage(assessment, hidden) {
+function plannedPurchaseMessage(assessment, hidden, currency) {
   if (assessment.kind === 'unknown') return assessment.message
   if (assessment.kind === 'good') {
     const margin = assessment.remainingAfterPurchase ?? assessment.availableAfterReserves
-    return margin === null ? 'Puedes hacerla según los datos configurados.' : `Puedes hacerla: conservarías ${formatMinor(margin, 'COP', hidden)} de margen.`
+    return margin === null ? 'Puedes hacerla según los datos configurados.' : `Puedes hacerla: conservarías ${formatMinor(margin, currency, hidden)} de margen.`
   }
-  if (assessment.reason === 'before_payday') return `Espera o revisa el monto: faltan ${assessment.daysUntilPay} días para tu próximo pago y te quedarían ${formatMinor(assessment.remainingAfterPurchase, 'COP', hidden)}.`
-  if (assessment.reason === 'funds') return assessment.shortfall === 0 ? 'No es recomendable: te dejaría sin margen para los pagos pendientes.' : `No es recomendable: faltarían ${formatMinor(assessment.shortfall, 'COP', hidden)} después de apartar pagos pendientes.`
-  return `No es recomendable: supera el presupuesto restante por ${formatMinor(assessment.shortfall, 'COP', hidden)}.`
+  if (assessment.reason === 'before_payday') return `Espera o revisa el monto: faltan ${assessment.daysUntilPay} días para tu próximo pago y te quedarían ${formatMinor(assessment.remainingAfterPurchase, currency, hidden)}.`
+  if (assessment.reason === 'funds') return assessment.shortfall === 0 ? 'No es recomendable: te dejaría sin margen para los pagos pendientes.' : `No es recomendable: faltarían ${formatMinor(assessment.shortfall, currency, hidden)} después de apartar pagos pendientes.`
+  return `No es recomendable: supera el presupuesto restante por ${formatMinor(assessment.shortfall, currency, hidden)}.`
 }

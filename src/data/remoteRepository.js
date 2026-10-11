@@ -23,7 +23,13 @@ export async function ensureRemoteWorkspace(userId) {
   const displayName = preferredName.trim().length >= 2 ? preferredName.trim().slice(0, 80) : 'Usuario'
   const signupSetup = normalizeSignupSetup(user?.user_metadata?.patawallet_onboarding_v1)
   const applySignupSetup = signupSetup && user?.user_metadata?.patawallet_setup_applied_v1 !== true
-  const { error: profileError } = await supabase.from('profiles').upsert({ id: userId, display_name: displayName })
+  const { data: existingProfile, error: profileReadError } = await supabase.from('profiles').select('currency').eq('id', userId).maybeSingle()
+  ensure(profileReadError)
+  // La moneda del perfil es una preferencia duradera: una sesión posterior nunca vuelve a aplicar un borrador de registro.
+  const profileCurrency = existingProfile?.currency || signupSetup?.currency || 'COP'
+  const profilePayload = { id: userId, display_name: displayName }
+  if (!existingProfile) profilePayload.currency = profileCurrency
+  const { error: profileError } = await supabase.from('profiles').upsert(profilePayload)
   ensure(profileError)
   const { data: existingSettings, error: settingsReadError } = await supabase.from('user_settings').select('key').eq('user_id', userId)
   ensure(settingsReadError)
@@ -69,7 +75,7 @@ export async function ensureRemoteWorkspace(userId) {
         user_id: userId,
         month: signupSetup.budgetMonth,
         limit_minor: signupSetup.monthlyBudgetMinor,
-        currency: 'COP',
+        currency: signupSetup.currency,
       })
       if (budgetError?.code !== '23505') ensure(budgetError)
     }
@@ -85,9 +91,15 @@ export async function loadRemoteWorkspace(userId) {
   const tables = ['accounts', 'categories', 'transactions', 'budgets', 'goals', 'goal_allocations', 'user_settings']
   const results = await Promise.all(tables.map((table) => supabase.from(table).select('*').eq('user_id', userId)))
   results.forEach(({ error }) => ensure(error))
-  const plannedResult = await supabase.from('planned_purchases').select('*').eq('user_id', userId)
+  const [plannedResult, profileResult] = await Promise.all([
+    supabase.from('planned_purchases').select('*').eq('user_id', userId),
+    supabase.from('profiles').select('currency').eq('id', userId).maybeSingle(),
+  ])
   if (plannedResult.error && plannedResult.error.code !== '42P01' && plannedResult.error.code !== 'PGRST205') ensure(plannedResult.error)
+  ensure(profileResult.error)
   const clean = (rows) => rows.map(({ user_id: _owner, created_at: _created, ...row }) => row)
+  const settingsRows = clean(results[6].data)
+  settingsRows.push({ key: 'currency', value: profileResult.data?.currency || 'COP' })
   return {
     accounts: clean(results[0].data),
     categories: clean(results[1].data),
@@ -95,7 +107,7 @@ export async function loadRemoteWorkspace(userId) {
     budgets: clean(results[3].data),
     goals: clean(results[4].data),
     allocations: clean(results[5].data),
-    settingsRows: clean(results[6].data),
+    settingsRows,
     plannedPurchases: clean(plannedResult.data || []),
   }
 }

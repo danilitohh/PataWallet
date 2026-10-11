@@ -20,6 +20,21 @@ export const DEFAULT_STARTER_CATEGORY_IDS = [
   'expense-restaurants',
 ]
 
+export const SUPPORTED_CURRENCIES = [
+  { code: 'COP', name: 'Peso colombiano', country: 'Colombia', symbol: '$' },
+  { code: 'GTQ', name: 'Quetzal guatemalteco', country: 'Guatemala', symbol: 'Q' },
+  { code: 'USD', name: 'Dólar estadounidense', country: 'Estados Unidos', symbol: 'US$' },
+  { code: 'EUR', name: 'Euro', country: 'Unión Europea', symbol: '€' },
+  { code: 'MXN', name: 'Peso mexicano', country: 'México', symbol: 'MX$' },
+  { code: 'GBP', name: 'Libra esterlina', country: 'Reino Unido', symbol: '£' },
+]
+
+const allowedCurrencies = new Set(SUPPORTED_CURRENCIES.map(({ code }) => code))
+
+export function normalizeCurrency(value) {
+  return allowedCurrencies.has(value) ? value : 'COP'
+}
+
 const allowedCategories = new Set(STARTER_CATEGORIES.map(({ id }) => id))
 const allowedCardStyles = new Set(['macaws', 'cats', 'dogs', 'rabbits', 'otters'])
 
@@ -54,7 +69,7 @@ export function normalizeSignupSetup(value) {
   return {
     version: 1,
     cardStyle,
-    currency: 'COP',
+    currency: normalizeCurrency(value.currency),
     categories: categories.length ? categories : DEFAULT_STARTER_CATEGORY_IDS,
     monthlyBudgetMinor,
     budgetMonth: monthlyBudgetMinor ? month : null,

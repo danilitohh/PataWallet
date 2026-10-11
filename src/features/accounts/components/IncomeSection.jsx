@@ -35,9 +35,9 @@ export function IncomeSection() {
   }
 
   return <section className="settings-group income-section" id="ingresos">
-    <AccountSectionToggle sectionId="ingresos" title="Ingresos" description="Dinero que ya recibiste en tus cuentas." summary={formatMinor(receivedMinor, 'COP', settings.hiddenAmounts)} expanded={expanded} onToggle={() => setExpanded((value) => !value)} />
+    <AccountSectionToggle sectionId="ingresos" title="Ingresos" description="Dinero que ya recibiste en tus cuentas." summary={formatMinor(receivedMinor, settings.currency || 'COP', settings.hiddenAmounts)} expanded={expanded} onToggle={() => setExpanded((value) => !value)} />
     {expanded && <div id="ingresos-content" className="account-section-toggle__content">
-      <p className="settings-group__intro">Este mes recibiste {formatMinor(receivedMinor, 'COP', settings.hiddenAmounts)} en {received.length} movimiento{received.length === 1 ? '' : 's'}. Tu saldo actual también incluye el dinero que registraste al abrir tus cuentas.</p>
+      <p className="settings-group__intro">Este mes recibiste {formatMinor(receivedMinor, settings.currency || 'COP', settings.hiddenAmounts)} en {received.length} movimiento{received.length === 1 ? '' : 's'}. Tu saldo actual también incluye el dinero que registraste al abrir tus cuentas.</p>
       <button className="button button--secondary" type="button" onClick={() => setSheet('income')} disabled={!hasAccount}><Plus /> Registrar dinero recibido</button>
       {!hasAccount && <p className="helper">Agrega primero una cuenta con tu saldo actual.</p>}
       <form onSubmit={saveSchedule}>
