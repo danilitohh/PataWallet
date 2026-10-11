@@ -4,7 +4,7 @@ import { formatMinor } from '../../../domain/money.js'
 import { DashboardBudget, DashboardMoneyDetails, DashboardRecent, formatDashboardDate } from '../components/DashboardSections.jsx'
 import { UpcomingPayments } from '../components/UpcomingPayments.jsx'
 import { NightIcon } from '../../../shared/components/NightIcon.jsx'
-import { GlassHero, OrbAction } from '../../../shared/components/GlassHero.jsx'
+import { OrbAction } from '../../../shared/components/GlassHero.jsx'
 
 // Comparte los mismos datos y acciones entre el diseño nocturno original y el nuevo diseño claro.
 export function AvailableView({ summary, cash, budget, remaining, used, recent, nextPayDate, legacyIncomeConfigured, hidden, currency = 'COP', goals, goalCount, allocations, planned, plannedCount, accounts, accountCount, balances, month, onMonthChange, setSheet, isDemo, toggleAmounts, visibilityIcon: VisibilityIcon, homeDesign = 'night', greeting = '' }) {
@@ -25,9 +25,7 @@ export function AvailableView({ summary, cash, budget, remaining, used, recent, 
       <h1>{isLightDesign ? 'Balance' : `Hola${greeting ? `, ${greeting}` : ''}`}</h1>
       {isDemo && <span className="calm-demo" aria-label="Datos de ejemplo, guardados solo en este navegador" title="Guardados solo en este navegador">Datos de ejemplo · solo en este navegador</span>}
     </header>
-    {isLightDesign
-      ? <section className="dashboard-home-balance" aria-label="Saldo registrado en tus cuentas">{balanceContent}</section>
-      : <GlassHero className="dashboard-home-balance dashboard-home-balance--hero" aria-label="Saldo registrado en tus cuentas">{balanceContent}</GlassHero>}
+    <section className={`dashboard-home-balance${isLightDesign ? '' : ' dashboard-home-balance--night'}`} aria-label="Saldo registrado en tus cuentas">{balanceContent}</section>
     {!isLightDesign && <div className="glass-actions glass-actions--trio dashboard-home-actions" aria-label="Acciones rápidas">
       <OrbAction icon={ShoppingCart} onClick={() => setSheet('new')}>Compra</OrbAction>
       <OrbAction icon={Plus} onClick={() => setSheet('income')}>Ingreso</OrbAction>

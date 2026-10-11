@@ -1,5 +1,10 @@
 # Estado de implementación
 
+## Inicio nocturno sin GlassHero · 11 de octubre de 2026
+
+- El saldo de Inicio en modo oscuro ya no usa el `GlassHero` ni su ilustración SVG. Las acciones rápidas quedan debajo del saldo en el flujo normal.
+- Cambio implementado; aún no se ha vuelto a verificar visualmente.
+
 ## Resúmenes sin forma tipo burbuja · 11 de octubre de 2026
 
 - Actividad, Plan, Cuentas y Parejas muestran los montos sin la forma SVG decorativa detrás. Se conservan sus etiquetas, controles, círculos de avance y acciones; las acciones que antes se superponían a la forma vuelven al flujo normal.
