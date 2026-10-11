@@ -1,5 +1,10 @@
 # Estado de implementación
 
+## Tema según la portada elegida · 11 de octubre de 2026
+
+- La selección de portada ahora tiñe toda la experiencia de registro: acentos de marca y progreso, flechas, selección de moneda y categorías, enlaces secundarios y botones principales con gradiente y sombra propios.
+- Verificado con captura local en Chromium a 375×812, 390×844 y 1440×900; sin desbordamiento horizontal ni errores de página. `npm run lint` y `npm run build` pasaron. No se probó en iPhone físico.
+
 ## Iconos de categoría sin placa · 11 de octubre de 2026
 
 - Los pictogramas conservan sus tonos y volumen con luz y sombra, pero ya no aparecen dentro de un recuadro. Aplicado al presupuesto inicial y al historial de movimientos, incluidas categorías personalizadas.
