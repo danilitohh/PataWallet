@@ -1,5 +1,11 @@
 # Estado de implementación
 
+## Paleta de toda la app según la portada elegida · 11 de octubre de 2026
+
+- Las cinco portadas tienen una paleta compartida. La elección aplicada al registro también define fondos, superficies, bordes, acentos, botones principales, navegación, controles, iconos, focos y la tarjeta de saldo; cambiarla desde Ajustes actualiza la app en el momento.
+- La misma paleta se usa en el registro, el selector y la entrada con tarjeta y la configuración opcional de correo/notificaciones. Inicio conserva su superficie clara, con sus acentos, acciones y superficies teñidos por la portada. La opción de Ajustes ahora explica este alcance.
+- Verificado con `npm run lint` y `npm run build`. Revisé manualmente la demo local en 390×844 (Inicio y entrada de tarjeta), 375×812 (Ajustes) y 1440×900 (Actividad); cambié la portada desde Ajustes y confirmé que la paleta activa pasó a Nutrias. Sin errores de página ni desbordamiento horizontal. No ejecuté la suite automatizada, no probé un iPhone físico y no desplegué el cambio.
+
 ## Inicio ligero inspirado en la referencia · 11 de octubre de 2026
 
 - La pantalla Inicio adopta una composición gris clara y despejada: saldo en cuentas destacado, selector del mes, ingresos y gastos en indicadores compactos, acceso discontinuo «Agregar» y un botón flotante azul en móvil.

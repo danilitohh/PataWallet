@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight, PawPrint } from 'lucide-react'
 import { motion } from 'motion/react'
-import { WALLET_CARDS, walletCardById } from './walletCardModel.js'
+import { WALLET_CARDS, walletCardById, walletCardThemeVariables } from './walletCardModel.js'
 
 export function WalletCardPicker({ currentStyle, required = false, onSelect, onCancel }) {
   const [selected, setSelected] = useState(walletCardById(currentStyle)?.id || WALLET_CARDS[0].id)
@@ -49,7 +49,7 @@ export function WalletCardPicker({ currentStyle, required = false, onSelect, onC
   }
 
   return (
-    <main className="wallet-card-flow" data-card-style={card.id}>
+    <main className="wallet-card-flow" data-card-style={card.id} style={walletCardThemeVariables(card.id)}>
       <header className="wallet-card-flow__brand"><PawPrint aria-hidden="true" /><span>PataWallet</span></header>
       <section className="wallet-card-picker" aria-labelledby="wallet-card-title">
         <p className="wallet-card-flow__eyebrow">Tu billetera, a tu manera</p>
@@ -94,7 +94,7 @@ export function WalletCardPicker({ currentStyle, required = false, onSelect, onC
           </button>
           {!required && <button className="wallet-card-flow__cancel" type="button" onClick={onCancel} disabled={busy}>Cancelar</button>}
         </div>
-        <p className="wallet-card-flow__note">Es una portada visual de tu app; no es una tarjeta de pago.</p>
+        <p className="wallet-card-flow__note">Define los colores de PataWallet y la portada de inicio; no es una tarjeta de pago.</p>
       </section>
     </main>
   )
@@ -105,7 +105,7 @@ export function WalletEntry({ cardStyle, onOpen, onChange, reduceMotion = false 
   const card = walletCardById(cardStyle) || WALLET_CARDS[0]
 
   return (
-    <main className={`wallet-card-flow wallet-entry${isOpening ? ' wallet-entry--opening' : ''}`} data-card-style={card.id}>
+    <main className={`wallet-card-flow wallet-entry${isOpening ? ' wallet-entry--opening' : ''}`} data-card-style={card.id} style={walletCardThemeVariables(card.id)}>
       <header className="wallet-card-flow__brand"><PawPrint aria-hidden="true" /><span>PataWallet</span></header>
       <section className="wallet-entry__content" aria-labelledby="wallet-entry-title">
         <p className="wallet-card-flow__eyebrow">Tu espacio financiero</p>

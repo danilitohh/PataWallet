@@ -43,7 +43,7 @@ export function SettingsPage() {
       </SettingsSection>
 
       <SettingsSection id="settings-appearance-heading" title="Preferencias" className="settings-group--appearance">
-        <SettingRow icon={CreditCard} tone="peach" title="Tarjeta de inicio" detail={`Diseño ${walletCardById(walletCardStyle)?.name || 'sin elegir'}. Solo cambia la portada visual.`}><button className="compact-action" type="button" onClick={openWalletCardPicker}>Cambiar</button></SettingRow>
+        <SettingRow icon={CreditCard} tone="peach" title="Tema de PataWallet" detail={`Diseño ${walletCardById(walletCardStyle)?.name || 'sin elegir'}: cambia los colores de la app y la portada de inicio.`}><button className="compact-action" type="button" onClick={openWalletCardPicker}>Cambiar</button></SettingRow>
         <SettingRow icon={settings.hiddenAmounts ? EyeOff : Eye} tone="sky" title="Ocultar montos" detail="Privacidad visual; no reemplaza la autenticación"><Switch checked={Boolean(settings.hiddenAmounts)} label="Ocultar montos" onChange={(value) => setSetting('hiddenAmounts', value)} /></SettingRow>
         <SettingRow icon={Moon} tone="violet" title="Apariencia"><span className="setting-static-value">Oscuro</span></SettingRow>
         <SettingRow icon={SlidersHorizontal} tone="mint" title="Animaciones"><select aria-label="Movimiento" value={settings.motion || 'system'} onChange={(event) => setSetting('motion', event.target.value)}><option value="system">Sistema</option><option value="soft">Suave</option><option value="off">Desactivado</option></select></SettingRow>

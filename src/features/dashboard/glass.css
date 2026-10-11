@@ -42,7 +42,7 @@
 .dashboard-money-details .section-heading > a { flex-shrink: 0; }
 .dashboard-money-details .dashboard-budget__body { gap: 14px; }
 .dashboard-money-details .income-summary { align-content: start; gap: 16px; }
-.dashboard-money-details .budget-ring { --success: var(--accent); --primary: #a49bfa; --coral: #d3bbff; }
+.dashboard-money-details .budget-ring { --success: var(--accent); --primary: var(--accent-secondary); --coral: var(--accent-secondary); }
 .dashboard-money-details :is(.income-summary__value strong,.available-money-card__value) { color: var(--text); font-size: clamp(1.5rem,6vw,2rem); overflow-wrap: anywhere; }
 .dashboard-money-details .available-money-card--warning .available-money-card__value { color: var(--danger); }
 .dashboard-money-details .available-money-card__breakdown { display: grid; gap: 0; }

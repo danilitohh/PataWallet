@@ -8,7 +8,7 @@ import { formatInputAmount, parseLocalizedAmount } from '../../domain/money.js'
 import { STARTER_CATEGORIES, DEFAULT_STARTER_CATEGORY_IDS, normalizeIntegrationSetup, SUPPORTED_CURRENCIES } from '../../domain/registration.js'
 import { currentMonth } from '../../shared/lib/date.js'
 import { CategoryIcon } from '../../shared/components/CategoryIcon.jsx'
-import { WALLET_CARDS } from '../onboarding/walletCardModel.js'
+import { WALLET_CARDS, walletCardThemeVariables } from '../onboarding/walletCardModel.js'
 import shortcutManifest from '../../../shortcuts/template-manifest.json'
 
 const stepLabels = ['Nombre', 'Portada', 'Moneda', 'Presupuesto', 'Atajos', 'Cuenta']
@@ -132,7 +132,7 @@ export function SignupFlow({ onLogin, onCreateAccount, onGoogle, googleEnabled, 
         <button className="signup-flow__arrow" type="button" onClick={() => moveCard(1)} aria-label="Portada siguiente"><ChevronRight aria-hidden="true" /></button>
       </div>
       <div className="signup-flow__card-caption" aria-live="polite"><strong>{card.name}</strong><span>{card.description}</span><small>{cardIndex + 1} / {WALLET_CARDS.length}</small></div>
-      <p className="signup-flow__fine">La portada es visual; no representa una tarjeta bancaria.</p>
+      <p className="signup-flow__fine">La portada define los colores de PataWallet; no representa una tarjeta bancaria.</p>
     </>
 
     if (step === 2) return <>
@@ -229,7 +229,7 @@ export function SignupFlow({ onLogin, onCreateAccount, onGoogle, googleEnabled, 
   const isAccount = step === stepLabels.length - 1
 
   return (
-    <main className="signup-flow" data-card-style={card.id}>
+    <main className="signup-flow" data-card-style={card.id} style={walletCardThemeVariables(card.id)}>
       <header className="signup-flow__header">
         <div className="signup-flow__brand"><PawPrint aria-hidden="true" /><strong>PataWallet</strong></div>
         <span className="signup-flow__step-count">{step + 1} <span>de</span> {stepLabels.length}</span>

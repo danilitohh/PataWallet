@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, MotionConfig, useReducedMotion } from 'motion/react'
 import { useLocation } from 'react-router-dom'
 import { AppContext } from './AppContext.jsx'
@@ -7,7 +7,7 @@ import { AppShell } from './AppShell.jsx'
 import { WelcomePage } from '../features/onboarding/WelcomePage.jsx'
 import { IntegrationSetup } from '../features/onboarding/IntegrationSetup.jsx'
 import { WalletCardPicker, WalletEntry } from '../features/onboarding/WalletCardFlow.jsx'
-import { hasOpenedWallet, isWalletCardStyle, markWalletOpened, readWalletCardStyle, saveWalletCardStyle } from '../features/onboarding/walletCardModel.js'
+import { hasOpenedWallet, isWalletCardStyle, markWalletOpened, readWalletCardStyle, saveWalletCardStyle, walletCardThemeById, walletCardThemeVariables } from '../features/onboarding/walletCardModel.js'
 import { FirstUseGuide } from '../features/onboarding/FirstUseGuide.jsx'
 import { normalizeIntegrationSetup } from '../domain/registration.js'
 import { MovementSheet } from '../features/transactions/components/MovementSheet.jsx'
@@ -74,17 +74,36 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
   const reduceMotion = settingsMap.motion === 'off' || Boolean(systemReduce)
   const prefilledSheet = sheet?.kind === 'prefilled' ? sheet : null
 
+  useLayoutEffect(() => {
+    const root = document.documentElement
+    const variables = walletCardThemeVariables(walletCardStyle)
+    const previous = Object.fromEntries(Object.keys(variables).map((name) => [name, root.style.getPropertyValue(name)]))
+    const previousTheme = root.dataset.walletTheme
+    const previousThemeColor = document.querySelector('meta[name="theme-color"]')?.getAttribute('content')
+    Object.entries(variables).forEach(([name, value]) => root.style.setProperty(name, value))
+    if (walletCardStyle) root.dataset.walletTheme = walletCardStyle
+    else delete root.dataset.walletTheme
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', walletCardThemeById(walletCardStyle).bg)
+
+    return () => {
+      Object.entries(previous).forEach(([name, value]) => value ? root.style.setProperty(name, value) : root.style.removeProperty(name))
+      if (previousTheme) root.dataset.walletTheme = previousTheme
+      else delete root.dataset.walletTheme
+      if (previousThemeColor) document.querySelector('meta[name="theme-color"]')?.setAttribute('content', previousThemeColor)
+    }
+  }, [walletCardStyle])
+
   useEffect(() => {
     const root = document.documentElement
     // La interfaz es siempre oscura; las preferencias antiguas se normalizan para no reintroducir el tema claro.
     root.dataset.theme = 'dark'
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#0b1425')
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', walletCardThemeById(walletCardStyle).bg)
     root.dataset.motion = settingsMap.motion || 'system'
     if (settingsRows.length && rawSettingsMap.theme !== 'dark') {
       // La interfaz permanece oscura aunque la normalización de una preferencia antigua falle temporalmente.
       void Promise.resolve(actions.setSetting('theme', 'dark')).catch(() => {})
     }
-  }, [actions, rawSettingsMap.theme, settingsMap.motion, settingsRows.length])
+  }, [actions, rawSettingsMap.theme, settingsMap.motion, settingsRows.length, walletCardStyle])
 
   useEffect(() => () => window.clearTimeout(toastTimer.current), [])
 
