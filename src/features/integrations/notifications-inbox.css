@@ -12,8 +12,14 @@
 .notifications-inbox__refresh svg { width: 16px; height: 16px; color: var(--accent); }
 .notifications-inbox__refresh:disabled svg { animation: notifications-inbox-spin 1s linear infinite; }
 .notifications-inbox__list { display: grid; }
-.notifications-inbox__item { width: 100%; min-width: 0; min-height: 76px; display: flex; align-items: center; gap: 12px; padding: 13px 0; border: 0; border-bottom: 1px solid color-mix(in srgb, var(--accent) 20%, var(--border)); background: transparent; color: var(--text); font: inherit; text-align: left; cursor: pointer; transition: background-color 150ms ease; }
-.notifications-inbox__item:first-child { border-top: 1px solid color-mix(in srgb, var(--accent) 20%, var(--border)); }
+.notifications-inbox__swipe { position: relative; overflow: hidden; border-bottom: 1px solid color-mix(in srgb, var(--accent) 20%, var(--border)); touch-action: pan-y; }
+.notifications-inbox__swipe:first-child { border-top: 1px solid color-mix(in srgb, var(--accent) 20%, var(--border)); }
+.notifications-inbox__item { position: relative; z-index: 1; width: 100%; min-width: 0; min-height: 76px; display: flex; align-items: center; gap: 12px; padding: 13px 0; border: 0; background: transparent; color: var(--text); font: inherit; text-align: left; cursor: pointer; touch-action: pan-y; transform: translateX(var(--notification-swipe-offset, 0px)); transition: transform 180ms ease, background-color 150ms ease; }
+.notifications-inbox__swipe.is-dragging .notifications-inbox__item { transition: none; }
+.notifications-inbox__dismiss { position: absolute; z-index: 0; top: 7px; right: 0; bottom: 7px; width: 96px; display: grid; align-content: center; justify-items: center; gap: 3px; border: 1px solid color-mix(in srgb, var(--danger) 24%, var(--border)); border-radius: 13px; background: color-mix(in srgb, var(--danger) 13%, var(--surface)); color: var(--danger); font-size: .68rem; font-weight: 720; opacity: 0; pointer-events: none; transform: translateX(8px); transition: opacity 160ms ease, transform 160ms ease; }
+.notifications-inbox__dismiss svg { width: 18px; height: 18px; }
+.notifications-inbox__swipe.is-revealed .notifications-inbox__dismiss,
+.notifications-inbox__dismiss:focus-visible { opacity: 1; pointer-events: auto; transform: translateX(0); }
 .notifications-inbox__item:hover { background: color-mix(in srgb, var(--accent-soft) 35%, transparent); }
 .notifications-inbox__item:focus-visible { position: relative; z-index: 1; outline: 2px solid var(--accent); outline-offset: -2px; border-radius: 12px; }
 .notifications-inbox__icon { width: 40px; height: 40px; flex: 0 0 40px; display: grid; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--accent-soft) 72%, var(--surface)); color: var(--accent); }
@@ -36,6 +42,10 @@
 .notifications-inbox__pagination > span { color: var(--text-2); font-size: .78rem; font-variant-numeric: tabular-nums; }
 .notifications-inbox__pagination .button { min-height: 40px; padding-inline: 13px; font-size: .76rem; }
 @keyframes notifications-inbox-spin { to { transform: rotate(360deg); } }
+@media (hover: hover) and (pointer: fine) {
+  .notifications-inbox__swipe:hover:not(.is-dragging) .notifications-inbox__item { transform: translateX(-96px); }
+  .notifications-inbox__swipe:hover:not(.is-dragging) .notifications-inbox__dismiss { opacity: 1; pointer-events: auto; transform: translateX(0); }
+}
 @media (max-width: 480px) {
   .notifications-inbox__feed { gap: 12px; }
   .notifications-inbox__heading { align-items: flex-start; }
@@ -43,6 +53,7 @@
   .notifications-inbox__refresh { width: 42px; min-width: 42px; padding: 0; }
   .notifications-inbox__refresh span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .notifications-inbox__item { min-height: 72px; gap: 9px; }
+  .notifications-inbox__dismiss { top: 5px; bottom: 5px; }
   .notifications-inbox__icon { width: 36px; height: 36px; flex-basis: 36px; }
   .notifications-inbox__summary strong { font-size: .8rem; }
   .notifications-inbox__summary small { font-size: .7rem; }
@@ -51,5 +62,5 @@
   .notifications-inbox__amount { max-width: 98px; font-size: .74rem; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .notifications-inbox__refresh:disabled svg, .notifications-inbox__item, .notifications-inbox__chevron { animation: none; transition: none; }
+  .notifications-inbox__refresh:disabled svg, .notifications-inbox__item, .notifications-inbox__dismiss, .notifications-inbox__chevron { animation: none; transition: none; }
 }

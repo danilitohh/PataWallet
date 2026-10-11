@@ -1,5 +1,11 @@
 # Estado de implementación
 
+## Descartar avisos con gesto lateral · 11 de octubre de 2026
+
+- En Notificaciones, deslizar un aviso hacia la izquierda lo descarta; un deslizamiento corto revela también la acción «Eliminar». El botón sigue siendo accesible con teclado.
+- El aviso se marca como descartado usando la resolución existente de correos bancarios, sale de la bandeja pendiente y no crea movimientos ni cambia saldos. Si falla la resolución, se conserva el aviso y aparece un mensaje para reintentar.
+- Verificado con `npm run lint` y `npm run build`. No se ejecutaron pruebas automatizadas ni se probó en un iPhone físico.
+
 ## Notificaciones sin tarjeta contenedora · 11 de octubre de 2026
 
 - La bandeja ya no muestra el panel blanco de «Por revisar». El encabezado y la acción de actualizar quedan sobre el fondo de la página, y cada aviso aparece como una fila independiente separada por una línea sutil. También se quitó el contenedor del estado vacío.

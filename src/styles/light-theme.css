@@ -186,8 +186,8 @@ html[data-theme="light"] body {
   color: var(--danger);
 }
 .app-shell[data-app-design="light"] .notifications-inbox__date { color: var(--text-2); }
-.app-shell[data-app-design="light"] .notifications-inbox__item,
-.app-shell[data-app-design="light"] .notifications-inbox__item:last-child { border-color: var(--border); }
+.app-shell[data-app-design="light"] .notifications-inbox__swipe,
+.app-shell[data-app-design="light"] .notifications-inbox__swipe:first-child { border-color: var(--border); }
 .app-shell[data-app-design="light"] .integration-glass-hero .status-label { color: #263352; }
 
 /* El selector del mes nativo y el editor de movimiento siguen el esquema del dispositivo. */
