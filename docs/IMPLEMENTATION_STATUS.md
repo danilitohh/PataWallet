@@ -1,5 +1,11 @@
 # Estado de implementación
 
+## Notificaciones sin tarjeta contenedora · 11 de octubre de 2026
+
+- La bandeja ya no muestra el panel blanco de «Por revisar». El encabezado y la acción de actualizar quedan sobre el fondo de la página, y cada aviso aparece como una fila independiente separada por una línea sutil. También se quitó el contenedor del estado vacío.
+- La lista sigue abriendo el editor habitual de movimientos y conserva recarga, paginación, carga y recuperación de errores.
+- Verificado con `npm run lint` y `npm run build`. No probado en un iPhone físico.
+
 ## Descartar eventos de Atajos no reconocidos · 11 de octubre de 2026
 
 - Los eventos de Atajos pendientes sin movimiento asociado pueden descartarse desde «Revisar ahora». La app pide confirmación, los saca de «Por revisar» y no crea gastos ni cambia saldos; conserva el registro de forma cerrada para idempotencia y auditoría.

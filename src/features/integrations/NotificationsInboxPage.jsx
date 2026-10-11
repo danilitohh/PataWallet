@@ -71,7 +71,7 @@ function NotificationsInbox({ app }) {
 
   return <div className="route-stack notifications-inbox">
     <PageHeader title="Notificaciones" subtitle="Movimientos detectados para revisar. Nada cambia tus saldos hasta que confirmes." />
-    {isDemo || !user?.id ? <section className="integration-card notifications-inbox__empty"><NightIcon icon={Bell} className="integration-icon" tone="sky" /><div><h2>Tu bandeja está lista</h2><p>Cuando PataWallet detecte un movimiento en tus correos bancarios, aparecerá aquí para que decidas qué hacer.</p></div></section> : <section className="integration-card notifications-inbox__panel" aria-busy={loading}>
+    {isDemo || !user?.id ? <section className="notifications-inbox__empty"><NightIcon icon={Bell} className="integration-icon" tone="sky" /><div><h2>Tu bandeja está lista</h2><p>Cuando PataWallet detecte un movimiento en tus correos bancarios, aparecerá aquí para que decidas qué hacer.</p></div></section> : <section className="notifications-inbox__feed" aria-busy={loading}>
       <div className="notifications-inbox__heading">
         <div className="notifications-inbox__heading-copy">
           <h2>Por revisar <span className="notifications-inbox__count">{data.events.length}</span></h2>
