@@ -1,8 +1,13 @@
 # Estado de implementación
 
+## Mismo diseño de Inicio en ambos temas · 11 de octubre de 2026
+
+- Inicio claro y nocturno comparten título, saldo, selector de mes, totales, accesos para agregar, movimientos recientes y próximos pagos. Cambian los colores según el tema.
+- Compra, ingreso y pago de deuda siguen disponibles desde el formulario «Agregar». Cambio implementado; aún no se ha verificado visualmente.
+
 ## Inicio nocturno sin GlassHero · 11 de octubre de 2026
 
-- El saldo de Inicio en modo oscuro ya no usa el `GlassHero` ni su ilustración SVG. Las acciones rápidas quedan debajo del saldo en el flujo normal.
+- El saldo de Inicio en modo oscuro ya no usa el `GlassHero` ni su ilustración SVG. Las acciones para ingreso y pago de deuda están disponibles dentro del formulario «Agregar».
 - El importe del saldo se muestra en blanco para mantener el contraste sobre el fondo oscuro.
 - Cambio implementado; aún no se ha vuelto a verificar visualmente.
 
