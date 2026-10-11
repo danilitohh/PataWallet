@@ -26,9 +26,11 @@
 .auth-welcome__eyebrow { color: var(--welcome-accent); font-size: .69rem; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
 .auth-welcome__copy h1 { color: #f8f6ff; font-size: clamp(2.1rem, 8.6vw, 2.8rem); line-height: 1.02; letter-spacing: -.06em; text-wrap: balance; }
 .auth-welcome__description { max-width: 34ch; color: #b9c4d9; font-size: .91rem; line-height: 1.45; text-wrap: balance; }
-.auth-welcome__art { position: relative; isolation: isolate; width: min(76vw, 290px); height: clamp(220px, 35svh, 310px); min-height: 0; }
-.auth-welcome__art img { position: absolute; z-index: 1; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 20px 25px #030713a8); pointer-events: none; }
-.auth-welcome__shadow { position: absolute; z-index: 0; right: 12%; bottom: 3%; left: 12%; height: 17px; border-radius: 50%; background: radial-gradient(ellipse, #000e 0%, #050914a8 39%, transparent 76%); filter: blur(6px); }
+.auth-welcome__art { position: relative; isolation: isolate; width: min(100%, 420px); height: clamp(180px, 26svh, 225px); min-height: 0; }
+.auth-welcome__animation { position: relative; z-index: 1; width: 100%; height: 100%; }
+.auth-welcome__animation picture { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+.auth-welcome__media { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 17px 21px #03071385); pointer-events: none; }
+.auth-welcome__shadow { position: absolute; z-index: 0; right: 15%; bottom: 3%; left: 15%; height: 14px; border-radius: 50%; background: radial-gradient(ellipse, #000e 0%, #050914a8 39%, transparent 76%); filter: blur(6px); }
 .auth-welcome__actions { position: relative; z-index: 1; width: min(100%, 390px); display: grid; gap: 10px; }
 .auth-welcome__actions .button { width: 100%; min-height: 52px; border-radius: 17px; font-size: .94rem; }
 .auth-welcome__create { gap: 9px; color: #092328; background: linear-gradient(105deg, #62d7cc, #a9a0ff); box-shadow: 0 10px 30px #59d3c52e; }
@@ -44,7 +46,7 @@
   .auth-welcome__header,
   .auth-welcome__hero { width: min(100%, 590px); }
   .auth-welcome__copy h1 { font-size: clamp(2.8rem, 5.5vw, 3.7rem); }
-  .auth-welcome__art { width: min(42vw, 350px); height: min(39svh, 355px); }
+  .auth-welcome__art { width: min(56vw, 460px); height: min(31svh, 250px); }
   .auth-welcome__actions { width: min(100%, 420px); }
 }
 @media (max-height: 700px) and (max-width: 699px) {
@@ -53,7 +55,7 @@
   .auth-welcome__copy { gap: 5px; }
   .auth-welcome__copy h1 { font-size: clamp(1.8rem, 7.6vw, 2.25rem); }
   .auth-welcome__description { font-size: .82rem; }
-  .auth-welcome__art { height: 26svh; min-height: 165px; }
+  .auth-welcome__art { height: 21svh; min-height: 145px; }
   .auth-welcome__actions .button { min-height: 46px; }
 }
 @media (prefers-reduced-motion: reduce) {

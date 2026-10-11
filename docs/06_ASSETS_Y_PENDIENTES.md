@@ -12,10 +12,16 @@ Hay **cuatro escenas únicas** en este paquete. Cada una tiene tres tamaños Web
 
 No se ha usado una imagen duplicada como una ilustración extra. El archivo genérico `imagegen.png` coincide con la escena de éxito y no se incluye dos veces.
 
+## Clip de bienvenida aportado por Danilo · 10 de octubre de 2026
+
+El clip de 6 segundos se recortó para el encuadre de bienvenida, se retiró el verde mediante chroma key y se exportó como WebP animado con transparencia real: 480×232 px, 72 cuadros a 12 fps, 1.988.308 bytes y reproducción en bucle. No contiene audio. El PNG estático de respaldo mide 480×232 px y pesa 168.610 bytes; se usa con movimiento reducido y como alternativa del navegador. Ambos recursos entran en la caché offline de la PWA.
+
+La conversión conserva el clip aportado por el responsable de la app como fuente; no acredita por sí sola derechos de terceros ni crea capas anatómicas. No se probó en un iPhone físico.
+
 ## Formatos
 Las variantes WebP se exportaron de los PNG presentes en esta conversación. Mantienen el fondo y la composición; no se redibujaron ni se les removió el fondo. WebP es un formato de imagen para web; esto no lo convierte en vector ni separa elementos [S20].
 
-Los originales opcionales: cuatro escenas PNG, tres referencias de interfaz PNG y un póster PNG de inspiración con textos incrustados. El póster no es un recurso de UI de producción. Ni originales ni referencias deben servirse o precachearse por defecto en la app.
+Los originales opcionales: cuatro escenas PNG, tres referencias de interfaz PNG y un póster PNG de inspiración con textos incrustados. El póster no es un recurso de UI de producción. Ni esos originales ni las referencias deben servirse o precachearse por defecto en la app; la bienvenida sí precarga solo el WebP animado y su póster estático.
 
 ## Portadas de tarjeta aportadas por Danilo · 10 de octubre de 2026
 
@@ -29,7 +35,7 @@ Bienvenida puede usar una escena grande. En el resto, preferir tarjeta editorial
 Las tres imágenes de `design/references/` orientan el estilo, pero contienen contenido ficticio/errores. La especificación escrita prevalece sobre promesas funcionales dibujadas en ellas.
 
 ## Pendientes para animación de personajes
-No están incluidos: fichas consistentes de los ocho personajes, vistas de cada uno, capas de cuerpo/cabeza/orejas/ojos/párpados/patas/cola/sombra, poses intermedias, sprites de parpadeo, rig, mallas, escenas con transparencia real, archivos Rive/Lottie o vídeos. Los gatos de escenas distintas no constituyen una ficha anatómica consistente.
+No están incluidos: fichas consistentes de los ocho personajes, vistas de cada uno, capas de cuerpo/cabeza/orejas/ojos/párpados/patas/cola/sombra, poses intermedias, sprites de parpadeo, rig, mallas, escenas separadas por capas ni archivos Rive/Lottie. El único clip animado nuevo es el de bienvenida indicado arriba. Los gatos de escenas distintas no constituyen una ficha anatómica consistente.
 
 Antes de animación interna: elegir un personaje maestro, definir sus rasgos y aprobar una muestra. Producir piezas completas bajo solapamientos para que no aparezcan huecos. Luego preparar estados idle/success/error sin culpabilizar al usuario y un respaldo estático. Medir tamaño/calidad y probar en iPhone. No inventar esas piezas con recortes pobres para declarar terminado el trabajo.
 
@@ -39,4 +45,4 @@ También faltan un logo aislado y los iconos técnicos PWA finales. Codex puede 
 El atajo oficial está publicado en iCloud: `https://www.icloud.com/shortcuts/8062e3a7c10748a7aceaf47b9d0fdb19`. El paquete contiene además un `.shortcut` Apple firmado. La publicación está conectada a la microapp, pero falta instalar/actualizar en el iPhone y verificar la prueba de conexión y una captura real compatible; no afirmar que el usuario ya tiene la versión nueva instalada.
 
 ## Criterio de alcance
-La primera versión puede tener una experiencia muy cuidada con las cuatro escenas estáticas y microinteracciones. Esto no equivale a haber producido todo el sistema de mascotas animadas. Mantener esa distinción en la entrega de Codex.
+La bienvenida puede combinar el clip aportado con las cuatro escenas estáticas y microinteracciones. Esto no equivale a haber producido todo el sistema de mascotas animadas. Mantener esa distinción en la entrega de Codex.

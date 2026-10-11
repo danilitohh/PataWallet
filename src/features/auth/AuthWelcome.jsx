@@ -1,10 +1,17 @@
+import { useEffect, useState } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
 import { ArrowRight, PawPrint } from 'lucide-react'
-import { WALLET_CARDS } from '../onboarding/walletCardModel.js'
 
 export function AuthWelcome({ onCreateAccount, onLogin }) {
   const reduceMotion = useReducedMotion()
-  const card = WALLET_CARDS[0]
+  const [documentVisible, setDocumentVisible] = useState(() => document.visibilityState !== 'hidden')
+  const showAnimation = reduceMotion === false && documentVisible && document.documentElement.dataset.motion !== 'off'
+
+  useEffect(() => {
+    const updateVisibility = () => setDocumentVisible(document.visibilityState !== 'hidden')
+    document.addEventListener('visibilitychange', updateVisibility)
+    return () => document.removeEventListener('visibilitychange', updateVisibility)
+  }, [])
 
   return (
     <main className="auth-welcome">
@@ -20,18 +27,19 @@ export function AuthWelcome({ onCreateAccount, onLogin }) {
           <p className="auth-welcome__description">Un espacio claro para tus gastos, tus metas y los planes que quieres cuidar.</p>
         </div>
 
-        <div className="auth-welcome__art" aria-label="Portada de PataWallet con dos guacamayas">
+        <div className="auth-welcome__art">
           <div className="auth-welcome__shadow" />
-          <motion.img
-            src={card.image}
-            alt={card.alt}
-            width="640"
-            height="800"
-            fetchPriority="high"
-            initial={reduceMotion ? false : { opacity: 0, y: 24, scale: .96 }}
+          <motion.div
+            className="auth-welcome__animation"
+            initial={showAnimation ? { opacity: 0, y: 24, scale: .96 } : false}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: reduceMotion ? 0 : .55, ease: 'easeOut' }}
-          />
+            transition={{ duration: showAnimation ? .55 : 0, ease: 'easeOut' }}
+          >
+            {showAnimation ? <picture>
+              <source srcSet="/assets/illustrations/welcome-pets-chroma.webp" type="image/webp" />
+              <img className="auth-welcome__media" src="/assets/illustrations/welcome-pets-poster.png" alt="Gatos y cachorros jugando alrededor de una huella de PataWallet" width="480" height="233" fetchPriority="high" />
+            </picture> : <img className="auth-welcome__media" src="/assets/illustrations/welcome-pets-poster.png" alt="Gatos y cachorros jugando alrededor de una huella de PataWallet" width="480" height="233" fetchPriority="high" />}
+          </motion.div>
         </div>
 
         <div className="auth-welcome__actions">

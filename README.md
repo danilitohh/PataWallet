@@ -52,6 +52,7 @@ La documentación oficial de instrucciones de Codex se encuentra en `docs/07_FUE
 
 ## Qué incluye
 - **4 ilustraciones distintas**, cada una en WebP de 480, 800 y 1122 píxeles de ancho: 12 archivos de uso web.
+- **Animación de bienvenida aportada por Danilo**, convertida a WebP con alfa para retirar el fondo verde; incluye un póster PNG estático para movimiento reducido.
 - **3 referencias de pantallas**: interfaz clara con mascotas, modo noche y una alternativa botánica secundaria.
 - Instrucciones persistentes para Codex en `AGENTS.md` y un mensaje inicial listo para copiar.
 - Especificación de pantallas, reglas del dinero, estilo, animación, datos, seguridad, PWA, notificaciones y Atajos.
@@ -59,7 +60,7 @@ La documentación oficial de instrucciones de Codex se encuentra en `docs/07_FUE
 - `ABRIR_CATALOGO.html`, un catálogo local de los recursos incluidos. Es documentación visual, no un prototipo de la app.
 
 ## Qué NO incluye
-No hay personajes separados por capas, parpadeos dibujados, mallas de animación, Rive, Lottie, vídeos ni credenciales. El atajo oficial tiene un enlace iCloud publicado; aún no se ha confirmado desde el iPhone una captura completa de Wallet. Las ilustraciones son **raster, estáticas y con fondo opaco**. No representan fielmente a las mascotas reales de Danilo porque no se aportaron sus fotografías.
+No hay personajes separados por capas, parpadeos dibujados, mallas de animación, Rive, Lottie ni credenciales. La bienvenida usa un clip aportado por Danilo como WebP animado, pero eso no convierte las otras escenas en personajes animados o editables. Las cuatro ilustraciones del paquete siguen siendo **raster, estáticas y con fondo opaco**. No representan fielmente a las mascotas reales de Danilo porque no se aportaron sus fotografías.
 
 El ZIP opcional de originales contiene las cuatro ilustraciones PNG, los tres mockups PNG y un póster adicional de inspiración. No es necesario para iniciar el desarrollo. Al descomprimirlo en el mismo lugar, añade `design/originals/` y `design/references-originals/`. No colocar estas carpetas en `public/`.
 

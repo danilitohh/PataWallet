@@ -39,7 +39,7 @@ export default defineConfig({
       injectManifest: {
         globPatterns: ['**/*.{js,css,html,svg,png,webp}'],
         globIgnores: ['**/assets/illustrations/*-800.webp', '**/assets/illustrations/*-1122.webp'],
-        maximumFileSizeToCacheInBytes: 1000000,
+        maximumFileSizeToCacheInBytes: 2300000,
       },
     }),
   ],

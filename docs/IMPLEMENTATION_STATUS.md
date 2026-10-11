@@ -1,5 +1,13 @@
 # Estado de implementación
 
+## Video con chroma en la bienvenida · 10 de octubre de 2026
+
+- La portada de acceso muestra el clip aportado por Danilo en lugar de la tarjeta PNG. Se eliminó el verde por chroma key y se exportó WebP animado con alfa real (480×232, 72 cuadros a 12 fps, 1.988.308 bytes, en bucle, sin audio); el póster PNG de respaldo mide 480×232 y pesa 168.610 bytes.
+- La escena conserva sus colores sobre el fondo azul noche. El movimiento se reemplaza por el póster cuando `prefers-reduced-motion` está activo, el ajuste propio está en «Desactivado» o se oculta la pestaña; al volver a la página continúa la animación. PNG también queda como fuente alternativa del elemento `<picture>`.
+- Ambos archivos están incluidos en la precarga offline de la PWA. El límite por archivo aumentó a 2.300.000 bytes; el build precarga 39 recursos (8.351,96 KiB).
+- Verificación: `npm run lint` pasó; `npm run build` pasó. Playwright directo en Chromium y WebKit revisó la imagen animada, transparencia alfa en sus esquinas, póster con movimiento reducido y vistas 390×844, 375×812 y 1440×900 sin desbordamiento horizontal. La suite Vitest dio 206 correctas y 2 fallidas (208 totales): expectativas previas del parser en `tests/api/bank-email.test.js` para `7,90.0` y separadores alternos de Lulo. No ejecuté la suite Playwright del proyecto ni probé en un iPhone físico.
+- El video fue aportado por el usuario; la procedencia/licencia externa no se verificó independientemente. No se conectó Supabase ni se hizo una comprobación de despliegue.
+
 ## Bienvenida y conexiones durante el registro · 10 de octubre de 2026
 
 - El acceso ahora empieza con una bienvenida propia de PataWallet y permite elegir entre crear cuenta o iniciar sesión. El acceso existente por correo, Google y recuperación de contraseña se conserva.

@@ -41,12 +41,12 @@ Las cuatro escenas son imágenes raster planas con fondo. No existe una capa de 
 
 Los parpadeos, respiración localizada, movimientos de orejas y gestos de patas son un trabajo de producción posterior: piezas completas y separadas, poses o una animación preparada. Crear una interfaz de componente `PetScene`/`PetReaction` que admita una implementación animada futura, con el recurso estático actual como respaldo. No referenciar archivos que no existen.
 
-No se necesita vídeo en la primera versión. No instalar Rive, Lottie y otra librería de animación simultáneamente “por si acaso”. Un recurso animado nuevo requiere revisión visual, peso, licencia y pruebas de reproducción antes de integrarlo.
+La bienvenida de acceso usa el clip que Danilo aportó, con el fondo verde convertido a transparencia y un póster estático para movimiento reducido. El clip no transforma las cuatro escenas raster en personajes por capas ni prueba movimientos anatómicos editables. No instalar Rive, Lottie y otra librería de animación simultáneamente “por si acaso”. Cada recurso animado nuevo requiere revisión visual, peso, procedencia/licencia y pruebas de reproducción antes de integrarlo.
 
 ## Accesibilidad y rendimiento
 Respetar `prefers-reduced-motion`; Motion ofrece un hook para esta preferencia [S11]. Añadir ajustes propios sin forzar movimiento contra la preferencia del sistema. Si el usuario o el sistema reduce movimiento, eliminar traslaciones, rebotes y bucles; mantener cambios de estado claros.
 
-Pausar trabajo decorativo al ocultarse la página y fuera del viewport. No usar sonido automático, gifs pesados, destellos ni parallax del giroscopio. Una mascota protagonista por pantalla. Imágenes con dimensiones explícitas, variantes responsivas del manifiesto y carga diferida salvo la imagen principal visible. No precargar simultáneamente las doce variantes.
+Pausar trabajo decorativo al ocultarse la página y fuera del viewport. La animación de bienvenida se reemplaza por su póster cuando la pestaña se oculta y se mantiene estática si el sistema o la preferencia propia reducen el movimiento. No usar sonido automático, gifs pesados, destellos ni parallax del giroscopio. Una mascota protagonista por pantalla. Imágenes con dimensiones explícitas, variantes responsivas del manifiesto y carga diferida salvo la imagen principal visible. No precargar simultáneamente las doce variantes.
 
 Usar 480 o 800 px según el tamaño real y densidad, reservando 1122 px para una escena grande. No agrandar fuentes o pesos de imagen para “ganar calidad”. Los fondos originales PNG y los mockups no deben formar parte del bundle público.
 
