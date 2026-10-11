@@ -43,7 +43,7 @@ export function FixedExpensesSection({ standalone = false, showChecklist = true 
   const visible = filtered.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE)
 
   return <section className="settings-group fixed-expenses-section" id="gastos-fijos">
-    {standalone ? <GlassHero className="fixed-expenses-hero"><h2>Gastos fijos</h2><strong className="glass-amount">{savedExpenses.length} compromisos</strong><p>{sectionSummary}</p></GlassHero> : <AccountSectionToggle sectionId="gastos-fijos" title="Gastos fijos" description="Compromisos recurrentes que conviene apartar antes de comprar." summary={sectionSummary} expanded={expanded} onToggle={() => setExpanded((value) => !value)} />}
+    {standalone ? <GlassHero showArt={false} className="fixed-expenses-hero"><h2>Gastos fijos</h2><strong className="glass-amount">{savedExpenses.length} compromisos</strong><p>{sectionSummary}</p></GlassHero> : <AccountSectionToggle sectionId="gastos-fijos" title="Gastos fijos" description="Compromisos recurrentes que conviene apartar antes de comprar." summary={sectionSummary} expanded={expanded} onToggle={() => setExpanded((value) => !value)} />}
     {expanded && <div id="gastos-fijos-content" className="account-section-toggle__content">
       <p className="settings-group__intro">Programa tus compromisos y confirma {showChecklist ? 'abajo' : 'en la pestaña Pagos'} los pagos que ya hiciste. Agregar un gasto fijo no descuenta dinero.</p>
       <div className="glass-actions"><OrbAction ref={addButton} icon={Plus} aria-label="Agregar gasto fijo" onClick={(event) => openEditor(event, {})}>Agregar gasto fijo</OrbAction></div>

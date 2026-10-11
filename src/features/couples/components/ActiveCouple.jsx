@@ -111,7 +111,7 @@ export function ActiveCouple({ couple, accounts, settings, user, busy, setBusy, 
       </div>
     </header>
 
-    <GlassHero className="couples-glass-balance"><span>Dinero compartido</span><strong className="glass-amount">{moneySummary}</strong><p>Los saldos se muestran por separado según la moneda de cada cuenta.</p></GlassHero>
+    <GlassHero showArt={false} className="couples-glass-balance"><span>Dinero compartido</span><strong className="glass-amount">{moneySummary}</strong><p>Los saldos se muestran por separado según la moneda de cada cuenta.</p></GlassHero>
     <div className="glass-actions"><OrbAction icon={Wallet} aria-label="Qué compartimos" onClick={(event) => openPanel('sharing', event)} disabled={busy}>Compartir cuenta</OrbAction>{couple.shared_accounts.length > 0 && <OrbAction icon={Plus} aria-label="Proponer un cambio" disabled={busy} onClick={(event) => openPanel('proposal', event)}>Proponer</OrbAction>}</div>
 
     <div className="couples-serena__groups">

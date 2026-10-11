@@ -34,7 +34,7 @@ export function RecurringPaymentChecklist({ expenses, settings }) {
     <div className="recurring-payments__heading">
       <div><h3 id="recurring-payments-title"><ListChecks aria-hidden="true" /> Checklist de pagos</h3><p>Revisa cada gasto fijo: verás el vencimiento actual y el siguiente.</p></div>
     </div>
-    <GlassHero className="payments-hero"><strong className="glass-amount">{pendingCount ? `${pendingCount} pendiente${pendingCount === 1 ? '' : 's'}` : 'Todo al día'}</strong><p>Ordenados por fecha de vencimiento</p></GlassHero>
+    <GlassHero showArt={false} className="payments-hero"><strong className="glass-amount">{pendingCount ? `${pendingCount} pendiente${pendingCount === 1 ? '' : 's'}` : 'Todo al día'}</strong><p>Ordenados por fecha de vencimiento</p></GlassHero>
     {!occurrences.length
       ? <p className="empty-inline"><CircleAlert aria-hidden="true" />{expenses.some((expense) => expense.frequency === 'payday') && !settings.nextPayDate ? 'Configura tu próximo pago en Ingresos para generar los vencimientos ligados a cada pago.' : 'Guarda al menos un gasto recurrente para generar aquí sus próximos vencimientos.'}</p>
       : <div className="recurring-payments__groups">

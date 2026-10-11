@@ -11,14 +11,9 @@ async function openDemoHome(page) {
 }
 
 async function openMovementSheet(page) {
-  for (const name of ['Agregar movimiento', 'Nuevo movimiento', 'Compra']) {
-    const button = page.getByRole('button', { name, exact: true })
-    if (await button.isVisible()) {
-      await button.click()
-      return
-    }
-  }
-  throw new Error('No encontramos el acceso para abrir el movimiento.')
+  const button = page.getByRole('button', { name: /Agregar movimiento|Nuevo movimiento|Compra/ }).first()
+  await expect(button).toBeVisible()
+  await button.click()
 }
 
 test('aplica los dos temas a todas las secciones, conserva la tarjeta y mantiene las acciones', async ({ page }, testInfo) => {
@@ -53,7 +48,11 @@ test('aplica los dos temas a todas las secciones, conserva la tarjeta y mantiene
   for (const [route, screenshot] of [
     ['/actividad', 'activity-light.png'],
     ['/plan', 'plan-light.png'],
+    ['/plan/presupuesto', 'budget-light.png'],
     ['/cuentas', 'accounts-light.png'],
+    ['/cuentas/deudas', 'accounts-debts-light.png'],
+    ['/cuentas/gastos-fijos', 'accounts-fixed-light.png'],
+    ['/cuentas/pagos', 'accounts-payments-light.png'],
     ['/parejas', 'couples-light.png'],
     ['/ajustes', 'settings-light.png'],
     ['/ajustes/notificaciones', 'notifications-settings-light.png'],
@@ -63,6 +62,9 @@ test('aplica los dos temas a todas las secciones, conserva la tarjeta y mantiene
     await expect(shell).toHaveAttribute('data-app-design', 'light')
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
     await expect(page.locator('main h1').first()).toBeVisible()
+    if (['/actividad', '/plan', '/plan/presupuesto', '/cuentas', '/cuentas/deudas', '/cuentas/gastos-fijos', '/cuentas/pagos', '/parejas'].includes(route)) {
+      await expect(page.locator('.glass-hero__art')).toHaveCount(0)
+    }
     expect(await shell.evaluate((element) => getComputedStyle(element).getPropertyValue('--text').trim())).toBe('#202027')
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
     await page.screenshot({ path: testInfo.outputPath(screenshot), fullPage: true, animations: 'disabled' })

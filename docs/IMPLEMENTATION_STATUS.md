@@ -1,5 +1,11 @@
 # Estado de implementación
 
+## Resúmenes sin forma tipo burbuja · 11 de octubre de 2026
+
+- Actividad, Plan, Cuentas y Parejas muestran los montos sin la forma SVG decorativa detrás. Se conservan sus etiquetas, controles, círculos de avance y acciones; las acciones que antes se superponían a la forma vuelven al flujo normal.
+- El componente `GlassHero` mantiene su opción ilustrada para las otras pantallas. Las vistas de presupuesto y gastos fijos, pagos y deudas en Cuentas también usan la variante sin ilustración.
+- Verificado con `npm run lint` y `npm run build`. Playwright pasó 6/6 pruebas en 390×844, 375×812 y 1440×900: el tema claro recorrió las rutas objetivo y confirmó que no se renderiza el SVG; la prueba de Parejas verificó el saldo compartido. No probado en iPhone físico.
+
 ## Paleta de toda la app según la portada elegida · 11 de octubre de 2026
 
 - Las cinco portadas tienen una paleta compartida. La elección aplicada al registro también define fondos, superficies, bordes, acentos, botones principales, navegación, controles, iconos, focos y la tarjeta de saldo; cambiarla desde Ajustes actualiza la app en el momento.

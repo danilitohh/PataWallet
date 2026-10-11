@@ -67,6 +67,19 @@
 .glass-hero__content p, .glass-hero__content small { font-size: .83rem; line-height: 1.45; }
 .glass-hero__content .icon-button { color: var(--on-primary); border: 1px solid color-mix(in srgb, var(--on-primary) 16%, transparent); background: color-mix(in srgb, var(--on-primary) 8%, transparent); }
 .glass-hero__content > p:has(svg) { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+/* Resúmenes de Actividad, Plan, Cuentas y Parejas van sin la forma ornamental. */
+.calm-app .glass-hero--plain > .glass-hero__content { padding: 0; color: var(--text); }
+.calm-app .glass-hero--plain > .glass-hero__content :is(h2,h3,strong,.calm-balance-label,.helper) { color: var(--text); }
+.calm-app .glass-hero--plain > .glass-hero__content :is(p,small,span,label,.helper) { color: var(--text-2); }
+.calm-app .glass-hero--plain > .glass-hero__content .icon-button { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 25%, var(--border)); background: color-mix(in srgb, var(--accent) 11%, var(--surface-muted)); }
+.calm-app .glass-hero--plain .glass-budget-ring > strong { color: var(--on-primary); }
+.calm-app .activity-month-summary.glass-hero--plain + .glass-actions,
+.calm-app .calm-goal-balance.glass-hero--plain + .glass-actions,
+.calm-app .glass-budget-overview > .glass-hero--plain + .glass-actions,
+.calm-app .accounts-ledger__pane--asset > .glass-actions,
+.calm-app .accounts-ledger__pane--debt > .glass-actions,
+.calm-app .fixed-expenses-section:has(.fixed-expenses-hero) .account-section-toggle__content > .glass-actions,
+.calm-app .couples-glass-balance.glass-hero--plain + .glass-actions { margin-top: 0; }
 .glass-actions { display: flex; justify-content: center; gap: 16px; position: relative; margin: -44px 0 0; z-index: 1; }
 .glass-actions--trio { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
 .glass-actions--end { justify-content: flex-end; padding-right: 16px; }

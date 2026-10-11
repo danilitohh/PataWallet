@@ -32,7 +32,7 @@ export function AccountLedgerPane({ kind, accounts, amount, balances, currency =
 
   return (
     <section className={`accounts-ledger__pane accounts-ledger__pane--${group.tone}`}>
-      {kind === 'liability' && <GlassHero><span>Deuda registrada</span><strong className="glass-amount">{formatMinor(amount, currency, hidden)}</strong><p>Saldo pendiente en tus cuentas de deuda.</p></GlassHero>}
+      {kind === 'liability' && <GlassHero showArt={false}><span>Deuda registrada</span><strong className="glass-amount">{formatMinor(amount, currency, hidden)}</strong><p>Saldo pendiente en tus cuentas de deuda.</p></GlassHero>}
       <div className="glass-actions"><OrbAction className={kind === 'asset' ? 'accounts-ledger__add' : ''} icon={Plus} onClick={onAdd}>Agregar {kind === 'asset' ? 'cuenta' : 'deuda'}</OrbAction></div>
       <header className="accounts-ledger__pane-heading">
         <div><span className="accounts-ledger__eyebrow">{group.eyebrow}</span><h2>{group.title}</h2></div>

@@ -60,6 +60,9 @@ test('Serena separa saldos, abre acciones a demanda y conserva permisos, errores
     window.renderTeam();
     </script></body></html>` }))
   await page.goto('/__couples-serena-test')
+  const balance = page.locator('.couples-glass-balance')
+  await expect(balance).toBeVisible()
+  await expect(balance.locator('.glass-hero__art')).toHaveCount(0)
   const debts = page.getByRole('region', { name: 'Deudas compartidas' })
   const money = page.getByRole('region', { name: 'Dinero compartido' })
   await expect(debts.getByRole('progressbar')).toHaveCount(2)
@@ -92,11 +95,11 @@ test('Serena separa saldos, abre acciones a demanda y conserva permisos, errores
   // Proponer cambios mantiene la aprobación posterior y nunca cambia el saldo del resumen.
   await page.getByRole('button', { name: 'Proponer un cambio' }).click()
   await dialog.getByLabel('Cuenta compartida').selectOption('partner::card')
-  await dialog.getByLabel('Monto', { exact: true }).fill('50.000')
+  await dialog.getByLabel('Monto · COP', { exact: true }).fill('50.000')
   failAction = true
   await dialog.getByRole('button', { name: 'Enviar para aprobación' }).click()
   await expect(dialog.getByRole('alert')).toBeVisible()
-  await expect(dialog.getByLabel('Monto', { exact: true })).toHaveValue('50.000')
+  await expect(dialog.getByLabel('Monto · COP', { exact: true })).toHaveValue('50.000')
   failAction = false
   await dialog.getByRole('button', { name: 'Enviar para aprobación' }).click()
   await expect(dialog).toHaveCount(0)
@@ -104,7 +107,7 @@ test('Serena separa saldos, abre acciones a demanda y conserva permisos, errores
   await expect(debts).toContainText('750.000')
   await page.getByRole('button', { name: 'Proponer un cambio' }).click()
   await dialog.getByLabel('Tipo de cambio').selectOption('account_update')
-  await dialog.getByLabel('Cuota mensual', { exact: true }).fill('300.000')
+  await dialog.getByLabel('Cuota mensual · COP', { exact: true }).fill('300.000')
   await dialog.getByRole('button', { name: 'Enviar para aprobación' }).click()
   await expect(dialog).toHaveCount(0)
   expect(actions.at(-1)).toMatchObject({ change_type: 'account_update', payload: { debt_monthly_payment_minor: 30000000 } })
