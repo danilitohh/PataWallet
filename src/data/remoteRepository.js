@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase/client.js'
 import { SyncConflictError } from '../services/sync/syncErrors.js'
+import { DEFAULT_STARTER_CATEGORY_IDS, normalizeSignupSetup, STARTER_CATEGORIES } from '../domain/registration.js'
 
 const defaultSettings = [
   { key: 'entered', value: true },
@@ -12,14 +13,6 @@ const defaultSettings = [
   { key: 'nextPayDate', value: null },
 ]
 
-const defaultCategories = [
-  ['income-salary', 'Salario', 'income'],
-  ['expense-groceries', 'Mercado', 'expense'],
-  ['expense-transport', 'Transporte', 'expense'],
-  ['expense-pets', 'Mascotas', 'expense'],
-  ['expense-restaurants', 'Restaurantes', 'expense'],
-]
-
 function ensure(error) {
   if (error) throw error
 }
@@ -28,6 +21,8 @@ export async function ensureRemoteWorkspace(userId) {
   const { data: { user } } = await supabase.auth.getUser()
   const preferredName = user?.user_metadata?.display_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || ''
   const displayName = preferredName.trim().length >= 2 ? preferredName.trim().slice(0, 80) : 'Usuario'
+  const signupSetup = normalizeSignupSetup(user?.user_metadata?.patawallet_onboarding_v1)
+  const applySignupSetup = signupSetup && user?.user_metadata?.patawallet_setup_applied_v1 !== true
   const { error: profileError } = await supabase.from('profiles').upsert({ id: userId, display_name: displayName })
   ensure(profileError)
   const { data: existingSettings, error: settingsReadError } = await supabase.from('user_settings').select('key').eq('user_id', userId)
@@ -40,10 +35,49 @@ export async function ensureRemoteWorkspace(userId) {
   }
   const { count: categoryCount, error: categoryReadError } = await supabase.from('categories').select('id', { count: 'exact', head: true }).eq('user_id', userId)
   ensure(categoryReadError)
-  if (!categoryCount) {
-    const rows = defaultCategories.map(([suffix, name, type]) => ({ id: `${userId}:${suffix}`, user_id: userId, name, type }))
-    const { error: categoryError } = await supabase.from('categories').insert(rows)
-    ensure(categoryError)
+  if (!categoryCount || applySignupSetup) {
+    const categoryIds = signupSetup?.categories || DEFAULT_STARTER_CATEGORY_IDS
+    const categories = STARTER_CATEGORIES.filter((item) => categoryIds.includes(item.id))
+    const { data: existingCategories, error: existingCategoryError } = await supabase.from('categories').select('id').eq('user_id', userId)
+    ensure(existingCategoryError)
+    const existingIds = new Set(existingCategories.map(({ id }) => id))
+    const rows = categories
+      .filter(({ id }) => !existingIds.has(`${userId}:${id}`))
+      .map(({ id, name, type }) => ({ id: `${userId}:${id}`, user_id: userId, name, type }))
+    if (rows.length) {
+      const { error: categoryError } = await supabase.from('categories').insert(rows)
+      if (categoryError?.code === '23505') {
+        const { data: concurrentCategories, error: retryReadError } = await supabase.from('categories').select('id,name,type')
+          .eq('user_id', userId).in('id', rows.map(({ id }) => id))
+        ensure(retryReadError)
+        const concurrentById = new Map(concurrentCategories.map((row) => [row.id, row]))
+        const sameRows = rows.every((row) => {
+          const existing = concurrentById.get(row.id)
+          return existing?.name === row.name && existing?.type === row.type
+        })
+        if (!sameRows) throw new SyncConflictError('Una categoría inicial cambió en otro dispositivo. No la sobrescribimos.')
+      } else ensure(categoryError)
+    }
+  }
+
+  if (applySignupSetup && signupSetup.monthlyBudgetMinor && signupSetup.budgetMonth) {
+    const { data: existingBudget, error: budgetReadError } = await supabase.from('budgets').select('month')
+      .eq('user_id', userId).eq('month', signupSetup.budgetMonth).maybeSingle()
+    ensure(budgetReadError)
+    if (!existingBudget) {
+      const { error: budgetError } = await supabase.from('budgets').insert({
+        user_id: userId,
+        month: signupSetup.budgetMonth,
+        limit_minor: signupSetup.monthlyBudgetMinor,
+        currency: 'COP',
+      })
+      if (budgetError?.code !== '23505') ensure(budgetError)
+    }
+  }
+
+  if (applySignupSetup) {
+    const { error: setupMarkerError } = await supabase.auth.updateUser({ data: { ...user.user_metadata, patawallet_setup_applied_v1: true } })
+    ensure(setupMarkerError)
   }
 }
 

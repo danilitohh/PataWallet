@@ -1,8 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ArrowLeft, Eye, EyeOff, LogIn, PawPrint } from 'lucide-react'
 import { PetScene } from '../../components/PetScene.jsx'
 import { NightScene } from '../../components/NightScene.jsx'
 import { supabase } from '../../lib/supabase/client.js'
+import { SignupFlow } from './SignupFlow.jsx'
+
+const signupDraftKey = 'patawallet:signup-setup:v1'
 
 const googleEnabled = import.meta.env.VITE_GOOGLE_AUTH_ENABLED === 'true'
 
@@ -21,7 +24,6 @@ function friendlyError(error) {
 export function AuthPage() {
   const recovery = new URLSearchParams(location.search).has('recovery')
   const [mode, setMode] = useState(recovery ? 'update' : 'login')
-  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [visible, setVisible] = useState(false)
@@ -29,10 +31,31 @@ export function AuthPage() {
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
 
+  useEffect(() => {
+    // Si Google se canceló y no volvió una sesión, el siguiente acceso no debe consumir el borrador del registro.
+    try { sessionStorage.removeItem(signupDraftKey) } catch { /* El acceso por correo sigue funcionando sin almacenamiento de sesión. */ }
+  }, [])
+
   const run = async (callback) => {
     setBusy(true); setError(''); setNotice('')
-    try { await callback() } catch (issue) { setError(friendlyError(issue)) } finally { setBusy(false) }
+    try { return await callback() } catch (issue) { setError(friendlyError(issue)) } finally { setBusy(false) }
   }
+
+  const createAccount = ({ name, email: signupEmail, password: signupPassword, setup }) => run(async () => {
+    const cleanName = name.trim()
+    if (cleanName.length < 2) throw new Error('Escribe tu nombre.')
+    if (signupPassword.length < 8) throw new Error('La contraseña debe tener al menos 8 caracteres.')
+    const { data, error: issue } = await supabase.auth.signUp({
+      email: signupEmail,
+      password: signupPassword,
+      options: {
+        data: { display_name: cleanName, full_name: cleanName, patawallet_onboarding_v1: setup },
+        emailRedirectTo: location.origin,
+      },
+    })
+    if (issue) throw issue
+    if (!data.session) setNotice('Cuenta creada. Revisa tu correo para confirmar el registro.')
+  })
 
   const submit = (event) => {
     event.preventDefault()
@@ -52,25 +75,34 @@ export function AuthPage() {
         return
       }
       if (password.length < 8) throw new Error('La contraseña debe tener al menos 8 caracteres.')
-      if (mode === 'register') {
-        if (name.trim().length < 2) throw new Error('Escribe tu nombre.')
-        const { data, error: issue } = await supabase.auth.signUp({ email, password, options: { data: { display_name: name.trim(), full_name: name.trim() }, emailRedirectTo: location.origin } })
-        if (issue) throw issue
-        if (!data.session) setNotice('Cuenta creada. Revisa tu correo para confirmar el registro.')
-      } else {
-        const { error: issue } = await supabase.auth.signInWithPassword({ email, password })
-        if (issue) throw issue
-      }
+      try { sessionStorage.removeItem(signupDraftKey) } catch { /* El inicio por contraseña no usa preferencias de registro. */ }
+      const { error: issue } = await supabase.auth.signInWithPassword({ email, password })
+      if (issue) throw issue
     })
   }
 
-  const google = () => run(async () => {
+  const google = (setup = null, name = '') => run(async () => {
+    if (setup) {
+      try { sessionStorage.setItem(signupDraftKey, JSON.stringify({ name, setup })) } catch {
+        throw new Error('No pudimos conservar tus preferencias para continuar con Google. Usa el registro con correo.')
+      }
+    }
     const { error: issue } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin } })
-    if (issue) throw issue
+    if (issue) {
+      try { sessionStorage.removeItem(signupDraftKey) } catch { /* Sin almacenamiento de sesión, el error de Auth sigue siendo visible. */ }
+      throw issue
+    }
   })
 
-  const changeMode = (next) => { setMode(next); setError(''); setNotice(''); setPassword('') }
-  const title = mode === 'register' ? 'Crea tu cuenta' : mode === 'forgot' ? 'Recupera tu acceso' : mode === 'update' ? 'Nueva contraseña' : 'Qué bueno verte'
+  const changeMode = (next) => {
+    if (next !== 'register') {
+      try { sessionStorage.removeItem(signupDraftKey) } catch { /* Solo afecta una continuación opcional de OAuth. */ }
+    }
+    setMode(next); setError(''); setNotice(''); setPassword('')
+  }
+  if (mode === 'register') return <SignupFlow onLogin={() => changeMode('login')} onCreateAccount={createAccount} onGoogle={google} googleEnabled={googleEnabled} busy={busy} error={error} notice={notice} />
+
+  const title = mode === 'forgot' ? 'Recupera tu acceso' : mode === 'update' ? 'Nueva contraseña' : 'Qué bueno verte'
 
   return (
     <main className="auth-layout">
@@ -84,21 +116,19 @@ export function AuthPage() {
         <div className="wordmark auth-mobile-brand"><PawPrint /> PataWallet</div>
         <div className="auth-card">
           {(mode === 'forgot' || mode === 'update') && <button className="auth-back" type="button" onClick={() => changeMode('login')}><ArrowLeft /> Volver</button>}
-          <p className="eyebrow">{mode === 'register' ? 'Registro' : 'Acceso seguro'}</p>
+          <p className="eyebrow">Acceso seguro</p>
           <h2>{title}</h2>
-          <p>{mode === 'register' ? 'Empieza con un espacio financiero privado.' : mode === 'forgot' ? 'Te enviaremos un enlace seguro a tu correo.' : mode === 'update' ? 'Elige una contraseña que no uses en otros sitios.' : 'Inicia sesión para ver únicamente tus datos.'}</p>
+          <p>{mode === 'forgot' ? 'Te enviaremos un enlace seguro a tu correo.' : mode === 'update' ? 'Elige una contraseña que no uses en otros sitios.' : 'Inicia sesión para ver únicamente tus datos.'}</p>
           {googleEnabled && mode !== 'forgot' && mode !== 'update' && <><button className="button auth-google" type="button" onClick={google} disabled={busy}><span className="google-mark" aria-hidden="true">G</span> Continuar con Google</button><div className="auth-divider"><span>o con correo</span></div></>}
           <form className="auth-form" onSubmit={submit}>
-            {mode === 'register' && <label>Nombre<input autoComplete="name" value={name} onChange={(event) => setName(event.target.value)} required /></label>}
             {mode !== 'update' && <label>Correo<input type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} required /></label>}
             {mode !== 'forgot' && <label>Contraseña<div className="password-field"><input type={visible ? 'text' : 'password'} autoComplete={mode === 'register' ? 'new-password' : 'current-password'} minLength="8" value={password} onChange={(event) => setPassword(event.target.value)} required /><button type="button" aria-label={visible ? 'Ocultar contraseña' : 'Mostrar contraseña'} onClick={() => setVisible(!visible)}>{visible ? <EyeOff /> : <Eye />}</button></div></label>}
             {error && <p className="form-error" role="alert">{error}</p>}
             {notice && <p className="form-notice" role="status">{notice}</p>}
-            <button className="button button--primary button--wide" disabled={busy} type="submit"><LogIn /> {busy ? 'Un momento…' : mode === 'register' ? 'Crear cuenta' : mode === 'forgot' ? 'Enviar enlace' : mode === 'update' ? 'Guardar contraseña' : 'Iniciar sesión'}</button>
+            <button className="button button--primary button--wide" disabled={busy} type="submit"><LogIn /> {busy ? 'Un momento…' : mode === 'forgot' ? 'Enviar enlace' : mode === 'update' ? 'Guardar contraseña' : 'Iniciar sesión'}</button>
           </form>
           {mode === 'login' && <button className="auth-link" type="button" onClick={() => changeMode('forgot')}>Olvidé mi contraseña</button>}
           {mode === 'login' && <p className="auth-switch">¿Primera vez aquí? <button type="button" onClick={() => changeMode('register')}>Crear una cuenta</button></p>}
-          {mode === 'register' && <p className="auth-switch">¿Ya tienes cuenta? <button type="button" onClick={() => changeMode('login')}>Iniciar sesión</button></p>}
         </div>
         <NightScene className="auth-mobile-scene" />
       </section>

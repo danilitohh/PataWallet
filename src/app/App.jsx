@@ -15,8 +15,9 @@ export function App() {
 }
 
 function AuthenticatedApp() {
-  const { user, loading, signOut } = useAuth()
+  const { user, loading, signOut, signupSetupIssue, dismissSignupSetupIssue } = useAuth()
   if (loading) return <LoadingScreen />
+  if (user && signupSetupIssue) return <StateMessage title="Cuenta lista, preferencias pendientes" body={signupSetupIssue} action={dismissSignupSetupIssue} actionLabel="Continuar sin preferencias" />
   if (new URLSearchParams(location.search).has('recovery')) return <AuthPage />
   if (!user) return <AuthPage />
   return <RemoteApp user={user} signOut={signOut} />

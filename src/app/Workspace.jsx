@@ -6,7 +6,7 @@ import { AppRoutes } from './routes/AppRoutes.jsx'
 import { AppShell } from './AppShell.jsx'
 import { WelcomePage } from '../features/onboarding/WelcomePage.jsx'
 import { WalletCardPicker, WalletEntry } from '../features/onboarding/WalletCardFlow.jsx'
-import { hasOpenedWallet, markWalletOpened, readWalletCardStyle, saveWalletCardStyle } from '../features/onboarding/walletCardModel.js'
+import { hasOpenedWallet, isWalletCardStyle, markWalletOpened, readWalletCardStyle, saveWalletCardStyle } from '../features/onboarding/walletCardModel.js'
 import { FirstUseGuide } from '../features/onboarding/FirstUseGuide.jsx'
 import { MovementSheet } from '../features/transactions/components/MovementSheet.jsx'
 import { LoadingScreen, Toast } from '../shared/components/Feedback.jsx'
@@ -19,7 +19,11 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
   const rawSettingsMap = useMemo(() => Object.fromEntries(settingsRows.map((row) => [row.key, row.value])), [settingsRows])
   const settingsMap = useMemo(() => ({ ...rawSettingsMap, theme: 'dark' }), [rawSettingsMap])
   const ownerId = isDemo ? 'demo' : user?.id
-  const [walletCardStyle, setWalletCardStyle] = useState(() => readWalletCardStyle(ownerId))
+  const [walletCardStyle, setWalletCardStyle] = useState(() => {
+    const saved = readWalletCardStyle(ownerId)
+    const signupChoice = user?.user_metadata?.patawallet_onboarding_v1?.cardStyle
+    return saved || (isWalletCardStyle(signupChoice) ? signupChoice : null)
+  })
   const [cardPickerOpen, setCardPickerOpen] = useState(false)
   const [walletOpenedThisSession, setWalletOpenedThisSession] = useState(() => location.pathname !== '/' || hasOpenedWallet(ownerId))
   const [sheet, setSheet] = useState(null)

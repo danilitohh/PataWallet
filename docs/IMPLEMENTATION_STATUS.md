@@ -520,3 +520,11 @@ La app está desplegada en Vercel y las migraciones de las fases 1–4, punto de
 - Esta prueba valida entrega del atajo, autenticación y lectura del payload; no simula una compra, no crea una notificación pendiente y no comprueba el registro real.
 - La captura de prueba mostró `amount_minor` como número JSON, mientras el contrato solo aceptaba texto. Ahora acepta enteros JSON seguros en ese campo; fracciones y valores fuera de rango siguen sin redondearse y quedan ambiguos.
 - Para errores del contrato, la ruta de validación devuelve pistas por campo y tipo esperado; las claves extra se muestran solo si tienen formato simple y nunca se reflejan valores. Pruebas locales cubren este límite; queda comprobar la respuesta desde Atajos en producción.
+
+## Registro guiado de nuevas cuentas · 10 de octubre de 2026
+
+- El registro ahora guía a la persona por bienvenida, nombre, portada visual, moneda, categorías/límite mensual opcional, información de Atajos y creación de cuenta. Conserva el acceso, recuperación de contraseña y Google cuando el proveedor está habilitado.
+- Las preferencias se validan antes de guardarse. La cuenta nueva usa categorías existentes y puede crear un límite mensual general en COP; un límite ya presente no se reemplaza. La selección de portada queda en metadata de Auth y se usa al abrir la billetera.
+- La app informa que COP es la moneda disponible. El paso de Atajos explica dónde configurarlo después y aclara que no se instala ni activa durante el registro.
+- Verificación local: `npm run lint` y `npm run build` pasaron. Revisión visual con viewport 390×844, 375×812 y 1440×900 sin errores de consola ni fallos de página.
+- Pendiente: alta real en Supabase, confirmación de correo, retorno OAuth, persistencia remota de las preferencias con una cuenta de prueba y revisión en iPhone físico. No se modificó la base de datos ni se desplegó.
