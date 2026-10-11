@@ -1,9 +1,11 @@
-import { Bell, CreditCard, ExternalLink, Mail, PawPrint, Play } from 'lucide-react'
+import { CreditCard, ExternalLink, PawPrint, Play } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { normalizeIntegrationSetup } from '../../domain/registration.js'
 import shortcutManifest from '../../../shortcuts/template-manifest.json'
+import { MailConnections } from '../bank-email/MailConnections.jsx'
+import { NotificationsPanel } from '../integrations/NotificationsPage.jsx'
 
-export function IntegrationSetup({ preferences, onFinish }) {
+export function IntegrationSetup({ preferences, onFinish, user, isDemo, onImported }) {
   const selected = normalizeIntegrationSetup(preferences)
   if (!selected) return null
 
@@ -13,7 +15,7 @@ export function IntegrationSetup({ preferences, onFinish }) {
       <section className="integration-onboarding__content" aria-labelledby="integration-onboarding-title">
         <p className="integration-onboarding__eyebrow">Configuración opcional</p>
         <h1 id="integration-onboarding-title">Conecta lo que elegiste</h1>
-        <p className="integration-onboarding__intro">Cada opción se activa por separado y solo con tu permiso. Puedes hacerlas ahora o volver a Ajustes más tarde.</p>
+        <p className="integration-onboarding__intro">Estas son las opciones que elegiste. Gmail/Outlook requiere escoger bancos y dar consentimiento; las notificaciones requieren el permiso de este dispositivo.</p>
 
         <div className="integration-onboarding__list">
           {selected.shortcut && <article className="integration-onboarding__card">
@@ -29,29 +31,15 @@ export function IntegrationSetup({ preferences, onFinish }) {
             </div>
           </article>}
 
-          {selected.bankEmail && <article className="integration-onboarding__card">
-            <span className="integration-onboarding__icon"><Mail aria-hidden="true" /></span>
-            <div className="integration-onboarding__details">
-              <h2>Transferencias por correo</h2>
-              <p>Conecta Gmail u Outlook, elige tus bancos y autoriza la búsqueda de avisos. PataWallet no pide la contraseña de tu correo.</p>
-              <Link className="button button--secondary" to="/ajustes/correos-bancarios"><Mail aria-hidden="true" /> Conectar correo</Link>
-            </div>
-          </article>}
+          {selected.bankEmail && <MailConnections isDemo={isDemo} onImported={onImported} />}
 
-          {selected.notifications && <article className="integration-onboarding__card">
-            <span className="integration-onboarding__icon"><Bell aria-hidden="true" /></span>
-            <div className="integration-onboarding__details">
-              <h2>Notificaciones</h2>
-              <p>Activa los avisos en este dispositivo. En iPhone, instala primero PataWallet en la pantalla de inicio.</p>
-              <Link className="button button--secondary" to="/ajustes/notificaciones"><Bell aria-hidden="true" /> Activar notificaciones</Link>
-            </div>
-          </article>}
+          {selected.notifications && <div className="integration-onboarding__notification-panel"><NotificationsPanel user={user} isDemo={isDemo} /></div>}
         </div>
       </section>
 
       <footer className="integration-onboarding__footer">
         <button className="button button--primary" type="button" onClick={onFinish}>Continuar a PataWallet</button>
-        <p>Puedes volver a estas opciones desde Ajustes.</p>
+        <p>Si lo prefieres, podrás conectar o desactivar cada opción desde Ajustes.</p>
       </footer>
     </main>
   )

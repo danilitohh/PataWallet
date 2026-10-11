@@ -183,8 +183,8 @@ export function SignupFlow({ onLogin, onCreateAccount, onGoogle, googleEnabled, 
 
     if (step === 4) return <>
       <p className="signup-flow__eyebrow">Conecta solo lo que quieras</p>
-      <h1>Deja todo a tu ritmo</h1>
-      <p className="signup-flow__lede">Puedes instalar el atajo ahora. El correo y las notificaciones se conectan después de crear tu cuenta.</p>
+      <h1>¿Qué quieres activar?</h1>
+      <p className="signup-flow__lede">Al entrar a PataWallet tendrás controles para conectar Gmail u Outlook y activar notificaciones. Cada permiso se pide cuando toques su botón.</p>
       {currency !== 'COP' && <p className="signup-flow__currency-integration-note">El lector de bancos colombianos y el atajo de pagos reportan importes en COP. Si eliges otra moneda base, esas notificaciones no se pueden registrar con seguridad sin conversión automática.</p>}
       <div className="signup-flow__integrations">
         <article className="signup-flow__integration-card">
@@ -198,15 +198,15 @@ export function SignupFlow({ onLogin, onCreateAccount, onGoogle, googleEnabled, 
 
         <article className="signup-flow__integration-card">
           <div className="signup-flow__integration-heading"><span className="signup-flow__shortcut-icon"><Mail aria-hidden="true" /></span><div><strong>Transferencias por correo</strong><p>Conectarás Gmail u Outlook y elegirás los bancos. Nunca pediremos tu contraseña de correo.</p></div></div>
-          <label className="signup-flow__integration-choice"><input type="checkbox" checked={integrationSetup.bankEmail} onChange={(event) => setIntegrationSetup((current) => ({ ...current, bankEmail: event.target.checked }))} /><span>Quiero conectar mi correo después de crear la cuenta</span></label>
+          <label className="signup-flow__integration-choice"><input type="checkbox" checked={integrationSetup.bankEmail} onChange={(event) => setIntegrationSetup((current) => ({ ...current, bankEmail: event.target.checked }))} /><span>Quiero conectar mi correo al entrar</span></label>
         </article>
 
         <article className="signup-flow__integration-card">
           <div className="signup-flow__integration-heading"><span className="signup-flow__shortcut-icon"><Bell aria-hidden="true" /></span><div><strong>Notificaciones</strong><p>Actívalas desde el dispositivo. En iPhone, primero agrega PataWallet a Inicio.</p></div></div>
-          <label className="signup-flow__integration-choice"><input type="checkbox" checked={integrationSetup.notifications} onChange={(event) => setIntegrationSetup((current) => ({ ...current, notifications: event.target.checked }))} /><span>Quiero activar avisos de PataWallet</span></label>
+          <label className="signup-flow__integration-choice"><input type="checkbox" checked={integrationSetup.notifications} onChange={(event) => setIntegrationSetup((current) => ({ ...current, notifications: event.target.checked }))} /><span>Quiero activar avisos de PataWallet al entrar</span></label>
         </article>
       </div>
-      <p className="signup-flow__fine">Tu selección solo prepara una guía al entrar; no instala ni activa nada por sí sola.</p>
+      <p className="signup-flow__fine">Tu selección prepara esta pantalla de configuración. No conecta el correo ni concede permisos hasta que confirmes cada acción.</p>
     </>
 
     return <>

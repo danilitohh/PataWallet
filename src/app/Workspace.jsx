@@ -127,6 +127,13 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
 
   if (!settingsRows.length) return <LoadingScreen />
   if (isDemo && !settingsMap.entered) return <AppContext.Provider value={value}><WelcomePage /></AppContext.Provider>
+  if (!isDemo && integrationSetupOpen && integrationPreferences && location.pathname === '/') {
+    return <AppContext.Provider value={value}>
+      <MotionConfig reducedMotion={reduceMotion ? 'always' : 'user'}>
+        <IntegrationSetup preferences={integrationPreferences} onFinish={finishIntegrationSetup} user={user} isDemo={isDemo} onImported={() => window.dispatchEvent(new Event('patawallet:notifications-changed'))} />
+      </MotionConfig>
+    </AppContext.Provider>
+  }
   if (!walletCardStyle || cardPickerOpen) {
     return <AppContext.Provider value={value}><WalletCardPicker currentStyle={walletCardStyle} required={!walletCardStyle} onSelect={selectWalletCard} onCancel={() => setCardPickerOpen(false)} /></AppContext.Provider>
   }
@@ -136,7 +143,7 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
   return (
     <AppContext.Provider value={value}>
       <MotionConfig reducedMotion={reduceMotion ? 'always' : 'user'}>
-          {showWalletEntry ? <WalletEntry cardStyle={walletCardStyle} onOpen={openWallet} onChange={openCardPicker} reduceMotion={reduceMotion} /> : integrationSetupOpen && integrationPreferences && location.pathname === '/' ? <IntegrationSetup preferences={integrationPreferences} onFinish={finishIntegrationSetup} /> : <>
+          {showWalletEntry ? <WalletEntry cardStyle={walletCardStyle} onOpen={openWallet} onChange={openCardPicker} reduceMotion={reduceMotion} /> : <>
           <AppShell><AppRoutes /></AppShell>
           <AnimatePresence>{sheet && <MovementSheet transaction={typeof sheet === 'object' && !prefilledSheet ? sheet : null} initialFlow={prefilledSheet?.initialFlow || (sheet === 'income' ? 'income' : typeof sheet === 'string' && sheet.startsWith('debt') ? 'debt' : 'expense')} initialDebtId={typeof sheet === 'string' && sheet.startsWith('debt:') ? sheet.slice(5) : undefined} initialValues={prefilledSheet?.initialValues} onSaved={prefilledSheet?.onSaved} onClose={() => setSheet(null)} />}</AnimatePresence>
           <AnimatePresence>{toast && <Toast toast={toast} close={dismissToast} />}</AnimatePresence>

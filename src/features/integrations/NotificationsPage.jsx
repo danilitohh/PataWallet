@@ -8,11 +8,18 @@ import { GlassHero } from '../../shared/components/GlassHero.jsx'
 
 export function NotificationsPage() {
   const { user, isDemo } = useApp()
+  return <div className="route-stack notifications-page">
+    <IntegrationsHeader title="Notificaciones" subtitle="Avisos de PataWallet, no lectura de Wallet ni de bancos." />
+    <NotificationsPanel user={user} isDemo={isDemo} />
+  </div>
+}
+
+// Comparte los controles reales entre Ajustes y la activación elegida durante el registro.
+export function NotificationsPanel({ user, isDemo }) {
   const push = usePushNotifications(user, isDemo)
   const canActivate = ['prompt', 'granted'].includes(push.state.kind)
   return (
-    <div className="route-stack notifications-page">
-      <IntegrationsHeader title="Notificaciones" subtitle="Avisos de PataWallet, no lectura de Wallet ni de bancos." />
+    <div className="notifications-activation">
       <section className="integration-card">
         <GlassHero className="integration-glass-hero">
         <NightIcon icon={Bell} className="integration-icon" tone="sky" />

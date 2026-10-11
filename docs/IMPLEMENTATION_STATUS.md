@@ -1,5 +1,14 @@
 # Estado de implementación
 
+## Activación de correo y notificaciones durante el primer acceso · 11 de octubre de 2026
+
+- La selección de correo y notificaciones del registro ahora abre, inmediatamente después de iniciar sesión, una pantalla de configuración interactiva con los controles ya existentes de Gmail/Outlook y Web Push; aparece antes de elegir la portada si todavía falta.
+- Para el correo la persona elige bancos y acepta explícitamente el alcance antes de ir al proveedor OAuth. Para notificaciones, el botón activa el permiso del dispositivo y registra la suscripción con la cuenta autenticada. Estados incompatibles, proveedor no configurado, denegación y errores siguen visibles.
+- El registro todavía solo guarda la preferencia de mostrar esa pantalla. La conexión no puede hacerse antes de una sesión activa; si Supabase pide confirmación de correo, la activación queda para cuando la persona vuelva con su cuenta confirmada. Atajos conserva su guía independiente.
+- No se solicitaron permisos reales, no se conectó un buzón y no se modificaron Supabase ni Vercel durante este cambio.
+- Verificado: lint y build pasan; pruebas del registro y activación 5/5. Playwright pasó 3/3 en 375×812, 390×844 y 1440×900; confirmó controles de correo, requisito de consentimiento y presencia del botón push en una PWA compatible, sin desbordamiento ni errores de página. Se simuló el entorno push y no se solicitó permiso al sistema.
+- La suite completa quedó en 211 pasaron y 2 fallaron en expectativas preexistentes del parser bancario (`7,90.0` y separadores alternos de Lulo), ajenas a este cambio. No probé OAuth, no conecté buzones ni pedí permiso push real. WebKit de escritorio no sustituye la prueba en iPhone físico; depende de la configuración de Gmail/Outlook y VAPID del entorno.
+
 ## Tema según la portada elegida · 11 de octubre de 2026
 
 - La selección de portada ahora tiñe toda la experiencia de registro: acentos de marca y progreso, flechas, selección de moneda y categorías, enlaces secundarios y botones principales con gradiente y sombra propios.

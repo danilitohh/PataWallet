@@ -62,7 +62,7 @@ export function AuthPage() {
       },
     })
     if (issue) throw issue
-    if (!data.session) setNotice('Cuenta creada. Revisa tu correo para confirmar el registro.')
+    if (!data.session) setNotice('Cuenta creada. Confirma el correo; al volver a PataWallet podrás activar las opciones que elegiste.')
   })
 
   const submit = (event) => {

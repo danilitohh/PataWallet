@@ -2,16 +2,17 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { activatePush, currentBrowserSubscription, deactivatePush, reconcilePushSubscription, savePushPreferences, sendTestPush, storedSubscriptionId } from '../../../services/push/pushClient.js'
 import { classifyPushState, detectPushCapabilities } from '../../../services/push/pushCapabilities.js'
 const defaults = { movements: true, budgets: true, review: true, showDetails: false }
+const browserPermission = () => globalThis.Notification?.permission || 'default'
 
 export function usePushNotifications(user, isDemo) {
   const [vapidPublicKey, setVapidPublicKey] = useState('')
   const [subscription, setSubscription] = useState(null)
   const [preferences, setPreferences] = useState(defaults)
-  const [permissionState, setPermissionState] = useState(() => ('Notification' in window ? Notification.permission : 'default'))
+  const [permissionState, setPermissionState] = useState(browserPermission)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [testResult, setTestResult] = useState(null)
-  const capabilities = useMemo(() => detectPushCapabilities(window), [])
+  const capabilities = useMemo(() => detectPushCapabilities(globalThis), [])
   const permission = capabilities.notifications ? permissionState : 'default'
 
   // Obtiene la clave pública desde el servidor para no duplicarla en variables Vite.
@@ -45,7 +46,7 @@ export function usePushNotifications(user, isDemo) {
 
   useEffect(() => { refresh() }, [refresh])
   useEffect(() => {
-    const syncPermission = () => setPermissionState('Notification' in window ? Notification.permission : 'default')
+    const syncPermission = () => setPermissionState(browserPermission())
     document.addEventListener('visibilitychange', syncPermission)
     return () => document.removeEventListener('visibilitychange', syncPermission)
   }, [])
