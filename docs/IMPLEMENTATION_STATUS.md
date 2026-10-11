@@ -1,5 +1,10 @@
 # Estado de implementación
 
+## Altura de pantalla al elegir la tarjeta · 11 de octubre de 2026
+
+- El selector de portada y la entrada con tarjeta usan `100dvh` como altura mínima, con valores alternativos para navegadores anteriores. Esto evita que Safari deje visible el fondo claro del documento debajo de la pantalla oscura.
+- Verificado con `npm run lint` y `npm run build`. No se comprobó en un iPhone físico.
+
 ## Inicio simplificado y sin acceso punteado · 11 de octubre de 2026
 
 - La cabecera muestra «Balance» junto al selector de mes; el selector conserva el campo mensual y actualiza los resúmenes existentes. El saldo queda como cifra principal, con su etiqueta, moneda y control para ocultarlo debajo.
