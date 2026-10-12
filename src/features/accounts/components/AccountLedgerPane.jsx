@@ -4,7 +4,7 @@ import { debtScheduleLabel } from '../../../domain/debtSchedule.js'
 import { formatMinor, safeAdd } from '../../../domain/money.js'
 import { debtProgress } from '../../../domain/debtProgress.js'
 import { Progress } from '../../../shared/components/Progress.jsx'
-import { GlassHero, OrbAction } from '../../../shared/components/GlassHero.jsx'
+import { GlassHero } from '../../../shared/components/GlassHero.jsx'
 import { NightIcon } from '../../../shared/components/NightIcon.jsx'
 import { accountTypeLabel } from '../model/accountTypes.js'
 
@@ -33,7 +33,12 @@ export function AccountLedgerPane({ kind, accounts, amount, balances, currency =
   return (
     <section className={`accounts-ledger__pane accounts-ledger__pane--${group.tone}`}>
       {kind === 'liability' && <GlassHero showArt={false}><span>Deuda registrada</span><strong className="glass-amount">{formatMinor(amount, currency, hidden)}</strong><p>Saldo pendiente en tus cuentas de deuda.</p></GlassHero>}
-      <div className="glass-actions"><OrbAction className={kind === 'asset' ? 'accounts-ledger__add' : ''} icon={Plus} onClick={onAdd}>Agregar {kind === 'asset' ? 'cuenta' : 'deuda'}</OrbAction></div>
+      <div className="accounts-ledger__action-row">
+        <button className="calm-inline-action accounts-ledger__add" type="button" onClick={onAdd}>
+          <Plus aria-hidden="true" />
+          <span>Agregar {kind === 'asset' ? 'cuenta' : 'deuda'}</span>
+        </button>
+      </div>
       <header className="accounts-ledger__pane-heading">
         <div><span className="accounts-ledger__eyebrow">{group.eyebrow}</span><h2>{group.title}</h2></div>
         <strong>{formatMinor(amount, currency, hidden)}</strong>

@@ -1,5 +1,11 @@
 # Estado de implementación
 
+## Iconos planos y alta compacta en Cuentas · 11 de octubre de 2026
+
+- Se quitaron las sombras de los iconos en toda la sección Cuentas, incluidos los accesos a deudas, gastos fijos y pagos.
+- «Agregar cuenta» y «Agregar deuda» usan ahora botones compactos alineados a la derecha. También se eliminó el espacio reservado para sus botones circulares grandes.
+- Verificado con `npm run lint`, `npm run build` y `git diff --check`. No se ejecutaron pruebas automatizadas ni se probó en un iPhone físico.
+
 ## Actividad como historial de solo consulta · 11 de octubre de 2026
 
 - Se eliminó «Registrar» y el espacio asociado de Actividad. El registro de movimientos sigue disponible desde las otras acciones globales.

@@ -1,14 +1,17 @@
 /* Cuentas separa el saldo del crédito y mantiene editores fuera de la lista compacta. */
 .calm-app .calm-account-balance { display: block; }
-.calm-app .calm-account-balance .glass-hero__content { padding-bottom: 58px; }
-.calm-app .accounts-ledger__pane { display: grid; gap: 18px; }
-.calm-app .accounts-ledger__pane--asset > .glass-actions { margin-top: -68px; }
-.calm-app .accounts-ledger__pane--debt .glass-hero__content { padding-bottom: 58px; }
+.calm-app .calm-account-balance .glass-hero__content { padding-bottom: 0; }
+.calm-app .calm-account-panel { gap: 14px; }
+.calm-app .accounts-ledger__pane { display: grid; gap: 12px; }
+.calm-app .accounts-ledger__action-row { display: flex; justify-content: flex-end; }
+.calm-app .accounts-ledger__pane--debt .glass-hero__content { padding-bottom: 0; }
 .calm-app .accounts-ledger__pane-heading { display: none; }
 .calm-app .account-list { display: grid; gap: 12px; }
 .calm-app .account-row { grid-template-columns: 40px minmax(0,1fr) auto 44px; align-items: center; padding: 12px; border: var(--glass-edge); border-radius: 18px; background: var(--glass-panel); box-shadow: var(--glass-shadow); gap: 10px; }
-.calm-app .accounts-ledger .account-row > .account-row__icon { box-shadow: none; }
-.calm-app .accounts-ledger .account-row__icon .night-icon__glyph { filter: none; }
+.calm-app .accounts-ledger .night-icon:not(.night-icon--category) { box-shadow: none; }
+.calm-app .accounts-ledger .night-icon:not(.night-icon--category) .night-icon__glyph { filter: none; }
+.calm-app .accounts-ledger .category-icon-3d.night-icon--category { box-shadow: none; }
+.calm-app .accounts-ledger .category-icon-3d.night-icon--category .night-icon__glyph { filter: none; }
 .calm-app .accounts-ledger .account-row__options { position: relative; inset: auto; grid-column: 4; grid-row: 1; justify-self: end; z-index: 2; }
 .calm-app .accounts-ledger .account-row__options[open] { background: transparent; }
 .calm-app .accounts-ledger .account-row__options > div { position: absolute; top: calc(100% + 4px); right: 0; z-index: 5; display: flex; padding: 3px; border: var(--glass-edge); border-radius: 14px; background: var(--surface); box-shadow: var(--glass-shadow); }
