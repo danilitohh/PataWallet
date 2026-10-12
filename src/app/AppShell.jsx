@@ -96,16 +96,16 @@ export function AppShell({ children }) {
           ref={homeNavigationRef}
           to="/"
           end
-          aria-label="Inicio y opciones de navegación"
+          aria-label={navigationExpanded ? 'Ir a Inicio' : 'Mostrar navegación'}
           aria-expanded={navigationExpanded}
           aria-controls="mobile-navigation-links"
           onClick={(event) => {
-            if (location.pathname === '/') {
+            if (!navigationExpanded) {
               event.preventDefault()
-              setNavigationExpanded((expanded) => !expanded)
-            } else {
               setNavigationExpanded(true)
+              return
             }
+            setNavigationExpanded(false)
           }}
         >
           <Home aria-hidden="true" />
