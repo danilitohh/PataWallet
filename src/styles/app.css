@@ -402,6 +402,10 @@ html.standalone-app, html.standalone-app body { touch-action: pan-x pan-y; overs
 .data-transfer__heading { display: flex; gap: 11px; align-items: flex-start; }
 .data-transfer__heading > svg { flex: 0 0 auto; color: var(--accent); }
 .data-transfer__heading p { margin-top: 3px; font-size: .76rem; }
+.data-transfer__year { display: grid; grid-template-columns: minmax(0, 1fr) minmax(112px, 150px); gap: 5px 12px; align-items: center; }
+.data-transfer__year label { font-size: .8rem; font-weight: 700; }
+.data-transfer__year select { min-height: 40px; }
+.data-transfer__year p { grid-column: 1 / -1; font-size: .73rem; }
 .data-transfer__actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .data-transfer__actions .button { min-height: 42px; font-size: .78rem; }
 .setting-link { display: block; }

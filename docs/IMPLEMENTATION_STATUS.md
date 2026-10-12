@@ -1,5 +1,13 @@
 # Estado de implementación
 
+## Exportación legible y resumen para contador · 12 de octubre de 2026
+
+- El CSV de movimientos ahora usa encabezados en español, fechas de Bogotá ordenables, tipos/orígenes/estados traducidos, nombres de cuenta y categoría, montos en unidades monetarias y separador compatible con Excel en configuración regional española. Se quitaron los identificadores internos de la tabla visible y se conserva la protección contra fórmulas de hoja de cálculo.
+- «Excel para contador» genera un libro `.xlsx` con dos hojas: detalle del año gravable elegido y resumen anual/mensual/por categoría separado por moneda. Incluye saldos de cuentas reconstruidos al 31 de diciembre a partir de movimientos registrados y una advertencia para contrastarlos con certificados oficiales. El resumen incluye los tipos excluidos para evitar doble conteo y los movimientos pendientes/anulados aparte; excluye del total los registros marcados como demostración.
+- La segunda hoja incluye una lista para reunir RUT, certificados y extractos patrimoniales, soportes de ingresos y pagos, documentos de bienes/deudas e información exógena DIAN, con enlace a la guía oficial. Las categorías de la app quedan marcadas como pendientes de validación fiscal.
+- Límites explícitos: la exportación solo organiza lo guardado en PataWallet; no certifica patrimonio al cierre, no determina ingresos gravables o gastos deducibles, no reemplaza soportes ni calcula/presenta la declaración. El contador debe contrastar datos y documentos de origen.
+- Verificado con `npm run lint`, `npm run build` y `git diff --check`. El build avisa que el paquete ExcelJS genera un bloque minificado de unos 930 KB (256 KB gzip) y queda incluido en la precarga de la PWA. No se ejecutaron pruebas automatizadas ni se probaron archivos con Excel/iPhone físicos o datos fiscales reales.
+
 ## Métricas y accesos al asistente desde el dock · 12 de octubre de 2026
 
 - Se añadieron al dock móvil los accesos «Asistente» (chat financiero existente) y «Métricas». La navegación lateral de escritorio también los ofrece.

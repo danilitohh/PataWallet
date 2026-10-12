@@ -177,26 +177,62 @@ export function planBackupMerge(current, backup) {
 
 function safeCsvCell(value) {
   let text = value === null || value === undefined ? '' : String(value)
-  if (/^[=+\-@\t\r]/.test(text)) text = `'${text}`
+  if (/^\s*[=+\-@]/.test(text)) text = `'${text}`
   return `"${text.replace(/"/g, '""')}"`
 }
+
+function localDateParts(value) {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Bogota', year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+  }).formatToParts(new Date(value))
+  return Object.fromEntries(parts.filter(({ type }) => type !== 'literal').map(({ type, value: part }) => [type, part]))
+}
+
+function csvDate(value) {
+  const parts = localDateParts(value)
+  return `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}`
+}
+
+function csvAmount(amountMinor) {
+  return new Intl.NumberFormat('es-CO', { useGrouping: true, minimumFractionDigits: Number(amountMinor) % 100 ? 2 : 0, maximumFractionDigits: 2 }).format(Number(amountMinor) / 100)
+}
+
+export function exportTaxYears(data, reference = new Date()) {
+  const currentYear = Number(localDateParts(reference).year)
+  const years = new Set((data.transactions || []).map((row) => Number(localDateParts(row.occurred_at).year)))
+  years.add(currentYear - 1)
+  return [...years].filter(Number.isInteger).sort((a, b) => b - a)
+}
+
+export function defaultExportTaxYear(reference = new Date()) {
+  return Number(localDateParts(reference).year) - 1
+}
+
+const transactionLabels = {
+  opening: 'Saldo inicial', income: 'Ingreso', expense: 'Gasto', transfer: 'Transferencia',
+  card_payment: 'Pago de deuda', adjustment: 'Ajuste', refund: 'Reembolso',
+}
+const sourceLabels = { manual: 'Registro manual', shortcut: 'Atajo', import: 'Importación', demo: 'Demostración' }
+const statusLabels = { recorded: 'Registrado', pending: 'Pendiente', void: 'Anulado' }
 
 export function transactionsCsv(data) {
   const accounts = new Map(data.accounts.map((row) => [row.id, row.name]))
   const categories = new Map(data.categories.map((row) => [row.id, row.name]))
-  const columns = ['id', 'fecha', 'tipo', 'monto_unidades_menores', 'moneda', 'cuenta_origen', 'cuenta_destino', 'categoria', 'comercio', 'nota', 'estado']
-  const rows = data.transactions.map((row) => [
-    row.id,
-    row.occurred_at,
-    row.type,
-    row.amount_minor,
+  const columns = ['Fecha y hora (Bogotá)', 'Movimiento', 'Valor', 'Moneda', 'Cuenta de salida', 'Cuenta de entrada', 'Categoría', 'Comercio o persona', 'Nota', 'Origen', 'Estado', 'Efecto del ajuste']
+  const rows = [...data.transactions].sort((a, b) => new Date(a.occurred_at) - new Date(b.occurred_at)).map((row) => [
+    csvDate(row.occurred_at),
+    transactionLabels[row.type] || 'Otro movimiento',
+    csvAmount(row.amount_minor),
     row.currency,
     accounts.get(row.from_account_id) || '',
     accounts.get(row.to_account_id) || '',
     categories.get(row.category_id) || '',
     row.merchant_name || '',
     row.note || '',
-    row.status,
+    sourceLabels[row.source] || 'Otro origen',
+    statusLabels[row.status] || 'Estado desconocido',
+    row.type === 'adjustment' ? (row.direction === 'decrease' ? 'Disminuye el saldo' : 'Aumenta el saldo') : '',
   ])
-  return `\uFEFF${[columns, ...rows].map((row) => row.map(safeCsvCell).join(',')).join('\r\n')}`
+  return `\uFEFF${[columns, ...rows].map((row) => row.map(safeCsvCell).join(';')).join('\r\n')}`
 }
