@@ -1,5 +1,10 @@
 # Estado de implementación
 
+## Fondo del panel de cuentas · 11 de octubre de 2026
+
+- Se quitó el panel blanco detrás de la acción para agregar y la lista de cuentas en el tema claro. Las cuentas mantienen su propia superficie y borde.
+- Verificado con `npm run lint`, `npm run build` y `git diff --check`. No se ejecutaron pruebas automatizadas ni se probó en un iPhone físico.
+
 ## Iconos planos y alta compacta en Cuentas · 11 de octubre de 2026
 
 - Se quitaron las sombras de los iconos en toda la sección Cuentas, incluidos los accesos a deudas, gastos fijos y pagos.

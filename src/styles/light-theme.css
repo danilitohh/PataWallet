@@ -159,6 +159,11 @@ html[data-theme="light"] body {
   background: var(--glass-panel);
   box-shadow: var(--glass-shadow);
 }
+.app-shell[data-app-design="light"] .accounts-ledger__pane--asset {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
 .app-shell[data-app-design="light"] .accounts-ledger__balance > small { color: var(--text-2); }
 .app-shell[data-app-design="light"] .accounts-ledger__metric,
 .app-shell[data-app-design="light"] .accounts-ledger__pane .account-row {
