@@ -1,5 +1,10 @@
 # Estado de implementación
 
+## Botones de tipo de movimiento sin sombra · 12 de octubre de 2026
+
+- Se quitaron la sombra de los círculos y el relieve proyectado por sus símbolos en Compra, Ingreso y Pago de deuda del panel Nuevo movimiento. Se conservaron bordes, degradados y el indicador de selección.
+- Verificado con `npm run lint`, `npm run build` y `git diff --check`. No se ejecutaron pruebas automatizadas ni se probó en iPhone físico.
+
 ## Guía para instalar desde el registro · 12 de octubre de 2026
 
 - El paso «Conecta solo lo que quieras» ahora incluye una guía para agregar PataWallet como app. Selecciona pasos para iPhone/iPad, Android o computadora; la guía propone el dispositivo actual y enlaza instrucciones oficiales de Apple o Chrome.
