@@ -690,6 +690,13 @@ La app está desplegada en Vercel y las migraciones de las fases 1–4, punto de
 - `npm test`: 37 archivos y 201 pruebas pasaron; 2 pruebas fallaron en `tests/api/bank-email.test.js` al analizar importes de correo Lulo/Nequi. Este cambio no modifica el lector ni su parser.
 - Pendiente: probar la autenticación real y el flujo en iPhone físico. No se modificó Supabase ni se desplegó.
 
+## Asistente financiero conversacional · 11 de octubre de 2026
+
+- El asistente acepta preguntas financieras en lenguaje natural y conserva hasta tres intercambios anteriores mientras la pantalla siga abierta. «Nueva conversación» limpia ese contexto; no se guarda el chat al salir.
+- El contexto ahora incluye los importes actuales, presupuesto, metas, deudas, totales acumulados, tendencias mensuales y categorías principales de los últimos 12 meses, además de hasta 12 movimientos recientes. Los resúmenes usan la lógica financiera de la app y las cantidades se envían formateadas.
+- Antes de escribir, la pantalla explica que cada consulta comparte saldos, planes, tendencias y detalles limitados de movimientos con el proveedor de IA configurado. La demo continúa sin enviar sus datos. El endpoint mantiene autenticación, credencial solo de servidor, límites de entrada y respuestas de solo lectura.
+- Verificado con `npm run lint`, `npm run build` y `git diff --check`. No ejecuté pruebas automatizadas ni consultas con datos reales; falta confirmar en el despliegue que Ollama tenga `OLLAMA_MODEL` y credencial configurados.
+
 ## Dos diseños para Inicio · 11 de octubre de 2026
 
 - Inicio vuelve al diseño nocturno original por defecto y permite cambiar al diseño claro desde Ajustes. La preferencia usa el ajuste de apariencia ya persistido; no añade columnas ni migraciones.

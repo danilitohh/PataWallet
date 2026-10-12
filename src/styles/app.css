@@ -371,6 +371,9 @@ html.standalone-app, html.standalone-app body { touch-action: pan-x pan-y; overs
 .assistant-empty > svg, .assistant-unavailable > svg { width: 30px; height: 30px; }
 .assistant-suggestions { display: flex; flex-wrap: wrap; justify-content: center; gap: 7px; margin-top: 12px; }
 .assistant-messages { display: grid; gap: 10px; }
+.assistant-conversation-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--text-2); font-size: .78rem; font-weight: 650; }
+.assistant-conversation-heading .compact-action { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; }
+.assistant-conversation-heading .compact-action svg { width: 15px; height: 15px; }
 .assistant-message { max-width: 88%; padding: 13px 15px; border-radius: 17px; background: var(--surface); border: 1px solid var(--border); }
 .assistant-message--user { justify-self: end; background: var(--accent-soft); }
 .assistant-message strong { font-size: .72rem; color: var(--text-2); }
@@ -381,6 +384,11 @@ html.standalone-app, html.standalone-app body { touch-action: pan-x pan-y; overs
 .assistant-form textarea { min-height: 92px; resize: vertical; }
 .assistant-form .button { justify-self: end; }
 .assistant-page > .helper { color: var(--text-2); }
+@media (max-width: 520px) {
+  .assistant-message { max-width: 96%; }
+  .assistant-suggestions { width: 100%; }
+  .assistant-suggestions .compact-action { max-width: 100%; white-space: normal; text-align: left; }
+}
 .setting-row { min-height: 70px; padding: 10px 13px; display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 11px; align-items: center; border-radius: 18px; background: var(--surface); border: 1px solid var(--border); }
 .setting-row p { margin-top: 2px; font-size: .75rem; }
 .setting-row__control { display: flex; align-items: center; justify-content: end; }

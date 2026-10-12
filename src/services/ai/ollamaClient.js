@@ -8,12 +8,17 @@ async function accessToken() {
 }
 
 // Envía una consulta de solo lectura al backend autenticado que protege las credenciales de Ollama.
-export async function askAssistant(question, context) {
+export async function askAssistant(question, context, conversation = []) {
   const token = await accessToken()
   const response = await fetch('/api/ai/chat', {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ question, context }),
+    body: JSON.stringify({
+      question,
+      context,
+      // Mantiene suficiente contexto para preguntas de seguimiento sin persistir la conversación.
+      conversation: conversation.slice(-6).map(({ role, content }) => ({ role, content: String(content).slice(-1_200) })),
+    }),
   })
   const payload = await response.json().catch(() => ({}))
   if (!response.ok) throw new Error(payload.error || 'No se pudo consultar el asistente.')
