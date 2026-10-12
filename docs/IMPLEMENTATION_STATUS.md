@@ -1,5 +1,11 @@
 # Estado de implementación
 
+## Ajustes de exportación simplificados · 12 de octubre de 2026
+
+- Se retiraron de Ajustes los controles manuales «Descargar respaldo» y «Restaurar JSON» para simplificar el manejo de datos. Se mantienen la exportación CSV y el Excel para contador.
+- No se añadió un servicio de respaldo automático; la sincronización existente conserva su propio estado y control.
+- Verificado con `npm run lint`, `npm run build` y `git diff --check`. No se ejecutaron pruebas automatizadas.
+
 ## Exportación legible y resumen para contador · 12 de octubre de 2026
 
 - El CSV de movimientos ahora usa encabezados en español, fechas de Bogotá ordenables, tipos/orígenes/estados traducidos, nombres de cuenta y categoría, montos en unidades monetarias y separador compatible con Excel en configuración regional española. Se quitaron los identificadores internos de la tabla visible y se conserva la protección contra fórmulas de hoja de cálculo.

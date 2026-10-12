@@ -58,7 +58,7 @@ export function SettingsPage() {
       <details className="calm-details"><summary>{isDemo ? 'Datos de demostración' : 'Exportar datos y sincronización'}</summary>
       <SettingsSection id="settings-data-heading" title={isDemo ? 'Datos de demostración' : 'Datos'} intro={isDemo ? 'Una moneda activa y datos locales separados.' : 'Moneda, sincronización y copias de seguridad.'} className="settings-group--data">
         <SettingRow icon={CircleDollarSign} tone="gold" title="Moneda" detail="Moneda base de tus saldos y movimientos"><strong className="setting-static-value">{settings.currency || 'COP'}</strong></SettingRow>
-        {!isDemo && <RemoteDataControls data={{ accounts, categories, transactions, budgets, goals, allocations, plannedPurchases, settingsRows: Object.entries(settings).map(([key, value]) => ({ key, value })) }} user={user} syncState={syncState} actions={actions} notify={notify} />}
+        {!isDemo && <RemoteDataControls data={{ accounts, categories, transactions, budgets, goals, allocations, plannedPurchases, settingsRows: Object.entries(settings).map(([key, value]) => ({ key, value })) }} syncState={syncState} actions={actions} notify={notify} />}
         {isDemo && <button className="button button--danger settings-page__reset" type="button" onClick={resetDemo}>Restaurar datos de ejemplo</button>}
       </SettingsSection>
       </details>
@@ -78,11 +78,11 @@ function SettingsSection({ id, title, intro, children, className = '' }) {
   )
 }
 
-// Conserva sincronización, conflictos y exportación/restauración para cuentas autenticadas.
-function RemoteDataControls({ data, user, syncState, actions, notify }) {
+// Conserva sincronización, conflictos y exportación para cuentas autenticadas.
+function RemoteDataControls({ data, syncState, actions, notify }) {
   return <>
     <SettingRow icon={syncState?.kind === 'conflict' ? AlertTriangle : RefreshCw} tone={syncState?.kind === 'conflict' ? 'rose' : 'sky'} title="Sincronización" detail={syncState?.label || 'Comprobando estado'}><button className="compact-action" type="button" onClick={async () => { await actions.retrySync(); notify('Sincronización revisada') }} disabled={syncState?.kind === 'syncing'}>Reintentar</button></SettingRow>
     {syncState?.kind === 'conflict' && <div className="data-warning"><p>Hay cambios concurrentes. PataWallet no sobrescribirá el servidor sin avisarte.</p><button className="button button--secondary" onClick={async () => { if (!confirm('¿Descartar los cambios locales en conflicto y conservar la versión del servidor?')) return; await actions.discardConflicts(); notify('Se conservó la versión del servidor') }}>Usar versión del servidor</button></div>}
-    <DataTransfer data={data} user={user} actions={actions} notify={notify} />
+    <DataTransfer data={data} notify={notify} />
   </>
 }
