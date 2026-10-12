@@ -25,6 +25,7 @@ import './styles/glass.css'
 import './features/dashboard/homeDesigns.css'
 import './styles/light-theme.css'
 import './features/settings/settings-polish.css'
+import './features/metrics/metrics.css'
 
 // Ajusta el viewport antes de montar la interfaz para evitar zoom accidental en la PWA.
 configureStandaloneViewport()

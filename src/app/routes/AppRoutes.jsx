@@ -8,6 +8,7 @@ import { AutomationPage } from '../../features/integrations/AutomationPage.jsx'
 import { NotificationsPage } from '../../features/integrations/NotificationsPage.jsx'
 import { NotificationsInboxPage } from '../../features/integrations/NotificationsInboxPage.jsx'
 import { PlanPage } from '../../features/planning/PlanPage.jsx'
+import { MetricsPage } from '../../features/metrics/MetricsPage.jsx'
 import { SettingsPage } from '../../features/settings/SettingsPage.jsx'
 import { ActivityPage } from '../../features/transactions/ActivityPage.jsx'
 import { StateMessage } from '../../shared/components/Feedback.jsx'
@@ -23,6 +24,7 @@ export function AppRoutes() {
       {['deudas', 'gastos-fijos', 'pagos'].map((section) => <Route key={section} path={`/cuentas/${section}`} element={<AccountsPage />} />)}
       <Route path="/parejas" element={<CouplesPage />} />
       <Route path="/asistente" element={<AssistantPage />} />
+      <Route path="/metricas" element={<MetricsPage />} />
       <Route path="/ajustes" element={<SettingsPage />} />
       <Route path="/ajustes/notificaciones" element={<NotificationsPage />} />
       <Route path="/notificaciones" element={<NotificationsInboxPage />} />

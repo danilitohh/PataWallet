@@ -1,5 +1,11 @@
 # Estado de implementación
 
+## Métricas y accesos al asistente desde el dock · 12 de octubre de 2026
+
+- Se añadieron al dock móvil los accesos «Asistente» (chat financiero existente) y «Métricas». La navegación lateral de escritorio también los ofrece.
+- Métricas muestra ingresos, gastos netos, flujo neto, promedio diario, evolución de seis meses, principales categorías y una proyección de gasto al cierre calculada desde los movimientos guardados. Respeta el ajuste de montos ocultos y actualiza sus cálculos cuando cambia el estado financiero en la app.
+- La proyección se etiqueta como estimación y no incluye ingresos futuros ni pagos programados. Verificado con `npm run lint` y `npm run build`; no se ejecutaron pruebas automatizadas ni se probó en iPhone físico.
+
 ## Navegación móvil desplegable · 12 de octubre de 2026
 
 - La barra inferior inicia compacta con Inicio anclado a la izquierda. El primer toque solo despliega Actividad, Plan, Cuentas y Parejas hacia la derecha, sin cambiar de sección; al tocar Inicio otra vez, navega al panel y cierra el menú. Elegir otra sección también cierra la barra.

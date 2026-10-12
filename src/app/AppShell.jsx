@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { AlertTriangle, Bell, ChartNoAxesColumn, Check, CloudUpload, HardDrive, Home, LoaderCircle, PawPrint, Target, Plus, Settings, UsersRound, Wallet } from 'lucide-react'
+import { AlertTriangle, Bell, ChartNoAxesColumn, ChartPie, Check, CloudUpload, HardDrive, Home, LoaderCircle, MessageCircle, PawPrint, Target, Plus, Settings, UsersRound, Wallet } from 'lucide-react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useApp } from './AppContext.jsx'
 import { NightIcon } from '../shared/components/NightIcon.jsx'
@@ -12,11 +12,13 @@ const navigation = [
   ['/plan', Target, 'Plan'],
   ['/cuentas', Wallet, 'Cuentas'],
   ['/parejas', UsersRound, 'Parejas'],
+  ['/asistente', MessageCircle, 'Asistente'],
+  ['/metricas', ChartPie, 'Métricas'],
 ]
 
 // Asigna colores consistentes a los accesos para que la navegación tenga una firma visual propia.
 function NavigationIcon({ icon: Icon, to }) {
-  const tone = to === '/' ? 'mint' : to === '/actividad' ? 'sky' : to === '/plan' ? 'peach' : to === '/cuentas' ? 'violet' : 'rose'
+  const tone = to === '/' ? 'mint' : to === '/actividad' ? 'sky' : to === '/plan' ? 'peach' : to === '/cuentas' ? 'violet' : to === '/parejas' ? 'rose' : to === '/asistente' ? 'mint' : 'sky'
   return <NightIcon icon={Icon} variant="nav" tone={tone} />
 }
 
