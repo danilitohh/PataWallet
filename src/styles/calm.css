@@ -53,7 +53,7 @@
 .calm-details[open] > summary { margin-bottom: 16px; }
 .calm-app [hidden] { display: none !important; }
 /* La navegación permanece compacta y abre sus enlaces en una fila junto a Inicio. */
-.calm-navigation { position: fixed; z-index: 30; bottom: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: center; gap: 4px; width: fit-content; max-width: calc(100vw - 24px); margin-inline: auto; padding: 8px 12px calc(10px + env(safe-area-inset-bottom)); background: var(--bg); border-top: 1px solid var(--border); }
+.calm-navigation { position: fixed; z-index: 30; bottom: 0; left: 50%; right: auto; display: flex; align-items: center; justify-content: center; gap: 4px; width: fit-content; max-width: calc(100vw - 24px); margin-inline: auto; padding: 8px 12px calc(10px + env(safe-area-inset-bottom)); background: var(--bg); border-top: 1px solid var(--border); transform: translateX(-50%); }
 .calm-navigation a { position: relative; display: flex; flex: 0 0 auto; flex-direction: column; align-items: center; gap: 6px; min-height: 54px; padding: 3px 0 8px; font-size: .7rem; color: var(--text-2); }
 .calm-navigation__items { display: flex; align-items: center; gap: 4px; max-width: 0; overflow: hidden; opacity: 0; pointer-events: none; transform: translateX(-8px); transition: max-width 240ms ease, opacity 180ms ease, transform 240ms ease; }
 .calm-navigation--expanded .calm-navigation__items { max-width: calc(100vw - 96px); opacity: 1; pointer-events: auto; transform: translateX(0); }

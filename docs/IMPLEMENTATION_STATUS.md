@@ -2,7 +2,7 @@
 
 ## Navegación móvil desplegable · 12 de octubre de 2026
 
-- La barra inferior inicia compacta con Inicio. Al tocar Inicio, Actividad, Plan, Cuentas y Parejas se despliegan horizontalmente hacia la derecha; desde otra sección, Inicio regresa al panel y abre el menú. Elegir una sección cierra la barra.
+- La barra inferior inicia compacta y centrada con Inicio. Al tocarlo, Actividad, Plan, Cuentas y Parejas se despliegan horizontalmente hacia la derecha; desde otra sección, Inicio regresa al panel y abre el menú. Elegir una sección cierra la barra y el dock queda centrado en ambos estados.
 - El menú comunica su estado a lectores de pantalla, retira los enlaces ocultos del recorrido de teclado y se puede cerrar con Escape. Se respeta la preferencia del sistema para reducir movimiento.
 - Verificado con `npm run lint`, `npm run build` y `git diff --check`. No se ejecutaron pruebas automatizadas ni se probó en un iPhone físico.
 
