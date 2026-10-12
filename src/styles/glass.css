@@ -89,7 +89,6 @@
 .calm-app .calm-inline-action:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 8%, transparent); }
 .calm-app .calm-inline-action:focus-visible { outline: 3px solid color-mix(in srgb, var(--focus) 78%, transparent); outline-offset: 2px; }
 .calm-app .calm-inline-action svg { width: 18px; height: 18px; filter: none; }
-.calm-app .activity-register-row { display: flex; justify-content: flex-end; margin-top: -8px; }
 .calm-app .calm-goals > .plan-goals-heading { align-items: center; margin-bottom: 0; }
 .calm-app .plan-goals-heading > div { display: grid; gap: 3px; }
 .calm-app .plan-goals-heading .helper { font-size: .78rem; }

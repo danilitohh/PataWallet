@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Info, Plus, Search, SlidersHorizontal } from 'lucide-react'
+import { Info, Search, SlidersHorizontal } from 'lucide-react'
 import { useApp } from '../../app/AppContext.jsx'
 import { calculateSummary, monthInTimeZone } from '../../domain/finance.js'
 import { PageHeader } from '../../shared/components/PageHeader.jsx'
@@ -76,12 +76,6 @@ export function ActivityPage() {
         currency={settings.currency || 'COP'}
         hidden={settings.hiddenAmounts}
       />
-      <div className="activity-register-row">
-        <button className="calm-inline-action" type="button" aria-label="Registrar movimiento" onClick={() => setSheet('new')}>
-          <Plus aria-hidden="true" />
-          <span>Registrar</span>
-        </button>
-      </div>
       <section className="activity-filter-panel" aria-label="Buscar y filtrar movimientos">
         <div className="search-box activity-search-box">
           <Search aria-hidden="true" />

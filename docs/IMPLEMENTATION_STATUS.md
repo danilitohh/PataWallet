@@ -1,5 +1,10 @@
 # Estado de implementación
 
+## Actividad como historial de solo consulta · 11 de octubre de 2026
+
+- Se eliminó «Registrar» y el espacio asociado de Actividad. El registro de movimientos sigue disponible desde las otras acciones globales.
+- Verificado con `npm run lint`, `npm run build` y `git diff --check`. No se ejecutaron pruebas automatizadas ni se probó en un iPhone físico.
+
 ## Acciones compactas y filas de Cuentas · 11 de octubre de 2026
 
 - En Actividad, «Registrar» ahora es un botón compacto con signo más; se redujo el espacio reservado que dejaba el botón circular anterior.
