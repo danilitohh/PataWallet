@@ -86,8 +86,13 @@ export function PlanPage() {
       <nav className="calm-tabs" aria-label="Secciones de Plan"><NavLink to="/plan" end>Metas</NavLink><NavLink to="/plan/presupuesto">Presupuesto</NavLink></nav>
       <section className="calm-goals" hidden={showingBudget && !guideOpen}>
         <GlassHero showArt={false} className="calm-goal-balance"><div className="calm-balance-label"><span>Reservado para tus metas</span><button className="icon-button" aria-label={settings.hiddenAmounts ? 'Mostrar montos' : 'Ocultar montos'} onClick={() => actions.setSetting('hiddenAmounts', !settings.hiddenAmounts)}>{settings.hiddenAmounts ? <EyeOff /> : <Eye />}</button></div><strong className="calm-balance">{formatMinor(cash.reservedMinor, settings.currency || 'COP', settings.hiddenAmounts)}</strong><p>{goals.length} {goals.length === 1 ? 'meta' : 'metas'} · Parte de tu saldo, no dinero adicional.</p></GlassHero>
-        <div className="glass-actions"><OrbAction className="plan-featured-goal__action" icon={Plus} aria-label="Crear meta" onClick={() => setGoalOpen(true)}>Nueva meta</OrbAction></div>
-        <div className="section-heading"><h2>Metas activas</h2><span className="helper">{goals.length} {goals.length === 1 ? 'meta' : 'metas'}</span></div>
+        <div className="section-heading plan-goals-heading">
+          <div><h2>Metas activas</h2><span className="helper">{goals.length} {goals.length === 1 ? 'meta' : 'metas'}</span></div>
+          <button className="calm-inline-action" type="button" aria-label="Crear meta" onClick={() => setGoalOpen(true)}>
+            <Plus aria-hidden="true" />
+            <span>Nueva meta</span>
+          </button>
+        </div>
         <div className="plan-goal-list">{goals.map((goal) => <PlanGoalRow key={goal.id} goal={goal} progress={goalProgress(goal, allocations)} hidden={settings.hiddenAmounts} onReserve={() => setAllocationGoal(goal)} onDelete={deleteGoal} />)}</div>
         {!goals.length && <p className="helper">Aún no tienes metas. Crea la primera cuando quieras.</p>}
       </section>

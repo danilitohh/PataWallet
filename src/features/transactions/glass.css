@@ -1,6 +1,7 @@
 /* Actividad mantiene la cronología, con el resumen sobre cristal y filtros legibles. */
 .calm-app .activity-month-summary { display: block; background: none; padding: 0; border: 0; box-shadow: none; overflow: visible; }
-.calm-app .activity-month-summary > .glass-hero__content { padding-bottom: 58px; color: #0c1730; gap: 12px; }
+.calm-app .activity-month-summary > .glass-hero__content { padding-bottom: 0; color: #0c1730; gap: 12px; }
+.calm-app .activity-page { gap: 15px; }
 .calm-app .activity-month-summary .glass-amount { font-size: clamp(2rem,9vw,3rem); }
 .calm-app .activity-month-summary p > strong { font-size: inherit; }
 .calm-app .activity-month-picker { border: var(--glass-edge); background: var(--glass-panel); border-radius: 16px; padding: 3px; }

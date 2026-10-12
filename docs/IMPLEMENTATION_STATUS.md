@@ -1,5 +1,12 @@
 # Estado de implementación
 
+## Acciones compactas y filas de Cuentas · 11 de octubre de 2026
+
+- En Actividad, «Registrar» ahora es un botón compacto con signo más; se redujo el espacio reservado que dejaba el botón circular anterior.
+- En Plan, «Nueva meta» quedó junto al encabezado «Metas activas» y se eliminó el espacio que se reservaba para el botón flotante.
+- En Cuentas, se quitaron las sombras de los iconos de cuenta. Las opciones de editar/archivar se alinearon con cada saldo; las filas usan menos relleno y, en móvil, el saldo aparece debajo del nombre para darles espacio.
+- Verificado con `npm run lint`, `npm run build` y `git diff --check`. No se ejecutaron pruebas automatizadas ni se probó en un iPhone físico.
+
 ## Descartar avisos con gesto lateral · 11 de octubre de 2026
 
 - En Notificaciones, deslizar un aviso hacia la izquierda lo descarta; un deslizamiento corto revela también la acción «Eliminar». El botón sigue siendo accesible con teclado.

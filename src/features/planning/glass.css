@@ -1,7 +1,7 @@
 /* Metas y presupuesto usan reservas reales y un único límite mensual. */
 .calm-app .calm-goal-balance { display: block; }
-.calm-app .calm-goal-balance .glass-hero__content { padding-bottom: 58px; }
-.calm-app .plan-featured-goal__action { width: auto; margin: 0; }
+.calm-app .calm-goal-balance .glass-hero__content { padding-bottom: 0; }
+.calm-app .calm-goals { gap: 16px; }
 .calm-app .plan-goal-list { gap: 12px; }
 .calm-app .plan-goal-row { padding: 18px 12px; border: var(--glass-edge); border-radius: 22px; background: var(--glass-panel); box-shadow: var(--glass-shadow); gap: 10px; grid-template-columns: 40px minmax(0,1fr) 66px; }
 .calm-app .plan-goal-row__actions { border-left: 0; }
