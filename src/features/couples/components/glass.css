@@ -1,6 +1,10 @@
 /* Parejas conserva el consentimiento por cuenta y la aprobación de solicitudes. */
 .calm-app .couples-serena__intro { grid-template-columns: minmax(0,1fr); }
 .calm-app .couples-serena__members { gap: 22px; }
+.calm-app .couples-page .night-icon:not(.night-icon--category) { box-shadow: none; }
+.calm-app .couples-page .night-icon:not(.night-icon--category) .night-icon__glyph { filter: none; }
+.calm-app .couples-page .category-icon-3d.night-icon--category { box-shadow: none; }
+.calm-app .couples-page .category-icon-3d.night-icon--category .night-icon__glyph { filter: none; }
 .calm-app .couples-glass-balance .glass-hero__content { padding-bottom: 58px; }
 .calm-app .couples-serena__group { padding: 16px; border: var(--glass-edge); border-radius: 26px; background: var(--glass-panel); box-shadow: var(--glass-shadow); }
 .calm-app .couples-serena__groups { gap: 18px; }

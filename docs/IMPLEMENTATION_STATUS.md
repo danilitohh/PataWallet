@@ -1,5 +1,10 @@
 # Estado de implementación
 
+## Iconos de Parejas sin sombra · 11 de octubre de 2026
+
+- Se quitaron las sombras exteriores y las sombras de los trazos de iconos en Parejas, incluidos integrantes, cuentas compartidas e invitaciones. Se mantienen colores, contornos y fondos.
+- Verificado con `npm run lint`, `npm run build` y `git diff --check`. No se ejecutaron pruebas automatizadas ni se probó en un iPhone físico.
+
 ## Fondo del panel de cuentas · 11 de octubre de 2026
 
 - Se quitó el panel blanco detrás de la acción para agregar y la lista de cuentas en el tema claro. Las cuentas mantienen su propia superficie y borde.
