@@ -1,5 +1,11 @@
 # Estado de implementación
 
+## Guía para instalar desde el registro · 12 de octubre de 2026
+
+- El paso «Conecta solo lo que quieras» ahora incluye una guía para agregar PataWallet como app. Selecciona pasos para iPhone/iPad, Android o computadora; la guía propone el dispositivo actual y enlaza instrucciones oficiales de Apple o Chrome.
+- Cuando el navegador expone `beforeinstallprompt`, aparece «Instalar ahora» y se reflejan la respuesta y el evento real de instalación. Si no hay aviso compatible, se mantienen los pasos manuales; no se intenta instalar sin una acción de la persona.
+- Verificado con `npm run lint`, `npm run build`, `git diff --check` y `npx playwright test tests/e2e/signup-install-guide.spec.js --workers=1`: 3/3 pasan a 390×844, 375×812 y 1440×900, incluida la selección de guías y el aviso de instalación simulado. Revisé las capturas de esos tamaños. No probado en iPhone físico.
+
 ## Ajustes de exportación simplificados · 12 de octubre de 2026
 
 - Se retiraron de Ajustes los controles manuales «Descargar respaldo» y «Restaurar JSON» para simplificar el manejo de datos. Se mantienen la exportación CSV y el Excel para contador.

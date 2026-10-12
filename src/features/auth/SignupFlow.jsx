@@ -9,6 +9,7 @@ import { STARTER_CATEGORIES, DEFAULT_STARTER_CATEGORY_IDS, normalizeIntegrationS
 import { currentMonth } from '../../shared/lib/date.js'
 import { CategoryIcon } from '../../shared/components/CategoryIcon.jsx'
 import { WALLET_CARDS, walletCardThemeVariables } from '../onboarding/walletCardModel.js'
+import { SignupInstallGuide } from './SignupInstallGuide.jsx'
 import shortcutManifest from '../../../shortcuts/template-manifest.json'
 
 const stepLabels = ['Nombre', 'Portada', 'Moneda', 'Presupuesto', 'Atajos', 'Cuenta']
@@ -206,6 +207,7 @@ export function SignupFlow({ onLogin, onCreateAccount, onGoogle, googleEnabled, 
           <label className="signup-flow__integration-choice"><input type="checkbox" checked={integrationSetup.notifications} onChange={(event) => setIntegrationSetup((current) => ({ ...current, notifications: event.target.checked }))} /><span>Quiero activar avisos de PataWallet al entrar</span></label>
         </article>
       </div>
+      <SignupInstallGuide />
       <p className="signup-flow__fine">Tu selección prepara esta pantalla de configuración. No conecta el correo ni concede permisos hasta que confirmes cada acción.</p>
     </>
 

@@ -107,6 +107,28 @@
 .signup-flow__video-link { min-height: 36px; display: inline-flex; align-items: center; gap: 5px; color: var(--signup-accent-light); font-size: .72rem; font-weight: 700; }
 .signup-flow__integration-choice { display: grid; grid-template-columns: 18px minmax(0, 1fr); align-items: start; gap: 8px; margin-top: 9px; color: #d2daea; font-size: .7rem; line-height: 1.35; cursor: pointer; }
 .signup-flow__integration-choice input { width: 17px; min-height: 17px; height: 17px; margin: 0; padding: 0; accent-color: var(--signup-accent); }
+.signup-flow__install-guide { width: min(100%, 410px); display: grid; gap: 11px; padding: 13px; border: 1px solid color-mix(in srgb, var(--signup-accent) 34%, #394760); border-radius: 17px; background: linear-gradient(140deg, color-mix(in srgb, var(--signup-accent) 6%, #1b2a42), #121e31); text-align: left; }
+.signup-flow__install-heading { display: grid; grid-template-columns: 42px minmax(0, 1fr) auto; align-items: center; gap: 10px; }
+.signup-flow__install-heading .signup-flow__shortcut-icon { width: 42px; height: 42px; border-radius: 13px; }
+.signup-flow__install-heading .signup-flow__shortcut-icon svg { width: 20px; height: 20px; }
+.signup-flow__install-heading h2 { color: #f8f5ff; font-size: .83rem; }
+.signup-flow__install-heading p { margin-top: 3px; color: #aeb9cd; font-size: .71rem; line-height: 1.4; }
+.signup-flow__install-now { min-height: 38px; padding: 0 10px; border: 1px solid color-mix(in srgb, var(--signup-accent) 45%, #394760); border-radius: 11px; background: color-mix(in srgb, var(--signup-accent) 12%, #18263b); color: var(--signup-accent-light); font-size: .69rem; font-weight: 750; white-space: nowrap; }
+.signup-flow__install-now:disabled { opacity: .7; }
+.signup-flow__install-status { display: inline-flex; align-items: center; gap: 4px; color: var(--signup-accent); font-size: .67rem; font-weight: 750; white-space: nowrap; }
+.signup-flow__install-status svg { width: 15px; height: 15px; }
+.signup-flow__install-platforms { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; padding: 4px; border-radius: 12px; background: #0d192b; }
+.signup-flow__install-platforms button { min-height: 38px; display: inline-flex; align-items: center; justify-content: center; gap: 5px; padding: 4px; border: 1px solid transparent; border-radius: 9px; background: transparent; color: #adb8cc; font: inherit; font-size: .66rem; font-weight: 700; line-height: 1.2; }
+.signup-flow__install-platforms button[aria-pressed="true"] { border-color: color-mix(in srgb, var(--signup-accent) 37%, #394760); background: color-mix(in srgb, var(--signup-accent) 13%, #18263b); color: #f8f5ff; }
+.signup-flow__install-platforms svg { flex: 0 0 15px; width: 15px; height: 15px; color: var(--signup-accent-light); }
+.signup-flow__install-steps h3 { margin-bottom: 8px; color: var(--signup-accent-light); font-size: .73rem; }
+.signup-flow__install-steps ol { display: grid; gap: 7px; margin: 0; padding: 0; list-style: none; }
+.signup-flow__install-steps li { display: grid; grid-template-columns: 20px minmax(0, 1fr); align-items: start; gap: 7px; color: #cbd4e3; font-size: .7rem; line-height: 1.4; }
+.signup-flow__install-steps li > span { width: 18px; height: 18px; display: grid; place-items: center; border: 1px solid color-mix(in srgb, var(--signup-accent) 38%, #394760); border-radius: 50%; color: var(--signup-accent-light); font-size: .63rem; font-weight: 800; }
+.signup-flow__install-steps li svg { width: 13px; height: 13px; vertical-align: -2px; color: var(--signup-accent-light); }
+.signup-flow__install-steps a { display: inline-flex; align-items: center; gap: 5px; margin: 9px 0 0 27px; color: var(--signup-accent-light); font-size: .67rem; font-weight: 700; text-decoration: none; }
+.signup-flow__install-steps a svg { width: 13px; height: 13px; }
+.signup-flow__install-message { color: #cbd4e3; font-size: .7rem; line-height: 1.4; }
 .signup-flow__google { width: min(100%, 410px); min-height: 50px; justify-content: center; border: 1px solid color-mix(in srgb, var(--signup-accent) 38%, #394760); background: color-mix(in srgb, var(--signup-accent) 8%, #18263b); color: #f8f5ff; }
 .signup-flow__google-mark { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: #fff; color: #4285f4; font-weight: 850; }
 .signup-flow__divider { width: min(100%, 410px); display: flex; align-items: center; gap: 11px; color: #909bb0; font-size: .73rem; }
