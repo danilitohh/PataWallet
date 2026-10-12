@@ -28,7 +28,9 @@ export function AppShell({ children }) {
   const homeDesign = settings.theme === 'light' ? 'light' : 'night'
   const themeStyle = useMemo(() => walletCardThemeVariables(walletCardStyle, { lightSurface: homeDesign === 'light' }), [walletCardStyle, homeDesign])
   const mainRef = useRef(null)
+  const homeNavigationRef = useRef(null)
   const [pendingReviewCount, setPendingReviewCount] = useState(0)
+  const [navigationExpanded, setNavigationExpanded] = useState(false)
 
   // Parejas debe ser accesible antes de aceptar una invitación para poder crearla.
   const items = navigation
@@ -80,7 +82,57 @@ export function AppShell({ children }) {
         {!isDemo && syncState && syncState.kind !== 'synced' && <div className="mobile-sync"><SyncStatus state={syncState} retry={actions.retrySync} /></div>}
         {children}
       </main>
-      <nav className="calm-navigation" aria-label="Navegación principal móvil">{items.map(([to, Icon, label]) => <NavLink key={to} to={to} end={to === '/'}><Icon aria-hidden="true" /><span>{label}</span></NavLink>)}</nav>
+      <nav
+        className={`calm-navigation ${navigationExpanded ? 'calm-navigation--expanded' : ''}`.trim()}
+        aria-label="Navegación principal móvil"
+        onKeyDown={(event) => {
+          if (event.key === 'Escape' && navigationExpanded) {
+            setNavigationExpanded(false)
+            homeNavigationRef.current?.focus()
+          }
+        }}
+      >
+        <NavLink
+          ref={homeNavigationRef}
+          to="/"
+          end
+          aria-label="Inicio y opciones de navegación"
+          aria-expanded={navigationExpanded}
+          aria-controls="mobile-navigation-links"
+          onClick={(event) => {
+            if (location.pathname === '/') {
+              event.preventDefault()
+              setNavigationExpanded((expanded) => !expanded)
+            } else {
+              setNavigationExpanded(true)
+            }
+          }}
+        >
+          <Home aria-hidden="true" />
+          <span>Inicio</span>
+        </NavLink>
+        <div
+          id="mobile-navigation-links"
+          className="calm-navigation__items"
+          aria-hidden={!navigationExpanded}
+        >
+          {items.slice(1).map(([to, Icon, label]) => (
+            <NavLink
+              key={to}
+              to={to}
+              end={to === '/'}
+              tabIndex={navigationExpanded ? undefined : -1}
+              onClick={() => {
+                setNavigationExpanded(false)
+                homeNavigationRef.current?.focus()
+              }}
+            >
+              <Icon aria-hidden="true" />
+              <span>{label}</span>
+            </NavLink>
+          ))}
+        </div>
+      </nav>
       <OnlineStatus />
     </div>
   )

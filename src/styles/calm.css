@@ -52,9 +52,12 @@
 .calm-details > summary { min-height: 44px; cursor: pointer; color: var(--text-2); font-size: .88rem; }
 .calm-details[open] > summary { margin-bottom: 16px; }
 .calm-app [hidden] { display: none !important; }
-/* La navegación usa enlaces reales y reserva el área segura; no reproduce la barra de iOS. */
-.calm-navigation { position: fixed; z-index: 30; bottom: 0; left: 0; right: 0; display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); padding: 8px 12px calc(10px + env(safe-area-inset-bottom)); background: var(--bg); border-top: 1px solid var(--border); }
-.calm-navigation a { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; min-height: 54px; padding: 3px 0 8px; font-size: .7rem; color: var(--text-2); }
+/* La navegación permanece compacta y abre sus enlaces en una fila junto a Inicio. */
+.calm-navigation { position: fixed; z-index: 30; bottom: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: center; gap: 4px; width: fit-content; max-width: calc(100vw - 24px); margin-inline: auto; padding: 8px 12px calc(10px + env(safe-area-inset-bottom)); background: var(--bg); border-top: 1px solid var(--border); }
+.calm-navigation a { position: relative; display: flex; flex: 0 0 auto; flex-direction: column; align-items: center; gap: 6px; min-height: 54px; padding: 3px 0 8px; font-size: .7rem; color: var(--text-2); }
+.calm-navigation__items { display: flex; align-items: center; gap: 4px; max-width: 0; overflow: hidden; opacity: 0; pointer-events: none; transform: translateX(-8px); transition: max-width 240ms ease, opacity 180ms ease, transform 240ms ease; }
+.calm-navigation--expanded .calm-navigation__items { max-width: calc(100vw - 96px); opacity: 1; pointer-events: auto; transform: translateX(0); }
+.calm-navigation__items a { flex: 0 0 auto; }
 .calm-navigation svg { width: 24px; height: 24px; }
 .calm-navigation a.active { color: var(--accent); font-weight: 650; }
 .calm-navigation a.active svg { fill: color-mix(in srgb, var(--accent) 35%, transparent); }
@@ -69,7 +72,10 @@
   .calm-app .side-nav nav a { border: 0; background: transparent; }
   .calm-app .side-nav nav a.active { background: var(--accent-soft); color: var(--accent); }
 }
-@media (prefers-reduced-motion: reduce) { .calm-app *, .calm-app *::before, .calm-app *::after { scroll-behavior: auto !important; } }
+@media (prefers-reduced-motion: reduce) {
+  .calm-app *, .calm-app *::before, .calm-app *::after { scroll-behavior: auto !important; }
+  .calm-navigation__items { transition: none; }
+}
 /* Los diálogos viven en un portal: conservan formularios y reciben el mismo acabado plano. */
 .sheet-backdrop .button, .sheet-backdrop .icon-button { box-shadow: none; transform: none; border-radius: 12px; }
 .sheet-backdrop .button--primary { background: var(--button-fill); }
