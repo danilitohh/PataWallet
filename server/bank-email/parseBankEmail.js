@@ -6,6 +6,8 @@ const emailSchema = z.object({
   sender: z.string().trim().email().max(254),
   subject: z.string().max(500),
   text: z.string().min(1).max(32_000),
+  // Solo la búsqueda OAuth del usuario puede habilitar la detección por contenido.
+  allowUnverifiedBancolombia: z.boolean().optional(),
 }).strict()
 
 // Los remitentes observados seleccionan una plantilla, NO prueban la autenticidad del mensaje.
@@ -19,6 +21,8 @@ const BANKS = new Map([
   ['somos@nequi.com.co', 'nequi'],
 ])
 const MONTHS = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
+const OUTGOING_CUES = /\b(?:compr\w*|pag\w*|transferiste|enviaste|retir\w*|d[eé]bito)\b/i
+const INCOMING_CUES = /\b(?:recib\w*|consign\w*|abon\w*|transferencia recibida|te transfirieron|cr[eé]dito)\b/i
 
 // Cada patrón conserva la gramática del banco; el monto permite las variantes observadas en sus avisos.
 const PATTERNS = {
@@ -99,22 +103,30 @@ function readDate(text, bank, noticeKind) {
 
 /**
  * Extrae un candidato de los formatos observados. No autentica correos, deduplica ni escribe dinero.
- * Siempre requiere revisión: «pago» no significa gasto y «recibiste» no significa ingreso.
- * El receptor valida entrega y propietario; el usuario confirma el efecto financiero.
+ * Siempre requiere revisión. Las palabras de entrada/salida solo permiten sugerir un tipo;
+ * el usuario confirma el efecto financiero. Los remitentes coincidentes tampoco autentican el correo.
  */
 export function parseBankEmail(input) {
   const email = emailSchema.parse(input)
-  const bank = BANKS.get(email.sender.toLowerCase()) || null
+  const text = email.text.normalize('NFC').replace(/\s+/g, ' ').trim()
+  if (/<\/?[a-z][^>]*>/i.test(text)) return {
+    bank: BANKS.get(email.sender.toLowerCase()) || null, status: 'needs_review', direction: null, notice_kind: null,
+    amount_minor: null, currency: null, occurred_at: null, counterparty: null, account_last4: null, bank_reference: null,
+    transaction_type: null, sender_matches_known_list: Boolean(BANKS.has(email.sender.toLowerCase())),
+    review_reasons: ['email_authentication_required', 'account_mapping_required', 'transaction_type_required', 'plain_text_required'],
+  }
+  const knownSenderBank = BANKS.get(email.sender.toLowerCase()) || null
+  const mentionsBancolombia = /\bbancolombia\b/i.test(`${email.subject} ${text}`)
+  const bank = knownSenderBank || (email.allowUnverifiedBancolombia && mentionsBancolombia ? 'bancolombia' : null)
   const result = {
     bank, status: 'needs_review', direction: null, notice_kind: null,
     amount_minor: null, currency: null, occurred_at: null, counterparty: null,
     account_last4: null, bank_reference: null, transaction_type: null,
+    sender_matches_known_list: knownSenderBank === bank && Boolean(bank),
     review_reasons: ['email_authentication_required', 'account_mapping_required', 'transaction_type_required'],
   }
   if (!bank) return { ...result, review_reasons: [...result.review_reasons, 'unsupported_sender'] }
-  // El receptor suministra texto plano. HTML inesperado se rechaza, no se limpia con regex.
-  if (/<\/?[a-z][^>]*>/i.test(email.text)) return { ...result, review_reasons: [...result.review_reasons, 'plain_text_required'] }
-  const text = email.text.normalize('NFC').replace(/\s+/g, ' ').trim()
+  if (!result.sender_matches_known_list) result.review_reasons.push('sender_not_recognized')
   if (/\b(?:pendiente|rechazad[oa]|fallid[oa]|reversad[oa]|cancelad[oa]|no exitos[oa])\b/i.test(`${email.subject} ${text}`)) {
     return { ...result, review_reasons: [...result.review_reasons, 'non_final_or_failed_notice'] }
   }
@@ -123,6 +135,9 @@ export function parseBankEmail(input) {
   )
   if (matches.length !== 1) {
     if (!matches.length) {
+      const outgoing = OUTGOING_CUES.test(`${email.subject} ${text}`)
+      const incoming = INCOMING_CUES.test(`${email.subject} ${text}`)
+      if (outgoing !== incoming) result.direction = outgoing ? 'outgoing' : 'incoming'
       result.amount_minor = readUniqueMarkedAmount(text, bank)
       result.currency = readCurrency(text)
       if (!result.currency) result.review_reasons.push('currency_confirmation_required')

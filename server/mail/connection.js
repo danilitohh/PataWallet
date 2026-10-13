@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { z } from 'zod'
 import { parseBankEmail } from '../bank-email/parseBankEmail.js'
+import { bankEmailAiAvailable, classifyBankEmailBatch, MAIL_AI_CONSENT_VERSION } from '../api-lib/bank-email-ai.js'
 import { authorizationUrl, mailboxIdentity, listBankMessages, providerConfig, readBankMessage, startGmailWatch, tokenRequest } from './providers.js'
 import { contextFor, hash, messageUuid, seal, secret, unseal } from './security.js'
 
@@ -28,6 +29,7 @@ export async function completeConnection(admin, provider, state, cookie, code, d
   const mailbox = await mailboxIdentity(provider, token.access_token)
   const saved = await admin.from('mail_connections').update({ status: 'connected', mailbox: provider === 'gmail' ? mailbox.address.toLowerCase() : mailbox.address, mailbox_id: mailbox.id,
     token_cipher: seal({ refresh_token: token.refresh_token }, contextFor(attempt)), connected_at: new Date().toISOString(), last_attempt_at: null,
+    ai_classification_consent_at: null, ai_classification_consent_version: null,
   }).eq('user_id', attempt.user_id).eq('provider', provider).eq('generation', attempt.generation).eq('status', 'pending').select('provider').maybeSingle()
   if (saved.error || !saved.data) throw new Error('La conexión cambió durante la autorización.')
   if (provider === 'gmail' && process.env.MAIL_GOOGLE_PUBSUB_TOPIC) {
@@ -40,7 +42,7 @@ export async function completeConnection(admin, provider, state, cookie, code, d
 export async function disconnectConnection(admin, userId, provider) {
   const removed = await admin.from('mail_connections').update({ status: 'disconnected', token_cipher: null, mailbox: null, mailbox_id: null,
     state_hash: null, cookie_hash: null, verifier_cipher: null, oauth_expires_at: null, generation: randomUUID(),
-    sync_lease: null, lease_until: null, cursor: null,
+    sync_lease: null, lease_until: null, cursor: null, ai_classification_consent_at: null, ai_classification_consent_version: null,
   }).eq('user_id', userId).eq('provider', provider)
   if (removed.error) throw removed.error
   // Microsoft no ofrece revocación individual equivalente sin permisos extra; ambos se retiran desde su portal.
@@ -78,16 +80,49 @@ export async function syncConnection(admin, userId, provider, { backfill = false
     for (const id of page.ids) {
       const message = await readBankMessage(provider, token.access_token, id, row.banks)
       if (!message) continue
-      const { messageId, ...input } = message
-      const candidate = parseBankEmail(input)
+      const { messageId, allowUnverifiedBancolombia, ...input } = message
+      const candidate = parseBankEmail({ ...input, allowUnverifiedBancolombia })
       if (!candidate.bank) continue
       const identity = `${userId}:${provider}:${row.mailbox_id}:${id}`
-      events.push({ provider_id: messageUuid(identity), dedupe_key: hash(messageId || identity), bank: candidate.bank, candidate })
+      events.push({ provider_id: messageUuid(identity), dedupe_key: hash(messageId || identity), bank: candidate.bank, candidate, _aiInput: { subject: input.subject, text: input.text } })
     }
+    const aiEnabled = Boolean(row.ai_classification_consent_at && row.ai_classification_consent_version === MAIL_AI_CONSENT_VERSION && bankEmailAiAvailable())
+    let aiAttempted = 0
+    if (aiEnabled && events.length) {
+      // Existing unresolved OAuth notices can be enriched after the user opts in; forwarded and resolved notices are never sent.
+      const existingResult = await admin.from('bank_email_events')
+        .select('dedupe_key,status,ingestion_source,candidate')
+        .eq('user_id', userId).in('dedupe_key', events.map((event) => event.dedupe_key))
+      // Fail closed for AI if the event states cannot be checked; ordinary mail import still continues.
+      if (!existingResult.error) {
+        const existing = new Map((existingResult.data || []).map((entry) => [entry.dedupe_key, entry]))
+        const eligible = []
+        for (const event of events) {
+          const prior = existing.get(event.dedupe_key)
+          if (prior && (prior.status !== 'pending' || prior.ingestion_source !== provider)) continue
+          if (prior?.candidate?.ai_classification?.status) event.candidate.ai_classification = prior.candidate.ai_classification
+          else eligible.push(event)
+        }
+        aiAttempted = eligible.length
+        const classifications = await classifyBankEmailBatch(eligible.map((event) => ({ ...event._aiInput, bank: event.bank, candidate: event.candidate })))
+        for (const result of classifications) {
+          const event = eligible[result.index]
+          if (event) event.candidate.ai_classification = {
+            status: result.suggestion ? 'suggested' : 'needs_review',
+            confidence: result.confidence,
+            suggestion: result.suggestion,
+          }
+        }
+      }
+    }
+    const aiClassified = events.filter((event) => event.candidate.ai_classification?.suggestion?.type).length
+    const aiAnalyzed = events.filter((event) => event.candidate.ai_classification?.status).length
+    // Keep source email text ephemeral; only deterministic extractions and an optional type suggestion are stored.
+    const persistedEvents = events.map(({ _aiInput, ...event }) => event)
     const saved = await admin.rpc('server_commit_mail_page', { p_user: userId, p_provider: provider, p_generation: row.generation, p_lease: lease,
-      p_events: events, p_cursor: page.next ? { ...cursor, next: page.next } : null, p_until: cursor.until })
+      p_events: persistedEvents, p_cursor: page.next ? { ...cursor, next: page.next } : null, p_until: cursor.until })
     if (saved.error) throw saved.error
-    return { ...saved.data, searched: page.ids.length, recognized: events.length }
+    return { ...saved.data, searched: page.ids.length, recognized: events.length, aiEnabled, aiAttempted, aiAnalyzed, aiClassified }
   } catch (issue) {
     const reset = await guard({ sync_lease: null, lease_until: null, ...(issue.reconnect ? { status: 'reauthorize', token_cipher: null } : {}) })
     if (reset.error) throw new Error('La búsqueda falló. Espera antes de reintentar.')
