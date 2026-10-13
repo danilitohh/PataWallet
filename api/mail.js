@@ -38,7 +38,7 @@ export default async function handler(req, res) {
       return json(res, 200, { url: result.url })
     }
     if (req.query?.operation === 'sync') {
-      const result = await syncConnection(admin, user.id, body.provider)
+      const result = await syncConnection(admin, user.id, body.provider, { backfill: true })
       await processPushOutbox(admin).catch(() => {})
       return json(res, 200, result)
     }

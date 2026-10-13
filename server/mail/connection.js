@@ -47,8 +47,8 @@ export async function disconnectConnection(admin, userId, provider) {
   return { disconnected: true, provider_revocation_required: true }
 }
 
-// Búsqueda bajo demanda de siete días iniciales; las siguientes ventanas retoman el último cierre.
-export async function syncConnection(admin, userId, provider) {
+// La sincronización automática es incremental; las búsquedas manuales pueden recuperar la ventana reciente.
+export async function syncConnection(admin, userId, provider, { backfill = false } = {}) {
   const config = providerConfig(provider)
   const lease = randomUUID()
   const { data: row, error } = await admin.rpc('server_claim_mail_sync', { p_user: userId, p_provider: provider, p_lease: lease })
@@ -64,7 +64,10 @@ export async function syncConnection(admin, userId, provider) {
     if (provider === 'gmail' && process.env.MAIL_GOOGLE_PUBSUB_TOPIC && (!row.gmail_watch_expiration_at || Date.parse(row.gmail_watch_expiration_at) < Date.now() + 24 * 3600000)) {
       await persistGmailWatch(admin, row, token.access_token, token.refresh_token || previous.refresh_token, refreshedCipher).catch(() => {})
     }
-    const cursor = row.cursor || { since: new Date(row.last_sync_at ? Date.parse(row.last_sync_at) - 300000 : Date.now() - 7 * 86400000).toISOString(), until: new Date().toISOString(), next: null }
+    // Las búsquedas automáticas siguen siendo incrementales; una búsqueda manual vuelve a revisar
+    // siete días para recuperar correos perdidos por retrasos o fallos de Pub/Sub. La bandeja deduplica.
+    const since = backfill || !row.last_sync_at ? Date.now() - 7 * 86400000 : Date.parse(row.last_sync_at) - 300000
+    const cursor = row.cursor || { since: new Date(since).toISOString(), until: new Date().toISOString(), next: null }
     const page = await listBankMessages(provider, token.access_token, row.banks, cursor)
     const events = []
     for (const id of page.ids) {

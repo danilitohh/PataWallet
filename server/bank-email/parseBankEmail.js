@@ -17,7 +17,7 @@ const BANKS = new Map([
 ])
 const MONTHS = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
 
-// Cada patrón conserva la gramática del banco: Lulo/Bancolombia usan miles con coma; Nequi, punto.
+// Cada patrón conserva la gramática del banco; el monto permite las variantes observadas en sus avisos.
 const PATTERNS = {
   lulo: [
     { direction: 'outgoing', kind: 'transfer_notice', pattern: /Realizaste una transferencia a (?<party>[^\n]{1,160}?) por\s*\$(?<amount>[\d.,]+)(?=\s|$)/gi },
@@ -42,8 +42,8 @@ function readAmount(value, bank) {
   try {
     if (bank === 'nequi') return parseLocalizedAmount(value)
     const internationalFormat = /^(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d{1,2})?$/.test(value)
-    const luloLocalFormat = bank === 'lulo' && /^(?:\d{1,3}(?:\.\d{3})+|\d+)(?:,\d{1,2})?$/.test(value)
-    if (luloLocalFormat) return parseLocalizedAmount(value)
+    const localFormat = ['lulo', 'bancolombia'].includes(bank) && /^(?:\d{1,3}(?:\.\d{3})+|\d+)(?:,\d{1,2})?$/.test(value)
+    if (localFormat) return parseLocalizedAmount(value)
     if (!internationalFormat) return null
     return parseLocalizedAmount(value.replaceAll(',', '').replace('.', ','))
   } catch {
@@ -72,13 +72,15 @@ function readDate(text, bank, noticeKind) {
     ? text.match(/\bFecha\s+\d{1,2} de \p{L}+ de \d{4}\s+Hora:?\s*\d{1,2}:\d{2}(?:\s*[ap]\.\s*m\.?)?/iu)?.[0] || ''
     : text
   const date = bank === 'bancolombia'
-    ? source.match(/\b(\d{2})\/(\d{2})\/(\d{4})\b/)
+    ? source.match(/\b(\d{2})\/(\d{2})\/(\d{4}|\d{2})\b/)
     : source.match(/\b(\d{1,2}) de (\p{L}+) de (\d{4})\b/iu)
   const time = source.match(/(?:\bHora:?|\ba las)\s*(\d{1,2}):(\d{2})(?:\s*([ap])\.?\s*m\.?)?/i)
   if (!date || !time) return null
   const day = Number(date[1])
   const month = bank === 'bancolombia' ? Number(date[2]) : MONTHS.indexOf(date[2].toLowerCase()) + 1
-  const year = Number(date[3])
+  const parsedYear = Number(date[3])
+  // Bancolombia también muestra el año abreviado en algunos correos recientes (p. ej. 13/10/26).
+  const year = parsedYear < 100 ? 2000 + parsedYear : parsedYear
   let hour = Number(time[1])
   const minute = Number(time[2])
   if (year < 2000 || year > 2100 || month < 1 || month > 12 || day < 1 || minute > 59) return null

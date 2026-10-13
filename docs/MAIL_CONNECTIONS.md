@@ -56,7 +56,7 @@ Para activar esta parte en el servidor:
 4. Guarda `MAIL_GOOGLE_PUBSUB_TOPIC` con formato `projects/<proyecto>/topics/<tema>`, aplica la migración `20260928120000_mail_automation_push.sql` y despliega.
 5. En PataWallet, activa las notificaciones y la preferencia «Movimientos por revisar». En iPhone, instala la PWA desde Safari para recibir Web Push.
 
-El cron diario `/api/mail/renew-watches` renueva la vigilancia de Gmail antes de que expire. Gmail recomienda renovar al menos cada siete días y la implementación usa una renovación diaria. Si el push falla, la búsqueda manual sigue siendo el respaldo. El `historyId` se conserva para la vigilancia; la primera versión reutiliza la búsqueda incremental acotada para mantener un solo parser y límites conocidos.
+El cron diario `/api/mail/renew-watches` renueva la vigilancia de Gmail antes de que expire. Gmail recomienda renovar al menos cada siete días y la implementación usa una renovación diaria. La búsqueda automática es incremental, con cinco minutos de solapamiento; la búsqueda manual vuelve a consultar los últimos siete días y deduplica lo ya guardado, para recuperar avisos que no llegaron por Pub/Sub. El `historyId` se conserva para la vigilancia; la implementación reutiliza la misma consulta acotada y el mismo parser.
 
 ### Yahoo
 

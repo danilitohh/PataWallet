@@ -1,5 +1,12 @@
 # Estado de implementación
 
+## Lectura de avisos de Bancolombia · 13 de octubre de 2026
+
+- El parser ahora reconoce montos con separador colombiano de miles (`$10.000`) y fechas recientes con año de dos dígitos (`13/10/26`), además de los formatos que ya aceptaba. Esto completa monto y fecha del candidato para mostrarlo en «Por revisar».
+- La búsqueda manual de Gmail ahora está preparada para volver a consultar los últimos siete días y recuperar avisos que faltaron por retraso/fallo de Pub/Sub; la clave única existente evita duplicados. La búsqueda automática conserva su intervalo incremental.
+- El correo sigue siendo un aviso pendiente: el usuario confirma si corresponde a ingreso, transferencia u otro tipo antes de crear un movimiento financiero. Los avisos ya guardados no se recalculan porque PataWallet no conserva el cuerpo del correo.
+- `npm run build` pasó con la advertencia habitual de un chunk superior a 500 kB; no ejecuté pruebas automatizadas y el cambio no está desplegado. Vercel devuelve 403 al consultar proyecto y despliegues en el ámbito `danilos-projects-5ba356bd`; el CLI no está instalado. La autorización del usuario para publicar ya fue recibida, pero el despliegue requiere recuperar acceso a ese ámbito. La causa exacta de la entrega ausente sigue sin confirmarse.
+
 ## Botones de tipo de movimiento sin sombra · 12 de octubre de 2026
 
 - Se quitaron la sombra de los círculos y el relieve proyectado por sus símbolos en Compra, Ingreso y Pago de deuda del panel Nuevo movimiento. Se conservaron bordes, degradados y el indicador de selección.

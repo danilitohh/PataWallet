@@ -47,7 +47,7 @@ export function MailConnections({ isDemo, onImported }) {
   return <section className="integration-card mail-connections" aria-busy={loading}>
     <h2>Conecta tu correo</h2>
     <p>Sin configurar reenvíos. El permiso de lectura abarca tu buzón; PataWallet buscará avisos de los bancos que selecciones. No enviará ni borrará mensajes, ni usará estos correos con IA.</p>
-    <p>La primera búsqueda cubre los últimos 7 días y después retoma la búsqueda anterior. Si la detección automática está activa, los nuevos avisos pueden llegar sin abrir la app; el botón manual sigue disponible.</p>
+    <p>Cada búsqueda manual revisa los últimos 7 días y evita duplicados. Si falta un aviso, puedes recuperarlo con el botón de búsqueda.</p>
     {isDemo ? <p>Demostración: no se conecta ninguna cuenta de correo.</p> : <>
       <fieldset disabled={Boolean(busy)}><legend>Bancos para una nueva conexión</legend>{Object.entries(BANKS).map(([id, name]) => <label key={id} className="check-row"><input type="checkbox" checked={banks.includes(id)} onChange={(event) => setBanks(event.target.checked ? [...banks, id] : banks.filter((bank) => bank !== id))} />{name}</label>)}</fieldset>
       <label className="check-row"><input type="checkbox" checked={consent} onChange={(event) => setConsent(event.target.checked)} />Autorizo la lectura para buscar avisos de estos bancos y guardar los datos extraídos para revisión.</label>
@@ -58,7 +58,7 @@ export function MailConnections({ isDemo, onImported }) {
       {item.mailbox && <p>{item.mailbox}</p>}
       {item.status === 'connected' && <>
         <p>Bancos: {(item.banks || []).map((id) => BANKS[id]).join(', ')}. Para cambiarlos, desconecta y vuelve a autorizar.</p>
-        {item.provider === 'gmail' && <p>{item.automatic ? 'Detección automática activa. Los nuevos correos llegarán como movimientos por revisar.' : 'Detección automática pendiente de configuración del servidor; puedes buscar manualmente.'}</p>}
+        {item.provider === 'gmail' && <p>{item.automatic ? 'Vigilancia de Gmail registrada. Si falta un aviso, búscalo manualmente en los últimos 7 días.' : 'Detección automática pendiente de configuración del servidor; puedes buscar manualmente.'}</p>}
         <p>Última búsqueda completada: {item.last_sync_at ? new Date(item.last_sync_at).toLocaleString('es-CO', { timeZone: 'America/Bogota' }) : 'Sin registro'}.</p>
         <button className="button button--primary" disabled={!item.available || Boolean(busy) || loading} onClick={() => act('sync', item.provider)}>{busy === item.provider ? 'Procesando…' : item.has_more ? `Continuar búsqueda en ${NAMES[item.provider]}` : `Buscar correos en ${NAMES[item.provider]}`}</button>
       </>}
