@@ -13,6 +13,8 @@ const BANKS = new Map([
   ['notificaciones@lulobank.com', 'lulo'],
   ['alertasynotificaciones@notificacionesbancolombia.com', 'bancolombia'],
   ['alertasynotificaciones@ayn.notificacionesbancolombia.com', 'bancolombia'],
+  ['alertasynotificaciones@an.notificacionesbancolombia.com', 'bancolombia'],
+  ['alertasynotificaciones@bancolombia.com.co', 'bancolombia'],
   ['notificaciones@nequi.com.co', 'nequi'],
   ['somos@nequi.com.co', 'nequi'],
 ])

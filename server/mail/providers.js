@@ -6,7 +6,12 @@ export const providerSchema = z.enum(['gmail', 'outlook'])
 export const banksSchema = z.array(z.enum(['lulo', 'bancolombia', 'nequi'])).min(1).max(3).transform((values) => [...new Set(values)])
 const SENDERS = {
   lulo: ['notificaciones@lulobank.com'],
-  bancolombia: ['alertasynotificaciones@notificacionesbancolombia.com', 'alertasynotificaciones@ayn.notificacionesbancolombia.com'],
+  bancolombia: [
+    'alertasynotificaciones@notificacionesbancolombia.com',
+    'alertasynotificaciones@ayn.notificacionesbancolombia.com',
+    'alertasynotificaciones@an.notificacionesbancolombia.com',
+    'alertasynotificaciones@bancolombia.com.co',
+  ],
   nequi: ['notificaciones@nequi.com.co', 'somos@nequi.com.co'],
 }
 const GMAIL_SCOPE = 'https://www.googleapis.com/auth/gmail.readonly'
