@@ -66,8 +66,13 @@ export async function syncConnection(admin, userId, provider, { backfill = false
     }
     // Las búsquedas automáticas siguen siendo incrementales; una búsqueda manual vuelve a revisar
     // siete días para recuperar correos perdidos por retrasos o fallos de Pub/Sub. La bandeja deduplica.
-    const since = backfill || !row.last_sync_at ? Date.now() - 7 * 86400000 : Date.parse(row.last_sync_at) - 300000
-    const cursor = row.cursor || { since: new Date(since).toISOString(), until: new Date().toISOString(), next: null }
+    const scanStartedAt = Date.now()
+    const since = backfill || !row.last_sync_at ? scanStartedAt - 7 * 86400000 : Date.parse(row.last_sync_at) - 300000
+    // Manual searches must start a fresh seven-day window when an old incremental
+    // cursor exists, then preserve only a cursor created by that same backfill.
+    const cursor = row.cursor && (!backfill || row.cursor.backfill === true)
+      ? row.cursor
+      : { since: new Date(since).toISOString(), until: new Date(scanStartedAt).toISOString(), next: null, ...(backfill ? { backfill: true } : {}) }
     const page = await listBankMessages(provider, token.access_token, row.banks, cursor)
     const events = []
     for (const id of page.ids) {

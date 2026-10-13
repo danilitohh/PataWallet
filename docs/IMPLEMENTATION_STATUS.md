@@ -765,3 +765,9 @@ La app está desplegada en Vercel y las migraciones de las fases 1–4, punto de
 
 - Se alinearon los iconos de las filas de Ajustes con un tamaño común y se simplificó su relieve. La tarjeta de perfil usa una franja oscura translúcida para que el nombre y el correo blancos tengan contraste; conserva el acento de la portada elegida.
 - Verificación local: `npm run lint` y `npm run build` pasaron. No se ejecutaron pruebas automatizadas ni se revisó en un iPhone físico.
+
+## Recuperación manual de avisos bancarios · 13 de octubre de 2026
+
+- Una búsqueda manual ahora inicia una ventana nueva de siete días si encuentra un cursor incremental anterior. Si la búsqueda manual tiene más de una página, conserva y continúa su propio cursor. Los avisos repetidos se siguen deduplicando en la bandeja.
+- El analizador de transferencias recibidas de Bancolombia acepta el marcador `#` y los caracteres de enmascarado antes de los últimos cuatro dígitos de cuenta, como en el aviso compartido.
+- Verificación local: `npm run build` y `git diff --check` pasaron. No se ejecutaron pruebas automatizadas. La dirección completa del remitente del correo de ejemplo no aparece en la captura; si después de una nueva búsqueda sigue sin entrar, hay que confirmar ese remitente para validar que corresponde a la lista permitida.

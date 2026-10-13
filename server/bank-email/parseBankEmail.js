@@ -28,7 +28,7 @@ const PATTERNS = {
   ],
   bancolombia: [
     { direction: 'outgoing', kind: 'transfer_notice', pattern: /Transferiste\s*\$(?<amount>[\d.,]+) desde tu cuenta (?<account>\d{4}) a la cuenta \*?\d{4,20}(?=\s|$)/gi },
-    { direction: 'incoming', kind: 'transfer_notice', pattern: /recibiste una transferencia de (?<party>[^\n]{1,160}?) por\s*\$(?<amount>[\d.,]+) en tu cuenta\s*\*?(?<account>\d{4})(?=\s|$)/gi },
+    { direction: 'incoming', kind: 'transfer_notice', pattern: /recibiste una transferencia de (?<party>[^\n]{1,160}?) por\s*\$(?<amount>[\d.,]+) en tu cuenta\s*[#*•·]{0,4}\s*(?<account>\d{4})(?=\s|$)/gi },
   ],
   nequi: [
     { direction: 'incoming', kind: 'transfer_notice', pattern: /Recibiste\s*\$?(?<amount>[\d.,]+) de (?<party>[^\n]{1,160}?) el (?=\d{1,2} de )/gi },
