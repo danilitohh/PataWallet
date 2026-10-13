@@ -87,7 +87,7 @@ export async function syncConnection(admin, userId, provider, { backfill = false
     const saved = await admin.rpc('server_commit_mail_page', { p_user: userId, p_provider: provider, p_generation: row.generation, p_lease: lease,
       p_events: events, p_cursor: page.next ? { ...cursor, next: page.next } : null, p_until: cursor.until })
     if (saved.error) throw saved.error
-    return saved.data
+    return { ...saved.data, searched: page.ids.length, recognized: events.length }
   } catch (issue) {
     const reset = await guard({ sync_lease: null, lease_until: null, ...(issue.reconnect ? { status: 'reauthorize', token_cipher: null } : {}) })
     if (reset.error) throw new Error('La búsqueda falló. Espera antes de reintentar.')

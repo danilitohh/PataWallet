@@ -38,7 +38,16 @@ export function MailConnections({ isDemo, onImported }) {
       if (operation === 'status') { setProviders(result.providers); return }
       if (operation === 'connect') { window.location.assign(result.url); return }
       if (operation === 'sync') {
-        setMessage(`${result.added} correos nuevos por revisar.${result.has_more ? ' Hay más: espera 30 segundos y continúa la búsqueda.' : ' Búsqueda completada.'} No se modificaron saldos.`)
+        const outcome = Number.isInteger(result.searched) && Number.isInteger(result.recognized)
+          ? result.searched === 0
+            ? 'Gmail no encontró correos de los bancos seleccionados en los últimos 7 días. Comprueba que esta sea la cuenta que recibió el aviso y que Bancolombia esté seleccionado.'
+            : result.recognized === 0
+              ? `Gmail encontró ${result.searched} correo(s), pero no pudo validar su remitente. Revisa la dirección completa que aparece en “De”.`
+              : result.added === 0
+                ? `${result.recognized} aviso(s) reconocido(s); ya estaban importados.`
+                : `${result.added} correo(s) nuevo(s) por revisar.`
+          : `${result.added} correos nuevos por revisar.`
+        setMessage(`${outcome}${result.has_more ? ' Hay más resultados: espera 30 segundos y pulsa «Continuar búsqueda en Gmail».' : ' Búsqueda completada.'} No se modificaron saldos.`)
         await onImported()
       } else setMessage('Acceso local eliminado. Retira también el permiso en tu cuenta de Google o Microsoft. Los movimientos se conservan.')
       setProviders((await mailRequest()).providers)

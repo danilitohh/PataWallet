@@ -39,11 +39,27 @@ export default async function handler(req, res) {
     }
     if (req.query?.operation === 'sync') {
       const result = await syncConnection(admin, user.id, body.provider, { backfill: true })
+      console.info('mail-manual-sync-complete', {
+        provider: body.provider,
+        searched: result.searched,
+        recognized: result.recognized,
+        added: result.added,
+        hasMore: result.has_more,
+      })
       await processPushOutbox(admin).catch(() => {})
       return json(res, 200, result)
     }
     return json(res, 400, { error: 'Acción no admitida.' })
   } catch (error) {
+    if (req.query?.operation === 'sync') {
+      console.error('mail-manual-sync-failed', {
+        provider: ['gmail', 'outlook'].includes(req.body?.provider) ? req.body.provider : 'unknown',
+        errorType: error?.name || 'UnknownError',
+        status: Number(error?.status) || 0,
+        code: typeof error?.code === 'string' && /^[A-Z0-9_]{1,32}$/.test(error.code) ? error.code : undefined,
+        validation: error instanceof z.ZodError ? error.issues.slice(0, 5).map(({ code, path }) => ({ code, path: path.join('.') })) : undefined,
+      })
+    }
     const status = error instanceof z.ZodError ? 400 : error.code === 'PT409' ? 409 : error.code === 'PT429' || error.status === 429 ? 429 : [401, 403, 413].includes(error.status) ? error.status : 503
     const message = error.reconnect ? 'El permiso del correo venció o fue revocado. Vuelve a conectar la cuenta.' : status === 409 ? 'Espera 30 segundos o desconecta antes de vincular otra cuenta.' : status === 429 ? 'Se alcanzó un límite. Reintenta más tarde.' : 'No se pudo completar la conexión de correo. Revisa la sesión y la configuración.'
     return json(res, status, { error: message })
