@@ -108,7 +108,6 @@ export function walletCardThemeById(cardStyle) {
 
 const cardIds = new Set(WALLET_CARDS.map(({ id }) => id))
 const preferencePrefix = 'patawallet:wallet-card:'
-const sessionPrefix = 'patawallet:wallet-opened:'
 
 export function isWalletCardStyle(value) {
   return cardIds.has(value)
@@ -122,12 +121,6 @@ function getStorage(storage) {
   if (storage) return storage
   if (typeof window === 'undefined') return null
   return window.localStorage
-}
-
-function getSessionStorage(storage) {
-  if (storage) return storage
-  if (typeof window === 'undefined') return null
-  return window.sessionStorage
 }
 
 export function readWalletCardStyle(ownerId, storage) {
@@ -149,23 +142,5 @@ export function saveWalletCardStyle(ownerId, value, storage) {
     return value
   } catch {
     throw new Error('No pudimos guardar tu elección en este dispositivo. Revisa el almacenamiento del navegador e inténtalo de nuevo.')
-  }
-}
-
-export function hasOpenedWallet(ownerId, storage) {
-  if (!ownerId) return false
-  try {
-    return getSessionStorage(storage)?.getItem(`${sessionPrefix}${ownerId}`) === '1'
-  } catch {
-    return false
-  }
-}
-
-export function markWalletOpened(ownerId, storage) {
-  if (!ownerId) return
-  try {
-    getSessionStorage(storage)?.setItem(`${sessionPrefix}${ownerId}`, '1')
-  } catch {
-    // El botón igualmente abre la app; solo se repetirá la portada en esta pestaña.
   }
 }

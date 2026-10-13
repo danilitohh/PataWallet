@@ -26,7 +26,6 @@ test('activa el desbloqueo biométrico local y lo solicita al volver a abrir', a
   await page.goto('/')
   await page.getByRole('button', { name: /probar con datos de ejemplo/i }).click()
   await page.getByRole('button', { name: 'Usar esta tarjeta' }).click()
-  await page.getByRole('button', { name: /abrir patawallet con la tarjeta/i }).click()
   await page.getByRole('link', { name: /ajustes/i }).first().click()
   await expect(page.getByRole('heading', { name: 'Seguridad' })).toBeVisible()
   await page.screenshot({ path: testInfo.outputPath('biometric-settings.png'), fullPage: true })

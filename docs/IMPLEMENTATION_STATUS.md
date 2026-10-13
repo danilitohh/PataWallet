@@ -1,5 +1,11 @@
 # Estado de implementación
 
+## Acceso directo con protección biométrica · 13 de octubre de 2026
+
+- Se eliminó la pantalla «Tu billetera está lista» y la acción «Toca la tarjeta para abrir». Después de elegir una portada, PataWallet abre directamente el Inicio; el bloqueo biométrico local permanece como protección de acceso cuando está activado.
+- La selección de portada sigue apareciendo solo cuando todavía no existe una elección y se puede cambiar desde Ajustes.
+- Verificado con `npm run lint`, `npm run build` y las pruebas E2E de portadas, Inicio y biometría en los tamaños configurados.
+
 ## Compatibilidad del desbloqueo biométrico en Android · 13 de octubre de 2026
 
 - Android/TWA muestra primero la pantalla de desbloqueo y solicita la huella, el rostro o el método configurado solo después del toque de «Desbloquear con biometría». Esto evita iniciar `navigator.credentials.get()` automáticamente durante el arranque, cuando algunos navegadores Android pueden dejar la vista sin renderizar mientras esperan una activación del usuario.
