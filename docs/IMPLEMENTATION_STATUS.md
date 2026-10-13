@@ -1,5 +1,13 @@
 # Estado de implementación
 
+## Búsqueda Bancolombia por contenido y sugerencias de clasificación · 13 de octubre de 2026
+
+- Al buscar desde una conexión OAuth con Bancolombia seleccionado, Gmail y Outlook incluyen mensajes que mencionan “Bancolombia” en asunto o cuerpo, además de los remitentes conocidos. Se descartan coincidencias de remitentes nuevos que no tengan lenguaje de operación para reducir correo irrelevante.
+- Los remitentes nuevos quedan señalados en «Por revisar» para que la persona compruebe el mensaje y la operación. La coincidencia del nombre del banco no se considera autenticación del remitente.
+- La instrucción de clasificación para IA ahora sugiere gasto ante compras, pagos y transferencias enviadas; sugiere ingreso ante dinero recibido, consignado o abonado. Distingue traslados propios, reembolsos y pagos de deuda. La evidencia puede venir del asunto o del cuerpo y la sugerencia requiere confirmación manual.
+- `npm run lint`, `npm run build` y `git diff --check` pasaron. El build conserva la advertencia existente del bloque de 930 kB. No se ejecutaron pruebas automatizadas ni se probó con buzones reales. Gmail y Outlook requieren la migración de consentimiento de IA ya indicada más abajo; el cambio no está publicado.
+
+## Desbloqueo biométrico local · 13 de octubre de 2026
 ## Desbloqueo biométrico local · 13 de octubre de 2026
 
 - Ajustes ahora ofrece «Desbloqueo biométrico» en Seguridad. Al activarlo, el navegador registra una credencial de plataforma mediante WebAuthn y PataWallet guarda únicamente su identificador local por espacio/dispositivo; la clave privada permanece en el autenticador del celular.
@@ -780,3 +788,11 @@ La app está desplegada en Vercel y las migraciones de las fases 1–4, punto de
 - Se admiten como remitentes exactos de Bancolombia `alertasynotificaciones@notificacionesbancolombia.com`, `alertasynotificaciones@ayn.notificacionesbancolombia.com`, `alertasynotificaciones@an.notificacionesbancolombia.com` y `alertasynotificaciones@bancolombia.com.co`, tanto en la búsqueda como en el parser. La captura de Gmail confirmó la variante `ayn.`; el usuario proporcionó las otras variantes. No se usa un comodín de dominio. Todo aviso continúa en revisión manual; el remitente por sí solo no autentica el contenido ni registra un movimiento.
 - La respuesta de búsqueda ahora informa cuántos mensajes encontró, cuántos remitentes reconoció y cuántos avisos nuevos guardó. El log técnico conserva solo proveedor, conteos y tipo/estado de error; no registra dirección ni contenido del correo.
 - Verificación local tras añadir las variantes `an.` y `@bancolombia.com.co`: `npm run build`, `npm run lint` y `git diff --check` pasaron. El build mantiene una advertencia preexistente de chunk mayor a 500 kB. No se ejecutaron pruebas automatizadas. El despliegue de producción se inicia al publicar este cambio.
+
+## Clasificación asistida de avisos bancarios · 13 de octubre de 2026
+
+- Gmail y Outlook pueden usar el modelo Ollama configurado en el servidor para sugerir si cada aviso describe una compra, ingreso, transferencia, pago de deuda o reembolso. El parser determinista conserva la extracción de monto/fecha disponible y la sugerencia no reemplaza esos valores.
+- La lectura de contenido por IA exige una segunda autorización explícita y revocable por proveedor conectado. Se procesa asunto/texto de avisos compatibles; no se guardan contenido ni evidencia y no se envía a IA el canal de reenvío. Solo se almacena tipo sugerido y nivel de confianza.
+- La revisión muestra la sugerencia sin seleccionar ni confirmar automáticamente el tipo. El usuario decide; no se crean movimientos ni cambian saldos hasta la confirmación existente.
+- La búsqueda manual puede añadir una sugerencia a un aviso OAuth ya pendiente sin duplicarlo. La función SQL impide actualizar avisos resueltos, avisos reenviados y candidatos ya clasificados.
+- Implementado localmente. `npm run lint`, `npm run build` y `git diff --check` pasaron; el build conserva la advertencia existente de un chunk mayor a 500 kB. No ejecuté pruebas automatizadas ni probé con un buzón real. La migración `20261013120000_mail_ai_classification.sql` está creada y pendiente de aplicación en Supabase; el cambio todavía no está desplegado. La IA queda indisponible si no está configurado `OLLAMA_MODEL`; los errores del modelo no bloquean la importación determinista ni la revisión manual.
