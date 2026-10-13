@@ -6,10 +6,11 @@ import './biometric.css'
 // Este bloqueo protege la sesión persistida en este dispositivo; la autenticación de la cuenta sigue dependiendo de Supabase.
 export function BiometricGate({ ownerId, enabled, children }) {
   const [unlocked, setUnlocked] = useState(!enabled)
-  const [status, setStatus] = useState(enabled ? 'checking' : 'disabled')
+  const [status, setStatus] = useState(enabled ? 'ready' : 'disabled')
   const [error, setError] = useState('')
   const attemptRef = useRef(null)
   const identityRef = useRef({ ownerId, enabled })
+  const requiresUserGesture = typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent || '')
 
   const unlock = useCallback(async () => {
     if (!enabled || !ownerId) return
@@ -37,17 +38,18 @@ export function BiometricGate({ ownerId, enabled, children }) {
     if (!enabled) return undefined
     const changedOwner = previous.ownerId !== ownerId
     const enabledDuringSession = !previous.enabled && enabled && previous.ownerId === ownerId
-    if (changedOwner || (!enabledDuringSession && previous.enabled)) {
+    if ((changedOwner || (!enabledDuringSession && previous.enabled)) && !requiresUserGesture) {
       const timer = window.setTimeout(() => { void unlock() }, 0)
       return () => window.clearTimeout(timer)
     } else if (enabledDuringSession) {
       // La persona acaba de confirmar la biometría al activarla en Ajustes.
       return undefined
     } else {
+      if (requiresUserGesture) return undefined
       const timer = window.setTimeout(() => { void unlock() }, 0)
       return () => window.clearTimeout(timer)
     }
-  }, [enabled, ownerId, unlock])
+  }, [enabled, ownerId, requiresUserGesture, unlock])
 
   useEffect(() => {
     const onVisibilityChange = () => {
@@ -55,11 +57,11 @@ export function BiometricGate({ ownerId, enabled, children }) {
         setUnlocked(false)
         setStatus('ready')
       }
-      if (document.visibilityState === 'visible' && enabled && !unlocked) void unlock()
+      if (document.visibilityState === 'visible' && enabled && !unlocked && !requiresUserGesture) void unlock()
     }
     document.addEventListener('visibilitychange', onVisibilityChange)
     return () => document.removeEventListener('visibilitychange', onVisibilityChange)
-  }, [enabled, unlock, unlocked])
+  }, [enabled, requiresUserGesture, unlock, unlocked])
 
   if (!enabled || unlocked) return children
   return <BiometricLockScreen status={status} error={error} onUnlock={unlock} />

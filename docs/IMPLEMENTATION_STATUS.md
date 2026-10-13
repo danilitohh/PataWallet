@@ -1,5 +1,11 @@
 # Estado de implementación
 
+## Compatibilidad del desbloqueo biométrico en Android · 13 de octubre de 2026
+
+- Android/TWA muestra primero la pantalla de desbloqueo y solicita la huella, el rostro o el método configurado solo después del toque de «Desbloquear con biometría». Esto evita iniciar `navigator.credentials.get()` automáticamente durante el arranque, cuando algunos navegadores Android pueden dejar la vista sin renderizar mientras esperan una activación del usuario.
+- iPhone y escritorio conservan la solicitud automática al abrir la app; la protección local sigue activa en todos los casos y el botón permite reintentar.
+- Verificado con `npm run lint`, `npm run build` y Playwright dirigido en 390×844, 375×812, Android 390×844 y 1440×900.
+
 ## Desbloqueo biométrico local · 13 de octubre de 2026
 
 - Ajustes ahora ofrece «Desbloqueo biométrico» en Seguridad. Al activarlo, el navegador registra una credencial de plataforma mediante WebAuthn y PataWallet guarda únicamente su identificador local por espacio/dispositivo; la clave privada permanece en el autenticador del celular.

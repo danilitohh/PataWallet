@@ -14,7 +14,7 @@ test('activa el desbloqueo biométrico local y lo solicita al volver a abrir', a
         create: async () => ({ id: credentialId, rawId }),
         get: async () => {
           authenticationAttempts += 1
-          if (authenticationAttempts === 1) throw new DOMException('User cancelled', 'NotAllowedError')
+          if (!/Android/i.test(navigator.userAgent) && authenticationAttempts === 1) throw new DOMException('User cancelled', 'NotAllowedError')
           const authenticatorData = new Uint8Array(37)
           authenticatorData[32] = 4
           return { id: credentialId, rawId, response: { authenticatorData } }
