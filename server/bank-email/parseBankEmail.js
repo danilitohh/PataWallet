@@ -12,6 +12,7 @@ const emailSchema = z.object({
 const BANKS = new Map([
   ['notificaciones@lulobank.com', 'lulo'],
   ['alertasynotificaciones@notificacionesbancolombia.com', 'bancolombia'],
+  ['alertasynotificaciones@ayn.notificacionesbancolombia.com', 'bancolombia'],
   ['notificaciones@nequi.com.co', 'nequi'],
   ['somos@nequi.com.co', 'nequi'],
 ])
