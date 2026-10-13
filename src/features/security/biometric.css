@@ -1,0 +1,19 @@
+.biometric-lock { min-height: 100dvh; display: grid; place-items: center; padding: max(32px, env(safe-area-inset-top)) 20px max(32px, env(safe-area-inset-bottom)); background: radial-gradient(circle at 50% 0, color-mix(in srgb, var(--accent) 19%, transparent), transparent 44%), var(--bg); }
+.biometric-lock__content { width: min(100%, 430px); display: grid; justify-items: center; gap: 14px; padding: 30px 24px; text-align: center; }
+.biometric-lock__icon { display: grid; place-items: center; min-height: 52px; color: var(--accent); }
+.biometric-lock__icon svg { width: 48px; height: 48px; stroke-width: 1.45; }
+.biometric-lock h1 { max-width: 12ch; }
+.biometric-lock p:not(.eyebrow):not(.biometric-lock__error) { max-width: 34ch; }
+.biometric-lock__button { width: min(100%, 320px); margin-top: 4px; }
+.biometric-lock__button svg { width: 19px; height: 19px; }
+.biometric-lock small { max-width: 38ch; color: var(--text-2); font-size: .74rem; line-height: 1.5; }
+.biometric-lock__error, .biometric-preference__error { width: 100%; padding: 10px 12px; border: 1px solid color-mix(in srgb, var(--danger) 30%, var(--border)); border-radius: 12px; color: var(--danger); background: color-mix(in srgb, var(--danger) 9%, transparent); font-size: .8rem; }
+.biometric-preference__status, .biometric-preference__note, .biometric-preference__error { margin: -3px 0 9px 52px; font-size: .74rem; line-height: 1.45; }
+.biometric-preference__status, .biometric-preference__note { color: var(--text-2); }
+.biometric-preference__error { width: auto; }
+@media (max-width: 520px) {
+  .biometric-preference__status, .biometric-preference__note, .biometric-preference__error { margin-left: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .biometric-lock__button { transition: none; }
+}

@@ -13,6 +13,8 @@ import { normalizeIntegrationSetup } from '../domain/registration.js'
 import { MovementSheet } from '../features/transactions/components/MovementSheet.jsx'
 import { LoadingScreen, Toast } from '../shared/components/Feedback.jsx'
 import { PwaUpdatePrompt } from '../features/pwa/PwaUpdatePrompt.jsx'
+import { BiometricGate } from '../features/security/BiometricLock.jsx'
+import { hasBiometricCredential } from '../services/security/biometricUnlock.js'
 
 // Comparte datos, preferencias y el tema seleccionado entre todas las rutas y paneles.
 export function Workspace({ data, actions, syncState = null, isDemo, user, signOut }) {
@@ -74,6 +76,7 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
   // La demo ya tiene una bienvenida propia; las cuentas reales reciben la guía al entrar por primera vez.
   const [guideOpen, setGuideOpen] = useState(() => !isDemo && !settingsMap.financialOnboardingComplete ? 'general' : null)
   const [toast, setToast] = useState(null)
+  const [biometricEnabled, setBiometricEnabled] = useState(() => hasBiometricCredential(ownerId))
   const toastTimer = useRef(null)
   const systemReduce = useReducedMotion()
   const reduceMotion = settingsMap.motion === 'off' || Boolean(systemReduce)
@@ -116,6 +119,12 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
   }, [settingsMap.motion, settingsMap.theme, walletCardStyle])
 
   useEffect(() => () => window.clearTimeout(toastTimer.current), [])
+
+  useEffect(() => {
+    const refreshBiometric = () => setBiometricEnabled(hasBiometricCredential(ownerId))
+    window.addEventListener('patawallet:biometric-changed', refreshBiometric)
+    return () => window.removeEventListener('patawallet:biometric-changed', refreshBiometric)
+  }, [ownerId])
 
   const dismissToast = useCallback(() => {
     window.clearTimeout(toastTimer.current)
@@ -171,7 +180,8 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
 
   return (
     <AppContext.Provider value={value}>
-      <MotionConfig reducedMotion={reduceMotion ? 'always' : 'user'}>
+      <BiometricGate ownerId={ownerId} enabled={biometricEnabled}>
+        <MotionConfig reducedMotion={reduceMotion ? 'always' : 'user'}>
           {showWalletEntry ? <WalletEntry cardStyle={walletCardStyle} onOpen={openWallet} onChange={openCardPicker} reduceMotion={reduceMotion} /> : <>
           <AppShell><AppRoutes /></AppShell>
           <AnimatePresence>{sheet && <MovementSheet transaction={typeof sheet === 'object' && !prefilledSheet ? sheet : null} initialFlow={prefilledSheet?.initialFlow || (sheet === 'income' ? 'income' : typeof sheet === 'string' && sheet.startsWith('debt') ? 'debt' : 'expense')} initialDebtId={typeof sheet === 'string' && sheet.startsWith('debt:') ? sheet.slice(5) : undefined} initialValues={prefilledSheet?.initialValues} onSaved={prefilledSheet?.onSaved} onClose={() => setSheet(null)} />}</AnimatePresence>
@@ -179,7 +189,8 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
           <PwaUpdatePrompt />
           {guideOpen && <FirstUseGuide tour={guideOpen} onFinish={finishGuide} />}
         </>}
-      </MotionConfig>
+        </MotionConfig>
+      </BiometricGate>
     </AppContext.Provider>
   )
 }

@@ -1,5 +1,12 @@
 # Estado de implementación
 
+## Desbloqueo biométrico local · 13 de octubre de 2026
+
+- Ajustes ahora ofrece «Desbloqueo biométrico» en Seguridad. Al activarlo, el navegador registra una credencial de plataforma mediante WebAuthn y PataWallet guarda únicamente su identificador local por espacio/dispositivo; la clave privada permanece en el autenticador del celular.
+- Al abrir de nuevo la PWA o volver desde segundo plano, la app muestra un bloqueo y solicita el autenticador disponible. El sistema decide si presenta Face ID, Touch ID, huella u otro método compatible; la web no puede forzar una modalidad que el hardware no ofrece. La configuración no se sincroniza entre dispositivos.
+- Se añadieron mensajes para navegador/dispositivo no compatible, cancelación y errores; no se presenta la biometría como cifrado ni reemplazo de la sesión Supabase. El flujo usa una comprobación local del autenticador y todavía requiere validar compatibilidad, VoiceOver y comportamiento en un iPhone físico.
+- Verificado: `npm run lint`, `npm run build`, prueba dirigida `src/services/security/biometricUnlock.test.js` (2/2) y `tests/e2e/biometric.spec.js` (1/1 por tamaño del proyecto). La suite completa conserva cuatro fallos previos no relacionados: dos expectativas del parser bancario, una de sincronización de correo y una del resumen del asistente. No se probó biometría real en hardware.
+
 ## Lectura de avisos de Bancolombia · 13 de octubre de 2026
 
 - El parser ahora reconoce montos con separador colombiano de miles (`$10.000`) y fechas recientes con año de dos dígitos (`13/10/26`), además de los formatos que ya aceptaba. Esto completa monto y fecha del candidato para mostrarlo en «Por revisar».
