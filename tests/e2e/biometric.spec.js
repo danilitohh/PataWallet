@@ -5,6 +5,7 @@ test('activa el desbloqueo biométrico local y lo solicita al volver a abrir', a
     const rawId = new Uint8Array([11, 22, 33, 44])
     const credentialId = 'mock-credential'
     let authenticationAttempts = 0
+    window.__patawalletAuthenticationAttempts = 0
     class TestPublicKeyCredential {}
     TestPublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable = async () => true
     Object.defineProperty(window, 'PublicKeyCredential', { configurable: true, value: TestPublicKeyCredential })
@@ -14,7 +15,8 @@ test('activa el desbloqueo biométrico local y lo solicita al volver a abrir', a
         create: async () => ({ id: credentialId, rawId }),
         get: async () => {
           authenticationAttempts += 1
-          if (!/Android/i.test(navigator.userAgent) && authenticationAttempts === 1) throw new DOMException('User cancelled', 'NotAllowedError')
+          window.__patawalletAuthenticationAttempts = authenticationAttempts
+          if (authenticationAttempts === 1) throw new DOMException('User cancelled', 'NotAllowedError')
           const authenticatorData = new Uint8Array(37)
           authenticatorData[32] = 4
           return { id: credentialId, rawId, response: { authenticatorData } }
@@ -34,6 +36,7 @@ test('activa el desbloqueo biométrico local y lo solicita al volver a abrir', a
 
   await page.reload()
   await expect(page.getByRole('heading', { name: 'Desbloquea PataWallet' })).toBeVisible()
+  await expect.poll(() => page.evaluate(() => window.__patawalletAuthenticationAttempts)).toBeGreaterThan(0)
   await page.screenshot({ path: testInfo.outputPath('biometric-lock.png'), fullPage: true })
   await page.getByRole('button', { name: /desbloquear con biometría/i }).click()
   await expect(page.getByRole('heading', { name: 'Ajustes' })).toBeVisible()
