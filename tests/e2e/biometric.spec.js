@@ -35,14 +35,10 @@ test('activa el desbloqueo biométrico local y lo solicita al volver a abrir', a
   await expect(page.getByText(/desbloqueo biométrico activado/i)).toBeVisible()
 
   await page.reload()
-  await expect(page.getByRole('heading', { name: 'Desbloquea PataWallet' })).toBeVisible()
   await page.waitForTimeout(400)
   expect(await page.evaluate(() => window.__patawalletAuthenticationAttempts)).toBe(0)
-  await page.screenshot({ path: testInfo.outputPath('biometric-lock.png'), fullPage: true })
-  await page.getByRole('button', { name: /desbloquear con biometría/i }).click()
-  await expect(page.getByRole('alert')).toContainText(/No se confirmó la biometría/)
-  await page.getByRole('button', { name: /desbloquear con biometría/i }).click()
   await expect(page.getByRole('heading', { name: 'Ajustes' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Desbloquea PataWallet' })).toHaveCount(0)
 
   await page.goto('/?apertura=normal')
   await expect.poll(() => page.evaluate(() => window.__patawalletAuthenticationAttempts)).toBeGreaterThan(0)

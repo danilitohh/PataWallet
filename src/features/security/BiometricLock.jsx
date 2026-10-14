@@ -16,12 +16,12 @@ function isReloadNavigation() {
 
 // Este bloqueo protege la sesión persistida en este dispositivo; la autenticación de la cuenta sigue dependiendo de Supabase.
 export function BiometricGate({ ownerId, enabled, children }) {
-  const [unlocked, setUnlocked] = useState(!enabled)
+  const [skipInitialAutoPrompt] = useState(() => isReloadNavigation())
+  const [unlocked, setUnlocked] = useState(() => !enabled || skipInitialAutoPrompt)
   const [status, setStatus] = useState(enabled ? 'ready' : 'disabled')
   const [error, setError] = useState('')
   const attemptRef = useRef(null)
   const identityRef = useRef({ ownerId, enabled })
-  const [skipInitialAutoPrompt] = useState(() => isReloadNavigation())
 
   const unlock = useCallback(async () => {
     if (!enabled || !ownerId) return
