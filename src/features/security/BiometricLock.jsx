@@ -5,6 +5,15 @@ import './biometric.css'
 
 const BIOMETRIC_AUTOPROMPT_DELAY = 250
 
+function isReloadNavigation() {
+  try {
+    const navigationEntry = window.performance?.getEntriesByType?.('navigation')?.[0]
+    return navigationEntry?.type === 'reload' || window.performance?.navigation?.type === 1
+  } catch {
+    return false
+  }
+}
+
 // Este bloqueo protege la sesión persistida en este dispositivo; la autenticación de la cuenta sigue dependiendo de Supabase.
 export function BiometricGate({ ownerId, enabled, children }) {
   const [unlocked, setUnlocked] = useState(!enabled)
@@ -12,6 +21,7 @@ export function BiometricGate({ ownerId, enabled, children }) {
   const [error, setError] = useState('')
   const attemptRef = useRef(null)
   const identityRef = useRef({ ownerId, enabled })
+  const [skipInitialAutoPrompt] = useState(() => isReloadNavigation())
 
   const unlock = useCallback(async () => {
     if (!enabled || !ownerId) return
@@ -38,7 +48,7 @@ export function BiometricGate({ ownerId, enabled, children }) {
     identityRef.current = { ownerId, enabled }
     if (!enabled) return undefined
     const enabledDuringSession = !previous.enabled && enabled && previous.ownerId === ownerId
-    if (enabledDuringSession) {
+    if (enabledDuringSession || skipInitialAutoPrompt) {
       // La persona acaba de confirmar la biometría al activarla en Ajustes.
       return undefined
     }
@@ -46,7 +56,7 @@ export function BiometricGate({ ownerId, enabled, children }) {
       if (document.visibilityState === 'visible') void unlock()
     }, BIOMETRIC_AUTOPROMPT_DELAY)
     return () => window.clearTimeout(timer)
-  }, [enabled, ownerId, unlock])
+  }, [enabled, ownerId, skipInitialAutoPrompt, unlock])
 
   useEffect(() => {
     const onVisibilityChange = () => {

@@ -9,6 +9,7 @@
 ## Compatibilidad del desbloqueo biométrico en Android · 13 de octubre de 2026
 
 - Android/TWA pinta primero la pantalla de desbloqueo y, tras una espera breve, solicita automáticamente la huella, el rostro o el método configurado. Si el navegador rechaza una solicitud automática, el botón queda disponible como reintento manual.
+- Una recarga explícita de la página no abre inmediatamente el diálogo biométrico: deja visible el bloqueo para que la persona lo active cuando quiera. Una apertura normal de la app conserva la solicitud automática.
 - iPhone y escritorio conservan la solicitud automática al abrir la app; la protección local sigue activa en todos los casos.
 - Verificado con `npm run lint`, `npm run build` y Playwright dirigido en 390×844, 375×812, Android 390×844 y 1440×900.
 
