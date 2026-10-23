@@ -5,6 +5,7 @@ import { beginConnection, completeConnection, disconnectConnection, renewGmailWa
 import { banksSchema, providerAvailable, providerSchema } from '../server/mail/providers.js'
 import { assertPubSubIdentity, gmailPushNotification } from '../server/mail/pubsub.js'
 import { processPushOutbox } from '../server/api-lib/push-dispatch.js'
+import { bankEmailAiAvailable, MAIL_AI_CONSENT_VERSION } from '../server/api-lib/bank-email-ai.js'
 import { cookieName, oauthCookie } from '../server/mail/security.js'
 
 // Una ruta física para estados y acciones del módulo; no añade una función por proveedor.
@@ -18,15 +19,16 @@ export default async function handler(req, res) {
     const user = await authenticatedUser(req)
     const admin = adminClient()
     if (req.method === 'GET') {
-      const rows = await admin.from('mail_connections').select('provider,status,mailbox,banks,last_sync_at,cursor,gmail_watch_expiration_at').eq('user_id', user.id)
+      const rows = await admin.from('mail_connections').select('provider,status,mailbox,banks,last_sync_at,cursor,gmail_watch_expiration_at,ai_classification_consent_at,ai_classification_consent_version').eq('user_id', user.id)
       if (rows.error) throw rows.error
       return json(res, 200, { providers: ['gmail', 'outlook'].map((provider) => {
         const row = rows.data.find((item) => item.provider === provider)
         return { provider, available: providerAvailable(provider), status: row?.status || 'disconnected', mailbox: row?.mailbox || null,
-          banks: row?.banks || [], last_sync_at: row?.last_sync_at || null, has_more: Boolean(row?.cursor), automatic: provider === 'gmail' && Boolean(row?.gmail_watch_expiration_at) }
-      }) })
+          banks: row?.banks || [], last_sync_at: row?.last_sync_at || null, has_more: Boolean(row?.cursor), automatic: provider === 'gmail' && Boolean(row?.gmail_watch_expiration_at),
+          aiConsent: Boolean(row?.ai_classification_consent_at && row?.ai_classification_consent_version === MAIL_AI_CONSENT_VERSION) }
+      }), aiAvailable: bankEmailAiAvailable() })
     }
-    const body = z.object({ provider: providerSchema, banks: banksSchema.optional(), consent: z.boolean().optional() }).strict().parse(req.body)
+    const body = z.object({ provider: providerSchema, banks: banksSchema.optional(), consent: z.boolean().optional(), aiClassificationConsent: z.boolean().optional() }).strict().parse(req.body)
     if (req.method === 'DELETE') {
       res.setHeader('Set-Cookie', oauthCookie(body.provider, '', 0))
       return json(res, 200, await disconnectConnection(admin, user.id, body.provider))
@@ -37,6 +39,19 @@ export default async function handler(req, res) {
       res.setHeader('Set-Cookie', oauthCookie(body.provider, result.cookie))
       return json(res, 200, { url: result.url })
     }
+    if (req.query?.operation === 'ai-consent') {
+      if (typeof body.aiClassificationConsent !== 'boolean') return json(res, 400, { error: 'Indica si activas o desactivas la lectura asistida.' })
+      if (body.aiClassificationConsent && !bankEmailAiAvailable()) return json(res, 503, { error: 'La clasificación con IA no está configurada en este momento.' })
+      const consent = body.aiClassificationConsent
+        ? { ai_classification_consent_at: new Date().toISOString(), ai_classification_consent_version: MAIL_AI_CONSENT_VERSION }
+        : { ai_classification_consent_at: null, ai_classification_consent_version: null }
+      const saved = await admin.from('mail_connections').update(consent)
+        .eq('user_id', user.id).eq('provider', body.provider).eq('status', 'connected')
+        .select('provider').maybeSingle()
+      if (saved.error) throw saved.error
+      if (!saved.data) return json(res, 409, { error: 'Conecta primero este correo para cambiar el permiso de IA.' })
+      return json(res, 200, { aiConsent: Boolean(body.aiClassificationConsent) })
+    }
     if (req.query?.operation === 'sync') {
       const result = await syncConnection(admin, user.id, body.provider, { backfill: true })
       console.info('mail-manual-sync-complete', {
@@ -44,6 +59,8 @@ export default async function handler(req, res) {
         searched: result.searched,
         recognized: result.recognized,
         added: result.added,
+        aiClassified: result.aiClassified || 0,
+        updatedCandidates: result.updated_candidates || 0,
         hasMore: result.has_more,
       })
       await processPushOutbox(admin).catch(() => {})

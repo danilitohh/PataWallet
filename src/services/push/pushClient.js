@@ -4,6 +4,21 @@ import { serializeSubscription, urlBase64ToUint8Array } from './pushCapabilities
 const OWNER_KEY = 'patawallet.push.owner.v1'
 const ID_PREFIX = 'patawallet.push.subscription.'
 
+async function readyPushRegistration() {
+  if (!globalThis.isSecureContext || !navigator.serviceWorker || !('PushManager' in globalThis)) {
+    throw new Error('Este dispositivo no ofrece notificaciones web en este contexto. Abre PataWallet mediante HTTPS y, en iPhone, desde la app instalada.')
+  }
+  let timeout
+  try {
+    return await Promise.race([
+      navigator.serviceWorker.ready,
+      new Promise((_, reject) => { timeout = setTimeout(() => reject(new Error('La app aún está preparando las notificaciones. Cierra y vuelve a abrir PataWallet e inténtalo de nuevo.')), 12_000) }),
+    ])
+  } finally {
+    clearTimeout(timeout)
+  }
+}
+
 async function accessToken() {
   const { data, error } = await supabase.auth.getSession()
   if (error || !data.session?.access_token) throw new Error('Tu sesión venció. Vuelve a iniciar sesión.')
@@ -22,7 +37,7 @@ async function request(path, options = {}) {
 }
 
 export async function currentBrowserSubscription() {
-  const registration = await navigator.serviceWorker.ready
+  const registration = await readyPushRegistration()
   return registration.pushManager.getSubscription()
 }
 
@@ -48,7 +63,7 @@ export async function reconcilePushSubscription(userId) {
 export async function activatePush(userId, vapidPublicKey, preferences) {
   const permission = await Notification.requestPermission()
   if (permission !== 'granted') return { permission, subscription: null }
-  const registration = await navigator.serviceWorker.ready
+  const registration = await readyPushRegistration()
   const current = await registration.pushManager.getSubscription()
   const subscription = current || await registration.pushManager.subscribe({
     userVisibleOnly: true,

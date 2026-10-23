@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { ArrowLeft, Eye, EyeOff, LogIn, PawPrint } from 'lucide-react'
 import { PetScene } from '../../components/PetScene.jsx'
 import { NightScene } from '../../components/NightScene.jsx'
@@ -33,17 +33,15 @@ export function AuthPage() {
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
 
-  useEffect(() => {
-    // Si Google se canceló y no volvió una sesión, el siguiente acceso no debe consumir el borrador del registro.
-    try { sessionStorage.removeItem(signupDraftKey) } catch { /* El acceso por correo sigue funcionando sin almacenamiento de sesión. */ }
-  }, [])
-
   const run = async (callback) => {
     setBusy(true); setError(''); setNotice('')
     try { return await callback() } catch (issue) { setError(friendlyError(issue)) } finally { setBusy(false) }
   }
 
   const createAccount = ({ name, email: signupEmail, password: signupPassword, setup, integrations }) => run(async () => {
+    // Un borrador solo pertenece al intento de registro que lo creó. Evita que
+    // un OAuth cancelado se aplique por accidente a una cuenta distinta.
+    try { sessionStorage.removeItem(signupDraftKey) } catch { /* El registro sigue funcionando sin sessionStorage. */ }
     const cleanName = name.trim()
     const integrationSetup = normalizeIntegrationSetup(integrations)
     if (cleanName.length < 2) throw new Error('Escribe tu nombre.')
@@ -94,7 +92,7 @@ export function AuthPage() {
       try { sessionStorage.setItem(signupDraftKey, JSON.stringify({ name, setup, integrations: normalizeIntegrationSetup(integrations) })) } catch {
         throw new Error('No pudimos conservar tus preferencias para continuar con Google. Usa el registro con correo.')
       }
-    }
+    } else try { sessionStorage.removeItem(signupDraftKey) } catch { /* El acceso normal no reutiliza preferencias de un registro cancelado. */ }
     const { error: issue } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin } })
     if (issue) {
       try { sessionStorage.removeItem(signupDraftKey) } catch { /* Sin almacenamiento de sesión, el error de Auth sigue siendo visible. */ }

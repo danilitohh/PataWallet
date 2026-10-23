@@ -3,6 +3,7 @@ import { ArrowLeft, Bot, LoaderCircle, RotateCcw, Send, Sparkles } from 'lucide-
 import { Link } from 'react-router-dom'
 import { useApp } from '../../app/AppContext.jsx'
 import { buildAssistantContext } from './model/assistantContext.js'
+import { parseAssistantAnswer } from './model/assistantAnswer.js'
 import { askAssistant } from '../../services/ai/ollamaClient.js'
 import { currentMonth } from '../../shared/lib/date.js'
 import { PageHeader } from '../../shared/components/PageHeader.jsx'
@@ -53,12 +54,25 @@ export function AssistantPage() {
     {isDemo ? <section className="assistant-unavailable"><Sparkles aria-hidden="true" /><h2>Disponible para cuentas reales</h2><p>La demo no envía datos de ejemplo a servicios de IA. Inicia sesión en tu espacio real para consultar tus finanzas.</p></section> : <>
       {!messages.length && <section className="assistant-empty"><p>Puedes preguntar sobre tus finanzas con libertad. Tengo un resumen acumulado{context.history.coverage_from_month ? ` desde ${monthLabel(context.history.coverage_from_month)}` : ''} y comparo tendencias de los últimos 12 meses. Si falta información, te lo diré.</p><div className="assistant-suggestions">{SUGGESTIONS.map((suggestion) => <button type="button" className="compact-action" key={suggestion} onClick={() => setQuestion(suggestion)}>{suggestion}</button>)}</div></section>}
       {messages.length > 0 && <div className="assistant-conversation-heading"><span>Conversación actual</span><button type="button" className="compact-action" disabled={busy} onClick={() => { setMessages([]); setError(''); setQuestion('') }}><RotateCcw aria-hidden="true" /> Nueva conversación</button></div>}
-      {messages.length > 0 && <section className="assistant-messages" aria-live="polite">{messages.map((message, index) => <article className={`assistant-message assistant-message--${message.role}`} key={`${message.role}-${index}`}><strong>{message.role === 'user' ? 'Tú' : 'PataWallet'}</strong><p>{message.content}</p></article>)}{busy && <article className="assistant-message assistant-message--assistant"><strong>PataWallet</strong><p className="assistant-loading"><LoaderCircle aria-hidden="true" /> Analizando tus datos…</p></article>}</section>}
+      {messages.length > 0 && <section className="assistant-messages" aria-live="polite">{messages.map((message, index) => <article className={`assistant-message assistant-message--${message.role}`} key={`${message.role}-${index}`}><strong>{message.role === 'user' ? 'Tú' : 'PataWallet'}</strong>{message.role === 'assistant' ? <AssistantAnswer content={message.content} /> : <p>{message.content}</p>}</article>)}{busy && <article className="assistant-message assistant-message--assistant"><strong>PataWallet</strong><p className="assistant-loading"><LoaderCircle aria-hidden="true" /> Analizando tus datos…</p></article>}</section>}
       {error && <p className="form-error" role="alert">{error}</p>}
       <form className="assistant-form" onSubmit={submit}><label htmlFor="assistant-question" className="sr-only">Escribe tu pregunta</label><textarea id="assistant-question" value={question} onChange={(event) => setQuestion(event.target.value)} placeholder="Pregunta lo que quieras sobre tus finanzas…" maxLength="1200" disabled={busy} /><button className="button button--primary" type="submit" disabled={!question.trim() || busy}><Send aria-hidden="true" /> {busy ? 'Consultando…' : 'Preguntar'}</button></form>
       <p className="helper">El chat solo dura mientras esta pantalla permanezca abierta. Las respuestas son orientación informativa y se basan en lo que has registrado en PataWallet.</p>
     </>}
   </div>
+}
+
+function AssistantAnswer({ content }) {
+  const blocks = parseAssistantAnswer(content)
+  return <div className="assistant-answer">{blocks.map((block, index) => {
+    if (block.type === 'heading') return <h3 key={`heading-${index}`}>{block.label}</h3>
+    if (block.type === 'labeled') return <div className="assistant-answer__labeled" key={`labeled-${index}`}><span>{block.label}</span><p>{block.text}</p></div>
+    if (block.type === 'list') {
+      const List = block.ordered ? 'ol' : 'ul'
+      return <List key={`list-${index}`}>{block.items.map((item, itemIndex) => <li key={`${index}-${itemIndex}`}>{item}</li>)}</List>
+    }
+    return <p key={`paragraph-${index}`}>{block.text}</p>
+  })}</div>
 }
 
 function monthLabel(value) {

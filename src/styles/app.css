@@ -378,6 +378,14 @@ html.standalone-app, html.standalone-app body { touch-action: pan-x pan-y; overs
 .assistant-message--user { justify-self: end; background: var(--accent-soft); }
 .assistant-message strong { font-size: .72rem; color: var(--text-2); }
 .assistant-message p { margin-top: 5px; white-space: pre-wrap; line-height: 1.5; font-size: .84rem; }
+.assistant-answer { display: grid; gap: 9px; margin-top: 7px; }
+.assistant-answer h3 { margin: 0; color: var(--accent); font-size: .72rem; font-weight: 800; letter-spacing: .045em; text-transform: uppercase; }
+.assistant-answer p { margin: 0; white-space: normal; line-height: 1.52; }
+.assistant-answer__labeled { display: grid; gap: 2px; }
+.assistant-answer__labeled span { color: var(--text-2); font-size: .7rem; font-weight: 760; }
+.assistant-answer__labeled p { color: var(--text); }
+.assistant-answer ul, .assistant-answer ol { display: grid; gap: 6px; margin: 0; padding-left: 19px; color: var(--text); font-size: .84rem; line-height: 1.48; }
+.assistant-answer li::marker { color: var(--accent); font-weight: 800; }
 .assistant-loading { display: flex; align-items: center; gap: 7px; color: var(--text-2); }
 .assistant-loading svg { width: 16px; animation: spin 1s linear infinite; }
 .assistant-form { display: grid; gap: 9px; }
@@ -537,7 +545,8 @@ html.standalone-app, html.standalone-app body { touch-action: pan-x pan-y; overs
   .dashboard-preview--accounts { grid-column: 1 / -1; }
   .form-grid { grid-template-columns: .8fr 1.2fr; }
   .toast { left: 50%; right: auto; bottom: 30px; width: min(500px, calc(100% - 30px)); transform: translateX(-50%); }
-  .pwa-update { left: 50%; right: auto; bottom: 30px; width: min(640px, calc(100% - 30px)); transform: translateX(-50%); }
+  /* En escritorio el aviso de actualización no debe tapar las listas ni los formularios. */
+  .pwa-update { top: 24px; right: 24px; bottom: auto; left: auto; width: min(420px, calc(100% - 48px)); transform: none; }
 }
 
 @media (min-width: 900px) {
@@ -606,8 +615,10 @@ html.standalone-app, html.standalone-app body { touch-action: pan-x pan-y; overs
   .shortcut-row__actions { justify-content: flex-start; }
   .review-card__head { grid-template-columns: 42px minmax(0,1fr); }
   .review-card__head .status-label { grid-column: 2; }
-  .pwa-update { grid-template-columns: 24px minmax(0, 1fr) 38px; }
-  .pwa-update .button { grid-column: 1 / -1; grid-row: 2; }
+  /* Mantenerlo compacto en móvil para que el aviso no cubra tarjetas ni el dock. */
+  .pwa-update { grid-template-columns: 24px minmax(0, 1fr) auto 38px; }
+  .pwa-update p { display: none; }
+  .pwa-update .button { grid-column: auto; grid-row: auto; min-height: 38px; padding-inline: 12px; font-size: .76rem; }
 }
 
 @media (max-height: 520px) and (orientation: landscape) {

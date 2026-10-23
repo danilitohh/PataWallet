@@ -26,10 +26,13 @@ const TYPES_BY_DIRECTION = {
   incoming: ['income', 'transfer', 'refund'],
   outgoing: ['expense', 'transfer', 'card_payment'],
 }
+const AI_CONFIDENCE = { high: 'alta', medium: 'media' }
 
 // Formulario explícito: el nombre del banco o destinatario nunca elige cuenta ni tipo por sí solo.
 export function BankEmailReview({ item, accounts, categories, transactions, hidden, resolve, fixedExpenses = [], payFrequency, nextPayDate, categoryRules = [] }) {
   const candidate = item.candidate
+  const aiClassification = candidate.ai_classification
+  const aiSuggestion = aiClassification?.suggestion
   const [action, setAction] = useState('')
   const [type, setType] = useState('')
   const [amount, setAmount] = useState(candidate.amount_minor !== null && candidate.amount_minor !== undefined ? toInputAmount(candidate.amount_minor) : '')
@@ -117,10 +120,11 @@ export function BankEmailReview({ item, accounts, categories, transactions, hidd
   return <>
   <form className="review-form bank-email-review" onSubmit={submit}>
     <div className="bank-review-trust"><ShieldCheck aria-hidden="true" /><p><strong>Revisa antes de registrar</strong><span>El correo no confirma por sí solo el movimiento. Compruébalo en tu banco; nunca ingreses claves ni números completos de cuenta.</span></p></div>
+    {aiSuggestion ? <p className="bank-review-ai-suggestion" role="status"><strong>La IA sugiere: {TYPES[aiSuggestion.type] || 'revisar'} · confianza {AI_CONFIDENCE[aiSuggestion.confidence] || 'por confirmar'}</strong><span>Comprueba el aviso y selecciona el tipo correcto. Esta sugerencia no registra el movimiento.</span></p> : aiClassification?.status === 'needs_review' && <p className="info-note" role="status">La IA no pudo determinar el tipo con suficiente confianza. Elige la opción correcta manualmente.</p>}
     <fieldset className="bank-review-intents">
       <legend>¿Cómo quieres registrarlo?</legend>
       <div className={`bank-review-intents__grid bank-review-intents__grid--${typeOptions.length}`}>
-        {typeOptions.map(([key]) => { const IntentIcon = INTENTS[key].icon; return <button key={key} type="button" className={`bank-review-intent${action === 'record' && type === key ? ' is-selected' : ''}`} aria-pressed={action === 'record' && type === key} onClick={() => chooseMovementType(key)}>
+        {typeOptions.map(([key]) => { const IntentIcon = INTENTS[key].icon; const aiRecommended = aiSuggestion?.type === key; return <button key={key} type="button" className={`bank-review-intent${action === 'record' && type === key ? ' is-selected' : ''}${aiRecommended ? ' is-ai-suggested' : ''}`} aria-pressed={action === 'record' && type === key} onClick={() => chooseMovementType(key)}>
           <span className="bank-review-intent__icon"><IntentIcon aria-hidden="true" /></span><span className="bank-review-intent__copy"><strong>{INTENTS[key].title}</strong><small>{INTENTS[key].description}</small></span>{action === 'record' && type === key && <Check className="bank-review-intent__check" aria-hidden="true" />}
         </button>})}
       </div>

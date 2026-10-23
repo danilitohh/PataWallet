@@ -14,6 +14,7 @@ const SENDERS = {
   ],
   nequi: ['notificaciones@nequi.com.co', 'somos@nequi.com.co'],
 }
+const BANK_BY_SENDER = new Map(Object.entries(SENDERS).flatMap(([bank, senders]) => senders.map((sender) => [sender, bank])))
 const GMAIL_SCOPE = 'https://www.googleapis.com/auth/gmail.readonly'
 const GRAPH = 'https://graph.microsoft.com/v1.0'
 
@@ -94,17 +95,34 @@ export async function startGmailWatch(config, token) {
 
 // Una página de IDs por búsqueda. La ventana se fija al empezar y se conserva hasta agotar páginas.
 export async function listBankMessages(provider, token, banks, cursor) {
-  const senders = banksSchema.parse(banks).flatMap((bank) => SENDERS[bank])
+  const selectedBanks = banksSchema.parse(banks)
+  const senders = selectedBanks.flatMap((bank) => SENDERS[bank])
   let url
   if (provider === 'gmail') {
     url = new URL('https://gmail.googleapis.com/gmail/v1/users/me/messages')
-    url.search = new URLSearchParams({ maxResults: '20', q: `{${senders.map((sender) => `from:${sender}`).join(' ')}} after:${Math.floor(Date.parse(cursor.since) / 1000)} before:${Math.ceil(Date.parse(cursor.until) / 1000)}`,
+    // Además de los remitentes conocidos, busca el término en asunto/cuerpo de Bancolombia.
+    const terms = senders.map((sender) => `from:${sender}`)
+    if (selectedBanks.includes('bancolombia')) terms.push('Bancolombia')
+    url.search = new URLSearchParams({ maxResults: '20', q: `{${terms.join(' ')}} after:${Math.floor(Date.parse(cursor.since) / 1000)} before:${Math.ceil(Date.parse(cursor.until) / 1000)}`,
       ...(cursor.next ? { pageToken: cursor.next } : {}) }).toString()
   } else {
     url = new URL(cursor.next || `${GRAPH}/me/messages`)
     // @odata.nextLink es entrada externa: nunca reenviar Bearer a otro host, ruta o puerto.
     if (url.origin !== 'https://graph.microsoft.com' || url.pathname !== '/v1.0/me/messages' || url.username || url.password || url.hash) throw new Error('Paginación inválida.')
-    if (!cursor.next) url.search = new URLSearchParams({ '$top': '20', '$select': 'id', '$filter': `receivedDateTime ge ${cursor.since} and receivedDateTime lt ${cursor.until} and (${senders.map((sender) => `from/emailAddress/address eq '${sender}'`).join(' or ')})` }).toString()
+    if (!cursor.next) {
+      const parameters = { '$top': '20', '$select': 'id' }
+      const dateFilter = `receivedDateTime ge ${cursor.since} and receivedDateTime lt ${cursor.until}`
+      if (selectedBanks.includes('bancolombia')) {
+        // Graph busca por defecto en from, subject y body. Conservamos remitentes exactos
+        // para otros bancos seleccionados y acotamos el resultado a la ventana de sincronización.
+        const clauses = ['"Bancolombia"', ...senders.map((sender) => `"from:${sender}"`)]
+        parameters.$search = clauses.join(' OR ')
+        parameters.$filter = dateFilter
+      } else {
+        parameters.$filter = `${dateFilter} and (${senders.map((sender) => `from/emailAddress/address eq '${sender}'`).join(' or ')})`
+      }
+      url.search = new URLSearchParams(parameters).toString()
+    }
   }
   const body = await requestJson(url.toString(), auth(token))
   const ids = z.array(z.object({ id: z.string().min(1).max(1500) })).max(20).parse((provider === 'gmail' ? body.messages : body.value) || [])
@@ -143,7 +161,17 @@ export async function readBankMessage(provider, token, id, banks) {
     const from = header('from'); sender = (from.match(/^[^<>]*<([^<>]+)>$/)?.[1] || from).trim().toLowerCase()
     subject = header('subject'); messageId = header('message-id')
   } else { sender = data.from?.emailAddress?.address?.toLowerCase(); subject = data.subject; messageId = data.internetMessageId }
-  if (!banks.flatMap((bank) => SENDERS[bank]).includes(sender)) return null
   text = provider === 'gmail' ? gmailText(data.payload) : emailText(data.body?.contentType?.toLowerCase() === 'html' ? { html: data.body.content } : { text: data.body?.content })
-  return { sender, subject, text, messageId: z.string().max(1000).parse(messageId || '') }
+  const selectedBanks = banksSchema.parse(banks)
+  const senderBank = BANK_BY_SENDER.get(sender) || null
+  if (senderBank && !selectedBanks.includes(senderBank)) return null
+  const matchesBancolombiaContent = /\bbancolombia\b/i.test(`${subject} ${text}`)
+  const hasTransactionLanguage = /\b(?:compr\w*|pag\w*|transfer\w*|recib\w*|consign\w*|abon\w*|reembols\w*|devoluci\w*|retir\w*|enviaste|d[eé]bito|cr[eé]dito)\b/i.test(`${subject} ${text}`)
+  const acceptedByKnownSender = Boolean(senderBank && selectedBanks.includes(senderBank))
+  const acceptedByBancolombiaContent = !senderBank && selectedBanks.includes('bancolombia') && matchesBancolombiaContent && hasTransactionLanguage
+  if (!acceptedByKnownSender && !acceptedByBancolombiaContent) return null
+  return {
+    sender, subject, text, messageId: z.string().max(1000).parse(messageId || ''),
+    allowUnverifiedBancolombia: acceptedByBancolombiaContent,
+  }
 }

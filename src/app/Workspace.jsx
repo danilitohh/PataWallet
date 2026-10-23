@@ -12,7 +12,6 @@ import { FirstUseGuide } from '../features/onboarding/FirstUseGuide.jsx'
 import { normalizeIntegrationSetup } from '../domain/registration.js'
 import { MovementSheet } from '../features/transactions/components/MovementSheet.jsx'
 import { LoadingScreen, Toast } from '../shared/components/Feedback.jsx'
-import { PwaUpdatePrompt } from '../features/pwa/PwaUpdatePrompt.jsx'
 
 // Comparte datos, preferencias y el tema seleccionado entre todas las rutas y paneles.
 export function Workspace({ data, actions, syncState = null, isDemo, user, signOut }) {
@@ -176,7 +175,6 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
           <AppShell><AppRoutes /></AppShell>
           <AnimatePresence>{sheet && <MovementSheet transaction={typeof sheet === 'object' && !prefilledSheet ? sheet : null} initialFlow={prefilledSheet?.initialFlow || (sheet === 'income' ? 'income' : typeof sheet === 'string' && sheet.startsWith('debt') ? 'debt' : 'expense')} initialDebtId={typeof sheet === 'string' && sheet.startsWith('debt:') ? sheet.slice(5) : undefined} initialValues={prefilledSheet?.initialValues} onSaved={prefilledSheet?.onSaved} onClose={() => setSheet(null)} />}</AnimatePresence>
           <AnimatePresence>{toast && <Toast toast={toast} close={dismissToast} />}</AnimatePresence>
-          <PwaUpdatePrompt />
           {guideOpen && <FirstUseGuide tour={guideOpen} onFinish={finishGuide} />}
         </>}
       </MotionConfig>

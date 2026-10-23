@@ -12,6 +12,8 @@
 .bank-review-trust > svg { width: 21px; height: 21px; margin-top: 2px; color: var(--accent); }
 .bank-review-trust p { display: grid; gap: 3px; margin: 0; color: var(--text-2); font-size: .75rem; line-height: 1.45; }
 .bank-review-trust strong { color: var(--text); font-size: .8rem; }
+.bank-review-ai-suggestion { display: grid; gap: 3px; margin: 0; padding: 10px 12px; border: 1px solid color-mix(in srgb, var(--accent) 38%, var(--border)); border-radius: 13px; background: color-mix(in srgb, var(--accent-soft) 38%, var(--surface)); color: var(--text-2); font-size: .76rem; line-height: 1.45; }
+.bank-review-ai-suggestion strong { color: var(--text); font-size: .8rem; }
 .bank-review-intents { min-width: 0; margin: 0; padding: 0; border: 0; display: grid; gap: .7rem; }
 .bank-review-intents legend { margin-bottom: 0; padding: 0; color: var(--text); font-size: .94rem; font-weight: 760; }
 .bank-review-intents__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; }
@@ -25,6 +27,7 @@
 .bank-review-intent__check { width: 16px; height: 16px; color: var(--accent); }
 .bank-review-intent.is-selected { border-color: var(--accent); background: color-mix(in srgb, var(--accent-soft) 72%, var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 32%, transparent); }
 .bank-review-intent.is-selected .bank-review-intent__icon { background: color-mix(in srgb, var(--accent) 15%, var(--surface)); color: var(--accent); }
+.bank-review-intent.is-ai-suggested:not(.is-selected) { border-color: color-mix(in srgb, var(--accent) 56%, var(--border)); }
 .bank-review-intent:focus-visible, .bank-review-more summary:focus-visible, .bank-review-more__choices button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .bank-review-type-note { margin: 0; padding: 10px 12px; border-radius: 12px; background: var(--surface-muted); color: var(--text-2); font-size: .76rem; line-height: 1.45; }
 .bank-review-entry { min-width: 0; display: grid; gap: .85rem; padding: 14px; border: 1px solid color-mix(in srgb, var(--accent) 18%, var(--border)); border-radius: 20px; background: color-mix(in srgb, var(--surface) 88%, var(--accent-soft)); }
@@ -81,5 +84,6 @@
 
 /* Proveedores dentro del módulo existente; el estado nunca depende solo del color. */
 .mail-connections { display: grid; gap: 16px; }
+.mail-connections__privacy { color: var(--accent); font-weight: 720; text-decoration: underline; text-underline-offset: 3px; }
 .mail-connections fieldset { border: var(--glass-edge); border-radius: 16px; padding: 16px; display: grid; gap: 12px; }
 .mail-connection { display: grid; gap: 12px; border-top: var(--glass-edge); padding-top: 16px; overflow-wrap: anywhere; }

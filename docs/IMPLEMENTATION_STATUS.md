@@ -1,5 +1,19 @@
 # Estado de implementación
 
+## Respuestas del asistente con formato legible · 23 de octubre de 2026
+
+- El asistente de PataWallet ahora recibe instrucciones para responder con una conclusión directa, un bloque breve de detalles y un siguiente paso opcional. Debe conservar los importes calculados, indicar el periodo cuando aplica y distinguir ingresos, gastos, transferencias, reembolsos y pagos de tarjeta sin inventar datos.
+- La interfaz convierte la salida en bloques seguros de texto: etiquetas visibles, párrafos y listas ordenadas. Se eliminan asteriscos, separadores y marcas Markdown sobrantes sin renderizar HTML generado por el modelo.
+- Verificado con `npm run lint`, `npm run build`, `git diff --check` y una comprobación dirigida del parser de respuestas. El build conserva el aviso existente de un bloque minificado superior a 500 kB. No se probó con un proveedor Ollama real ni en un iPhone físico.
+
+## Búsqueda Bancolombia por contenido y sugerencias de clasificación · 13 de octubre de 2026
+
+- Al buscar desde una conexión OAuth con Bancolombia seleccionado, Gmail y Outlook incluyen mensajes que mencionan “Bancolombia” en asunto o cuerpo, además de los remitentes conocidos. Se descartan coincidencias de remitentes nuevos que no tengan lenguaje de operación para reducir correo irrelevante.
+- Los remitentes nuevos quedan señalados en «Por revisar» para que la persona compruebe el mensaje y la operación. La coincidencia del nombre del banco no se considera autenticación del remitente.
+- La instrucción de clasificación para IA ahora sugiere gasto ante compras, pagos y transferencias enviadas; sugiere ingreso ante dinero recibido, consignado o abonado. Distingue traslados propios, reembolsos y pagos de deuda. La evidencia puede venir del asunto o del cuerpo y la sugerencia requiere confirmación manual.
+- La migración `20261013120000_mail_ai_classification.sql` ya se aplicó al proyecto de Supabase de producción. Como el proyecto no tiene tabla de historial de migraciones, se aplicó únicamente esta migración; hay que reconciliar la línea base antes de usar `supabase db push`.
+- `npm run lint`, `npm run build` y `git diff --check` pasaron. El despliegue de producción `dpl_Hygbm4goaZUTa3uznxAtoSTtZEuv` está `READY` para el commit `a696268`, basado en la última versión que estaba en producción. El dominio `pata-wallet.vercel.app` responde HTTP 200. No se probaron buzones reales ni se ejecutaron pruebas automatizadas; cada aviso aún requiere confirmación manual.
+
 ## Lectura de avisos de Bancolombia · 13 de octubre de 2026
 
 - El parser ahora reconoce montos con separador colombiano de miles (`$10.000`) y fechas recientes con año de dos dígitos (`13/10/26`), además de los formatos que ya aceptaba. Esto completa monto y fecha del candidato para mostrarlo en «Por revisar».
@@ -768,8 +782,39 @@ La app está desplegada en Vercel y las migraciones de las fases 1–4, punto de
 
 ## Recuperación manual de avisos bancarios · 13 de octubre de 2026
 
-- Una búsqueda manual ahora inicia una ventana nueva de siete días si encuentra un cursor incremental anterior. Si la búsqueda manual tiene más de una página, conserva y continúa su propio cursor. Los avisos repetidos se siguen deduplicando en la bandeja.
+- Una búsqueda manual inicia una ventana nueva de treinta días si encuentra un cursor incremental anterior. Si la búsqueda manual tiene más de una página, conserva y continúa su propio cursor. Los avisos repetidos se siguen deduplicando en la bandeja.
 - El analizador de transferencias recibidas de Bancolombia acepta el marcador `#` y los caracteres de enmascarado antes de los últimos cuatro dígitos de cuenta, como en el aviso compartido.
 - Se admiten como remitentes exactos de Bancolombia `alertasynotificaciones@notificacionesbancolombia.com`, `alertasynotificaciones@ayn.notificacionesbancolombia.com`, `alertasynotificaciones@an.notificacionesbancolombia.com` y `alertasynotificaciones@bancolombia.com.co`, tanto en la búsqueda como en el parser. La captura de Gmail confirmó la variante `ayn.`; el usuario proporcionó las otras variantes. No se usa un comodín de dominio. Todo aviso continúa en revisión manual; el remitente por sí solo no autentica el contenido ni registra un movimiento.
 - La respuesta de búsqueda ahora informa cuántos mensajes encontró, cuántos remitentes reconoció y cuántos avisos nuevos guardó. El log técnico conserva solo proveedor, conteos y tipo/estado de error; no registra dirección ni contenido del correo.
-- Verificación local tras añadir las variantes `an.` y `@bancolombia.com.co`: `npm run build`, `npm run lint` y `git diff --check` pasaron. El build mantiene una advertencia preexistente de chunk mayor a 500 kB. No se ejecutaron pruebas automatizadas. El despliegue de producción se inicia al publicar este cambio.
+- Verificación tras añadir las variantes `an.` y `@bancolombia.com.co`: `npm run build`, `npm run lint` y `git diff --check` pasaron. El build mantiene una advertencia preexistente de chunk mayor a 500 kB. El cambio está en producción como parte del despliegue `dpl_Hygbm4goaZUTa3uznxAtoSTtZEuv`; no se probaron buzones reales.
+
+## Clasificación asistida de avisos bancarios · 13 de octubre de 2026
+
+- Gmail y Outlook pueden usar el modelo Ollama configurado en el servidor para sugerir si cada aviso describe una compra, ingreso, transferencia, pago de deuda o reembolso. El parser determinista conserva la extracción de monto/fecha disponible y la sugerencia no reemplaza esos valores.
+- La lectura de contenido por IA exige una segunda autorización explícita y revocable por proveedor conectado. Se procesa asunto/texto de avisos compatibles; no se guardan contenido ni evidencia y no se envía a IA el canal de reenvío. Solo se almacena tipo sugerido y nivel de confianza.
+- La revisión muestra la sugerencia sin seleccionar ni confirmar automáticamente el tipo. El usuario decide; no se crean movimientos ni cambian saldos hasta la confirmación existente.
+- La búsqueda manual puede añadir una sugerencia a un aviso OAuth ya pendiente sin duplicarlo. La función SQL impide actualizar avisos resueltos, avisos reenviados y candidatos ya clasificados.
+- La migración `20261013120000_mail_ai_classification.sql` se aplicó a Supabase de producción y el código se publicó en Vercel en `dpl_Hygbm4goaZUTa3uznxAtoSTtZEuv`. `npm run lint`, `npm run build` y `git diff --check` pasaron; persiste la advertencia existente de un chunk mayor a 500 kB. No se probaron buzones reales ni se ejecutaron pruebas automatizadas. La IA requiere `OLLAMA_MODEL`; si no está configurado, la búsqueda y revisión determinista siguen disponibles.
+
+## Páginas públicas para revisión de marca OAuth · 14 de octubre de 2026
+
+- Se creó una portada pública con el propósito de PataWallet Web, sus funciones principales, el flujo de revisión de avisos y una explicación del permiso de lectura de Gmail. La portada ofrece enlaces directos a privacidad, términos e inicio de sesión.
+- `/privacidad` y `/terminos` son accesibles sin iniciar sesión ni inicializar Supabase. Si no hay sesión, `/` muestra la portada cuando Auth está configurado; `/?acceso=1` conserva el acceso y el registro. Los usuarios autenticados conservan Inicio.
+- La política documenta los datos de Google que se leen, extraen, guardan, comparten y conservan; el consentimiento separado para clasificación por IA; los servicios externos; la desconexión; solicitudes de supresión; y una declaración expresa de Google Limited Use. Se actualizó el título y la descripción pública del sitio.
+- Verificación: `npm run lint`, `npm run build` y `git diff --check` pasaron en la copia limpia de producción. La portada, privacidad y términos respondieron `200` y se revisaron en navegador a 375 × 812, 390 × 844 y 1440 × 900; no hubo errores de JavaScript. El build mantiene la advertencia existente de un chunk mayor a 500 kB.
+- Estado: publicado en producción con el despliegue `dpl_ASQEyMLuRjvrbKVJNxEHczKUr3Uv` (`READY`) en `https://pata-wallet.vercel.app`. No se hicieron cambios al dominio, a Google Cloud ni a credenciales. La marca aún debe volver a revisión; la verificación de titularidad del dominio continúa pendiente. La identidad jurídica completa del operador y el plazo exacto de conservación de copias de proveedores requieren confirmación antes de afirmar cumplimiento legal total.
+
+## Registro inicial, correo y avisos en cuentas nuevas · 23 de octubre de 2026
+
+- El registro del service worker de PWA se movió al nivel de autenticación para que exista antes del onboarding. La activación de Web Push ya no depende de haber terminado la guía inicial; si el navegador no queda listo en doce segundos, la interfaz muestra una instrucción accionable en lugar de quedarse esperando.
+- El borrador de registro de Google ya no se elimina al montar la pantalla de acceso. Se conserva hasta que `AuthProvider` aplica la configuración y después se limpia; el acceso normal y un registro por correo descartan borradores abandonados para no mezclar cuentas.
+- La búsqueda manual de Gmail/Outlook amplió su primera ventana de siete a treinta días, conserva deduplicación y mantiene la paginación existente. Esto cubre avisos recibidos antes de que una cuenta nueva terminara su autorización.
+- No se pudo confirmar desde este entorno un buzón real ni el estado de las variables de Vercel (`VAPID_*`, `CRON_SECRET`, credenciales OAuth). Sigue siendo necesario desplegar, probar en un dispositivo nuevo y comprobar los logs técnicos sin exponer contenido del correo.
+
+## Auditoría visual transversal · 23 de octubre de 2026
+
+- Se revisaron Inicio, Actividad, Plan, Cuentas, Parejas, Asistente, Métricas, Ajustes, Notificaciones y el formulario de nuevo movimiento en móvil y escritorio.
+- El aviso de nueva versión ahora se coloca en la esquina superior derecha en escritorio para no cubrir listas, formularios ni tarjetas; en móvil conserva su posición sobre el dock y los márgenes de área segura.
+- Los estados hover de campos se limitan a dispositivos que realmente admiten hover, evitando cambios de borde inesperados al tocar en móvil.
+- Se conservaron la navegación lateral, el dock táctil, los estados vacíos, el foco visible, el soporte de movimiento reducido y la jerarquía visual existente. No se cambiaron datos ni operaciones financieras.
+- Verificación de esta iteración: `npm run lint`, `npm run build` y `git diff --check` pasaron. Se revisaron las rutas en navegador a 390×844, 375×812 y 1440×900; no se ejecutaron pruebas automatizadas ni se comprobó en un iPhone físico. La corrección quedó desplegada en producción y el dominio responde HTTP 200.
