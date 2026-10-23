@@ -26,6 +26,7 @@ import './features/dashboard/homeDesigns.css'
 import './styles/light-theme.css'
 import './features/settings/settings-polish.css'
 import './features/metrics/metrics.css'
+import './features/security/biometric.css'
 
 // Ajusta el viewport antes de montar la interfaz para evitar zoom accidental en la PWA.
 configureStandaloneViewport()

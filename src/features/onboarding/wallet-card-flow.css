@@ -17,7 +17,7 @@
 .wallet-card-flow__brand svg { width: 28px; height: 28px; color: var(--wallet-accent); }
 .wallet-card-picker { width: min(100%, 490px); display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
 .wallet-card-flow__eyebrow { margin: 12px 0 7px; color: var(--wallet-accent); font-size: .72rem; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; }
-.wallet-card-picker h1, .wallet-entry h1 { font-size: clamp(1.7rem, 7vw, 2.35rem); letter-spacing: -.055em; line-height: 1.1; }
+.wallet-card-picker h1 { font-size: clamp(1.7rem, 7vw, 2.35rem); letter-spacing: -.055em; line-height: 1.1; }
 .wallet-card-picker__intro { max-width: 38ch; margin: 10px auto 4px; color: var(--text-2); font-size: .9rem; line-height: 1.5; }
 .wallet-card-picker__carousel { width: 100%; display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; align-items: center; gap: 3px; margin-top: 11px; }
 .wallet-card-picker__art { position: relative; width: min(calc(100% + 40px), 520px); height: min(38svh, 325px); min-height: 230px; justify-self: center; margin-inline: -20px; display: block; overflow: visible; outline-offset: 5px; touch-action: pan-y; cursor: grab; -webkit-tap-highlight-color: transparent; }
@@ -41,30 +41,14 @@
 .wallet-card-flow__cancel { min-height: 44px; align-self: center; border: 0; background: transparent; color: var(--text-2); font-size: .8rem; text-decoration: underline; text-underline-offset: 3px; }
 .wallet-card-flow__note { max-width: 46ch; margin: 11px 0 0; color: var(--text-2); font-size: .68rem; line-height: 1.4; }
 .wallet-card-flow__error { width: min(100%, 380px); margin: 0 0 10px; color: #ffb9c7; font-size: .78rem; line-height: 1.4; }
-.wallet-entry__content { width: min(100%, 520px); display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-.wallet-entry__content .wallet-card-flow__eyebrow { margin-top: 0; }
-.wallet-entry__card { width: min(76vw, 300px); max-height: min(53svh, 420px); aspect-ratio: 640 / 800; display: grid; place-items: center; margin: 12px 0 0; padding: 0; border: 0; border-radius: 24px; background: transparent; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform 170ms ease, filter 170ms ease; }
-.wallet-entry__card img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 19px 30px #0009); }
-.wallet-entry__card:active { transform: scale(.975); }
-.wallet-entry__hint { margin: 12px 0 6px; color: #d2d8e4; font-size: .88rem; }
-.wallet-entry__content > .wallet-card-flow__cancel { margin-top: 8px; }
-.wallet-entry__content > :not(.wallet-entry__card) { transition: opacity 240ms ease, transform 280ms ease; }
-.wallet-entry--opening .wallet-entry__content > :not(.wallet-entry__card) { opacity: 0; transform: translateY(-14px); }
 .wallet-card-flow button:focus-visible, .wallet-card-picker__art:focus-visible { outline: 3px solid var(--wallet-accent); outline-offset: 3px; }
 @media (max-height: 740px) {
   .wallet-card-flow { padding-block: max(12px, env(safe-area-inset-top)) max(15px, env(safe-area-inset-bottom)); }
   .wallet-card-flow__eyebrow { margin-top: 7px; }
   .wallet-card-picker__intro { margin-block: 7px 0; font-size: .82rem; }
   .wallet-card-picker__art { height: min(33svh, 250px); min-height: 190px; }
-  .wallet-entry__card { max-height: min(47svh, 340px); }
 }
 @media (prefers-reduced-motion: reduce) {
   .wallet-card-picker__card { transition: none; }
-  .wallet-entry__content > :not(.wallet-entry__card) { transition: none; }
-  .wallet-entry__card { transition: none; }
-  .wallet-entry__card:active { transform: none; }
 }
 html[data-motion="off"] .wallet-card-picker__card { transition: none; }
-html[data-motion="off"] .wallet-entry__content > :not(.wallet-entry__card) { transition: none; }
-html[data-motion="off"] .wallet-entry__card { transition: none; }
-html[data-motion="off"] .wallet-entry__card:active { transform: none; }

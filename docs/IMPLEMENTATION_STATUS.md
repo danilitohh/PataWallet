@@ -14,6 +14,26 @@
 - La migración `20261013120000_mail_ai_classification.sql` ya se aplicó al proyecto de Supabase de producción. Como el proyecto no tiene tabla de historial de migraciones, se aplicó únicamente esta migración; hay que reconciliar la línea base antes de usar `supabase db push`.
 - `npm run lint`, `npm run build` y `git diff --check` pasaron. El despliegue de producción `dpl_Hygbm4goaZUTa3uznxAtoSTtZEuv` está `READY` para el commit `a696268`, basado en la última versión que estaba en producción. El dominio `pata-wallet.vercel.app` responde HTTP 200. No se probaron buzones reales ni se ejecutaron pruebas automatizadas; cada aviso aún requiere confirmación manual.
 
+## Acceso directo con protección biométrica · 13 de octubre de 2026
+
+- Se eliminó la pantalla «Tu billetera está lista» y la acción «Toca la tarjeta para abrir». Después de elegir una portada, PataWallet abre directamente el Inicio; el bloqueo biométrico local permanece como protección de acceso cuando está activado.
+- La selección de portada sigue apareciendo solo cuando todavía no existe una elección y se puede cambiar desde Ajustes.
+- Verificado con `npm run lint`, `npm run build` y las pruebas E2E de portadas, Inicio y biometría en los tamaños configurados.
+
+## Compatibilidad del desbloqueo biométrico en Android · 13 de octubre de 2026
+
+- Android/TWA pinta primero la pantalla de desbloqueo y, tras una espera breve, solicita automáticamente la huella, el rostro o el método configurado. Si el navegador rechaza una solicitud automática, el botón queda disponible como reintento manual.
+- Una recarga explícita de la página conserva la sesión visible: no abre el diálogo biométrico ni muestra una pantalla intermedia. Una apertura normal de la app conserva la solicitud automática; al volver desde segundo plano se vuelve a proteger la sesión.
+- iPhone y escritorio conservan la solicitud automática al abrir la app; la protección local sigue activa en todos los casos.
+- Verificado con `npm run lint`, `npm run build` y Playwright dirigido en 390×844, 375×812, Android 390×844 y 1440×900.
+
+## Desbloqueo biométrico local · 13 de octubre de 2026
+
+- Ajustes ahora ofrece «Desbloqueo biométrico» en Seguridad. Al activarlo, el navegador registra una credencial de plataforma mediante WebAuthn y PataWallet guarda únicamente su identificador local por espacio/dispositivo; la clave privada permanece en el autenticador del celular.
+- Al abrir de nuevo la PWA o volver desde segundo plano, la app muestra un bloqueo y solicita el autenticador disponible. El sistema decide si presenta Face ID, Touch ID, huella u otro método compatible; la web no puede forzar una modalidad que el hardware no ofrece. La configuración no se sincroniza entre dispositivos.
+- Se añadieron mensajes para navegador/dispositivo no compatible, cancelación y errores; no se presenta la biometría como cifrado ni reemplazo de la sesión Supabase. El flujo usa una comprobación local del autenticador y todavía requiere validar compatibilidad, VoiceOver y comportamiento en un iPhone físico.
+- Verificado: `npm run lint`, `npm run build`, prueba dirigida `src/services/security/biometricUnlock.test.js` (2/2) y `tests/e2e/biometric.spec.js` (1/1 por tamaño del proyecto). La suite completa conserva cuatro fallos previos no relacionados: dos expectativas del parser bancario, una de sincronización de correo y una del resumen del asistente. No se probó biometría real en hardware.
+
 ## Lectura de avisos de Bancolombia · 13 de octubre de 2026
 
 - El parser ahora reconoce montos con separador colombiano de miles (`$10.000`) y fechas recientes con año de dos dígitos (`13/10/26`), además de los formatos que ya aceptaba. Esto completa monto y fecha del candidato para mostrarlo en «Por revisar».

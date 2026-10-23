@@ -8,6 +8,7 @@ import { PwaInstallControl } from '../pwa/PwaInstallControl.jsx'
 import { GUIDE_TOURS } from '../onboarding/guideSteps.js'
 import { walletCardById } from '../onboarding/walletCardModel.js'
 import { GlassHero } from '../../shared/components/GlassHero.jsx'
+import { BiometricPreference } from '../security/BiometricPreference.jsx'
 
 // Presenta Ajustes como grupos abiertos, conservando las rutas y acciones de cada tipo de cuenta.
 export function SettingsPage() {
@@ -47,6 +48,10 @@ export function SettingsPage() {
         <SettingRow icon={Moon} tone="violet" title="Tema de la app" detail="Elige entre el tema nocturno y el claro para toda PataWallet."><select aria-label="Tema de la app" value={settings.theme === 'light' ? 'light' : 'dark'} onChange={(event) => setSetting('theme', event.target.value)}><option value="dark">Nocturno</option><option value="light">Claro</option></select></SettingRow>
         <SettingRow icon={settings.hiddenAmounts ? EyeOff : Eye} tone="sky" title="Ocultar montos" detail="Privacidad visual; no reemplaza la autenticación"><Switch checked={Boolean(settings.hiddenAmounts)} label="Ocultar montos" onChange={(value) => setSetting('hiddenAmounts', value)} /></SettingRow>
         <SettingRow icon={SlidersHorizontal} tone="mint" title="Animaciones"><select aria-label="Movimiento" value={settings.motion || 'system'} onChange={(event) => setSetting('motion', event.target.value)}><option value="system">Sistema</option><option value="soft">Suave</option><option value="off">Desactivado</option></select></SettingRow>
+      </SettingsSection>
+
+      <SettingsSection id="settings-security-heading" title="Seguridad" intro="Un bloqueo local para que la app pida la biometría del dispositivo al abrirse." className="settings-group--security">
+        <BiometricPreference ownerId={isDemo ? 'demo' : user?.id} notify={notify} />
       </SettingsSection>
 
       <SettingsSection id="settings-help-heading" title="Ayuda y datos" className="settings-group--help">

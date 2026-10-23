@@ -30,11 +30,8 @@ test('elige una portada, abre la billetera y puede cambiar el diseño desde Ajus
   await expect(page.getByRole('img', { name: /Tres gatos/ })).toBeVisible()
   await page.getByRole('button', { name: 'Usar esta tarjeta' }).click()
 
-  await expect(page.getByRole('heading', { name: 'Tu billetera está lista' })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Abrir PataWallet con la tarjeta Gatos' })).toBeVisible()
-  await page.screenshot({ path: testInfo.outputPath('wallet-card-entry.png'), fullPage: true })
-  await page.getByRole('button', { name: 'Abrir PataWallet con la tarjeta Gatos' }).click()
-  await expect(page.getByText('Saldo en cuentas')).toBeVisible()
+  await expect(page.getByText('Saldo en tus cuentas')).toBeVisible()
+  await expect(page.getByText('Toca la tarjeta para abrir')).toHaveCount(0)
 
   for (const viewport of [{ width: 390, height: 844 }, { width: 375, height: 812 }, { width: 1440, height: 900 }]) {
     await page.setViewportSize(viewport)
@@ -42,7 +39,7 @@ test('elige una portada, abre la billetera y puede cambiar el diseño desde Ajus
   }
 
   await page.goto('/ajustes')
-  await expect(page.getByText(/Diseño Gatos/)).toBeVisible()
+  await expect(page.getByText(/La tarjeta Gatos define/)).toBeVisible()
   await page.getByRole('button', { name: 'Cambiar', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Elige tu tarjeta' })).toBeVisible()
   for (let next = 0; next < 3; next += 1) {
@@ -50,10 +47,9 @@ test('elige una portada, abre la billetera y puede cambiar el diseño desde Ajus
   }
   await expect(page.getByRole('img', { name: /Dos nutrias/ })).toBeVisible()
   await page.getByRole('button', { name: 'Usar esta tarjeta' }).click()
-  await expect(page.getByText(/Diseño Nutrias/)).toBeVisible()
+  await expect(page.getByText(/La tarjeta Nutrias define/)).toBeVisible()
 
   await page.evaluate(() => sessionStorage.clear())
   await page.goto('/')
-  await expect(page.getByRole('heading', { name: 'Tu billetera está lista' })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Abrir PataWallet con la tarjeta Nutrias' })).toBeVisible()
+  await expect(page.getByText('Saldo en tus cuentas')).toBeVisible()
 })

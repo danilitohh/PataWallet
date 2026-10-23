@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { hasOpenedWallet, isWalletCardStyle, markWalletOpened, readWalletCardStyle, saveWalletCardStyle, walletCardById, WALLET_CARDS } from './walletCardModel.js'
+import { isWalletCardStyle, readWalletCardStyle, saveWalletCardStyle, walletCardById, WALLET_CARDS } from './walletCardModel.js'
 
 function memoryStorage() {
   const values = new Map()
@@ -28,11 +28,4 @@ describe('preferencia local de tarjeta', () => {
     expect(() => saveWalletCardStyle('user-a', 'unknown', storage)).toThrow('Elige uno de los diseños disponibles.')
   })
 
-  it('recuerda la apertura solo durante la sesión local de ese usuario', () => {
-    const storage = memoryStorage()
-    expect(hasOpenedWallet('user-a', storage)).toBe(false)
-    markWalletOpened('user-a', storage)
-    expect(hasOpenedWallet('user-a', storage)).toBe(true)
-    expect(hasOpenedWallet('user-b', storage)).toBe(false)
-  })
 })

@@ -6,12 +6,14 @@ import { AppRoutes } from './routes/AppRoutes.jsx'
 import { AppShell } from './AppShell.jsx'
 import { WelcomePage } from '../features/onboarding/WelcomePage.jsx'
 import { IntegrationSetup } from '../features/onboarding/IntegrationSetup.jsx'
-import { WalletCardPicker, WalletEntry } from '../features/onboarding/WalletCardFlow.jsx'
-import { hasOpenedWallet, isWalletCardStyle, markWalletOpened, readWalletCardStyle, saveWalletCardStyle, walletCardThemeById, walletCardThemeVariables } from '../features/onboarding/walletCardModel.js'
+import { WalletCardPicker } from '../features/onboarding/WalletCardFlow.jsx'
+import { isWalletCardStyle, readWalletCardStyle, saveWalletCardStyle, walletCardThemeById, walletCardThemeVariables } from '../features/onboarding/walletCardModel.js'
 import { FirstUseGuide } from '../features/onboarding/FirstUseGuide.jsx'
 import { normalizeIntegrationSetup } from '../domain/registration.js'
 import { MovementSheet } from '../features/transactions/components/MovementSheet.jsx'
 import { LoadingScreen, Toast } from '../shared/components/Feedback.jsx'
+import { BiometricGate } from '../features/security/BiometricLock.jsx'
+import { hasBiometricCredential } from '../services/security/biometricUnlock.js'
 
 // Comparte datos, preferencias y el tema seleccionado entre todas las rutas y paneles.
 export function Workspace({ data, actions, syncState = null, isDemo, user, signOut }) {
@@ -68,11 +70,11 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
     return saved || (isWalletCardStyle(signupChoice) ? signupChoice : null)
   })
   const [cardPickerOpen, setCardPickerOpen] = useState(false)
-  const [walletOpenedThisSession, setWalletOpenedThisSession] = useState(() => location.pathname !== '/' || hasOpenedWallet(ownerId))
   const [sheet, setSheet] = useState(null)
   // La demo ya tiene una bienvenida propia; las cuentas reales reciben la guía al entrar por primera vez.
   const [guideOpen, setGuideOpen] = useState(() => !isDemo && !settingsMap.financialOnboardingComplete ? 'general' : null)
   const [toast, setToast] = useState(null)
+  const [biometricEnabled, setBiometricEnabled] = useState(() => hasBiometricCredential(ownerId))
   const toastTimer = useRef(null)
   const systemReduce = useReducedMotion()
   const reduceMotion = settingsMap.motion === 'off' || Boolean(systemReduce)
@@ -116,6 +118,12 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
 
   useEffect(() => () => window.clearTimeout(toastTimer.current), [])
 
+  useEffect(() => {
+    const refreshBiometric = () => setBiometricEnabled(hasBiometricCredential(ownerId))
+    window.addEventListener('patawallet:biometric-changed', refreshBiometric)
+    return () => window.removeEventListener('patawallet:biometric-changed', refreshBiometric)
+  }, [ownerId])
+
   const dismissToast = useCallback(() => {
     window.clearTimeout(toastTimer.current)
     setToast(null)
@@ -146,10 +154,6 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
     setWalletCardStyle(cardId)
     setCardPickerOpen(false)
   }
-  const openWallet = () => {
-    markWalletOpened(ownerId)
-    setWalletOpenedThisSession(true)
-  }
   const openCardPicker = () => setCardPickerOpen(true)
   const value = { accounts, categories, transactions, budgets, goals, allocations, plannedPurchases, receipts, settings: settingsMap, walletCardStyle, openWalletCardPicker: openCardPicker, syncState, reduceMotion, setSheet, guideOpen, startGuide: (tour = 'general') => setGuideOpen(typeof tour === 'string' ? tour : 'general'), notify, actions: currencyActions, isDemo, user, signOut }
 
@@ -166,18 +170,18 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
     return <AppContext.Provider value={value}><WalletCardPicker currentStyle={walletCardStyle} required={!walletCardStyle} onSelect={selectWalletCard} onCancel={() => setCardPickerOpen(false)} /></AppContext.Provider>
   }
 
-  const showWalletEntry = location.pathname === '/' && !walletOpenedThisSession
-
   return (
     <AppContext.Provider value={value}>
-      <MotionConfig reducedMotion={reduceMotion ? 'always' : 'user'}>
-          {showWalletEntry ? <WalletEntry cardStyle={walletCardStyle} onOpen={openWallet} onChange={openCardPicker} reduceMotion={reduceMotion} /> : <>
+      <BiometricGate ownerId={ownerId} enabled={biometricEnabled}>
+        <MotionConfig reducedMotion={reduceMotion ? 'always' : 'user'}>
+          <>
           <AppShell><AppRoutes /></AppShell>
           <AnimatePresence>{sheet && <MovementSheet transaction={typeof sheet === 'object' && !prefilledSheet ? sheet : null} initialFlow={prefilledSheet?.initialFlow || (sheet === 'income' ? 'income' : typeof sheet === 'string' && sheet.startsWith('debt') ? 'debt' : 'expense')} initialDebtId={typeof sheet === 'string' && sheet.startsWith('debt:') ? sheet.slice(5) : undefined} initialValues={prefilledSheet?.initialValues} onSaved={prefilledSheet?.onSaved} onClose={() => setSheet(null)} />}</AnimatePresence>
           <AnimatePresence>{toast && <Toast toast={toast} close={dismissToast} />}</AnimatePresence>
           {guideOpen && <FirstUseGuide tour={guideOpen} onFinish={finishGuide} />}
-        </>}
-      </MotionConfig>
+          </>
+        </MotionConfig>
+      </BiometricGate>
     </AppContext.Provider>
   )
 }

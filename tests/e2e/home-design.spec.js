@@ -5,9 +5,7 @@ async function openDemoHome(page) {
   await page.getByRole('button', { name: 'Probar con datos de ejemplo' }).click()
   await expect(page.getByRole('heading', { name: 'Elige tu tarjeta' })).toBeVisible()
   await page.getByRole('button', { name: 'Usar esta tarjeta' }).click()
-  await expect(page.getByRole('heading', { name: 'Tu billetera está lista' })).toBeVisible()
-  await page.getByRole('button', { name: /Abrir PataWallet con la tarjeta/ }).click()
-  await expect(page.getByRole('heading', { name: 'Hola, Danilo' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Balance' })).toBeVisible()
 }
 
 async function openMovementSheet(page) {
