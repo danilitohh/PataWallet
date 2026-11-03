@@ -19,6 +19,7 @@ export function RecurringPaymentConfirmation({ payment, onCancel, onDone }) {
   const [addingAccount, setAddingAccount] = useState(false)
   const [addingCategory, setAddingCategory] = useState(false)
   const [categoryId, setCategoryId] = useState(payment.categoryId || matchedCategory?.id || '')
+  const [payer, setPayer] = useState('self')
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
   const savingRef = useRef(false)
@@ -33,6 +34,12 @@ export function RecurringPaymentConfirmation({ payment, onCancel, onDone }) {
     setSaving(true)
     setError('')
     try {
+      if (payer === 'partner') {
+        await actions.markRecurringPaymentCovered(payment, { paidBy: 'partner' })
+        notify(`${payment.name} marcado como cubierto por tu pareja`)
+        onDone()
+        return
+      }
       const amountMinor = parseLocalizedAmount(amount)
       if (!categoryOptions.some((item) => item.id === categoryId)) throw new Error('Elige una categoría para registrar este pago.')
       if (!paymentAccounts.some((item) => item.id === accountId)) throw new Error('Elige la cuenta con la que pagaste.')
@@ -56,14 +63,23 @@ export function RecurringPaymentConfirmation({ payment, onCancel, onDone }) {
 
   return <><SimpleDialog title="Confirmar pago" close={close} inert={addingAccount || addingCategory}>
     <form className="recurring-payment-confirmation" onSubmit={confirm}>
-      <p>¿Ya pagaste <strong>{payment.name}</strong>? Se quitará de la checklist y aparecerá en Actividad.</p>
-      <p className="helper">Vencimiento: {formatDueDate(payment.dueDate)}. Se registra con la fecha de hoy.</p>
-      <Field label={`Monto pagado · ${payment.currency || 'COP'}`}><input inputMode="decimal" value={amount} onChange={(event) => setAmount(formatInputAmount(event.target.value))} /></Field>
-      <Field label="¿Con qué pagaste?"><select value={accountId} onChange={(event) => setAccountId(event.target.value)}>{!accountId && <option value="">Selecciona una cuenta</option>}{paymentAccounts.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></Field>
-      {!paymentAccounts.some((item) => item.kind === 'asset') && <button className="button button--quiet" type="button" onClick={() => setAddingAccount(true)}>Agregar cuenta con dinero</button>}
-      <div className="field"><span>Categoría</span><div className="input-with-action"><select aria-label="Categoría" value={categoryId} onChange={(event) => setCategoryId(event.target.value)}><option value="">Selecciona una categoría</option>{categoryOptions.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select><button type="button" className="icon-button" aria-label="Crear categoría" disabled={saving} onClick={() => setAddingCategory(true)}><Plus aria-hidden="true" /></button></div></div>
+      <p>Marca <strong>{payment.name}</strong> como completado y sácalo de tus próximos pagos.</p>
+      <p className="helper">Vencimiento: {formatDueDate(payment.dueDate)}. Elige quién lo cubrió para mantener tus saldos correctos.</p>
+      <fieldset className="recurring-payment-confirmation__payer">
+        <legend>¿Quién lo pagó?</legend>
+        <div className="recurring-payment-payer-options">
+          <label className="recurring-payment-payer"><input type="radio" name={`payer-${payment.id}`} value="self" checked={payer === 'self'} onChange={() => setPayer('self')} /><span><strong>Yo</strong><small>Registra el gasto y descuenta la cuenta elegida.</small></span></label>
+          <label className="recurring-payment-payer"><input type="radio" name={`payer-${payment.id}`} value="partner" checked={payer === 'partner'} onChange={() => setPayer('partner')} /><span><strong>Mi pareja</strong><small>Solo lo marca como cubierto, sin descontar tu dinero.</small></span></label>
+        </div>
+      </fieldset>
+      {payer === 'self' && <>
+        <Field label={`Monto pagado · ${payment.currency || 'COP'}`}><input inputMode="decimal" value={amount} onChange={(event) => setAmount(formatInputAmount(event.target.value))} /></Field>
+        <Field label="¿Con qué pagaste?"><select value={accountId} onChange={(event) => setAccountId(event.target.value)}>{!accountId && <option value="">Selecciona una cuenta</option>}{paymentAccounts.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></Field>
+        {!paymentAccounts.some((item) => item.kind === 'asset') && <button className="button button--quiet" type="button" onClick={() => setAddingAccount(true)}>Agregar cuenta con dinero</button>}
+        <div className="field"><span>Categoría</span><div className="input-with-action"><select aria-label="Categoría" value={categoryId} onChange={(event) => setCategoryId(event.target.value)}><option value="">Selecciona una categoría</option>{categoryOptions.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select><button type="button" className="icon-button" aria-label="Crear categoría" disabled={saving} onClick={() => setAddingCategory(true)}><Plus aria-hidden="true" /></button></div></div>
+      </>}
       {error && <p className="form-error" role="alert">{error}</p>}
-      <div className="sheet__actions"><button className="button button--secondary" type="button" disabled={saving} onClick={close}>Todavía no</button><button className="button button--primary" type="submit" disabled={saving || !accountId}>{saving ? 'Guardando…' : 'Sí, registrar pago'}</button></div>
+      <div className="sheet__actions"><button className="button button--secondary" type="button" disabled={saving} onClick={close}>Todavía no</button><button className="button button--primary" type="submit" disabled={saving || (payer === 'self' && !accountId)}>{saving ? 'Guardando…' : payer === 'partner' ? 'Sí, marcar como cubierto' : 'Sí, registrar pago'}</button></div>
     </form>
   </SimpleDialog>{addingCategory && <CategoryDialog type="expense" close={() => setAddingCategory(false)} onCreated={categoryCreated} />}{addingAccount && <AccountDialog assetOnly close={() => setAddingAccount(false)} onCreated={(account) => setAccountId(account.id)} />}</>
 }

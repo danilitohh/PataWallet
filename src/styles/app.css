@@ -490,6 +490,16 @@ html.standalone-app, html.standalone-app body { touch-action: pan-x pan-y; overs
 .segmented { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; background: var(--surface-muted); border-radius: 16px; }
 .segmented button { min-height: 42px; border-radius: 12px; background: transparent; font-size: .84rem; font-weight: 700; }
 .segmented button.active { background: var(--surface); box-shadow: 0 3px 10px color-mix(in srgb, var(--primary) 9%, transparent); color: var(--accent); }
+.recurring-payment-confirmation__payer { min-width: 0; display: grid; gap: 8px; margin: 0; padding: 0; border: 0; }
+.recurring-payment-confirmation__payer legend { color: var(--text-2); font-size: .85rem; font-weight: 700; }
+.recurring-payment-payer-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.recurring-payment-payer { position: relative; min-width: 0; display: grid; gap: 4px; min-height: 76px; padding: 11px 12px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface-muted); cursor: pointer; }
+.recurring-payment-payer input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.recurring-payment-payer span { display: grid; gap: 3px; }
+.recurring-payment-payer strong { font-size: .84rem; }
+.recurring-payment-payer small { color: var(--text-2); font-size: .73rem; font-weight: 500; line-height: 1.35; }
+.recurring-payment-payer:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+.recurring-payment-payer:has(input:focus-visible) { outline: 3px solid color-mix(in srgb, var(--accent) 35%, transparent); outline-offset: 2px; }
 .field { min-width: 0; display: grid; gap: 7px; font-size: .85rem; font-weight: 700; }
 .field > span small { color: var(--text-2); font-weight: 500; }
 .field em { color: var(--danger); font-size: .78rem; font-style: normal; font-weight: 600; }

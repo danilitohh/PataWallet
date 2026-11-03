@@ -1,6 +1,6 @@
 import { db, resetDemo } from './db.js'
 import { readFixedExpenses } from '../domain/financialSetup.js'
-import { recordRecurringExpensePayment } from '../domain/recurringExpenses.js'
+import { recordRecurringExpenseCovered, recordRecurringExpensePayment } from '../domain/recurringExpenses.js'
 
 export const localActions = {
   setSetting: (key, value) => db.settings.put({ key, value }),
@@ -19,6 +19,12 @@ export const localActions = {
     const setting = await db.settings.get('fixedExpenses')
     const expenses = recordRecurringExpensePayment(readFixedExpenses(setting?.value), occurrence, record)
     await db.transactions.put(record)
+    await db.settings.put({ key: 'fixedExpenses', value: expenses })
+  }),
+  // Guarda que otra persona cubrió el vencimiento, sin crear un movimiento ni descontar una cuenta.
+  markRecurringPaymentCovered: (occurrence, options = {}) => db.transaction('rw', db.settings, async () => {
+    const setting = await db.settings.get('fixedExpenses')
+    const expenses = recordRecurringExpenseCovered(readFixedExpenses(setting?.value), occurrence, options)
     await db.settings.put({ key: 'fixedExpenses', value: expenses })
   }),
   saveReceipt: (receipt) => db.receipts.put(receipt),

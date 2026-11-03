@@ -40,6 +40,7 @@ export function Workspace({ data, actions, syncState = null, isDemo, user, signO
         : value),
       saveTransaction: (record) => actions.saveTransaction(currencyForTransaction(record)),
       recordRecurringPayment: (occurrence, record) => actions.recordRecurringPayment(occurrence, currencyForTransaction(record)),
+      markRecurringPaymentCovered: (occurrence, options) => actions.markRecurringPaymentCovered(occurrence, options),
       createAccount: (account, opening) => actions.createAccount(
         { ...account, currency },
         opening ? currencyForTransaction(opening) : opening,

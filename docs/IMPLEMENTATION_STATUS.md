@@ -838,3 +838,10 @@ La app está desplegada en Vercel y las migraciones de las fases 1–4, punto de
 - Los estados hover de campos se limitan a dispositivos que realmente admiten hover, evitando cambios de borde inesperados al tocar en móvil.
 - Se conservaron la navegación lateral, el dock táctil, los estados vacíos, el foco visible, el soporte de movimiento reducido y la jerarquía visual existente. No se cambiaron datos ni operaciones financieras.
 - Verificación de esta iteración: `npm run lint`, `npm run build` y `git diff --check` pasaron. Se revisaron las rutas en navegador a 390×844, 375×812 y 1440×900; no se ejecutaron pruebas automatizadas ni se comprobó en un iPhone físico. La corrección quedó desplegada en producción y el dominio responde HTTP 200.
+
+## Pagos fijos cubiertos por la pareja · 2 de noviembre de 2026
+
+- La confirmación de un gasto fijo ahora permite elegir entre “Yo” y “Mi pareja”. La opción propia conserva el registro del movimiento, la categoría y el descuento de la cuenta.
+- Cuando lo cubre la pareja, PataWallet guarda el vencimiento en el historial como pagado con `paid_by: partner`, sin crear una transacción, sin modificar saldos, actividad, gastos del mes ni dinero disponible. El vencimiento deja de aparecer en Inicio y en la checklist de pendientes.
+- La misma acción funciona en la checklist de Cuentas y en los pagos programados de Inicio, con un texto explícito sobre el efecto contable.
+- Verificación local: `npm run lint`, `npm run build` y `git diff --check` pasaron. El build conserva la advertencia preexistente de un chunk mayor a 500 kB. No se ha probado todavía con una cuenta remota ni en un dispositivo físico.

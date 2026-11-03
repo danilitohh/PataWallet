@@ -2,7 +2,7 @@ import { ensureRemoteWorkspace, executeRemoteOperation, loadRemoteWorkspace } fr
 import { cacheServerWorkspace, getUserDatabase, localSyncSummary, readWorkspace } from './userDatabase.js'
 import { isSessionError, SyncConflictError } from './syncErrors.js'
 import { readFixedExpenses } from '../../domain/financialSetup.js'
-import { recordRecurringExpensePayment } from '../../domain/recurringExpenses.js'
+import { recordRecurringExpenseCovered, recordRecurringExpensePayment } from '../../domain/recurringExpenses.js'
 
 const tableFor = {
   accounts: 'accounts',
@@ -200,6 +200,25 @@ export class SyncController {
     await this.syncNow()
   }
 
+  // Encola el vencimiento cubierto por otra persona sin crear un movimiento financiero.
+  async markRecurringPaymentCovered(occurrence, options = {}) {
+    await this.database.transaction('rw', this.database.user_settings, this.database.outbox, async () => {
+      const setting = await this.database.user_settings.get('fixedExpenses')
+      const blocked = await this.database.outbox.where('[entity+entity_id]').equals(['user_settings', 'fixedExpenses'])
+        .filter((item) => item.status === 'conflict' || (item.status === 'error' && item.attempts > 0)).first()
+      if (blocked) throw new SyncConflictError('Resuelve el cambio pendiente de gastos fijos antes de marcar otro pago.')
+      const expenses = recordRecurringExpenseCovered(readFixedExpenses(setting?.value), occurrence, options)
+      const pending = await this.database.outbox.where('[entity+entity_id]').equals(['user_settings', 'fixedExpenses'])
+        .filter((item) => item.status !== 'conflict').first()
+      const nextSetting = { ...setting, key: 'fixedExpenses', value: expenses, version: setting?.version || 1 }
+      await this.database.user_settings.put(nextSetting)
+      if (pending) await this.database.outbox.update(pending.sequence, { payload: nextSetting, status: 'pending', last_error: null })
+      else await this.database.outbox.add(operation('user_settings', setting ? 'update' : 'create', 'fixedExpenses', nextSetting, setting ? Number(setting.version || 1) : null))
+    })
+    await this.notify()
+    await this.syncNow()
+  }
+
   async deleteTransaction(id) {
     const table = this.database.transactions
     await this.database.transaction('rw', table, this.database.outbox, async () => {
@@ -305,6 +324,7 @@ export class SyncController {
       setSetting: (key, value) => run(() => this.putAndQueue('user_settings', key, { key, value }, null)),
       saveTransaction: (record) => run(() => this.saveTransaction(record)),
       recordRecurringPayment: (occurrence, record) => run(() => this.recordRecurringPayment(occurrence, record)),
+      markRecurringPaymentCovered: (occurrence, options) => run(() => this.markRecurringPaymentCovered(occurrence, options)),
       saveReceipt: (receipt) => run(() => this.database.receipts.put(receipt)),
       deleteReceipt: (transactionId) => run(() => this.database.receipts.delete(transactionId)),
       deleteTransaction: (id) => run(() => this.deleteTransaction(id)),

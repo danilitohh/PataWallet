@@ -38,7 +38,8 @@ export function readPaymentHistory(value) {
     if (paidAmount !== null) {
       try { assertMinor(paidAmount) } catch { return null }
     }
-    return { due_date: dueDate, status: 'paid', paid_at: paidAt || null, paid_amount_minor: paidAmount, transaction_id: payment?.transaction_id ? String(payment.transaction_id) : null }
+    const paidBy = payment?.paid_by === 'partner' ? 'partner' : payment?.transaction_id ? 'self' : null
+    return { due_date: dueDate, status: 'paid', paid_at: paidAt || null, paid_amount_minor: paidAmount, transaction_id: payment?.transaction_id ? String(payment.transaction_id) : null, paid_by: paidBy }
   }).filter(Boolean).slice(-MAX_PAYMENT_HISTORY)
 }
 
@@ -98,6 +99,7 @@ export function getRecurringExpenseOccurrences(expenses = [], options = {}) {
         status: payment ? 'paid' : dueDate < today ? 'overdue' : 'pending',
         paidAt: payment?.paid_at || null,
         paidAmountMinor: payment?.paid_amount_minor ?? null,
+        paidBy: payment?.paid_by || null,
         frequency: schedule.frequency,
       }]
     }).filter((occurrence) => !(includeOverdue && occurrence.status === 'paid' && occurrence.dueDate < from))
@@ -111,7 +113,14 @@ export function setRecurringExpensePaid(expenses = [], occurrence, paid, paidAt 
   return expenses.map((expense) => {
     if (String(expense.id) !== String(occurrence.expenseId)) return expense
     const history = readPaymentHistory(expense.payment_history).filter((item) => item.due_date !== occurrence.dueDate)
-    if (paid) history.push({ due_date: occurrence.dueDate, status: 'paid', paid_at: paidAt, paid_amount_minor: details.amountMinor ?? occurrence.amount_minor, transaction_id: details.transactionId || null })
+    if (paid) history.push({
+      due_date: occurrence.dueDate,
+      status: 'paid',
+      paid_at: paidAt,
+      paid_amount_minor: details.amountMinor ?? occurrence.amount_minor,
+      transaction_id: details.transactionId || null,
+      paid_by: details.paidBy === 'partner' ? 'partner' : details.transactionId ? 'self' : null,
+    })
     return { ...expense, category_id: details.categoryId || expense.category_id || null, payment_history: history.slice(-MAX_PAYMENT_HISTORY) }
   })
 }
@@ -126,6 +135,16 @@ export function recordRecurringExpensePayment(expenses, occurrence, transaction)
   return setRecurringExpensePaid(expenses, occurrence, true, new Date().toISOString(), {
     transactionId: transaction.id, categoryId: transaction.category_id, amountMinor: transaction.amount_minor,
   })
+}
+
+// Marca un vencimiento como cubierto por la pareja sin crear un movimiento ni tocar los saldos.
+export function recordRecurringExpenseCovered(expenses, occurrence, { paidAt = new Date().toISOString(), paidAmountMinor = occurrence.amount_minor, paidBy = 'partner' } = {}) {
+  const expense = expenses.find((item) => String(item.id) === String(occurrence.expenseId))
+  if (!expense) throw new Error('Este gasto fijo ya no existe. Actualiza la checklist.')
+  if (readPaymentHistory(expense.payment_history).some((item) => item.due_date === occurrence.dueDate)) throw new Error('Este vencimiento ya fue marcado como pagado.')
+  if (paidBy !== 'partner') throw new Error('El responsable del pago no es válido.')
+  assertMinor(Number(paidAmountMinor))
+  return setRecurringExpensePaid(expenses, occurrence, true, paidAt, { paidAmountMinor, paidBy })
 }
 
 // Calcula el compromiso esperado de un mes según las ocurrencias, sin usar decimales binarios.

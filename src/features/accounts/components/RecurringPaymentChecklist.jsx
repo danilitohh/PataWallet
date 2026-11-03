@@ -40,7 +40,7 @@ export function RecurringPaymentChecklist({ expenses, settings }) {
       : <div className="recurring-payments__groups">
         {periodGroups.map((group) => <OccurrenceGroup key={group.key} group={group} hidden={settings.hiddenAmounts} onToggle={setConfirmingPayment} />)}
       </div>}
-    <p className="helper">Al confirmar, el pago se registra en Actividad y actualiza el saldo solo si eliges una cuenta.</p>
+    <p className="helper">Si lo pagaste tú, se registra en Actividad y descuenta la cuenta elegida. Si lo cubrió tu pareja, solo se marca como completado.</p>
     </section>
   </>
 }

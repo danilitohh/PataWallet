@@ -64,7 +64,7 @@ function PaydayPayments({ payments, fixedExpenses, nextPayDate, hidden }) {
       {upcoming.length > 0 && <section className="dashboard-payments__group" aria-label="Pagos actuales y próximos"><h3>{nextPayDate ? 'Antes del próximo pago' : 'Vencimiento actual y siguiente'}</h3><div className="dashboard-payments__list">{upcoming.map(renderPayment)}</div></section>}
     </div> : <p className="dashboard-empty__text"><CircleAlert aria-hidden="true" /> {emptyMessage}</p>}
     {payments.length > 0 && <div className="dashboard-payments__total"><span><ListChecks aria-hidden="true" /> Falta pagar</span><strong>{formatMinor(pendingMinor, payments[0]?.currency || 'COP', hidden)}</strong></div>}
-    <p className="helper">Al confirmar, el pago se registra en Actividad y baja el saldo de la cuenta elegida.</p>
+    <p className="helper">Si lo pagaste tú, se registra en Actividad y baja el saldo de la cuenta elegida. Si lo cubrió tu pareja, solo se marca como completado.</p>
     </section>
   </>
 }
